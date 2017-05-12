@@ -19,6 +19,7 @@ include: 'references.snakefile'
 references_dir = os.environ.get('REFERENCES_DIR', config.get('references_dir', None))
 if references_dir is None:
     raise ValueError('No references dir specified')
+
 config['references_dir'] = references_dir
 
 sampletable = pd.read_table(config['sampletable'])
@@ -30,10 +31,14 @@ refdict, conversion_kwargs = common.references_dict(config)
 sample_dir = config.get('sample_dir', 'samples')
 agg_dir = config.get('aggregation_dir', 'aggregation')
 
+sampletable['sample_dir'] = sample_dir
+sampletable['agg_dir'] = agg_dir
+
 patterns = {
     'fastq':   '{sample_dir}/{sample}/{sample}_R1.fastq.gz',
     'cutadapt': '{sample_dir}/{sample}/{sample}_R1.cutadapt.fastq.gz',
     'bam':     '{sample_dir}/{sample}/{sample}.cutadapt.bam',
+    'bam_ercc':     '{sample_dir}/{sample}/{sample}.ercc.cutadapt.bam',
     'fastqc': {
         'raw': '{sample_dir}/{sample}/fastqc/{sample}_R1.fastq.gz_fastqc.zip',
         'cutadapt': '{sample_dir}/{sample}/fastqc/{sample}_R1.cutadapt.fastq.gz_fastqc.zip',
@@ -46,6 +51,7 @@ patterns = {
     },
     'fastq_screen': '{sample_dir}/{sample}/{sample}.cutadapt.screen.txt',
     'featurecounts': '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.txt',
+    'featurecounts_ercc': '{sample_dir}/{sample}/{sample}.ercc.cutadapt.bam.featurecounts.txt',
     'libsizes_table': '{agg_dir}/libsizes_table.tsv',
     'libsizes_yaml': '{agg_dir}/libsizes_table_mqc.yaml',
     'multiqc': '{agg_dir}/multiqc.html',
@@ -78,8 +84,7 @@ patterns = {
         'rnaseq': 'downstream/rnaseq.html',
     }
 }
-fill = dict(sample=samples, sample_dir=sample_dir, agg_dir=agg_dir)
-targets = helpers.fill_patterns(patterns, fill)
+targets = helpers.fill_patterns(patterns, sampletable)
 
 
 def wrapper_for(path):
@@ -329,4 +334,5 @@ rule rnaseq_rmarkdown:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
 
-# vim: ft=python
+# vim: ft=snakemake.python
+# vim: foldmethod=indent
