@@ -1,0 +1,28 @@
+# python
+*__pycache__
+*.ipynb_checkpoints
+*.pyc
+
+# R
+
+# osx
+*DS_Store*
+
+# Snakemake and Slurm
+*.snakemake
+*/slurm_logs
+*slurm-*.out
+
+# Folders
+data
+output
+*cachedir
+references
+_build
+.*
+*logs
+
+# Files
+notebook/*/*.html
+*.adapters
+*.log
