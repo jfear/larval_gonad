@@ -358,7 +358,9 @@ rule featurecounts_agg:
         for fn in input:
             name = os.path.basename(os.path.dirname(fn))
             dfs.append(parse_featureCounts_counts(name, fn))
-        pd.concat(dfs).to_csv(str(output), sep='\t')
+        df = pd.concat(dfs)
+        dfSBS = df.unstack(level=0)
+        dfSBS.to_csv(str(output), sep='\t')
 
 # vim: ft=snakemake.python
 # vim: foldmethod=indent
