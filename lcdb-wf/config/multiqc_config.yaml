@@ -1,3 +1,10 @@
+title: "Larval Gonad RNA-seq"
+subtitle: "Preliminary study to find the necessary number of larval gonads for RNA-seq"
+
+sp:
+  fastq_screen:
+    fn: '*.screen.txt'
+
 fn_clean_exts:
   #- '.cutadapt'
   - ']'

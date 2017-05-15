@@ -1,7 +1,7 @@
 ```{r, include=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, bootstrap.show.code=FALSE, bootstrap.show.output=FALSE, dev='bitmap', fig.ext='png')
 ```
-# Differential expression 
+# Differential expression
 
 Note: if you're unfamiliar with any of the plots or tables here, see the
 [Background and help](#background) section for details.
@@ -24,13 +24,13 @@ sample.table.filename = '../config/sampletable.tsv'
 colData <- read.table(sample.table.filename, sep='\t', header=TRUE)
 colData$featurecounts.path <- sapply(
     colData$samplename,
-    function (x) file.path('..', 'data', 'rnaseq_samples', x, paste0(x, '.cutadapt.bam.featurecounts.txt')
+    function (x) file.path('../..', 'data', 'rnaseq_samples', x, paste0(x, '.cutadapt.bam.featurecounts.txt')
                            )
     )
 
 colData$salmon.path <- sapply(
     colData$samplename,
-    function (x) file.path('..', 'data', 'rnaseq_samples', x, paste0(x, '.salmon'), 'quant.sf')
+    function (x) file.path('../..', 'data', 'rnaseq_samples', x, paste0(x, '.salmon'), 'quant.sf')
 )
 
 colData <- colData[, c('samplename', 'featurecounts.path', 'salmon.path', 'group')]
@@ -168,7 +168,7 @@ my.counts <- function(gene, dds){
   p <- ggplot(geneCounts, aes(x=group, y=count, color=group, group=group)) +
     scale_y_log10() +
     geom_point(position=position_jitter(width=.1, height=0),  size=3) +
-    geom_line(color='#000000') + 
+    geom_line(color='#000000') +
     ggtitle(gene)
   return(p)
 }
@@ -250,7 +250,7 @@ pval.hist(res)
 #     directory='.',
 #     design=~condition + stage + condition:stage
 # )
-# 
+#
 # dds.interaction <- DESeq(dds.interaction)
 # res.interaction <- results(dds.interaction)
 # knitr::kable(my.summary(res.interaction, dds.interaction))

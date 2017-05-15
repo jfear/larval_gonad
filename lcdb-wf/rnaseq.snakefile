@@ -35,50 +35,49 @@ sampletable['sample_dir'] = sample_dir
 sampletable['agg_dir'] = agg_dir
 
 patterns = {
-    'fastq':   '{sample_dir}/{sample}/{sample}_R1.fastq.gz',
-    'cutadapt': '{sample_dir}/{sample}/{sample}_R1.cutadapt.fastq.gz',
-    'bam':     '{sample_dir}/{sample}/{sample}.cutadapt.bam',
-    'bam_ercc':     '{sample_dir}/{sample}/{sample}.ercc.cutadapt.bam',
+    'fastq':   '{sample_dir}/{samplename}/{samplename}_R1.fastq.gz',
+    'cutadapt': '{sample_dir}/{samplename}/{samplename}_R1.cutadapt.fastq.gz',
+    'bam':     '{sample_dir}/{samplename}/{samplename}.cutadapt.bam',
     'fastqc': {
-        'raw': '{sample_dir}/{sample}/fastqc/{sample}_R1.fastq.gz_fastqc.zip',
-        'cutadapt': '{sample_dir}/{sample}/fastqc/{sample}_R1.cutadapt.fastq.gz_fastqc.zip',
-        'bam': '{sample_dir}/{sample}/fastqc/{sample}.cutadapt.bam_fastqc.zip',
+        'raw': '{sample_dir}/{samplename}/fastqc/{samplename}_R1.fastq.gz_fastqc.zip',
+        'cutadapt': '{sample_dir}/{samplename}/fastqc/{samplename}_R1.cutadapt.fastq.gz_fastqc.zip',
+        'bam': '{sample_dir}/{samplename}/fastqc/{samplename}.cutadapt.bam_fastqc.zip',
     },
     'libsizes': {
-        'fastq':   '{sample_dir}/{sample}/{sample}_R1.fastq.gz.libsize',
-        'cutadapt': '{sample_dir}/{sample}/{sample}_R1.cutadapt.fastq.gz.libsize',
-        'bam':     '{sample_dir}/{sample}/{sample}.cutadapt.bam.libsize',
+        'fastq':   '{sample_dir}/{samplename}/{samplename}_R1.fastq.gz.libsize',
+        'cutadapt': '{sample_dir}/{samplename}/{samplename}_R1.cutadapt.fastq.gz.libsize',
+        'bam':     '{sample_dir}/{samplename}/{samplename}.cutadapt.bam.libsize',
     },
-    'fastq_screen': '{sample_dir}/{sample}/{sample}.cutadapt.screen.txt',
-    'featurecounts': '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.txt',
-    'featurecounts_ercc': '{sample_dir}/{sample}/{sample}.ercc.cutadapt.bam.featurecounts.txt',
+    'fastq_screen': '{sample_dir}/{samplename}/{samplename}.cutadapt.screen.txt',
+    'featurecounts': '{sample_dir}/{samplename}/{samplename}.cutadapt.bam.featurecounts.txt',
+    'featurecounts_agg': '{agg_dir}/featurecounts.tsv',
     'libsizes_table': '{agg_dir}/libsizes_table.tsv',
     'libsizes_yaml': '{agg_dir}/libsizes_table_mqc.yaml',
     'multiqc': '{agg_dir}/multiqc.html',
     'markduplicates': {
-        'bam': '{sample_dir}/{sample}/{sample}.cutadapt.markdups.bam',
-        'metrics': '{sample_dir}/{sample}/{sample}.cutadapt.markdups.bam.metrics',
+        'bam': '{sample_dir}/{samplename}/{samplename}.cutadapt.markdups.bam',
+        'metrics': '{sample_dir}/{samplename}/{samplename}.cutadapt.markdups.bam.metrics',
     },
     'collectrnaseqmetrics': {
-        'metrics': '{sample_dir}/{sample}/{sample}.collectrnaseqmetrics.metrics',
-        'pdf': '{sample_dir}/{sample}/{sample}.collectrnaseqmetrics.pdf',
+        'metrics': '{sample_dir}/{samplename}/{samplename}.collectrnaseqmetrics.metrics',
+        'pdf': '{sample_dir}/{samplename}/{samplename}.collectrnaseqmetrics.pdf',
     },
     'dupradar': {
-        'density_scatter': '{sample_dir}/{sample}/dupradar/{sample}_density_scatter.png',
-        'expression_histogram': '{sample_dir}/{sample}/dupradar/{sample}_expression_histogram.png',
-        'expression_boxplot': '{sample_dir}/{sample}/dupradar/{sample}_expression_boxplot.png',
-        'expression_barplot': '{sample_dir}/{sample}/dupradar/{sample}_expression_barplot.png',
-        'multimapping_histogram': '{sample_dir}/{sample}/dupradar/{sample}_multimapping_histogram.png',
-        'dataframe': '{sample_dir}/{sample}/dupradar/{sample}_dataframe.tsv',
-        'model': '{sample_dir}/{sample}/dupradar/{sample}_model.txt',
-        'curve': '{sample_dir}/{sample}/dupradar/{sample}_curve.txt',
+        'density_scatter': '{sample_dir}/{samplename}/dupradar/{samplename}_density_scatter.png',
+        'expression_histogram': '{sample_dir}/{samplename}/dupradar/{samplename}_expression_histogram.png',
+        'expression_boxplot': '{sample_dir}/{samplename}/dupradar/{samplename}_expression_boxplot.png',
+        'expression_barplot': '{sample_dir}/{samplename}/dupradar/{samplename}_expression_barplot.png',
+        'multimapping_histogram': '{sample_dir}/{samplename}/dupradar/{samplename}_multimapping_histogram.png',
+        'dataframe': '{sample_dir}/{samplename}/dupradar/{samplename}_dataframe.tsv',
+        'model': '{sample_dir}/{samplename}/dupradar/{samplename}_model.txt',
+        'curve': '{sample_dir}/{samplename}/dupradar/{samplename}_curve.txt',
     },
     'kallisto': {
-        'h5': '{sample_dir}/{sample}/{sample}/kallisto/abundance.h5',
+        'h5': '{sample_dir}/{samplename}/{samplename}/kallisto/abundance.h5',
     },
-    'salmon': '{sample_dir}/{sample}/{sample}.salmon/quant.sf',
+    'salmon': '{sample_dir}/{samplename}/{samplename}.salmon/quant.sf',
     'rseqc': {
-        'bam_stat': '{sample_dir}/{sample}/rseqc/{sample}_bam_stat.txt',
+        'bam_stat': '{sample_dir}/{samplename}/rseqc/{samplename}_bam_stat.txt',
     },
     'downstream': {
         'rnaseq': 'downstream/rnaseq.html',
@@ -90,6 +89,7 @@ targets = helpers.fill_patterns(patterns, sampletable)
 def wrapper_for(path):
     return 'file:' + os.path.join('wrappers', 'wrappers', path)
 
+
 rule targets:
     input:
         (
@@ -99,6 +99,7 @@ rule targets:
             [targets['fastq_screen']] +
             [targets['libsizes_table']] +
             [targets['multiqc']] +
+            [targets['featurecounts_agg']] +
             utils.flatten(targets['featurecounts']) +
             utils.flatten(targets['markduplicates']) +
             utils.flatten(targets['dupradar']) +
@@ -123,10 +124,10 @@ rule cutadapt:
 
 
 rule fastqc:
-    input: '{sample_dir}/{sample}/{sample}{suffix}'
+    input: '{sample_dir}/{samplename}/{samplename}{suffix}'
     output:
-        html='{sample_dir}/{sample}/fastqc/{sample}{suffix}_fastqc.html',
-        zip='{sample_dir}/{sample}/fastqc/{sample}{suffix}_fastqc.zip',
+        html='{sample_dir}/{samplename}/fastqc/{samplename}{suffix}_fastqc.html',
+        zip='{sample_dir}/{samplename}/fastqc/{samplename}{suffix}_fastqc.zip',
     wrapper:
         wrapper_for('fastqc')
 
@@ -146,18 +147,18 @@ rule hisat2:
 
 rule fastq_count:
     input:
-        fastq='{sample_dir}/{sample}/{sample}{suffix}.fastq.gz'
+        fastq='{sample_dir}/{samplename}/{samplename}{suffix}.fastq.gz'
     output:
-        count='{sample_dir}/{sample}/{sample}{suffix}.fastq.gz.libsize'
+        count='{sample_dir}/{samplename}/{samplename}{suffix}.fastq.gz.libsize'
     shell:
         'zcat {input} | echo $((`wc -l`/4)) > {output}'
 
 
 rule bam_count:
     input:
-        bam='{sample_dir}/{sample}/{sample}{suffix}.bam'
+        bam='{sample_dir}/{samplename}/{samplename}{suffix}.bam'
     output:
-        count='{sample_dir}/{sample}/{sample}{suffix}.bam.libsize'
+        count='{sample_dir}/{samplename}/{samplename}{suffix}.bam.libsize'
     shell:
         'samtools view -c {input} > {output}'
 
@@ -167,7 +168,12 @@ rule fastq_screen:
         fastq=rules.cutadapt.output.fastq,
         dm6=refdict[assembly][config['aligner']['tag']]['bowtie2'],
         rRNA=refdict[assembly][config['rrna']['tag']]['bowtie2'],
-        phix=refdict['phix']['default']['bowtie2']
+        phix=refdict['phix']['default']['bowtie2'],
+        ercc=refdict['ercc']['srm2374']['bowtie2'],
+        hg19=refdict['human']['gencode-v19']['bowtie2'],
+        wolbachia=refdict['wolbachia']['default']['bowtie2'],
+        ecoli=refdict['ecoli']['default']['bowtie2'],
+        yeast=refdict['sacCer3']['default']['bowtie2'],
     output:
         txt=patterns['fastq_screen']
     log:
@@ -298,7 +304,7 @@ rule dupRadar:
         dataframe=patterns['dupradar']['dataframe'],
         model=patterns['dupradar']['model'],
         curve=patterns['dupradar']['curve'],
-    log: '{sample_dir}/{sample}/dupradar/dupradar.log'
+    log: '{sample_dir}/{samplename}/dupradar/dupradar.log'
     wrapper:
         wrapper_for('dupradar')
 
@@ -309,7 +315,7 @@ rule salmon:
         index=refdict[assembly][config['salmon']['tag']]['salmon'],
     output: patterns['salmon']
     params: extra="--libType=A"
-    log: '{sample_dir}/{sample}/salmon/salmon.quant.log'
+    log: '{sample_dir}/{samplename}/salmon/salmon.quant.log'
     wrapper: wrapper_for('salmon/quant')
 
 
@@ -333,6 +339,26 @@ rule rnaseq_rmarkdown:
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+def parse_featureCounts_counts(sample, file):
+    """Parser for subread feature counts."""
+    df = pd.read_csv(file, sep='\t', comment='#')
+    df.columns = ['FBgn', 'chr', 'start', 'end', 'strand', 'length', 'count']
+    df['sample'] = sample
+    df.set_index(['sample', 'FBgn'], inplace=True)
+    return df['count']
+
+
+rule featurecounts_agg:
+    input: targets['featurecounts']
+    output: patterns['featurecounts_agg']
+    run:
+        dfs = []
+        for fn in input:
+            name = os.path.basename(os.path.dirname(fn))
+            dfs.append(parse_featureCounts_counts(name, fn))
+        pd.concat(dfs).to_csv(str(output), sep='\t')
 
 # vim: ft=snakemake.python
 # vim: foldmethod=indent
