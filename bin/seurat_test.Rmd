@@ -1,0 +1,28 @@
+# Test script for running seurat.
+
+```{r}
+# install and load Seurat
+options(unzip = 'internal')
+devtools::install_github("satijalab/seurat")
+library(Seurat)
+library(dplyr)
+library(Matrix)
+```
+
+```{r}
+test = Read10X(data.dir='/data/fearjm/larval_gonad/output/ovary1/outs/filtered_gene_bc_matrices/dm6.16')
+dense.size = object.size(x = as.matrix(x=test))
+dense.size
+
+sparse.size = object.size(x = test)
+sparse.size
+
+dense.size / sparse.size
+```
+
+```{r}
+test2 = CreateSeuratObject(raw.data = test, min.cells = 3, min.genes = 200, project = "10X_test")
+```
+
+```{r}
+```
