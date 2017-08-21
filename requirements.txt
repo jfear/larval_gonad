@@ -1,1 +1,3 @@
-lcdblib >= 0.1.1
+lcdblib == 0.1.2.post
+r-essentials ==1.5.2
+r-devtools ==1.13.2
