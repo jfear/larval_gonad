@@ -1,8 +1,8 @@
 ---
 title: "Testis scRNA-Seq Exploration"
 output:
-  html_document:
-    theme: united
+    html_document:
+        theme: united
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
 ***
@@ -23,6 +23,11 @@ library(Matrix)
 
 # Load the testis dataset
 testis.data <- Read10X(data.dir = "../../output/testis1/outs/filtered_gene_bc_matrices/dm6.16")
+
+# Load FBgn to Symbol map
+fbgn.symbol <- read.table('/data/LCDB/lcdb-references/dmel/r6-11/gtf/dmel_r6-11.SYMBOL.csv', sep=',', header=TRUE, stringsAsFactors=FALSE)
+colnames(fbgn.symbol) <- c('FBgn', 'symbol')
+fbgn.symbol <- subset(fbgn.symbol, !is.na(fbgn.symbol$symbol))
 ```
 
 ```{r create.object, results='hide', message=FALSE}
@@ -30,6 +35,10 @@ testis.data <- Read10X(data.dir = "../../output/testis1/outs/filtered_gene_bc_ma
 # Keep all genes expressed in >= 3 cells (~0.1% of the data). Keep all cells with at least 200 detected genes
 testis <- CreateSeuratObject(raw.data = testis.data, min.cells = 3, min.genes = 200, project = "10X_testis")
 nCells = dim(testis@meta.data)[1]
+
+par(mfrow=c(1, 2))
+plot(density(testis@meta.data$nGene), main='nGene')
+plot(density(testis@meta.data$nUMI), main='nUMI')
 ```
 
 ***
@@ -146,7 +155,7 @@ PCElbowPlot(object = testis, num.pc=100)
 testis <- JackStraw(object = testis, num.replicate = 100, do.print = FALSE, num.pc=30)
 ```
 
-```{r jsplots, fig.height=6, fig.width=10, warning=FALSE}
+```{r jsplots, fig.height=20, fig.width=10, warning=FALSE}
 JackStrawPlot(object = testis, PCs = 1:30)
 ```
 
@@ -191,7 +200,8 @@ save(testis, file = "../../output/testis_seurat.Robj")
 # find markers for every cluster compared to all remaining cells, report only the positive ones
 testis.markers <- FindAllMarkers(object = testis, only.pos = TRUE, min.pct = 0.25, thresh.use = 0.25)
 testis.markers %>% group_by(cluster) %>% top_n(2, avg_diff)
-write.table(testis.markers[, c('gene', 'cluster', 'p_val', 'avg_diff', 'pct.1', 'pct.2')], file="../../output/testis_preliminary_analysis_biomarkers.tsv", quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+merged = left_join(testis.markers, fbgn.symbol, by = c('gene' = 'FBgn'))
+write.table(merged[, c('gene', 'symbol', 'cluster', 'p_val', 'avg_diff', 'pct.1', 'pct.2')], file="../../output/testis_preliminary_analysis_biomarkers.tsv", quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
 ```
 
 NOTE: The tutorial has some additional downstream things, but not doing to do them for now.
