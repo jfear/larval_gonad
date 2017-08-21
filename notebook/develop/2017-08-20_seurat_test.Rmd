@@ -1,28 +1,197 @@
-# Test script for running seurat.
+---
+title: "Testis scRNA-Seq Exploration"
+output:
+  html_document:
+    theme: united
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+***
 
-```{r}
-# install and load Seurat
-options(unzip = 'internal')
-devtools::install_github("satijalab/seurat")
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  cache = TRUE,
+  cache.lazy = FALSE,
+  tidy = TRUE
+)
+```
+
+### Setup the Seurat Object
+```{r init, message=FALSE}
 library(Seurat)
 library(dplyr)
 library(Matrix)
+
+# Load the testis dataset
+testis.data <- Read10X(data.dir = "../../output/testis1/outs/filtered_gene_bc_matrices/dm6.16")
 ```
 
-```{r}
-test = Read10X(data.dir='/data/fearjm/larval_gonad/output/ovary1/outs/filtered_gene_bc_matrices/dm6.16')
-dense.size = object.size(x = as.matrix(x=test))
-dense.size
-
-sparse.size = object.size(x = test)
-sparse.size
-
-dense.size / sparse.size
+```{r create.object, results='hide', message=FALSE}
+# Initialize the Seurat object with the raw (non-normalized data).
+# Keep all genes expressed in >= 3 cells (~0.1% of the data). Keep all cells with at least 200 detected genes
+testis <- CreateSeuratObject(raw.data = testis.data, min.cells = 3, min.genes = 200, project = "10X_testis")
+nCells = dim(testis@meta.data)[1]
 ```
 
-```{r}
-test2 = CreateSeuratObject(raw.data = test, min.cells = 3, min.genes = 200, project = "10X_test")
+***
+
+### QC and selecting cells for further analysis
+
+```{r qc, results='hide', fig.height=7,fig.width=13}
+# The number of genes and UMIs (nGene and nUMI) are automatically calculated for every object by Seurat.
+# For non-UMI data, nUMI represents the sum of the non-normalized values within a cell
+# We calculate the percentage of mitochondrial genes here and store it in percent.mito using AddMetaData.
+# We use object@raw.data since this represents non-transformed and non-log-normalized counts
+# The % of UMI mapping to MT-genes is a common scRNA-seq QC metric.
+# NOTE: You must have the Matrix package loaded to calculate the percent.mito values.
+# mito.genes <- grep(pattern = "^MT-", x = rownames(x = testis@data), value = TRUE)
+# percent.mito <- colSums(testis@raw.data[mito.genes, ]) / colSums(testis@raw.data)
+
+# AddMetaData adds columns to object@data.info, and is a great place to stash QC stats
+# testis <- AddMetaData(object = testis, metadata = percent.mito, col.name = "percent.mito")
+VlnPlot(object = testis, features.plot = c("nGene", "nUMI"), nCol = 2)
 ```
 
-```{r}
+Looking at the violin plots, we have a large number of cells with between 2,000
+and 4,000 expressed genes. The Seurat user guide uses a cutoff of
+`200>x>=2,500`, but I think this would remove too much data from this sample. I
+am going to change the cutoff to be `200>x>=6,000` to remove the extreme cells.
+
+```{r qc_filter, results='hide', fig.height=7,fig.width=13}
+# GenePlot is typically used to visualize gene-gene relationships, but can be used for anything
+# calculated by the object, i.e. columns in object@data.info, PC scores etc.
+# Since there is a rare subset of cells with an outlier level of high mitochondrial percentage
+# and also low UMI content, we filter these as well
+#par(mfrow = c(1, 2))
+#GenePlot(object = testis, gene1 = "nUMI", gene2 = "percent.mito")
+GenePlot(object = testis, gene1 = "nUMI", gene2 = "nGene")
+
+# We filter out cells that have unique gene counts over 2,500 or less than 200
+# Note that low.thresholds and high.thresholds are used to define a 'gate'
+# -Inf and Inf should be used if you don't want a lower or upper threshold.
+testis <- FilterCells(object = testis, subset.names = c("nGene"), low.thresholds = c(200), high.thresholds = c(6000))
+nCells_filter = dim(testis@meta.data)[1]
 ```
+
+***
+
+### Normalizing the data
+I kept the settings in Seurat manual. The only parameter we may want to change
+is the 10,000 scaling factor, which I think is supposed to approximate the
+number of nUMI per-cell.
+
+```{r normalize, results='hide'}
+testis <- NormalizeData(object = testis, normalization.method = "LogNormalize", scale.factor = 1e4)
+```
+
+### Detection of variable genes across the single cells
+I kept the dispersion cutoffs the same as the Seurat manual. The cutoffs may need a little adjusting.
+
+
+```{r var_genes, fig.height=7, fig.width=11, results='hide'}
+testis <- FindVariableGenes(object = testis, mean.function = ExpMean, dispersion.function = LogVMR, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5)
+```
+
+```{r len_var_genes}
+length(x = testis@var.genes)
+```
+
+***
+
+### Scaling the data and removing unwanted sources of variation
+Here I regress out the variability caused by the nUMI. We can think of this as
+the block effect of having different amounts of expression per cell. There may
+be other effects that we want to regress out (i.e., rRNA, mito, ...).
+
+```{r regress, fig.height=7, fig.width=11, results='hide'}
+testis <- ScaleData(object = testis, vars.to.regress = c("nUMI"))
+```
+
+***
+
+### Perform linear dimensional reduction
+```{r pca}
+testis <- RunPCA(object = testis, pc.genes = testis@var.genes, do.print = TRUE, pcs.print = 1:5, genes.print = 5, pcs.compute=100)
+```
+
+```{r pca_viz}
+# Examine and visualize PCA results a few different ways
+PrintPCA(object = testis, pcs.print = 1:5, genes.print = 5, use.full = FALSE)
+VizPCA(object = testis, pcs.use = 1:2)
+PCAPlot(object = testis, dim.1 = 1, dim.2 = 2)
+
+# ProjectPCA scores each gene in the dataset (including genes not included in the PCA) based on their correlation
+# with the calculated components. Though we don't use this further here, it can be used to identify markers that
+# are strongly correlated with cellular heterogeneity, but may not have passed through variable gene selection.
+# The results of the projected PCA can be explored by setting use.full=T in the functions above
+testis <- ProjectPCA(object = testis, do.print = FALSE)
+```
+
+```{r multi-heatmap, fig.height=12, fig.width=9, warning=FALSE}
+PCHeatmap(object = testis, pc.use = 1:12, cells.use = 500, do.balanced = TRUE, label.columns = FALSE, use.full = FALSE)
+```
+
+***
+
+### Determine statistically significant principal components
+Looking at all of these plots I think it is safe to use 30 PCs, but it may be
+necessary to step out a bit more.
+
+```{r elbow_plot, fig.height=6, fig.width=10, warning=FALSE}
+PCElbowPlot(object = testis, num.pc=100)
+```
+
+```{r jackstraw, fig.height=6, fig.width=10, warning=FALSE}
+# NOTE: This process can take a long time for big datasets, comment out for expediency.
+# More approximate techniques such as those implemented in PCElbowPlot() can be used to reduce computation time
+testis <- JackStraw(object = testis, num.replicate = 100, do.print = FALSE, num.pc=30)
+```
+
+```{r jsplots, fig.height=6, fig.width=10, warning=FALSE}
+JackStrawPlot(object = testis, PCs = 1:30)
+```
+
+***
+
+### Cluster the cells
+Using PCs 1-30 generate clusters using KNN.
+
+```{r cluster, fig.height=5, fig.width=7}
+# save.SNN = T saves the SNN so that the clustering algorithm can be rerun using the same graph
+# but with a different resolution value (see docs for full details)
+testis <- FindClusters(object = testis, reduction.type = "pca", dims.use = 1:30, resolution = 0.6, print.output = 0, save.SNN = TRUE)
+```
+
+```{r cluster.params}
+PrintFindClustersParams(object = testis)
+# While we do provide function-specific printing functions, the more general function to
+# print calculation parameters is PrintCalcParams().
+```
+
+***
+
+### Run Non-linear dimensional reduction (tSNE)
+
+```{r tsne, fig.height=5, fig.width=7, message=FALSE, warnings=FALSE}
+testis <- RunTSNE(object = testis, dims.use = 1:30, do.fast = TRUE)
+```
+
+```{r tsneplot, fig.height=5, fig.width=7}
+# note that you can set do.label=T to help label individual clusters
+TSNEPlot(object = testis)
+```
+
+```{r saveobject}
+save(testis, file = "../../output/testis_seurat.Robj")
+```
+
+***
+### Finding differentially expressed genes (cluster biomarkers)
+
+```{r markers1, fig.height=8, fig.width=15, warning=FALSE}
+# find markers for every cluster compared to all remaining cells, report only the positive ones
+testis.markers <- FindAllMarkers(object = testis, only.pos = TRUE, min.pct = 0.25, thresh.use = 0.25)
+testis.markers %>% group_by(cluster) %>% top_n(2, avg_diff)
+write.table(testis.markers[, c('gene', 'cluster', 'p_val', 'avg_diff', 'pct.1', 'pct.2')], file="../../output/testis_preliminary_analysis_biomarkers.tsv", quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+```
+
+NOTE: The tutorial has some additional downstream things, but not doing to do them for now.
