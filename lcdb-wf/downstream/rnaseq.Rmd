@@ -76,6 +76,8 @@ dds.txi <- DESeqDataSetFromSalmon(
                                   sampleTable=colData,
                                   directory='.',
                                   design=~group)
+
+dds <- dds.txi
 ```
 
 ```{r rldtxi, cache=TRUE, depends='ddstxi'}
@@ -84,10 +86,10 @@ rld.txi <- rlog(dds.txi, blind=FALSE)
 
 
 ```{r dds, cache=TRUE}
-dds <- DESeqDataSetFromFeatureCounts(
-                                  sampleTable=colData,
-                                  directory='.',
-                                  design=~group)
+#dds <- DESeqDataSetFromFeatureCounts(
+#                                  sampleTable=colData,
+#                                  directory='.',
+#                                  design=~group)
 ```
 
 ```{r rld, cache=TRUE, depends='dds'}
