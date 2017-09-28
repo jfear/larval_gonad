@@ -21,6 +21,8 @@ references
 _build
 .*
 *logs
+notebook/*/*_files
+notebook/*/*_cache
 
 # Files
 notebook/*/*.html
