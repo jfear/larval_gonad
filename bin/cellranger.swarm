@@ -1,0 +1,3 @@
+# swarm -f cellranger.swarm -g 40 -t 16 --module cellranger/2.0.0 --time 24:00:00
+cellranger count --id=testis1 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/run0570/SV_1_10X_Te --sample=SV_1_10X_Te --localcores=16 --localmem=55
+cellranger count --id=ovary1 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/run0570/SV_2_10X_Ov --sample=SV_2_10X_Ov --localcores=16 --localmem=55
