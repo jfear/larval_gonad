@@ -25,9 +25,20 @@ library(Matrix)
 testis.data <- Read10X(data.dir = "../../output/testis1/outs/filtered_gene_bc_matrices/dm6.16")
 
 # Load FBgn to Symbol map
-fbgn.symbol <- read.table('/data/LCDB/lcdb-references/dmel/r6-11/gtf/dmel_r6-11.SYMBOL.csv', sep=',', header=TRUE, stringsAsFactors=FALSE)
+fbgn.symbol <- read.table('/data/LCDB/lcdb-references/dmel/r6-11/fb_annotation/dmel_r6-11.fb_annotation', sep='\t', quote="", header=TRUE, stringsAsFactors=FALSE)
+fbgn.symbol <- fbgn.symbol[c("primary_FBgn", "gene_symbol")]
 colnames(fbgn.symbol) <- c('FBgn', 'symbol')
-fbgn.symbol <- subset(fbgn.symbol, !is.na(fbgn.symbol$symbol))
+rownames(fbgn.symbol) <- fbgn.symbol$FBgn
+
+# Get list of FBgns in both
+mask <- rownames(fbgn.symbol) %in% rownames(testis.data)
+fbgns <- fbgn.symbol[mask, c("FBgn")]
+
+# Subset testis with only the FBgns we know
+testis.data = testis.data[fbgns, ]
+
+# Change rownames to use symbols
+rownames(testis.data) <- fbgn.symbol[fbgns, "symbol"]
 ```
 
 ```{r create.object, results='hide', message=FALSE}
@@ -205,3 +216,21 @@ write.table(merged[, c('gene', 'symbol', 'cluster', 'p_val', 'avg_diff', 'pct.1'
 ```
 
 NOTE: The tutorial has some additional downstream things, but not doing to do them for now.
+
+```{r plots, fig.height=8, fig.width=15, warning=FALSE}
+# I have tried the following but they were not in the dataset
+## en
+genes = c(
+          "bam",
+          "br",
+          "chinmo",
+          "dsx",
+          "msn",
+          "ovo",
+          "skd",
+          "tj",
+          "vas",
+          "otu"
+          )
+FeaturePlot(object=testis, features.plot=genes, cols.use = c('grey', 'red'), pt.size=2, pch.use = 20, reduction.use='tsne')
+```
