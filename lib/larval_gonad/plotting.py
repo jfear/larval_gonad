@@ -1,4 +1,13 @@
+import os
 from functools import wraps
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+def add_styles(dirname):
+    mpl.style.core.USER_LIBRARY_PATHS.append(dirname)
+    mpl.style.core.update_user_library(mpl.style.library)
+
 
 def make_figs(fname=None, styles=None, formats=None):
     def _plot_all(func, styles=styles, formats=formats):
@@ -10,11 +19,11 @@ def make_figs(fname=None, styles=None, formats=None):
                 elif formats is None:
                     formats = ['png', 'eps']
 
-                with plt.style.context('seaborn-' + style):
-                    fn = fname + '_' + style
+                with plt.style.context(style):
                     func(*args,  **kwargs)
                     plt.tight_layout()
-                    if style != 'notebook':
+                    if (not 'notebook' in style) & (fname is not None):
+                        fn = fname + '_' + style
                         for f in formats:
                             plt.savefig('{}.{}'.format(fn, f))
                         plt.close()
@@ -22,7 +31,7 @@ def make_figs(fname=None, styles=None, formats=None):
             if isinstance(styles, str):
                 styles = [styles]
             elif styles is None:
-                styles = ['notebook', 'talk', 'poster', 'paper']
+                styles = ['notebook']
 
             for style in styles:
                 plot_style(style, formats)
