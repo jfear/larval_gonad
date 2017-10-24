@@ -1,30 +1,21 @@
-# Load useful extensions
-
-# Activate the autoreload extension for easy reloading of external packages
-%reload_ext autoreload
-%autoreload 2
-
-# Trun on the water mark
-%reload_ext watermark
-%watermark -u -d -g
-
-# Load ipycache extension
-%reload_ext ipycache
-from ipycache import CacheMagics
-CacheMagics.cachedir = '../cachedir'
-
-# The usual suspects
+# Imports
 import os
+import sys
+
 import numpy as np
 import pandas as pd
 
-# plotting
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-%matplotlib inline
-sns.set_context('poster')
+# Project level imports
+sys.path.insert(0, '../lib')
+from larval_gonad.notebook import setup_notebook
 
-# Turn off scientific notation
-np.set_printoptions(precision=5, suppress=True)
+# Setup notebook
+nbconfig = setup_notebook()
+
+# Turn on cache
+from joblib import Memory
+memory = Memory(cachedir=nbconfig['CACHE'], verbose=0)
