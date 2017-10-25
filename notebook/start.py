@@ -11,11 +11,11 @@ import seaborn as sns
 
 # Project level imports
 sys.path.insert(0, '../lib')
-from larval_gonad.notebook import setup_notebook
+from larval_gonad.notebook import Nb
 
 # Setup notebook
-nbconfig = setup_notebook()
+nbconfig = Nb.setup_notebook()
 
 # Turn on cache
 from joblib import Memory
-memory = Memory(cachedir=nbconfig['CACHE'], verbose=0)
+memory = Memory(cachedir=nbconfig.cache, verbose=0)
