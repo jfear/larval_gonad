@@ -1,9 +1,0 @@
-samplename	filename	sex	ercc	num_gonad	amt_carrier	group
-w1118_ovary_1	w1118_LG_f_r1_A_C9.fastq.gz	female	A	1	110	female
-w1118_ovary_2	w1118_LG_f_r2_B_C10.fastq.gz	female	B	3	90	female
-w1118_ovary_3	w1118_LG_f_r3_A_C11.fastq.gz	female	A	9	30	female
-w1118_ovary_4	w1118_LG_f_r4_A_C12.fastq.gz	female	A	27	0	female
-w1118_testis_1	w1118_LG_m_r1_B_C9.fastq.gz	male	B	1	70	male
-w1118_testis_2	w1118_LG_m_r2_A_C10.fastq.gz	male	A	2	20	male
-w1118_testis_3	w1118_LG_m_r3_B_C11.fastq.gz	male	B	3	20	male
-w1118_testis_4	w1118_LG_m_r4_B_C12.fastq.gz	male	B	4	0	male
