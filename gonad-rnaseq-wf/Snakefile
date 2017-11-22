@@ -26,7 +26,7 @@ c = RNASeqConfig(config, 'config/rnaseq_patterns.yaml')
 
 
 def wrapper_for(path):
-    return 'file:' + os.path.join('../..','wrappers', 'wrappers', path)
+    return 'file:' + os.path.join('../lcdb-wf','wrappers', 'wrappers', path)
 
 # ----------------------------------------------------------------------------
 # RULES
@@ -82,7 +82,7 @@ rule cutadapt:
     log:
         c.patterns['cutadapt'] + '.log'
     params:
-        extra='-a file:../../include/adapters.fa -q 20 --minimum-length=25'
+        extra='-a file:../lcdb-wf/include/adapters.fa -q 20 --minimum-length=25'
     wrapper:
         wrapper_for('cutadapt')
 
