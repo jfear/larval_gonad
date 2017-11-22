@@ -33,10 +33,7 @@ gtf:
   tag: "r6-16"
 
 salmon:
-  tag: "test_transcriptome"
-
-kallisto:
-    tag: "r6-16_transcriptome"
+  tag: "r6-16_transcriptome"
 
 # references has the structure:
 #
@@ -113,7 +110,7 @@ references:
       fasta:
         url: 'ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.16_FB2017_03/fasta/dmel-all-transcript-r6.16.fasta.gz'
         indexes:
-          - 'kallisto'
+          - 'salmon'
 
     r6-16_and_ercc:
       gtf:
@@ -162,7 +159,7 @@ references:
           - 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.lncRNA_transcripts.fa.gz'
         postprocess: "lib.common.cat"
         indexes:
-          - 'kallisto'
+          - 'salmon'
 
     rRNA:
       fasta:
@@ -193,7 +190,7 @@ references:
       fasta:
         url: 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M12/gencode.vM12.transcripts.fa.gz'
         indexes:
-          - 'kallisto'
+          - 'salmon'
   ecoli:
     default:
       fasta:
