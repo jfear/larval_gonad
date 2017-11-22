@@ -1,7 +1,0 @@
-channels:
-  - bioconda
-  - conda-forge
-  - r
-
-dependencies:
-  - bioconductor-annotationhub
