@@ -35,6 +35,9 @@ gtf:
 salmon:
   tag: "test_transcriptome"
 
+kallisto:
+    tag: "r6-16_transcriptome"
+
 # references has the structure:
 #
 #   assembly:           [ used as top-level dir for references ]
