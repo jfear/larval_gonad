@@ -46,6 +46,7 @@ rule targets:
             [c.targets['libsizes_table']] +
             [c.targets['rrna_percentages_table']] +
             [c.targets['multiqc']] +
+            [c.targets['featurecounts_agg']] +
             utils.flatten(c.targets['featurecounts']) +
             utils.flatten(c.targets['rrna']) +
             utils.flatten(c.targets['markduplicates']) +
@@ -58,18 +59,27 @@ rule targets:
         )
 
 
-if 'orig_filename' in c.sampletable.columns:
-    rule symlinks:
-        """
-        Symlinks files over from original filename
-        """
-        input: lambda wc: c.sampletable.set_index(c.sampletable.columns[0])['orig_filename'].to_dict()[wc.sample]
-        output: c.patterns['fastq']
-        run:
-            utils.make_relative_symlink(input[0], output[0])
+rule fastq_dump:
+    """
+    Symlinks files over from original filename
+    """
+    output: c.patterns['fastq']
+    run:
+        import gzip
+        import shutil as sh
+        from pathlib import Path
 
-    rule symlink_targets:
-        input: c.targets['fastq']
+        srr = wildcards.sample.split('_')[-1]
+        TMPDIR = os.getenv('TMPDIR', '/tmp')
+
+        # Download FASTQ
+        shell(f'fastq-dump -O {TMPDIR} -M 0 --split-files {srr}')
+
+        # Copy downloaded file over and gzip
+        pth = Path(TMPDIR, f'{srr}_1.fastq')
+        with pth.open('rb') as f_in:
+            with gzip.open(output[0], 'wb') as f_out:
+                sh.copyfileobj(f_in, f_out)
 
 
 rule cutadapt:
@@ -180,12 +190,7 @@ rule fastq_screen:
         fastq=rules.cutadapt.output.fastq,
         dm6=c.refdict['dmel'][config['aligner']['tag']]['bowtie2'],
         rRNA=c.refdict[c.assembly][config['rrna']['tag']]['bowtie2'],
-        phix=c.refdict['phix']['default']['bowtie2'],
-        ercc=refdict['ercc']['srm2374']['bowtie2'],
-        hg19=refdict['human']['gencode-v19']['bowtie2'],
-        wolbachia=refdict['wolbachia']['default']['bowtie2'],
-        ecoli=refdict['ecoli']['default']['bowtie2'],
-        yeast=refdict['sacCer3']['default']['bowtie2'],
+        phix=c.refdict['phix']['default']['bowtie2']
     output:
         txt=c.patterns['fastq_screen']
     log:
@@ -546,5 +551,6 @@ rule featurecounts_agg:
         dfSBS = df.unstack(level=0)
         dfSBS.to_csv(str(output), sep='\t')
 
+
 # vim: ft=snakemake.python
-# vim: foldmethod=indent
+# vim: fm=indent

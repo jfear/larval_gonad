@@ -1,2 +1,3 @@
 jedi
+nb_conda
 neovim

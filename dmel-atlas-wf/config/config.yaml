@@ -191,6 +191,7 @@ references:
         url: 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M12/gencode.vM12.transcripts.fa.gz'
         indexes:
           - 'salmon'
+
   ecoli:
     default:
       fasta:
@@ -212,18 +213,6 @@ references:
         postprocess: "lib.postprocess.phix.fasta_postprocess"
         indexes:
           - 'bowtie2'
-
-  ercc:
-    srm2374:
-      fasta:
-        url: 'https://www-s.nist.gov/srmors/certificates/documents/SRM2374_Sequence_v1.FASTA'
-        postprocess: "lib.postprocess.ercc.fasta_postprocess"
-        indexes:
-          - 'bowtie2'
-          - 'hisat2'
-      gtf:
-        url: 'https://www-s.nist.gov/srmors/certificates/documents/SRM2374_Sequence_v1.FASTA'
-        postprocess: "lib.postprocess.ercc.gtf_postprocess"
 
   adapters:
     default:
