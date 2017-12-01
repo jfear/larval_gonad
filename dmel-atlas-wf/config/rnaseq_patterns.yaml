@@ -14,6 +14,7 @@ libsizes:
 
 fastq_screen: '{sample_dir}/{sample}/{sample}.cutadapt.screen.txt'
 featurecounts: '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.txt'
+featurecounts_agg: '{agg_dir}/featurecounts.tsv'
 libsizes_table: '{agg_dir}/libsizes_table.tsv'
 libsizes_yaml: '{agg_dir}/libsizes_table_mqc.yaml'
 rrna_percentages_table: '{agg_dir}/rrna_percentages_table.tsv'

@@ -46,6 +46,7 @@ rule targets:
             [c.targets['libsizes_table']] +
             [c.targets['rrna_percentages_table']] +
             [c.targets['multiqc']] +
+            [c.targets['featurecounts_agg']] +
             utils.flatten(c.targets['featurecounts']) +
             utils.flatten(c.targets['rrna']) +
             utils.flatten(c.targets['markduplicates']) +
@@ -527,6 +528,29 @@ rule rnaseq_rmarkdown:
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+def parse_featureCounts_counts(sample, file):
+    """Parser for subread feature counts."""
+    df = pd.read_csv(file, sep='\t', comment='#')
+    df.columns = ['FBgn', 'chr', 'start', 'end', 'strand', 'length', 'count']
+    df['sample'] = sample
+    df.set_index(['sample', 'FBgn'], inplace=True)
+    return df['count']
+
+
+rule featurecounts_agg:
+    input: c.targets['featurecounts']
+    output: c.patterns['featurecounts_agg']
+    run:
+        dfs = []
+        for fn in input:
+            name = os.path.basename(os.path.dirname(fn))
+            dfs.append(parse_featureCounts_counts(name, fn))
+        df = pd.concat(dfs)
+        dfSBS = df.unstack(level=0)
+        dfSBS.to_csv(str(output), sep='\t')
+
 
 # vim: ft=snakemake.python
 # vim: fm=indent

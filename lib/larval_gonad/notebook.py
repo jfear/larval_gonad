@@ -74,6 +74,17 @@ class Nb(object):
         self.styles = styles
         self.date = datetime.now().strftime("%Y-%m-%d")
 
+        # Add Colors
+        self.colors = sns.color_palette('Paired', n_colors=12)
+        sns.set_palette(self.colors)
+
+        self.color_female = sns.xkcd_rgb['rose pink']
+        self.color_male = sns.xkcd_rgb['dodger blue']
+        self.colors_sex = sns.color_palette([self.color_female, self.color_male])
+
+        self.color_c1 = sns.xkcd_rgb['dusty purple']
+        self.color_c2 = sns.xkcd_rgb['golden rod']
+
         # Add any key word args
         self._config_attrs = kwargs.keys()
         for k, v in kwargs.items():
@@ -113,7 +124,7 @@ class Nb(object):
         sns.set_context('notebook')
 
     @classmethod
-    def setup_notebook(cls, nb_name=None, config_name='common.yml', watermark=True):
+    def setup_notebook(cls, nb_name=None, config_name='common.yml', watermark=True, **kwargs):
         """Helper function to consistently setup notebooks.
 
         Functions detects working folder and sets up a larval_gonad.notebook.Nb
@@ -127,6 +138,8 @@ class Nb(object):
             Name of the a YAML config file.
         watermark : bool
             If truen then output watermark information.
+        kwargs
+            Additional arguments to pass to Nb.
 
         """
         if nb_name is None:
@@ -146,10 +159,12 @@ class Nb(object):
             'fig_dir': os.path.join(prj, 'output/figures'),
             'table_dir': os.path.join(prj, 'output/tables'),
             'cache': os.path.join(prj, 'output', cache_dir),
-            'formats': ['png', 'pdf'],
+            'formats': ['png', 'pdf', 'svg'],
             'styles': ['notebook', 'paper', 'talk', 'poster'],
             'watermark': watermark
         }
+
+        defaults.update(kwargs)
 
 
         # Import external config
