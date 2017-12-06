@@ -12,7 +12,7 @@ from .plotting import add_styles
 
 class Nb(object):
     def __init__(self, nb_name=None, project_dir=None, config_dir=None, fig_dir=None, table_dir=None,
-                 cache=None, formats=None, styles=None, watermark=None, **kwargs):
+                 cache=None, formats=None, styles=None, styles_wide=None, watermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
         Stores a set a bunch of useful attributes. Turns on a bunch of commonly
@@ -60,6 +60,10 @@ class Nb(object):
             Default list of formats to use for plotting. For example 'png' or ['png', 'svg'].
         styles : str or list
             Default list of matplotlib.style.library to use for plotting. For example 'seaborn-notebook' or ['seaborn-notebook', 'seaborn-paper'].
+        styles_wide : str or list
+            Default list of matplotlib.style.library to use for plotting wide (two column)
+            images. For example 'seaborn-notebook' or ['seaborn-notebook',
+            'seaborn-paper'].
         date : str
             Current date, generated upon creation.
 
@@ -72,6 +76,7 @@ class Nb(object):
         self.cache = cache
         self.formats = formats
         self.styles = styles
+        self.styles_wide = styles_wide
         self.date = datetime.now().strftime("%Y-%m-%d")
 
         # Add Colors
@@ -161,6 +166,7 @@ class Nb(object):
             'cache': os.path.join(prj, 'output', cache_dir),
             'formats': ['png', 'pdf', 'svg'],
             'styles': ['notebook', 'paper', 'talk', 'poster'],
+            'styles_wide': ['notebook-wide', 'paper-wide', 'talk-wide', 'poster-wide'],
             'watermark': watermark
         }
 
@@ -192,7 +198,7 @@ class Nb(object):
 
     def __str__(self):
         keys = ['nb_name', 'project_dir', 'config_dir', 'fig_dir', 'table_dir',
-                'cache', 'formats', 'styles', 'date']
+                'cache', 'formats', 'styles', 'styles_wide', 'date']
         keys.extend(self._config_attrs)
         res = []
         for key in keys:
