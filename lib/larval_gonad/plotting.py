@@ -91,7 +91,7 @@ def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None, **kwar
     values = sorted(df[hue].unique())
     if isinstance(values[0], (int, float)) & (len(values) > 2):
         if cmap is None:
-            cmap = mpl.colors.ListedColormap(sns.color_palette('Reds'))
+            cmap = mpl.colors.ListedColormap(palette)
         df.plot.scatter(x, y, c=df[hue], cmap=cmap, ax=ax, **defaults)
     else:
         if cmap is None:
