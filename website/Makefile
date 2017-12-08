@@ -68,10 +68,10 @@ help:
 add_nav:
 	python tools/add_navigation.py
 
-copy_notebook: add_nav
+copy_notebook:
 	python tools/copy_notebooks.py
 
-all: copy_notebook add_nav
+all: copy_notebook
 	make html
 
 html:

@@ -6,6 +6,8 @@ import os
 import nbformat
 import shutil
 from pathlib import Path
+from generate_contents import gen_contents
+
 
 PAGEFILE = """title: {title}
 url:
@@ -13,11 +15,6 @@ save_as: {htmlfile}
 Template: {template}
 
 {{% notebook notebooks/{notebook_file} cells[{cells}] %}}
-"""
-
-# TODO: Add Project Description
-INTRO_TEXT = """
-This is an example INTRO_TEXT in the copy_notebook file.
 """
 
 
@@ -44,6 +41,8 @@ def copy_notebooks():
     # TODO: Double check paths
     figsource = abspath_from_here('..', '..', 'docs', 'figures')
     figdest = abspath_from_here('..', 'content', 'figures')
+    figurelist = []
+    figure_map = {}
 
     if os.path.exists(figdest):
         shutil.rmtree(figdest)
@@ -53,7 +52,7 @@ def copy_notebooks():
 
         # TODO: Double check paths and EDIT ProjectName
         figurelist = os.listdir(abspath_from_here('..', 'content', 'figures'))
-        figure_map = {os.path.join('figures', fig) : os.path.join('/ProjectName/figures', fig)
+        figure_map = {os.path.join('figures', fig) : os.path.join('/larval_gonad/figures', fig)
                       for fig in figurelist}
 
     for nb in nblist:
@@ -68,17 +67,14 @@ def copy_notebooks():
             template = 'page'
             # TODO: Edit Index title
             title = 'This is an example Project title in the copy_notebook script'
-            content.cells[3].source = INTRO_TEXT
+            content.cells[3].source = '\n'.join(gen_contents())
         else:
-            cells = '2:'
+            cells = '1:'
             template = 'page'
             title = content.cells[0].source
             if not title.startswith('#') or len(title.splitlines()) > 1:
                 raise ValueError('title not found in third cell')
             title = title.lstrip('#').strip()
-
-            # put nav below title
-            #content.cells[0], content.cells[1], content.cells[2] = content.cells[2], content.cells[0], content.cells[1]
 
         # Replace internal URLs and figure links in notebook
         for cell in content.cells:

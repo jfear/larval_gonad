@@ -23,6 +23,7 @@ _build
 *logs
 notebook/*/*_files
 notebook/*/*_cache
+website/content
 
 # Files
 notebook/*/*.html
