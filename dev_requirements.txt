@@ -1,3 +1,7 @@
 jedi
 nb_conda
 neovim
+pelican
+Markdown
+ghp-import
+beautifulsoup4
