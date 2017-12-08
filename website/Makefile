@@ -25,7 +25,7 @@ CLOUDFILES_CONTAINER=my_cloudfiles_container
 
 DROPBOX_DIR=~/Dropbox/Public/
 
-GITHUB_PAGES_REMOTE=git@github.com:jfear/ProjectName.git
+GITHUB_PAGES_REMOTE=git@github.com:jfear/larval_gonad.git
 GITHUB_PAGES_BRANCH=gh-pages
 
 GIT_COMMIT_HASH = $(shell git rev-parse HEAD)
