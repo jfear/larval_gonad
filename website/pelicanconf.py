@@ -6,6 +6,7 @@ AUTHOR = 'Justin Fear'
 SITENAME = 'Larval Gonad'
 SITESUBTITLE = u'Looking at expression profiles in the larval gonad.'
 SITEURL = 'https://jfear.github.io.com/jfear/larval_gonad'
+SITEGHURL = 'https://github.com/jfear/larval_gonad'
 SITESUBURL = 'larval_gonad/'
 PATH = 'content'
 TIMEZONE = 'America/New_York'
@@ -57,7 +58,7 @@ THEME = './theme/'
 #AUTHOR_WEBSITE = 'http://vanderplas.com'
 #AUTHOR_BLOG = 'http://jakevdp.github.io'
 #AUTHOR_CV = "http://staff.washington.edu/jakevdp/media/pdfs/CV.pdf"
-SHOW_ARCHIVES = True
+#SHOW_ARCHIVES = True
 SHOW_FEED = False  # Need to address large feeds
 
 ENABLE_MATHJAX = True
