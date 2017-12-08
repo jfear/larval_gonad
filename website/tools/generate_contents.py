@@ -8,8 +8,10 @@ NOTEBOOK_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'docs')
 
 # TODO: Edit Chapter Titles
 CHAPTERS = {"00": "Preface",
-            "01": "Pre-Alignment Workflow",
-            "02": "Alignment Workflow",
+            "01": "Testis scRNA-Seq",
+            "02": "Ovary scRNA-Seq",
+            "03": "Combined scRNA-Seq",
+            "04": "X To A",
             }
 
 REG = re.compile(r'(\d\d)\.(\d\d)-(.*)\.ipynb')
