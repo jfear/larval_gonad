@@ -11,6 +11,7 @@ bioconductor-tximport
 biopython
 bowtie2
 cutadapt
+dask
 deeptools
 fastq-screen
 fastqc
