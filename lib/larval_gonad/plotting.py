@@ -100,4 +100,4 @@ def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None, **kwar
         for l, dd in df.groupby(hue):
             dd.plot.scatter(x, y, c=cmap[l], label=str(l).title(), ax=ax, **defaults)
 
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
