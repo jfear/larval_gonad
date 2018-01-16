@@ -24,6 +24,7 @@ _build
 notebook/*/*_files
 notebook/*/*_cache
 website/content
+dask-worker-space
 
 # Files
 notebook/*/*.html
