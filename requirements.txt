@@ -35,11 +35,13 @@ pybedtools
 pysam
 pytest
 pytest-xdist
+pytables
 python >=3.6
 r-ape
 r-base
 r-codetools
 r-cowplot
+r-caret
 r-devtools
 r-dplyr
 r-dt
