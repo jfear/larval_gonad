@@ -5,3 +5,4 @@ pelican
 Markdown
 ghp-import
 beautifulsoup4
+flake8
