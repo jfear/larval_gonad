@@ -4,9 +4,8 @@ from collections import defaultdict
 import pandas as pd
 from pysam import AlignmentFile
 
-CHROMS = ['2L', '2R', '3L', '3R', '4', 'X', 'Y', 'M']
-CHROMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrX',
-              'chrY', 'chrM']
+CHROMS = ['2L', '2R', '3L', '3R', '4', 'X', 'Y']
+CHROMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrX', 'chrY']
 
 AUTOSOMES = ['2L', '2R', '3L', '3R', '4']
 AUTOSOMES_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']
