@@ -16,8 +16,8 @@ CHAPTERS = {"00": "Preface",
 REG = re.compile(r'(\d\d)\.(\d\d)-(.*)\.ipynb')
 
 
-def iter_notebooks():
-    return sorted(nb for nb in os.listdir(NOTEBOOK_DIR) if REG.match(nb))
+def iter_notebooks(directory=NOTEBOOK_DIR):
+    return sorted(nb for nb in os.listdir(directory) if REG.match(nb))
 
 
 def get_notebook_title(nb_file):

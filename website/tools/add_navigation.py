@@ -5,6 +5,7 @@ import nbformat
 from nbformat.v4.nbbase import new_markdown_cell
 
 from generate_contents import NOTEBOOK_DIR, iter_notebooks, get_notebook_title
+from copy_notebooks import NB_DEST_DIR
 
 
 def prev_this_next(it):
@@ -20,7 +21,7 @@ NAV_COMMENT = "<!--NAVIGATION-->\n"
 
 
 def iter_navbars():
-    for prev_nb, nb, next_nb in prev_this_next(iter_notebooks()):
+    for prev_nb, nb, next_nb in prev_this_next(iter_notebooks(NB_DEST_DIR)):
         navbar = NAV_COMMENT
         if prev_nb:
             navbar += PREV_TEMPLATE.format(title=get_notebook_title(prev_nb),
@@ -29,7 +30,7 @@ def iter_navbars():
         if next_nb:
             navbar += NEXT_TEMPLATE.format(title=get_notebook_title(next_nb),
                                            url=next_nb)
-        yield os.path.join(NOTEBOOK_DIR, nb), navbar
+        yield os.path.join(NB_DEST_DIR, nb), navbar
 
 
 def write_navbars():

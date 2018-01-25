@@ -69,7 +69,8 @@ def copy_notebooks():
             template = 'page'
             # TODO: Edit Index title
             title = 'Larval Gonad scRNA-Seq'
-            content.cells[3].source = '\n'.join(gen_contents())
+            content.cells[2].source = '\n'.join(gen_contents())
+            content.cells[2].cell_type = 'markdown'
         else:
             cells = '1:'
             template = 'page'
