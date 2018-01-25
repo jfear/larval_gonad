@@ -62,8 +62,7 @@ def copy_notebooks():
         base, ext = os.path.splitext(nb)
         print('-', nb)
 
-        content = nbformat.read(os.path.join(NB_SOURCE_DIR, nb),
-                                as_version=4)
+        content = nbformat.read(os.path.join(NB_SOURCE_DIR, nb), as_version=4)
 
         if nb == 'Index.ipynb':
             cells = '1:'
@@ -96,11 +95,15 @@ def copy_notebooks():
         pagefile = os.path.join(PAGE_DEST_DIR, base + '.md')
         htmlfile = base.lower() + '.html'
         with open(pagefile, 'w') as f:
-            f.write(PAGEFILE.format(title=title,
-                                    htmlfile=htmlfile,
-                                    notebook_file=nb,
-                                    template=template,
-                                    cells=cells))
+            f.write(
+                PAGEFILE.format(
+                    title=title,
+                    htmlfile=htmlfile,
+                    notebook_file=nb,
+                    template=template,
+                    cells=cells
+                )
+            )
 
 
 if __name__ == '__main__':
