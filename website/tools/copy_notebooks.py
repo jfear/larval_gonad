@@ -32,6 +32,7 @@ PAGE_DEST_DIR = abspath_from_here('..', 'content', 'pages')
 Path(NB_DEST_DIR).mkdir(parents=True, exist_ok=True)
 Path(PAGE_DEST_DIR).mkdir(parents=True, exist_ok=True)
 
+
 def copy_notebooks():
     nblist = sorted(nb for nb in os.listdir(NB_SOURCE_DIR)
                     if nb.endswith('.ipynb'))
@@ -52,7 +53,7 @@ def copy_notebooks():
 
         # TODO: Double check paths and EDIT ProjectName
         figurelist = os.listdir(abspath_from_here('..', 'content', 'figures'))
-        figure_map = {os.path.join('figures', fig) : os.path.join('/larval_gonad/figures', fig)
+        figure_map = {os.path.join('figures', fig): os.path.join('/larval_gonad/figures', fig)
                       for fig in figurelist}
 
     for nb in nblist:
@@ -98,6 +99,7 @@ def copy_notebooks():
                                     notebook_file=nb,
                                     template=template,
                                     cells=cells))
+
 
 if __name__ == '__main__':
     copy_notebooks()

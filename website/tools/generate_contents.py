@@ -1,6 +1,5 @@
 import os
 import re
-import itertools
 import nbformat
 
 # TODO: Check paths
@@ -53,5 +52,5 @@ def print_contents(directory=None):
 if __name__ == '__main__':
     print_contents()
     print('\n', 70 * '#', '\n')
-    #TODO: fix url
+    # TODO: fix url
     print_contents('http://nbviewer.jupyter.org/github/jfear/larval_gonad/blob/master/docs/')
