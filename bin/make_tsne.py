@@ -83,3 +83,18 @@ if __name__ == '__main__':
     for fbgn in data.columns[2:]:
         symbol = fbgn2symbol[fbgn]
         plot_gene(data, fbgn, symbol, FIGS, palette=colors)
+
+    # ovary
+    logger.info('Plotting Ovary')
+    FIGS = '../output/figures/ovary_tsne'
+    Path(FIGS).mkdir(exist_ok=True)
+
+    DAT = '../output/ovary_scRNAseq_pilot'
+    tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
+    norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
+    data = tsne.join(norm.T)
+
+    for fbgn in data.columns[2:]:
+        symbol = fbgn2symbol[fbgn]
+        plot_gene(data, fbgn, symbol, FIGS, palette=colors)
+
