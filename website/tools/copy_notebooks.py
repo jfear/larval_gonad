@@ -53,8 +53,10 @@ def copy_notebooks():
 
         # TODO: Double check paths and EDIT ProjectName
         figurelist = os.listdir(abspath_from_here('..', 'content', 'figures'))
-        figure_map = {os.path.join('figures', fig): os.path.join('/larval_gonad/figures', fig)
-                      for fig in figurelist}
+        figure_map = {
+            os.path.join('figures', fig):
+                os.path.join('/larval_gonad/figures', fig) for fig in figurelist
+        }
 
     for nb in nblist:
         base, ext = os.path.splitext(nb)
