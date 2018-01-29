@@ -63,7 +63,11 @@ SHOW_FEED = False  # Need to address large feeds
 
 ENABLE_MATHJAX = True
 
-STATIC_PATHS = ['images', 'figures', 'videos', 'downloads', 'favicon.ico']
+STATIC_PATHS = ['images', 'figures', 'videos', 'downloads', 'favicon.ico',
+                'reports']
+
+ARTICLE_EXCLUDES = ['reports']
+PAGE_EXCLUDES = ['reports']
 
 # Footer info
 
