@@ -68,7 +68,11 @@ help:
 copy_notebooks:
 	python tools/copy_notebooks.py
 
-add_nav: copy_notebooks
+copy_others:
+	cp ../output/testis1/outs/web_summary.html content/reports/testis_web_summary.html
+	cp ../output/ovary1/outs/web_summary.html content/reports/ovary_web_summary.html
+
+add_nav: copy_notebooks copy_others
 	python tools/add_navigation.py
 
 all: add_nav
