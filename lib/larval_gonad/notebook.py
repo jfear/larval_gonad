@@ -4,6 +4,7 @@ from datetime import datetime
 from yaml import load
 
 import numpy as np
+import matplotlib as mpl
 import seaborn as sns
 from IPython import get_ipython
 
@@ -11,8 +12,10 @@ from .plotting import add_styles
 
 
 class Nb(object):
-    def __init__(self, nb_name=None, project_dir=None, config_dir=None, fig_dir=None, table_dir=None,
-                 cache=None, formats=None, styles=None, styles_wide=None, watermark=None, **kwargs):
+    def __init__(self, nb_name=None, project_dir=None, config_dir=None,
+                 ref_dir=None, fig_dir=None, table_dir=None, seurat_dir=None,
+                 cache=None, formats=None, styles=None, styles_wide=None,
+                 jwatermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
         Stores a set a bunch of useful attributes. Turns on a bunch of commonly
@@ -27,6 +30,8 @@ class Nb(object):
             Name of the project directory.
         config_dir : str
             Name of the config directory.
+        ref_dir : str
+            Name of the references directory.
         fig_dir : str
             Name of the figures directory.
         table_dir : str
@@ -34,9 +39,12 @@ class Nb(object):
         cache : str
             Name of the cache directory.
         formats : str or list
-            Default list of formats to use for plotting. For example 'png' or ['png', 'svg'].
+            Default list of formats to use for plotting. For example 'png' or
+            ['png', 'svg'].
         styles : str or list
-            Default list of matplotlib.style.library to use for plotting. For example 'seaborn-notebook' or ['seaborn-notebook', 'seaborn-paper'].
+            Default list of matplotlib.style.library to use for plotting. For
+            example 'seaborn-notebook' or ['seaborn-notebook',
+            'seaborn-paper'].
         watermark : bool
             If true turn on watermarking.
         **kwargs
@@ -50,6 +58,8 @@ class Nb(object):
             Name of the project directory.
         config_dir : str
             Name of the config directory.
+        ref_dir : str
+            Name of the references directory.
         fig_dir : str
             Name of the figures directory.
         table_dir : str
@@ -57,13 +67,16 @@ class Nb(object):
         cache : str
             Name of the cache directory.
         formats : str or list
-            Default list of formats to use for plotting. For example 'png' or ['png', 'svg'].
+            Default list of formats to use for plotting. For example 'png' or
+            ['png', 'svg'].
         styles : str or list
-            Default list of matplotlib.style.library to use for plotting. For example 'seaborn-notebook' or ['seaborn-notebook', 'seaborn-paper'].
-        styles_wide : str or list
-            Default list of matplotlib.style.library to use for plotting wide (two column)
-            images. For example 'seaborn-notebook' or ['seaborn-notebook',
+            Default list of matplotlib.style.library to use for plotting. For
+            example 'seaborn-notebook' or ['seaborn-notebook',
             'seaborn-paper'].
+        styles_wide : str or list
+            Default list of matplotlib.style.library to use for plotting wide
+            (two column) images. For example 'seaborn-notebook' or
+            ['seaborn-notebook', 'seaborn-paper'].
         date : str
             Current date, generated upon creation.
 
@@ -71,6 +84,7 @@ class Nb(object):
         self.nb_name = nb_name
         self.project_dir = project_dir
         self.config_dir = config_dir
+        self.ref_dir = ref_dir
         self.fig_dir = fig_dir
         self.table_dir = table_dir
         self.cache = cache
@@ -78,6 +92,29 @@ class Nb(object):
         self.styles = styles
         self.styles_wide = styles_wide
         self.date = datetime.now().strftime("%Y-%m-%d")
+
+        # Add useful paths
+        self.fasta = os.path.join([self.ref_dir, assembly, tag, 'fasta',
+                                   f'{assembly}_{tag}.fasta'])
+
+        self.chromsizes = os.path.join([self.ref_dir, assembly, tag, 'fasta',
+                                        f'{assembly}_{tag}.chromsizes'])
+
+        self.gtf = os.path.join([self.ref_dir, assembly, tag, 'gtf',
+                                 f'{assembly}_{tag}.gtf'])
+
+        self.gtf_db = os.path.join([self.ref_dir, assembly, tag, 'gtf',
+                                    f'{assembly}_{tag}.gtf.db'])
+
+        self.annot = os.path.join([self.ref_dir, assembly, tag,
+                                   'fb_annotation',
+                                   f'{assembly}_{tag}.fb_annotation'])
+
+        self.syn = os.path.join([self.ref_dir, assembly, tag,
+                                   'fb_synonym',
+                                   f'{assembly}_{tag}.fb_synonym'])
+
+        self.seurat = Seurat(seurat_path)
 
         # Add Colors
         self.colors = sns.color_palette('Paired', n_colors=12)
@@ -94,7 +131,6 @@ class Nb(object):
         self._config_attrs = kwargs.keys()
         for k, v in kwargs.items():
             setattr(self, k, v)
-
 
         # turn on magics
         self._start_magics(watermark=watermark)
@@ -126,7 +162,9 @@ class Nb(object):
         if os.path.exists(styles):
             add_styles(styles)
 
-        sns.set_context('notebook')
+        #sns.set_context('notebook')
+        mpl.style.use(['default', 'notebook'])
+
 
     @classmethod
     def setup_notebook(cls, nb_name=None, config_name='common.yml', watermark=True, **kwargs):
@@ -176,7 +214,7 @@ class Nb(object):
 
 
         # Import external config
-        fname = os.path.join(cfg, 'common.yml')
+        fname = os.path.join(cfg, config_name)
         with open(fname) as fh:
             config = load(fh)
         defaults.update(config)
