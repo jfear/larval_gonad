@@ -1,9 +1,11 @@
 """Set of helper functions for the notebook."""
 import os
+from pathlib import Path
 from datetime import datetime
 from yaml import load
 
 import numpy as np
+import pandas as pd
 import matplotlib as mpl
 import seaborn as sns
 from IPython import get_ipython
@@ -15,7 +17,7 @@ class Nb(object):
     def __init__(self, nb_name=None, project_dir=None, config_dir=None,
                  ref_dir=None, fig_dir=None, table_dir=None,
                  subproject_dir=None, cache=None, formats=None, styles=None,
-                 styles_wide=None, jwatermark=None, **kwargs):
+                 styles_wide=None, watermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
         Stores a set a bunch of useful attributes. Turns on a bunch of commonly
@@ -110,27 +112,38 @@ class Nb(object):
         self.date = datetime.now().strftime("%Y-%m-%d")
 
         # Add useful paths
-        self.fasta = os.path.join([self.ref_dir, assembly, tag, 'fasta',
-                                   f'{assembly}_{tag}.fasta'])
+        assembly = kwargs['assembly']
+        tag = kwargs['tag']
+        self.fasta = os.path.join(self.ref_dir, assembly, tag, 'fasta',
+                                  f'{assembly}_{tag}.fasta')
 
-        self.chromsizes = os.path.join([self.ref_dir, assembly, tag, 'fasta',
-                                        f'{assembly}_{tag}.chromsizes'])
+        self.chromsizes = os.path.join(self.ref_dir, assembly, tag, 'fasta',
+                                       f'{assembly}_{tag}.chromsizes')
 
-        self.gtf = os.path.join([self.ref_dir, assembly, tag, 'gtf',
-                                 f'{assembly}_{tag}.gtf'])
+        self.gtf = os.path.join(self.ref_dir, assembly, tag, 'gtf',
+                                f'{assembly}_{tag}.gtf')
 
-        self.gtf_db = os.path.join([self.ref_dir, assembly, tag, 'gtf',
-                                    f'{assembly}_{tag}.gtf.db'])
+        self.gtf_db = os.path.join(self.ref_dir, assembly, tag, 'gtf',
+                                   f'{assembly}_{tag}.gtf.db')
 
-        self.annot = os.path.join([self.ref_dir, assembly, tag,
-                                   'fb_annotation',
-                                   f'{assembly}_{tag}.fb_annotation'])
+        self.annot = os.path.join(self.ref_dir, assembly, tag,
+                                  'fb_annotation',
+                                  f'{assembly}_{tag}.fb_annotation')
 
-        self.syn = os.path.join([self.ref_dir, assembly, tag,
-                                   'fb_synonym',
-                                   f'{assembly}_{tag}.fb_synonym'])
+        self.syn = os.path.join(self.ref_dir, assembly, tag,
+                                'fb_synonym',
+                                f'{assembly}_{tag}.fb_synonym')
 
         self.seurat = Seurat(subproject_dir)
+
+        # Add useful mappers
+        _annot = pd.read_csv(self.annot, sep='\t', index_col=1)
+        self.fbgn2symbol = _annot['gene_symbol'].to_dict()
+        self.symbol2fbgn = {v: k for k, v in self.fbgn2symbol.items()}
+
+        self.fbgn2chrom = pd.read_csv(
+            os.path.join(self.project_dir, 'output/fbgn2chrom.tsv'),
+            sep='\t', index_col=0)
 
         # Add Colors
         self.colors = sns.color_palette('Paired', n_colors=12)
@@ -162,17 +175,17 @@ class Nb(object):
         """Start up the notebook magics I commonly use."""
         mgc = get_ipython().magic
 
-        ## Activate the autoreload extension for easy reloading of external
-        ## packages
+        # Activate the autoreload extension for easy reloading of external
+        # packages
         mgc('reload_ext autoreload')
         mgc('autoreload 2')
 
-        ## Trun on the water mark
+        # Trun on the water mark
         if watermark:
             mgc('reload_ext watermark')
             mgc('watermark -u -d -g')
 
-        ## Plot inline
+        # Plot inline
         mgc('matplotlib inline')
 
     def _setup_plotting(self):
@@ -182,7 +195,6 @@ class Nb(object):
 
         #sns.set_context('notebook')
         mpl.style.use(['default', 'notebook'])
-
 
     @classmethod
     def setup_notebook(cls, nb_name=None, config_name='common.yml',
@@ -222,8 +234,8 @@ class Nb(object):
             'project_dir': prj,
             'config_dir': cfg,
             'ref_dir': ref,
-            'fig_dir': os.path.join(prj, 'output/figures'),
-            'table_dir': os.path.join(prj, 'output/tables'),
+            'fig_dir': './figures',
+            'table_dir': './tables',
             'cache': os.path.join(prj, 'output', cache_dir),
             'formats': ['png', 'pdf', 'svg'],
             'styles': ['notebook', 'paper', 'talk', 'poster'],
@@ -233,7 +245,6 @@ class Nb(object):
         }
 
         defaults.update(kwargs)
-
 
         # Import external config
         fname = os.path.join(cfg, config_name)
@@ -311,19 +322,71 @@ class Seurat(object):
             self.clusters = None
             self.robj = None
         else:
-            self.raw = os.path.join([path, 'raw.tsv'])
-            self.scaled = os.path.join([path, 'scaled.tsv'])
-            self.dispersion = os.path.join([path, 'dispersion.tsv'])
+            Path(path).mkdir(exist_ok=True)
+            self.raw = os.path.join(path, 'raw.tsv')
+            self.scaled = os.path.join(path, 'scaled.tsv')
+            self.dispersion = os.path.join(path, 'dispersion.tsv')
             self.normalized_read_counts = os.path.join(
-                [path, 'normalized_read_counts.tsv']
+                path, 'normalized_read_counts.tsv'
             )
             self.principal_components_cell = os.path.join(
-                [path, 'principal_components_cell.tsv']
+                path, 'principal_components_cell.tsv'
             )
             self.principal_components_gene = os.path.join(
-                [path, 'principal_components_gene.tsv']
+                path, 'principal_components_gene.tsv'
             )
-            self.tsne = os.path.join([path, 'tsne.tsv'])
-            self.biomarkers = os.path.join([path, 'biomarkers.tsv'])
-            self.clusters = os.path.join([path, 'clusters.tsv'])
-            self.robj = os.path.join([path, 'seurat.Robj'])
+            self.tsne = os.path.join(path, 'tsne.tsv')
+            self.biomarkers = os.path.join(path, 'biomarkers.tsv')
+            self.clusters = os.path.join(path, 'clusters.tsv')
+            self.robj = os.path.join(path, 'seurat.Robj')
+
+    def get_raw(self):
+        df = pd.read_csv(self.raw, sep='\t')
+        df.index.name = 'FBgn'
+        df.columns.name = 'cell_id'
+        return df
+
+    def get_scaled(self):
+        df = pd.read_csv(self.scaled, sep='\t')
+        df.index.name = 'FBgn'
+        df.columns.name = 'cell_id'
+        return df
+
+    def get_dispersion(self):
+        df = pd.read_csv(self.dispersion, sep='\t')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_normalized_read_counts(self):
+        df = pd.read_csv(self.normalized_read_counts, sep='\t')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_principal_components_cell(self):
+        df = pd.read_csv(self.principal_components_cell, sep='\t')
+        df.index.name = 'cell_id'
+        df.columns.name = 'PC'
+        return df
+
+
+    def get_principal_components_gene(self):
+        df = pd.read_csv(self.principal_components_gene, sep='\t')
+        df.index.name = 'FBgn'
+        df.columns.name = 'PC'
+        return df
+
+    def get_tsne(self):
+        df = pd.read_csv(self.tsne, sep='\t')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_biomarkers(self):
+        df = pd.read_csv(self.biomarkers, sep='\t', index_col='gene')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_clusters(self):
+        df = pd.read_csv(self.clusters, sep='\t')
+        df.index.name = 'cell_id'
+        df.columns = ['cluster']
+        return df.cluster
