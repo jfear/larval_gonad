@@ -79,6 +79,20 @@ class Nb(object):
             ['seaborn-notebook', 'seaborn-paper'].
         date : str
             Current date, generated upon creation.
+        fasta : str
+            Path to fasta file.
+        chromsizes : str
+            Path to chromsizes file.
+        gtf : str
+            Path to gtf file.
+        gtf_db : str
+            Path to gtf_db file.
+        annot : str
+            Path to annot file.
+        syn : str
+            Path to syn file.
+        seurat : Seurat
+            Useful Seurat paths.
 
         """
         self.nb_name = nb_name
@@ -253,6 +267,29 @@ class Nb(object):
 class Seurat(object):
     """Class that stores basic paths for files from Seurat analysis."""
     def __init__(self, path=None):
+        """Create a list of Seurat paths.
+        raw : str
+            Path to raw.
+        scaled : str
+            Path to scaled data.
+        dispersion : str
+            Path to dispersion estimates.
+        normalized_read_counts : str
+            Path to normalized read counts.
+        principal_components_cell : str
+            Path to PCA cell loadings.
+        principal_components_gene : str
+            Path to PCA gene loadings.
+        tsne : str
+            Path to tsne.
+        biomarkers : str
+            Path to biomarkers list.
+        clusters : str
+            Path to clusters identities.
+        robj : str
+            Path to seurat R object.
+
+        """
 
         if path is None:
             self.raw = None
