@@ -13,9 +13,9 @@ from .plotting import add_styles
 
 class Nb(object):
     def __init__(self, nb_name=None, project_dir=None, config_dir=None,
-                 ref_dir=None, fig_dir=None, table_dir=None, seurat_dir=None,
-                 cache=None, formats=None, styles=None, styles_wide=None,
-                 jwatermark=None, **kwargs):
+                 ref_dir=None, fig_dir=None, table_dir=None,
+                 subproject_dir=None, cache=None, formats=None, styles=None,
+                 styles_wide=None, jwatermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
         Stores a set a bunch of useful attributes. Turns on a bunch of commonly
@@ -32,6 +32,8 @@ class Nb(object):
             Name of the config directory.
         ref_dir : str
             Name of the references directory.
+        subproject_dir : str
+            Name of the subproject directory for placing output.
         fig_dir : str
             Name of the figures directory.
         table_dir : str
@@ -128,7 +130,7 @@ class Nb(object):
                                    'fb_synonym',
                                    f'{assembly}_{tag}.fb_synonym'])
 
-        self.seurat = Seurat(seurat_path)
+        self.seurat = Seurat(subproject_dir)
 
         # Add Colors
         self.colors = sns.color_palette('Paired', n_colors=12)
@@ -136,7 +138,8 @@ class Nb(object):
 
         self.color_female = sns.xkcd_rgb['rose pink']
         self.color_male = sns.xkcd_rgb['dodger blue']
-        self.colors_sex = sns.color_palette([self.color_female, self.color_male])
+        self.colors_sex = sns.color_palette([self.color_female,
+                                             self.color_male])
 
         self.color_c1 = sns.xkcd_rgb['dusty purple']
         self.color_c2 = sns.xkcd_rgb['golden rod']
@@ -159,7 +162,8 @@ class Nb(object):
         """Start up the notebook magics I commonly use."""
         mgc = get_ipython().magic
 
-        ## Activate the autoreload extension for easy reloading of external packages
+        ## Activate the autoreload extension for easy reloading of external
+        ## packages
         mgc('reload_ext autoreload')
         mgc('autoreload 2')
 
@@ -181,7 +185,8 @@ class Nb(object):
 
 
     @classmethod
-    def setup_notebook(cls, nb_name=None, config_name='common.yml', watermark=True, **kwargs):
+    def setup_notebook(cls, nb_name=None, config_name='common.yml',
+                       watermark=True, **kwargs):
         """Helper function to consistently setup notebooks.
 
         Functions detects working folder and sets up a larval_gonad.notebook.Nb
@@ -205,7 +210,9 @@ class Nb(object):
             cache_dir = os.path.join('cache', nb_name)
 
         # Figure out current project, config, and references folder
-        prj = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
+        prj = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '../../')
+        )
         cfg = os.path.join(prj, 'config')
         ref = os.environ.get('REFERENCES_DIR', None)
 
@@ -220,7 +227,8 @@ class Nb(object):
             'cache': os.path.join(prj, 'output', cache_dir),
             'formats': ['png', 'pdf', 'svg'],
             'styles': ['notebook', 'paper', 'talk', 'poster'],
-            'styles_wide': ['notebook-wide', 'paper-wide', 'talk-wide', 'poster-wide'],
+            'styles_wide': ['notebook-wide', 'paper-wide', 'talk-wide',
+                            'poster-wide'],
             'watermark': watermark
         }
 
@@ -306,9 +314,15 @@ class Seurat(object):
             self.raw = os.path.join([path, 'raw.tsv'])
             self.scaled = os.path.join([path, 'scaled.tsv'])
             self.dispersion = os.path.join([path, 'dispersion.tsv'])
-            self.normalized_read_counts = os.path.join([path, 'normalized_read_counts.tsv'])
-            self.principal_components_cell = os.path.join([path, 'principal_components_cell.tsv'])
-            self.principal_components_gene = os.path.join([path, 'principal_components_gene.tsv'])
+            self.normalized_read_counts = os.path.join(
+                [path, 'normalized_read_counts.tsv']
+            )
+            self.principal_components_cell = os.path.join(
+                [path, 'principal_components_cell.tsv']
+            )
+            self.principal_components_gene = os.path.join(
+                [path, 'principal_components_gene.tsv']
+            )
             self.tsne = os.path.join([path, 'tsne.tsv'])
             self.biomarkers = os.path.join([path, 'biomarkers.tsv'])
             self.clusters = os.path.join([path, 'clusters.tsv'])
