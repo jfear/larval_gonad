@@ -210,3 +210,31 @@ class Nb(object):
             res.append('{}:\t{}'.format(key, value))
 
         return '\n'.join(res)
+
+
+class Seurat(object):
+    """Class that stores basic paths for files from Seurat analysis."""
+    def __init__(self, path=None):
+
+        if path is None:
+            self.raw = None
+            self.scaled = None
+            self.dispersion = None
+            self.normalized_read_counts = None
+            self.principal_components_cell = None
+            self.principal_components_gene = None
+            self.tsne = None
+            self.biomarkers = None
+            self.clusters = None
+            self.robj = None
+        else:
+            self.raw = os.path.join([path, 'raw.tsv'])
+            self.scaled = os.path.join([path, 'scaled.tsv'])
+            self.dispersion = os.path.join([path, 'dispersion.tsv'])
+            self.normalized_read_counts = os.path.join([path, 'normalized_read_counts.tsv'])
+            self.principal_components_cell = os.path.join([path, 'principal_components_cell.tsv'])
+            self.principal_components_gene = os.path.join([path, 'principal_components_gene.tsv'])
+            self.tsne = os.path.join([path, 'tsne.tsv'])
+            self.biomarkers = os.path.join([path, 'biomarkers.tsv'])
+            self.clusters = os.path.join([path, 'clusters.tsv'])
+            self.robj = os.path.join([path, 'seurat.Robj'])
