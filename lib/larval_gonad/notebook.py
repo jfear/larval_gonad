@@ -16,7 +16,7 @@ from .plotting import add_styles
 class Nb(object):
     def __init__(self, nb_name=None, project_dir=None, config_dir=None,
                  ref_dir=None, fig_dir=None, table_dir=None,
-                 subproject_dir=None, cache=None, formats=None, styles=None,
+                 subproject_dir=None, formats=None, styles=None,
                  styles_wide=None, watermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
@@ -40,8 +40,6 @@ class Nb(object):
             Name of the figures directory.
         table_dir : str
             Name of the tables directory.
-        cache : str
-            Name of the cache directory.
         formats : str or list
             Default list of formats to use for plotting. For example 'png' or
             ['png', 'svg'].
@@ -68,8 +66,6 @@ class Nb(object):
             Name of the figures directory.
         table_dir : str
             Name of the tables directory.
-        cache : str
-            Name of the cache directory.
         formats : str or list
             Default list of formats to use for plotting. For example 'png' or
             ['png', 'svg'].
@@ -105,7 +101,6 @@ class Nb(object):
         self.ref_dir = ref_dir
         self.fig_dir = fig_dir
         self.table_dir = table_dir
-        self.cache = cache
         self.formats = formats
         self.styles = styles
         self.styles_wide = styles_wide
@@ -216,11 +211,6 @@ class Nb(object):
             Additional arguments to pass to Nb.
 
         """
-        if nb_name is None:
-            cache_dir = 'cache'
-        else:
-            cache_dir = os.path.join('cache', nb_name)
-
         # Figure out current project, config, and references folder
         prj = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '../../')
@@ -236,7 +226,6 @@ class Nb(object):
             'ref_dir': ref,
             'fig_dir': './figures',
             'table_dir': './tables',
-            'cache': os.path.join(prj, 'output', cache_dir),
             'formats': ['png', 'pdf', 'svg'],
             'styles': ['notebook', 'paper', 'talk', 'poster'],
             'styles_wide': ['notebook-wide', 'paper-wide', 'talk-wide',
@@ -271,7 +260,7 @@ class Nb(object):
 
     def __str__(self):
         keys = ['nb_name', 'project_dir', 'config_dir', 'fig_dir', 'table_dir',
-                'cache', 'formats', 'styles', 'styles_wide', 'date']
+                'formats', 'styles', 'styles_wide', 'date']
         keys.extend(self._config_attrs)
         res = []
         for key in keys:
