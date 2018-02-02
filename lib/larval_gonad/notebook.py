@@ -152,15 +152,17 @@ class Nb(object):
         else:
             cache_dir = os.path.join('cache', nb_name)
 
-        # Figure out current project and config folder
+        # Figure out current project, config, and references folder
         prj = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
         cfg = os.path.join(prj, 'config')
+        ref = os.environ.get('REFERENCES_DIR', None)
 
         # set defaults
         defaults = {
             'nb_name': nb_name,
             'project_dir': prj,
             'config_dir': cfg,
+            'ref_dir': ref,
             'fig_dir': os.path.join(prj, 'output/figures'),
             'table_dir': os.path.join(prj, 'output/tables'),
             'cache': os.path.join(prj, 'output', cache_dir),
