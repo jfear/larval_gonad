@@ -2,3 +2,5 @@ author: Justin M Fear
 email: justin.m.fear@gmail.com
 project: Larval Gonad
 git: https://github.com/jfear/larval_gonad
+assembly: dmel
+tag: r6-16
