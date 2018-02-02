@@ -368,7 +368,6 @@ class Seurat(object):
         df.columns.name = 'PC'
         return df
 
-
     def get_principal_components_gene(self):
         df = pd.read_csv(self.principal_components_gene, sep='\t')
         df.index.name = 'FBgn'
