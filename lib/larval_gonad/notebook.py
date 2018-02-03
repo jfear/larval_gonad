@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 from datetime import datetime
+from subprocess import check_output, PIPE
 
 import numpy as np
 import pandas as pd
@@ -85,6 +86,8 @@ class Nb(object):
             ['seaborn-notebook', 'seaborn-paper'].
         date : str
             Current date, generated upon creation.
+        conda_env : str
+            Name of the current conda environment location.
         fasta : str
             Path to fasta file.
         chromsizes : str
@@ -113,6 +116,7 @@ class Nb(object):
         self.styles = styles
         self.styles_wide = styles_wide
         self.date = datetime.now().strftime("%Y-%m-%d")
+        self.conda_env = self.get_conda()
 
         # Add useful reference paths
         assembly = kwargs['assembly']
@@ -207,6 +211,12 @@ class Nb(object):
         sns.set_palette(self.colors)
         mpl.rcParams['pdf.fonttype'] = 42
 
+    def get_conda(self):
+        conda_info = check_output(['conda', 'info']).decode('utf-8')
+        for x in conda_info.split('\n'):
+            if 'envs directories' in x:
+                return x.split(':')[1].strip()
+
     @classmethod
     def setup_notebook(cls, nb_name=None, subproject_dir=None, seurat_dir=None,
                        watermark=True, **kwargs):
@@ -237,7 +247,8 @@ class Nb(object):
         ref = os.environ.get('REFERENCES_DIR', None)
 
         # Set seurat_dir to subproject_dir if it was None.
-        Path(subproject_dir).mkdir(exist_ok=True)
+        if subproject_dir is not None:
+            Path(subproject_dir).mkdir(exist_ok=True)
         if seurat_dir is None:
             seurat_dir = subproject_dir
 
