@@ -189,8 +189,9 @@ class Nb(object):
         if os.path.exists(styles):
             add_styles(styles)
 
-        #sns.set_context('notebook')
         mpl.style.use(['default', 'notebook'])
+        sns.set_palette(self.colors)
+        mpl.rcParams['pdf.fonttype'] = 42
 
     @classmethod
     def setup_notebook(cls, nb_name=None, watermark=True, **kwargs):
