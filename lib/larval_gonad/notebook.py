@@ -14,10 +14,10 @@ from .plotting import add_styles
 
 
 class Nb(object):
-    def __init__(self, nb_name=None, project_dir=None, config_dir=None,
-                 ref_dir=None, fig_dir=None, table_dir=None,
-                 subproject_dir=None, formats=None, styles=None,
-                 styles_wide=None, watermark=None, **kwargs):
+    def __init__(self, nb_name=None, project_dir=None, subproject_dir=None,
+                 seurat_dir=None, config_dir=None, ref_dir=None, fig_dir=None,
+                 table_dir=None, formats=None, styles=None, styles_wide=None,
+                 watermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
         Stores a set a bunch of useful attributes. Turns on a bunch of commonly
@@ -36,6 +36,8 @@ class Nb(object):
             Name of the references directory.
         subproject_dir : str
             Name of the subproject directory for placing output.
+        seurat_dir : str
+            Name of the  directory with seurat output.
         fig_dir : str
             Name of the figures directory.
         table_dir : str
@@ -58,6 +60,10 @@ class Nb(object):
             Name of the current notebook.
         project_dir : str
             Name of the project directory.
+        subproject_dir : str
+            Directory to save outputs from this subproject.
+        seurat_dir : str
+            Location of Seurat output. Will default to the subproject_dir.
         config_dir : str
             Name of the config directory.
         ref_dir : str
@@ -97,6 +103,8 @@ class Nb(object):
         """
         self.nb_name = nb_name
         self.project_dir = project_dir
+        self.subproject_dir = subproject_dir
+        self.seurat_dir = seurat_dir
         self.config_dir = config_dir
         self.ref_dir = ref_dir
         self.fig_dir = fig_dir
@@ -106,7 +114,7 @@ class Nb(object):
         self.styles_wide = styles_wide
         self.date = datetime.now().strftime("%Y-%m-%d")
 
-        # Add useful paths
+        # Add useful reference paths
         assembly = kwargs['assembly']
         tag = kwargs['tag']
         self.fasta = os.path.join(self.ref_dir, assembly, tag, 'fasta',
@@ -129,7 +137,7 @@ class Nb(object):
                                 'fb_synonym',
                                 f'{assembly}_{tag}.fb_synonym')
 
-        self.seurat = Seurat(subproject_dir)
+        self.seurat = Seurat(seurat_dir)
 
         # Add useful mappers
         _annot = pd.read_csv(self.annot, sep='\t', index_col=1)
@@ -200,7 +208,8 @@ class Nb(object):
         mpl.rcParams['pdf.fonttype'] = 42
 
     @classmethod
-    def setup_notebook(cls, nb_name=None, watermark=True, **kwargs):
+    def setup_notebook(cls, nb_name=None, subproject_dir=None, seurat_dir=None,
+                       watermark=True, **kwargs):
         """Helper function to consistently setup notebooks.
 
         Functions detects working folder and sets up a larval_gonad.notebook.Nb
@@ -210,23 +219,33 @@ class Nb(object):
         ----------
         nb_name : str
             Name of the current notebook.
+        subproject_dir : str
+            Directory to save outputs from this subproject.
+        seurat_dir : str
+            Location of Seurat output. Will default to the subproject_dir.
         watermark : bool
             If truen then output watermark information.
         kwargs
             Additional arguments to pass to Nb.
 
         """
-        # Figure out current project, config, and references folder
+        # Figure out project, config, and references folder
         prj = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '../../')
         )
         cfg = os.path.join(prj, 'config')
         ref = os.environ.get('REFERENCES_DIR', None)
 
+        # Set seurat_dir to subproject_dir if it was None.
+        if seurat_dir is None:
+            seurat_dir = subproject_dir
+
         # set defaults
         defaults = {
             'nb_name': nb_name,
             'project_dir': prj,
+            'subproject_dir': subproject_dir,
+            'seurat_dir': seurat_dir,
             'config_dir': cfg,
             'ref_dir': ref,
             'fig_dir': './figures',
