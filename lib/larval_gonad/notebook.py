@@ -2,7 +2,6 @@
 import os
 from pathlib import Path
 from datetime import datetime
-from yaml import load
 
 import numpy as np
 import pandas as pd
@@ -10,6 +9,7 @@ import matplotlib as mpl
 import seaborn as sns
 from IPython import get_ipython
 
+from .io import config
 from .plotting import add_styles
 
 
@@ -141,16 +141,17 @@ class Nb(object):
             sep='\t', index_col=0)
 
         # Add Colors
-        self.colors = sns.color_palette('Paired', n_colors=12)
-        sns.set_palette(self.colors)
+        colors = kwargs.pop('colors')
+        self.colors = colors['cycle']
 
-        self.color_female = sns.xkcd_rgb['rose pink']
-        self.color_male = sns.xkcd_rgb['dodger blue']
+        self.color_female = colors['female']
+        self.color_male = colors['male']
         self.colors_sex = sns.color_palette([self.color_female,
                                              self.color_male])
 
-        self.color_c1 = sns.xkcd_rgb['dusty purple']
-        self.color_c2 = sns.xkcd_rgb['golden rod']
+        self.color_c1 = colors['c1']
+        self.color_c2 = colors['c2']
+        self.color_c3 = colors['c3']
 
         # Add any key word args
         self._config_attrs = kwargs.keys()
@@ -192,8 +193,7 @@ class Nb(object):
         mpl.style.use(['default', 'notebook'])
 
     @classmethod
-    def setup_notebook(cls, nb_name=None, config_name='common.yml',
-                       watermark=True, **kwargs):
+    def setup_notebook(cls, nb_name=None, watermark=True, **kwargs):
         """Helper function to consistently setup notebooks.
 
         Functions detects working folder and sets up a larval_gonad.notebook.Nb
@@ -203,8 +203,6 @@ class Nb(object):
         ----------
         nb_name : str
             Name of the current notebook.
-        config_name : str
-            Name of the a YAML config file.
         watermark : bool
             If truen then output watermark information.
         kwargs
@@ -236,9 +234,6 @@ class Nb(object):
         defaults.update(kwargs)
 
         # Import external config
-        fname = os.path.join(cfg, config_name)
-        with open(fname) as fh:
-            config = load(fh)
         defaults.update(config)
 
         return cls(**defaults)
