@@ -225,10 +225,9 @@ class Nb(object):
             'ref_dir': ref,
             'fig_dir': './figures',
             'table_dir': './tables',
-            'formats': ['png', 'pdf', 'svg'],
-            'styles': ['notebook', 'paper', 'talk', 'poster'],
-            'styles_wide': ['notebook-wide', 'paper-wide', 'talk-wide',
-                            'poster-wide'],
+            'formats': ['png', 'pdf'],
+            'styles': ['notebook', 'paper'],
+            'styles_wide': ['notebook-wide', 'paper-wide'],
             'watermark': watermark
         }
 
