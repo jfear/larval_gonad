@@ -237,6 +237,7 @@ class Nb(object):
         ref = os.environ.get('REFERENCES_DIR', None)
 
         # Set seurat_dir to subproject_dir if it was None.
+        Path(subproject_dir).mkdir(exist_ok=True)
         if seurat_dir is None:
             seurat_dir = subproject_dir
 
