@@ -4,6 +4,8 @@ from collections import defaultdict
 import pandas as pd
 from pysam import AlignmentFile
 
+from .io import memory, config
+
 CHROMS = ['2L', '2R', '3L', '3R', '4', 'X', 'Y']
 CHROMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrX', 'chrY']
 
@@ -14,6 +16,15 @@ MAJOR_ARMS = ['2L', '2R', '3L', '3R']
 MAJOR_ARMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
 
 
+def clean_pvalue(pval):
+    if pval < 0.0001:
+        pvalue = 'P<0.0001'
+    else:
+        pvalue = f'P={round(pval, 5)}'
+    return pvalue
+
+
+@memory.cache
 def idx_stats_by_cluster(bam: str, cluster: str) -> pd.DataFrame:
     """Function to count the number of reads by cluster by chromosome.
 
