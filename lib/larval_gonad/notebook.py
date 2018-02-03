@@ -310,6 +310,8 @@ class Seurat(object):
         """Create a list of Seurat paths.
         raw : str
             Path to raw.
+        metadata : str
+            Path to metadata.
         scaled : str
             Path to scaled data.
         dispersion : str
@@ -333,6 +335,7 @@ class Seurat(object):
 
         if path is None:
             self.raw = None
+            self.metadata = None
             self.scaled = None
             self.dispersion = None
             self.normalized_read_counts = None
@@ -345,6 +348,7 @@ class Seurat(object):
         else:
             Path(path).mkdir(exist_ok=True)
             self.raw = os.path.join(path, 'raw.tsv')
+            self.raw = os.path.join(path, 'metadata.tsv')
             self.scaled = os.path.join(path, 'scaled.tsv')
             self.dispersion = os.path.join(path, 'dispersion.tsv')
             self.normalized_read_counts = os.path.join(
@@ -365,6 +369,11 @@ class Seurat(object):
         df = pd.read_csv(self.raw, sep='\t')
         df.index.name = 'FBgn'
         df.columns.name = 'cell_id'
+        return df
+
+    def get_metadata(self):
+        df = pd.read_csv(self.metadata, sep='\t')
+        df.index.name = 'cell_id'
         return df
 
     def get_scaled(self):
