@@ -136,9 +136,15 @@ class Nb(object):
         self.fbgn2symbol = _annot['gene_symbol'].to_dict()
         self.symbol2fbgn = {v: k for k, v in self.fbgn2symbol.items()}
 
-        self.fbgn2chrom = pd.read_csv(
-            os.path.join(self.project_dir, 'output/fbgn2chrom.tsv'),
-            sep='\t', index_col=0)
+        try:
+            self.fbgn2chrom = pd.read_csv(
+                os.path.join(self.project_dir, 'output/fbgn2chrom.tsv'),
+                sep='\t', index_col=0)
+        except Exception:
+            print(
+                'Please check output/fbgn2chrom.tsv. '
+                'If it does not exist, run bin/fbgn2chrom.py'
+            )
 
         # Add Colors
         colors = kwargs.pop('colors')
