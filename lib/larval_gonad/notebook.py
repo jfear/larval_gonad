@@ -348,7 +348,7 @@ class Seurat(object):
         else:
             Path(path).mkdir(exist_ok=True)
             self.raw = os.path.join(path, 'raw.tsv')
-            self.raw = os.path.join(path, 'metadata.tsv')
+            self.metadata = os.path.join(path, 'metadata.tsv')
             self.scaled = os.path.join(path, 'scaled.tsv')
             self.dispersion = os.path.join(path, 'dispersion.tsv')
             self.normalized_read_counts = os.path.join(
