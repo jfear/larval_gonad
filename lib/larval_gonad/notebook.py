@@ -344,6 +344,7 @@ class Seurat(object):
             self.normalized_read_counts = None
             self.principal_components_cell = None
             self.principal_components_gene = None
+            self.principal_components_stdev = None
             self.tsne = None
             self.biomarkers = None
             self.clusters = None
@@ -362,6 +363,9 @@ class Seurat(object):
             )
             self.principal_components_gene = os.path.join(
                 path, 'principal_components_gene.tsv'
+            )
+            self.principal_components_stdev = os.path.join(
+                path, 'principal_components_stdev.tsv'
             )
             self.tsne = os.path.join(path, 'tsne.tsv')
             self.biomarkers = os.path.join(path, 'biomarkers.tsv')
@@ -405,6 +409,12 @@ class Seurat(object):
         df = pd.read_csv(self.principal_components_gene, sep='\t')
         df.index.name = 'FBgn'
         df.columns.name = 'PC'
+        return df
+
+    def get_principal_components_stdev(self):
+        df = pd.read_csv(self.principal_components_stdev, sep='\t')
+        df.index.name = 'PC'
+        df.columns.name = 'stdev'
         return df
 
     def get_tsne(self):
