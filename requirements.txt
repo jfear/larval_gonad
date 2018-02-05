@@ -19,6 +19,7 @@ gcc ==4.8.5
 geoparse
 gffutils
 ghostscript
+goatools
 hisat2
 ipycache >=0.1.6dev
 joblib
@@ -82,9 +83,11 @@ rpy2 >=2.8
 salmon
 samtools
 scipy
+scikit-learn
 seaborn
 snakemake
 sra-tools
+statsmodels
 subread
 ucsc-gtftogenepred
 ucsc-oligomatch
