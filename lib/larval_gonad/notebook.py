@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 from datetime import datetime
-from subprocess import check_output, PIPE
+from subprocess import check_output
 
 import numpy as np
 import pandas as pd
