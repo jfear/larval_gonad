@@ -162,6 +162,9 @@ class Nb(object):
         colors = kwargs.pop('colors')
         self.colors = colors['cycle']
 
+        self.color_chrom = colors['chrom']
+        self.color_xa = [colors['chrom'][5], colors['chrom'][0]]
+
         self.color_female = colors['female']
         self.color_male = colors['male']
         self.colors_sex = sns.color_palette([self.color_female,
