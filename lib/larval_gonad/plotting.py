@@ -1,4 +1,3 @@
-import os
 from functools import wraps
 
 import pandas as pd
@@ -6,6 +5,7 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 
 def add_styles(dirname):
     mpl.style.core.USER_LIBRARY_PATHS.append(dirname)
@@ -33,7 +33,7 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
                 with plt.style.context([style, 'default']):
                     func(*args, **kwargs)
                     plt.tight_layout(**kws_layout)
-                    if (not 'notebook' in style) & (fname is not None):
+                    if ('notebook' not in style) & (fname is not None):
                         fn = fname + '_' + style
                         for f in formats:
                             plt.savefig('{}.{}'.format(fn, f))
@@ -46,7 +46,8 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
     return _plot_all
 
 
-def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None, **kwargs):
+def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None,
+             class_names=None, legend_kws=None, **kwargs):
     """ Make a TSNE plot using either continuous or discrete data.
 
     Parameters
@@ -84,6 +85,13 @@ def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None, **kwar
     if palette is None:
         palette = sns.color_palette()
 
+    legend_defaults = {
+        'loc': 'center left',
+        'bbox_to_anchor': (1, 0.5),
+    }
+    if legend_kws is not None:
+        legend_defaults.update(legend_kws)
+
     if isinstance(hue, pd.Series):
         df['on'] = hue.astype(int).apply(lambda x: str(x))
         hue = 'on'
@@ -98,6 +106,11 @@ def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None, **kwar
             cmap = {k: v for k, v in zip(values, palette)}
 
         for l, dd in df.groupby(hue):
-            dd.plot.scatter(x, y, c=cmap[l], label=str(l).title(), ax=ax, **defaults)
+            if class_names is None:
+                _class = str(l).title()
+            else:
+                _class = class_names[l]
 
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            dd.plot.scatter(x, y, c=cmap[l], label=_class, ax=ax, **defaults)
+
+        ax.legend(**legend_defaults)
