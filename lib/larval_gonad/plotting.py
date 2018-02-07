@@ -30,7 +30,7 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             def plot_style(style, formats):
-                with plt.style.context([style, 'default']):
+                with plt.style.context([style, 'common']):
                     func(*args, **kwargs)
                     plt.tight_layout(**kws_layout)
                     if ('notebook' not in style) & (fname is not None):
