@@ -18,7 +18,7 @@ class Nb(object):
     def __init__(self, nb_name=None, project_dir=None, subproject_dir=None,
                  seurat_dir=None, config_dir=None, ref_dir=None, fig_dir=None,
                  table_dir=None, formats=None, styles=None, styles_wide=None,
-                 watermark=None, **kwargs):
+                 styles_full=None, watermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
         Stores a set a bunch of useful attributes. Turns on a bunch of commonly
@@ -84,6 +84,10 @@ class Nb(object):
             Default list of matplotlib.style.library to use for plotting wide
             (two column) images. For example 'seaborn-notebook' or
             ['seaborn-notebook', 'seaborn-paper'].
+        styles_full : str or list
+            Default list of matplotlib.style.library to use for plotting wide
+            (two column) images. For example 'seaborn-notebook' or
+            ['seaborn-notebook', 'seaborn-paper'].
         date : str
             Current date, generated upon creation.
         conda_env : str
@@ -115,6 +119,7 @@ class Nb(object):
         self.formats = formats
         self.styles = styles
         self.styles_wide = styles_wide
+        self.styles_full = styles_full
         self.date = datetime.now().strftime("%Y-%m-%d")
         self.conda_env = self.get_conda()
 
@@ -268,6 +273,7 @@ class Nb(object):
             'formats': ['png', 'pdf', 'svg'],
             'styles': ['notebook', 'paper'],
             'styles_wide': ['notebook-wide', 'paper-wide'],
+            'styles_full': ['notebook-full', 'paper-full'],
             'watermark': watermark
         }
 
@@ -295,7 +301,7 @@ class Nb(object):
 
     def __str__(self):
         keys = ['nb_name', 'project_dir', 'config_dir', 'fig_dir', 'table_dir',
-                'formats', 'styles', 'styles_wide', 'date']
+                'formats', 'styles', 'styles_wide', 'styles_full', 'date']
         keys.extend(self._config_attrs)
         res = []
         for key in keys:
