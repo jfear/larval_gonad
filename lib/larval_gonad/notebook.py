@@ -215,7 +215,7 @@ class Nb(object):
         if os.path.exists(styles):
             add_styles(styles)
 
-        mpl.style.use(['default', 'notebook'])
+        mpl.style.use(['common', 'notebook'])
         sns.set_palette(self.colors)
         mpl.rcParams['pdf.fonttype'] = 42
 
