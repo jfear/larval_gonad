@@ -69,8 +69,12 @@ copy_notebooks:
 	python tools/copy_notebooks.py
 
 copy_others:
-	cp ../output/testis1/outs/web_summary.html content/reports/testis_web_summary.html
-	cp ../output/ovary1/outs/web_summary.html content/reports/ovary_web_summary.html
+	cp ../output/testis1/outs/web_summary.html content/reports/testis1_web_summary.html
+	cp ../output/testis2/outs/web_summary.html content/reports/testis2_web_summary.html
+	cp ../output/testis3/outs/web_summary.html content/reports/testis3_web_summary.html
+	cp ../output/ovary1/outs/web_summary.html content/reports/ovary1_web_summary.html
+	cp ../output/ovary2/outs/web_summary.html content/reports/ovary2_web_summary.html
+	cp ../output/ovary3/outs/web_summary.html content/reports/ovary3_web_summary.html
 
 add_nav: copy_notebooks copy_others
 	python tools/add_navigation.py

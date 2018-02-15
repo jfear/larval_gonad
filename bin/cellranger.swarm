@@ -1,3 +1,12 @@
-# swarm -f cellranger.swarm -g 40 -t 16 --module cellranger/2.0.0 --time 24:00:00
-cellranger count --id=testis1 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/run0570/SV_1_10X_Te --sample=SV_1_10X_Te --localcores=16 --localmem=55
-cellranger count --id=ovary1 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/run0570/SV_2_10X_Ov --sample=SV_2_10X_Ov --localcores=16 --localmem=55
+# Run this script with the following command:
+# swarm -f cellranger.swarm -g 30 -t 16 --module cellranger/2.1.0 --time 24:00:00
+
+# Testis
+cd ../output && cellranger count --id=testis1 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/run0570/SV_1_10X_Te --sample=SV_1_10X_Te --localcores=16 --localmem=25
+cd ../output && cellranger count --id=testis2 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/180206_run0615/SV_3_10X_Te --sample=SV-3-10X-Te-2 --localcores=16 --localmem=25
+cd ../output && cellranger count --id=testis3 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/180207_run0616/SV_5_10X_Te --sample=SV-5-10X-Te-3 --localcores=16 --localmem=25
+
+# Ovary
+cd ../output && cellranger count --id=ovary1 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/run0570/SV_2_10X_Ov --sample=SV_2_10X_Ov --localcores=16 --localmem=25
+cd ../output && cellranger count --id=ovary2 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/180206_run0615/SV_4_10X_Ov --sample=SV-4-10X-Ov-2 --localcores=16 --localmem=25
+cd ../output && cellranger count --id=ovary3 --transcriptome=../references/dm6.16 --fastqs=../data/singleCellSeqData/180207_run0616/SV_6_10X_Ov --sample=SV-6-10X-Ov-3 --localcores=16 --localmem=25
