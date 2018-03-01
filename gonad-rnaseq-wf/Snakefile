@@ -16,7 +16,6 @@ from lib.patterns_targets import RNASeqConfig
 #  Search this file for the string "# TEST SETTINGS" and make necessary edits
 #  before running this on real data.
 # ----------------------------------------------------------------------------
-workdir: '.'
 configfile: 'config/config.yaml'
 include: '../lcdb-wf/workflows/references/Snakefile'
 
@@ -27,7 +26,7 @@ c = RNASeqConfig(config, 'config/rnaseq_patterns.yaml')
 
 
 def wrapper_for(path):
-    return 'file:' + os.path.join('../lcdb-wf','wrappers', 'wrappers', path)
+    return 'file:' + os.path.join('../lcdb-wf', 'wrappers', 'wrappers', path)
 
 # ----------------------------------------------------------------------------
 # RULES
@@ -65,11 +64,17 @@ if 'orig_filename' in c.sampletable.columns:
         """
         input: lambda wc: c.sampletable.set_index(c.sampletable.columns[0])['orig_filename'].to_dict()[wc.sample]
         output: c.patterns['fastq']
+        resources:
+            mem_gb = lambda wildcards, attempt: attempt * 1,
+            time_hr = lambda wildcards, attempt: attempt * 1
         run:
             utils.make_relative_symlink(input[0], output[0])
 
     rule symlink_targets:
         input: c.targets['fastq']
+        resources:
+            mem_gb = lambda wildcards, attempt: attempt * 1,
+            time_hr = lambda wildcards, attempt: attempt * 1
 
 
 rule cutadapt:
@@ -84,6 +89,9 @@ rule cutadapt:
         c.patterns['cutadapt'] + '.log'
     params:
         extra='-a file:../lcdb-wf/include/adapters.fa -q 20 --minimum-length=25'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     wrapper:
         wrapper_for('cutadapt')
 
@@ -96,6 +104,9 @@ rule fastqc:
     output:
         html='{sample_dir}/{sample}/fastqc/{sample}{suffix}_fastqc.html',
         zip='{sample_dir}/{sample}/fastqc/{sample}{suffix}_fastqc.zip',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     wrapper:
         wrapper_for('fastqc')
 
@@ -113,6 +124,9 @@ rule hisat2:
         c.patterns['bam'] + '.log'
     params:
         samtools_view_extra='-F 0x04'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 4
     threads: 6
     wrapper:
         wrapper_for('hisat2/align')
@@ -131,6 +145,9 @@ rule rRNA:
         c.patterns['rrna']['bam'] + '.log'
     params:
         samtools_view_extra='-F 0x04'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     threads: 6
     wrapper:
         wrapper_for('bowtie2/align')
@@ -144,6 +161,9 @@ rule fastq_count:
         fastq='{sample_dir}/{sample}/{sample}{suffix}.fastq.gz'
     output:
         count='{sample_dir}/{sample}/{sample}{suffix}.fastq.gz.libsize'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'zcat {input} | echo $((`wc -l`/4)) > {output}'
 
@@ -156,6 +176,9 @@ rule bam_count:
         bam='{sample_dir}/{sample}/{suffix}.bam'
     output:
         count='{sample_dir}/{sample}/{suffix}.bam.libsize'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'samtools view -c {input} > {output}'
 
@@ -168,8 +191,12 @@ rule bam_index:
         bam='{prefix}.bam'
     output:
         bai='{prefix}.bam.bai'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'samtools index {input} {output}'
+
 
 
 rule fastq_screen:
@@ -191,6 +218,9 @@ rule fastq_screen:
     log:
         c.patterns['fastq_screen'] + '.log'
     params: subset=100000
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 2
     wrapper:
         wrapper_for('fastq_screen')
 
@@ -206,10 +236,14 @@ rule featurecounts:
         counts=c.patterns['featurecounts']
     log:
         c.patterns['featurecounts'] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'featureCounts '
         '-T {threads} '
         '-a {input.annotation} '
+        '-s 2 '
         '-o {output.counts} '
         '{input.bam} '
         '&> {log}'
@@ -224,6 +258,9 @@ rule rrna_libsizes_table:
     output:
         json=c.patterns['rrna_percentages_yaml'],
         tsv=c.patterns['rrna_percentages_table']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     run:
         def rrna_sample(f):
             return helpers.extract_wildcards(c.patterns['rrna']['libsize'], f)['sample']
@@ -274,6 +311,9 @@ rule libsizes_table:
     output:
         json=c.patterns['libsizes_yaml'],
         tsv=c.patterns['libsizes_table']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     run:
         def sample(f):
             return os.path.basename(os.path.dirname(f))
@@ -290,6 +330,16 @@ rule libsizes_table:
         df['stage'] = df.filename.apply(stage)
         df = df.set_index('filename')
         df = df.pivot('sample', columns='stage', values='million')
+
+        # make nicer column names
+        convert = {
+            'fastq.libsize': 'stage1_raw',
+            'cutadapt.fastq.libsize': 'stage2_trimmed',
+            'cutadapt.bam.libsize': 'stage3_aligned',
+        }
+
+        df.columns = [convert[i] for i in df.columns]
+
         df.to_csv(output.tsv, sep='\t')
         y = {
             'id': 'libsizes_table',
@@ -333,6 +383,9 @@ rule multiqc:
         outdir=os.path.dirname(c.targets['multiqc'][0]),
         basename=os.path.basename(c.targets['multiqc'][0])
     log: c.targets['multiqc'][0] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'LC_ALL=en_US.UTF.8 LC_LANG=en_US.UTF-8 '
         'multiqc '
@@ -357,10 +410,10 @@ rule markduplicates:
     log:
         c.patterns['markduplicates']['bam'] + '.log'
     params:
-        # TEST SETTINGS:
-        # You may want to use something larger, like "-Xmx32g" for real-world
-        # usage.
-        java_args='-Xmx2g'
+        java_args='-Xmx12g'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 12,
+        time_hr = lambda wildcards, attempt: attempt * 4
     shell:
         'picard '
         '{params.java_args} '
@@ -382,24 +435,17 @@ rule collectrnaseqmetrics:
         metrics=c.patterns['collectrnaseqmetrics']['metrics'],
         pdf=c.patterns['collectrnaseqmetrics']['pdf']
     params:
-        # TEST SETTINGS:
-        # You may want to use something larger, like "-Xmx32g" for real-world
-        # usage.
-        java_args='-Xmx2g',
+        java_args='-Xmx12g',
     log:
         c.patterns['collectrnaseqmetrics']['metrics'] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 12,
+        time_hr = lambda wildcards, attempt: attempt * 4
     shell:
         'picard '
         '{params.java_args} '
         'CollectRnaSeqMetrics '
-        # From the Picard docs:
-        #
-        # STRAND=StrandSpecificity
-        #     For strand-specific library prep. For unpaired reads, use
-        #     FIRST_READ_TRANSCRIPTION_STRAND if the reads are expected to be on the
-        #     transcription strand.  Required. Possible values: {NONE,
-        #     FIRST_READ_TRANSCRIPTION_STRAND, SECOND_READ_TRANSCRIPTION_STRAND}
-        'STRAND=NONE CHART_OUTPUT={output.pdf} '
+        'STRAND=SECOND_READ_TRANSCRIPTION_STRAND CHART_OUTPUT={output.pdf} '
         'REF_FLAT={input.refflat} '
         'INPUT={input.bam} '
         'OUTPUT={output.metrics} '
@@ -423,6 +469,9 @@ rule dupRadar:
         model=c.patterns['dupradar']['model'],
         curve=c.patterns['dupradar']['curve'],
     log: '{sample_dir}/{sample}/dupradar/dupradar.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     wrapper:
         wrapper_for('dupradar')
 
@@ -441,6 +490,9 @@ rule salmon:
         outdir=os.path.dirname(c.patterns['salmon'])
     log:
         c.patterns['salmon'] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 4
     shell:
         'salmon quant '
         '--index {params.index_dir} '
@@ -459,6 +511,9 @@ rule rseqc_bam_stat:
         bam=c.patterns['bam']
     output:
         txt=c.patterns['rseqc']['bam_stat']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     wrapper: wrapper_for('rseqc/bam_stat')
 
 
@@ -473,6 +528,9 @@ rule bigwig_neg:
     threads: 8
     log:
         c.patterns['bigwig']['neg'] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'bamCoverage '
         '--bam {input.bam} '
@@ -497,6 +555,9 @@ rule bigwig_pos:
     threads: 8
     log:
         c.patterns['bigwig']['pos'] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'bamCoverage '
         '--bam {input.bam} '
@@ -520,6 +581,9 @@ rule rnaseq_rmarkdown:
         sampletable=config['sampletable']
     output:
         'downstream/rnaseq.html'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
