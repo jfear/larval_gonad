@@ -17,6 +17,8 @@
 data
 output
 *cachedir
+rnaseq_cache
+rnaseq_files
 references
 _build
 .*
