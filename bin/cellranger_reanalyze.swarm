@@ -1,0 +1,12 @@
+# Run this script with the following command:
+# swarm -f cellranger.swarm -g 30 -t 16 --module cellranger/2.1.0 --time 24:00:00
+
+# Testis
+cd ../output && cellranger reanalyze --id=testis1_reanalyze --matrix=testis1/outs/raw_gene_bc_matrices_h5.h5 --force-cells 1000
+cd ../output && cellranger reanalyze --id=testis2_reanalyze --matrix=testis2/outs/raw_gene_bc_matrices_h5.h5 --force-cells 1000
+cd ../output && cellranger reanalyze --id=testis3_reanalyze --matrix=testis3/outs/raw_gene_bc_matrices_h5.h5 --force-cells 1000
+
+# Ovary
+cd ../output && cellranger reanalyze --id=ovary1_reanalyze --matrix=ovary1/outs/raw_gene_bc_matrices_h5.h5 --force-cells 1000
+cd ../output && cellranger reanalyze --id=ovary2_reanalyze --matrix=ovary2/outs/raw_gene_bc_matrices_h5.h5 --force-cells 1000
+cd ../output && cellranger reanalyze --id=ovary3_reanalyze --matrix=ovary3/outs/raw_gene_bc_matrices_h5.h5 --force-cells 1000
