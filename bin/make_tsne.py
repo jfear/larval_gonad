@@ -69,7 +69,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/testis1_tsne'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/testes1_scRNAseq_pilot'
+    DAT = '../output/testis1_scRNAseq'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/testis2_tsne'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/testes2_scRNAseq_pilot'
+    DAT = '../output/testis2_scRNAseq'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/testis3_tsne'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/testes3_scRNAseq_pilot'
+    DAT = '../output/testis3_scRNAseq'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/ovary1_tsne'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/ovary1_scRNAseq_pilot'
+    DAT = '../output/ovary1_scRNAseq'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/ovary2_tsne'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/ovary2_scRNAseq_pilot'
+    DAT = '../output/ovary2_scRNAseq'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/ovary3_tsne'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/ovary3_scRNAseq_pilot'
+    DAT = '../output/ovary3_scRNAseq'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
