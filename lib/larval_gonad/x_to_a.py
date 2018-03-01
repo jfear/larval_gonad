@@ -210,4 +210,6 @@ def commonly_expressed(df, read_cutoff=0):
         criteria.
 
     """
-    return df.index[(df > read_cutoff).sum(axis=1) > (df.shape[1] / 3)].tolist()
+    return df.index[
+        (df > read_cutoff).sum(axis=1) > (df.shape[1] / 3)
+    ].tolist()
