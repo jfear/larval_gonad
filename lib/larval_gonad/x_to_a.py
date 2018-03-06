@@ -1,4 +1,5 @@
 """Functions for use with X To A Analysis."""
+from typing import Union, Tuple
 from collections import defaultdict
 
 import numpy as np
@@ -121,6 +122,33 @@ def x_autosome_boxplot(x, y, pvalue_cutoff=0.001, x_chrom=None, autosomes=None,
     return ax
 
 
+def estimate_dcc(chrom_col: str,
+                 count_col: str,
+                 df: pd.DataFrame) -> Tuple[float, float, float]:
+    """Estimate Dosage Compensation.
+
+    Parameters
+    ----------
+    chrom_col: The column name with chromosomes info.
+    count_col: The column name with the count info.
+    df: Dataframe with chrom_col and count_col.
+
+    Returns
+    -------
+    median of X, median of major autosomes, proporition compensation.
+
+    """
+    med_major = df.loc[df[chrom_col].isin(MAJOR_ARMS_CHR), count_col].median()
+    med_x = df.loc[df[chrom_col] == 'chrX', count_col].median()
+
+    try:
+        prop_dcc = np.round((med_x / med_major) * 2, 2)
+    except ZeroDivisionError:
+        prop_dcc = np.nan
+
+    return med_x, med_major, prop_dcc
+
+
 def multi_chrom_boxplot(x, y, **kwargs):
     """Designed to be used with Seaborn.FacetGrid"""
     _dat = kwargs['data']
@@ -130,14 +158,8 @@ def multi_chrom_boxplot(x, y, **kwargs):
     num_genes = _dat.shape[0]
 
     ax = sns.boxplot(x, y, order=CHROMS_CHR, **kwargs)
-    med_major = _dat.loc[_dat[x].isin(MAJOR_ARMS_CHR), y].median()
-    med_x = _dat.loc[_dat[x] == 'chrX', y].median()
+    med_x, med_major, prop_dcc = estimate_dcc(x, y, _dat)
     ax.axhline(med_major, ls='--', color=config['colors']['c2'])
-
-    try:
-        prop_dcc = np.round((med_x / med_major) * 2, 2)
-    except ZeroDivisionError:
-        prop_dcc = np.nan
 
     # Clean up the pvalue for plotting
     pvalues = {}
