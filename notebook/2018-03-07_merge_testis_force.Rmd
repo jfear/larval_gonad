@@ -1,0 +1,93 @@
+---
+title: Cluster Using Same Genes Across Replicates
+author: Justin M. Fear
+email: justin.m.fear@gmail.com
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r library}
+# Import R libraries
+library(Seurat)
+library(dplyr)
+library(Matrix)
+
+```
+
+```{r data, cache=TRUE}
+# Load the 10x dataset Rep 1
+tenX.data <- Read10X(data.dir='../output/testis1_force/outs/filtered_gene_bc_matrices/dm6.16')
+r1 <- CreateSeuratObject(raw.data=tenX.data, min.cells=3, min.genes=200, project='GroupCluster')
+r1@meta.data$rep <- 'rep1'
+r1 <- FilterCells(object=r1, subset.names=c("nGene"), low.thresholds=c(200), high.thresholds=c(6000))
+r1 <- NormalizeData(object=r1, normalization.method="LogNormalize", scale.factor=1e4)
+r1 <- ScaleData(object=r1, vars.to.regress=c("nUMI"), display.progress=FALSE)
+
+# Load the 10x dataset Rep 2
+tenX.data <- Read10X(data.dir='../output/testis2_force/outs/filtered_gene_bc_matrices/dm6.16')
+r2 <- CreateSeuratObject(raw.data=tenX.data, min.cells=3, min.genes=200, project='GroupCluster')
+r2@meta.data$rep <- 'rep2'
+r2 <- FilterCells(object=r2, subset.names=c("nGene"), low.thresholds=c(200), high.thresholds=c(6000))
+r2 <- NormalizeData(object=r2, normalization.method="LogNormalize", scale.factor=1e4)
+r2 <- ScaleData(object=r2, vars.to.regress=c("nUMI"), display.progress=FALSE)
+
+```
+
+```{r variable, cache=TRUE}
+# Find the highly variable genes
+r1 <- FindVariableGenes(object=r1, mean.function=ExpMean, dispersion.function=LogVMR, do.plot=FALSE, x.low.cutoff=0.01, x.high.cutoff=3, y.cutoff=0.5, y.high.cutoff=Inf)
+r2 <- FindVariableGenes(object=r2, mean.function=ExpMean, dispersion.function=LogVMR, do.plot=FALSE, x.low.cutoff=0.01, x.high.cutoff=3, y.cutoff=0.5, y.high.cutoff=Inf)
+g.1 <- head(rownames(r1@hvg.info), 1000)
+g.2 <- head(rownames(r2@hvg.info), 1000)
+
+genes.use <- unique(c(g.1, g.2))
+genes.use <- intersect(genes.use, rownames(r1@scale.data))
+genes.use <- intersect(genes.use, rownames(r2@scale.data))
+
+```
+
+
+```{r cca, cache=TRUE}
+testis.combined = RunCCA(r1, r2, genes.use = genes.use, num.cc = 30, add.cell.id1='rep1', add.cell.id2='rep2')
+```
+
+```{r cca_plot}
+p1 <- DimPlot(object=testis.combined, reduction.use='cca', group.by='rep', pt.size=0.5, do.return=TRUE)
+p2 <- VlnPlot(object=testis.combined, features.plot='CC1', group.by='rep', do.return=TRUE)
+plot_grid(p1, p2)
+```
+
+```{r, cache=TRUE}
+testis.combined <- AlignSubspace(testis.combined, reduction.type = "cca", grouping.var = "rep", dims.align = 1:20)
+```
+
+```{r cca_plot2}
+p1 <- VlnPlot(object=testis.combined, features.plot='ACC1', group.by='rep', do.return=TRUE)
+p2 <- VlnPlot(object=testis.combined, features.plot='ACC2', group.by='rep', do.return=TRUE)
+plot_grid(p1, p2)
+```
+
+
+```{r tsne, cache=TRUE}
+testis.combined <- RunTSNE(testis.combined, reduction.use = "cca.aligned", dims.use = 1:20, do.fast = T)
+testis.combined <- FindClusters(testis.combined, reduction.type = "cca.aligned", resolution = 0.6, dims.use = 1:20)
+```
+
+```{r tsne_plot}
+p1 <- TSNEPlot(testis.combined, do.return = T, pt.size = 0.5, group.by = "rep")
+p2 <- TSNEPlot(testis.combined, do.label = T, do.return = T, pt.size = 0.5)
+plot_grid(p1, p2)
+```
+
+```{r}
+p1
+```
+
+```{r}
+p2
+```
+

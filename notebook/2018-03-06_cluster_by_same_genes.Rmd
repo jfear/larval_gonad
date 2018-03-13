@@ -1,0 +1,106 @@
+---
+title: Cluster Using Same Genes Across Replicates
+author: Justin M. Fear
+email: justin.m.fear@gmail.com
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r library}
+# Import R libraries
+library(Seurat)
+library(dplyr)
+library(Matrix)
+
+```
+
+```{r data}
+# Load the 10x dataset Rep 1
+tenX.data <- Read10X(data.dir='../output/testis1/outs/filtered_gene_bc_matrices/dm6.16')
+r1 <- CreateSeuratObject(raw.data=tenX.data, min.cells=3, min.genes=200, project='GroupCluster')
+
+# Load the 10x dataset Rep 2
+tenX.data <- Read10X(data.dir='../output/testis2/outs/filtered_gene_bc_matrices/dm6.16')
+r2 <- CreateSeuratObject(raw.data=tenX.data, min.cells=3, min.genes=200, project='GroupCluster')
+
+# Load the 10x dataset Rep 3
+tenX.data <- Read10X(data.dir='../output/testis3/outs/filtered_gene_bc_matrices/dm6.16')
+r3 <- CreateSeuratObject(raw.data=tenX.data, min.cells=3, min.genes=200, project='GroupCluster')
+```
+
+```{r filter, cache=TRUE}
+# Filter cells that are blow thresholds
+r1 <- FilterCells(object=r1, subset.names=c("nGene"), low.thresholds=c(200), high.thresholds=c(6000))
+r2 <- FilterCells(object=r2, subset.names=c("nGene"), low.thresholds=c(200), high.thresholds=c(6000))
+r3 <- FilterCells(object=r3, subset.names=c("nGene"), low.thresholds=c(200), high.thresholds=c(6000))
+
+```
+
+```{r normalize, cache=TRUE}
+# Normalize data
+r1 <- NormalizeData(object=r1, normalization.method="LogNormalize", scale.factor=1e4)
+r2 <- NormalizeData(object=r2, normalization.method="LogNormalize", scale.factor=1e4)
+r3 <- NormalizeData(object=r3, normalization.method="LogNormalize", scale.factor=1e4)
+```
+
+```{r variable, cache=TRUE}
+# Find the highly variable genes
+r1 <- FindVariableGenes(object=r1, mean.function=ExpMean, dispersion.function=LogVMR, do.plot=FALSE, x.low.cutoff=0.01, x.high.cutoff=3, y.cutoff=0.5, y.high.cutoff=Inf)
+r2 <- FindVariableGenes(object=r2, mean.function=ExpMean, dispersion.function=LogVMR, do.plot=FALSE, x.low.cutoff=0.01, x.high.cutoff=3, y.cutoff=0.5, y.high.cutoff=Inf)
+r3 <- FindVariableGenes(object=r3, mean.function=ExpMean, dispersion.function=LogVMR, do.plot=FALSE, x.low.cutoff=0.01, x.high.cutoff=3, y.cutoff=0.5, y.high.cutoff=Inf)
+
+```
+
+```{r scale, cache=TRUE}
+# Scale the dataset
+r1 <- ScaleData(object=r1, vars.to.regress=c("nUMI"), display.progress=FALSE)
+r2 <- ScaleData(object=r2, vars.to.regress=c("nUMI"), display.progress=FALSE)
+r3 <- ScaleData(object=r3, vars.to.regress=c("nUMI"), display.progress=FALSE)
+
+```
+
+
+```{r pca, cache=TRUE}
+# PCA
+# NOTE: I am using the variable genes form r1
+r1.var.genes <- r1@var.genes
+r2.genes <- r2@data@Dimnames[[1]]
+r3.genes <- r3@data@Dimnames[[1]]
+var.genes <- r1.var.genes[(r1.var.genes %in% r2.genes) & (r1.var.genes %in% r3.genes)]
+print(length(var.genes))
+
+r1 <- RunPCA(object=r1, pc.genes=var.genes, do.print=FALSE, pcs.print=1:5, genes.print=5, pcs.compute=100)
+r2 <- RunPCA(object=r2, pc.genes=var.genes, do.print=FALSE, pcs.print=1:5, genes.print=5, pcs.compute=100)
+r3 <- RunPCA(object=r3, pc.genes=var.genes, do.print=FALSE, pcs.print=1:5, genes.print=5, pcs.compute=100)
+```
+
+```{r cluster, cache=TRUE}
+# Find Clusters
+r1 <- FindClusters(object=r1, reduction.type="pca", dims.use=1:30, resolution=0.6, print.output=0, save.SNN=TRUE)
+PrintFindClustersParams(object=r1)
+
+r2 <- FindClusters(object=r2, reduction.type="pca", dims.use=1:30, resolution=0.6, print.output=0, save.SNN=TRUE)
+PrintFindClustersParams(object=r2)
+
+r3 <- FindClusters(object=r3, reduction.type="pca", dims.use=1:30, resolution=0.6, print.output=0, save.SNN=TRUE)
+PrintFindClustersParams(object=r3)
+```
+
+```{r tsne}
+r1 <- RunTSNE(object=r1, dims.use=1:30, do.fast=TRUE)
+p1 <- TSNEPlot(object=r1)
+p1$plot + ggtitle('Testis Rep 1')
+
+r2 <- RunTSNE(object=r2, dims.use=1:30, do.fast=TRUE)
+p2 <- TSNEPlot(object=r2)
+p2$plot + ggtitle('Testis Rep 2')
+
+r3 <- RunTSNE(object=r3, dims.use=1:30, do.fast=TRUE)
+p3 <- TSNEPlot(object=r3)
+p3$plot + ggtitle('Testis Rep 3')
+```
+
