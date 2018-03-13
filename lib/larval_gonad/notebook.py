@@ -141,7 +141,7 @@ class Nb(object):
                                 'fb_synonym',
                                 f'{assembly}_{tag}.fb_synonym')
 
-        if seurat_dir is None:
+        if (seurat_dir is None):
             self.seurat = None
         else:
             self.seurat = Seurat(seurat_dir)
@@ -247,20 +247,17 @@ class Nb(object):
         """
         # Set seurat_dir to subproject_dir if it was None.
         if subproject_dir is None:
-            subproject_dir = Path(PROJECT_DIR, 'output')
+            subproject_dir = Path(PROJECT_DIR, 'output').as_posix()
 
         fig_dir = Path(subproject_dir, 'figures')
         fig_dir.mkdir(parents=True, exist_ok=True)
-
-        if seurat_dir is None:
-            seurat_dir = subproject_dir
 
         # set defaults
         defaults = {
             'nb_name': nb_name,
             'project_dir': PROJECT_DIR,
-            'subproject_dir': subproject_dir.as_posix(),
-            'seurat_dir': seurat_dir.as_posix(),
+            'subproject_dir': subproject_dir,
+            'seurat_dir': seurat_dir,
             'config_dir': CONFIG_DIR,
             'ref_dir': REFERENCES_DIR,
             'fig_dir': fig_dir.as_posix(),
@@ -340,7 +337,7 @@ class Seurat(object):
 
         """
 
-        if path is None:
+        if (path is None) | Path(path).exists():
             self.raw = None
             self.metadata = None
             self.scaled = None
@@ -354,7 +351,6 @@ class Seurat(object):
             self.clusters = None
             self.robj = None
         else:
-            Path(path).mkdir(exist_ok=True)
             self.raw = os.path.join(path, 'raw.tsv')
             self.metadata = os.path.join(path, 'metadata.tsv')
             self.scaled = os.path.join(path, 'scaled.tsv')
