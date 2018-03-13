@@ -10,14 +10,14 @@ import matplotlib as mpl
 import seaborn as sns
 from IPython import get_ipython
 
-from .io import config
+from .config import config, PROJECT_DIR, CONFIG_DIR, CACHE_DIR, REFERENCES_DIR
 from .plotting import add_styles
 
 
 class Nb(object):
     def __init__(self, nb_name=None, project_dir=None, subproject_dir=None,
                  seurat_dir=None, config_dir=None, ref_dir=None, fig_dir=None,
-                 table_dir=None, formats=None, styles=None, styles_wide=None,
+                 formats=None, styles=None, styles_wide=None,
                  styles_full=None, watermark=None, **kwargs):
         """Helper method for working consistently in notebook.
 
@@ -41,8 +41,6 @@ class Nb(object):
             Name of the  directory with seurat output.
         fig_dir : str
             Name of the figures directory.
-        table_dir : str
-            Name of the tables directory.
         formats : str or list
             Default list of formats to use for plotting. For example 'png' or
             ['png', 'svg'].
@@ -71,8 +69,6 @@ class Nb(object):
             Name of the references directory.
         fig_dir : str
             Name of the figures directory.
-        table_dir : str
-            Name of the tables directory.
         formats : str or list
             Default list of formats to use for plotting. For example 'png' or
             ['png', 'svg'].
@@ -115,7 +111,6 @@ class Nb(object):
         self.config_dir = config_dir
         self.ref_dir = ref_dir
         self.fig_dir = fig_dir
-        self.table_dir = table_dir
         self.formats = formats
         self.styles = styles
         self.styles_wide = styles_wide
@@ -146,7 +141,10 @@ class Nb(object):
                                 'fb_synonym',
                                 f'{assembly}_{tag}.fb_synonym')
 
-        self.seurat = Seurat(seurat_dir)
+        if seurat_dir is None:
+            self.seurat = None
+        else:
+            self.seurat = Seurat(seurat_dir)
 
         # Add useful mappers
         _annot = pd.read_csv(self.annot, sep='\t', index_col=1)
@@ -247,33 +245,27 @@ class Nb(object):
             Additional arguments to pass to Nb.
 
         """
-        # Figure out project, config, and references folder
-        prj = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '../../')
-        )
-        cfg = os.path.join(prj, 'config')
-        ref = os.environ.get('REFERENCES_DIR', None)
-
         # Set seurat_dir to subproject_dir if it was None.
-        if subproject_dir is not None:
-            Path(subproject_dir).mkdir(exist_ok=True)
+        if subproject_dir is None:
+            subproject_dir = Path(PROJECT_DIR, 'output')
+
+        fig_dir = Path(subproject_dir, 'figures')
+        fig_dir.mkdir(parents=True, exist_ok=True)
+
         if seurat_dir is None:
             seurat_dir = subproject_dir
 
         # set defaults
         defaults = {
             'nb_name': nb_name,
-            'project_dir': prj,
-            'subproject_dir': subproject_dir,
-            'seurat_dir': seurat_dir,
-            'config_dir': cfg,
-            'ref_dir': ref,
-            'fig_dir': './figures',
-            'table_dir': './tables',
-            'formats': ['png', 'pdf', 'svg'],
-            'styles': ['notebook', 'paper'],
-            'styles_wide': ['notebook-wide', 'paper-wide'],
-            'styles_full': ['notebook-full', 'paper-full'],
+            'project_dir': PROJECT_DIR,
+            'subproject_dir': subproject_dir.as_posix(),
+            'seurat_dir': seurat_dir.as_posix(),
+            'config_dir': CONFIG_DIR,
+            'ref_dir': REFERENCES_DIR,
+            'fig_dir': fig_dir.as_posix(),
+            'formats': ['png', 'pdf'],
+            'styles': ['notebook', 'talk'],
             'watermark': watermark
         }
 
@@ -281,6 +273,11 @@ class Nb(object):
 
         # Import external config
         defaults.update(config)
+
+        # Add wide and full styles
+        _styles = defaults['styles']
+        defaults['styles_wide'] = [x + '-wide' for x in _styles],
+        defaults['styles_full'] = [x + '-full' for x in _styles],
 
         return cls(**defaults)
 
@@ -294,14 +291,15 @@ class Nb(object):
         if self.nb_name is not None:
             fname = '_'.join([self.nb_name, fname])
 
-        return os.path.join(self.table_dir, fname)
+        return os.path.join(self.subproject_dir, fname)
 
     def __repr__(self):
         return str(self)
 
     def __str__(self):
-        keys = ['nb_name', 'project_dir', 'config_dir', 'fig_dir', 'table_dir',
-                'formats', 'styles', 'styles_wide', 'styles_full', 'date']
+        keys = ['nb_name', 'project_dir', 'config_dir', 'fig_dir',
+                'subproject_dir', 'seurat_dir', 'formats', 'styles',
+                'styles_wide', 'styles_full', 'date']
         keys.extend(self._config_attrs)
         res = []
         for key in keys:
