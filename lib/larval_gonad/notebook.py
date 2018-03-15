@@ -320,6 +320,8 @@ class Seurat(object):
             Path to scaled data.
         dispersion : str
             Path to dispersion estimates.
+        var_genes : str
+            Path to variable gene list.
         normalized_read_counts : str
             Path to normalized read counts.
         principal_components_cell : str
@@ -337,11 +339,12 @@ class Seurat(object):
 
         """
 
-        if (path is None) | Path(path).exists():
+        if (path is None):
             self.raw = None
             self.metadata = None
             self.scaled = None
             self.dispersion = None
+            self.var_genes = None
             self.normalized_read_counts = None
             self.principal_components_cell = None
             self.principal_components_gene = None
@@ -355,6 +358,7 @@ class Seurat(object):
             self.metadata = os.path.join(path, 'metadata.tsv')
             self.scaled = os.path.join(path, 'scaled.tsv')
             self.dispersion = os.path.join(path, 'dispersion.tsv')
+            self.var_genes = os.path.join(path, 'var_genes.txt')
             self.normalized_read_counts = os.path.join(
                 path, 'normalized_read_counts.tsv'
             )
@@ -393,6 +397,10 @@ class Seurat(object):
         df = pd.read_csv(self.dispersion, sep='\t')
         df.index.name = 'FBgn'
         return df
+
+    def get_var_genes(self):
+        with open(self.var_genes) as fh:
+            return [x.strip() for x in fh.readlines()]
 
     def get_normalized_read_counts(self):
         df = pd.read_csv(self.normalized_read_counts, sep='\t')
