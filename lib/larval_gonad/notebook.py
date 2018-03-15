@@ -436,7 +436,5 @@ class Seurat(object):
         return df
 
     def get_clusters(self):
-        df = pd.read_csv(self.clusters, sep='\t')
-        df.index.name = 'cell_id'
-        df.columns = ['cluster']
-        return df.cluster
+        df = pd.read_csv(self.clusters, sep='\t', index_col=0)
+        return df
