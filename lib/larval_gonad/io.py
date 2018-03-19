@@ -25,4 +25,8 @@ def cellranger_counts(fname, genome='dm6.16'):
         indptr = getattr(group, 'indptr').read()
         shape = getattr(group, 'shape').read()
     matrix = sp_sparse.csc_matrix((data, indices, indptr), shape=shape)
-    return pd.DataFrame(data=matrix, index=gene_ids, columns=barcodes)
+    return pd.DataFrame(
+        data=matrix.todense(),
+        index=[x.decode() for x in gene_ids],
+        columns=[x.decode() for x in barcodes]
+    )
