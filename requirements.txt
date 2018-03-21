@@ -20,6 +20,7 @@ geoparse
 gffutils
 ghostscript
 goatools
+h5py
 hisat2
 ipycache >=0.1.6dev
 joblib
@@ -32,6 +33,7 @@ numpy
 pandas
 pandoc
 picard
+pyarrow
 pybedtools
 pysam
 pytest
@@ -89,6 +91,7 @@ snakemake
 sra-tools
 statsmodels
 subread
+tqdm
 ucsc-gtftogenepred
 ucsc-oligomatch
 ucsc-twobittofa
