@@ -91,7 +91,6 @@ snakemake
 sra-tools
 statsmodels
 subread
-tqdm
 ucsc-gtftogenepred
 ucsc-oligomatch
 ucsc-twobittofa
