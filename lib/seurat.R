@@ -15,8 +15,10 @@ dump_seurat <- function(object, dir) {
     norm <- as.data.frame(as.matrix(object@data))
     write.table(norm, file = file.path(dir, 'normalized_read_counts.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 
-    dispersion <- as.data.frame(as.matrix(object@hvg.info))
-    write.table(dispersion, file = file.path(dir, 'dispersion.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+    if (length(object@hvg.info) > 0){
+	    dispersion <- as.data.frame(as.matrix(object@hvg.info))
+	    write.table(dispersion, file = file.path(dir, 'dispersion.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+    }
 
     var_genes = object@var.genes
     write(var_genes, file = file.path(dir, 'var_genes.txt'))
@@ -24,14 +26,27 @@ dump_seurat <- function(object, dir) {
     scaled <- as.data.frame(object@scale.data)
     write.table(scaled, file = file.path(dir, 'scaled.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 
-    pca_res <- as.data.frame(object@dr$pca@cell.embeddings)
-    write.table(pca_res, file = file.path(dir, 'principal_components_cell.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+    if (length(object@dr$pca) > 0){
+	    pca_res <- as.data.frame(object@dr$pca@cell.embeddings)
+	    write.table(pca_res, file = file.path(dir, 'principal_components_cell.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 
-    gene_loadings <- as.data.frame(object@dr$pca@gene.loadings)
-    write.table(gene_loadings, file = file.path(dir, 'principal_components_gene.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+	    gene_loadings <- as.data.frame(object@dr$pca@gene.loadings)
+	    write.table(gene_loadings, file = file.path(dir, 'principal_components_gene.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 
-    pca_stdev <- object@dr$pca@sdev
-    write.table(pca_stdev, file = file.path(dir, 'principal_components_stdev.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+	    pca_stdev <- object@dr$pca@sdev
+	    write.table(pca_stdev, file = file.path(dir, 'principal_components_stdev.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+    }
+
+    if (length(object@dr$cca) > 0){
+	    pca_res <- as.data.frame(object@dr$cca@cell.embeddings)
+	    write.table(pca_res, file = file.path(dir, 'cca_cell.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+	    gene_loadings <- as.data.frame(object@dr$cca@gene.loadings)
+	    write.table(gene_loadings, file = file.path(dir, 'cca_gene.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+	    gene_loadings_full <- as.data.frame(object@dr$cca@gene.loadings.full)
+	    write.table(gene_loadings_full, file = file.path(dir, 'cca_gene_full.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+    }
 
     clusters <- object@meta.data[, grepl('res', colnames(object@meta.data))]
     write.table(clusters, file = file.path(dir, 'clusters.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
