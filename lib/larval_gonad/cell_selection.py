@@ -162,7 +162,7 @@ def filter_gene_counts_by_barcode(barcodes: np.array, cr: CellRangerCounts):
 
     return pd.DataFrame(
         data=matrix,
-        index=cr.gene_ids,
+        index=pd.Index(cr.gene_ids, name='FBgn'),
         columns=bcs
     )
 
