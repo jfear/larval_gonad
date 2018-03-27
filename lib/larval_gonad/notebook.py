@@ -273,8 +273,8 @@ class Nb(object):
 
         # Add wide and full styles
         _styles = defaults['styles']
-        defaults['styles_wide'] = [x + '-wide' for x in _styles],
-        defaults['styles_full'] = [x + '-full' for x in _styles],
+        defaults['styles_wide'] = [x + '-wide' for x in _styles]
+        defaults['styles_full'] = [x + '-full' for x in _styles]
 
         return cls(**defaults)
 
