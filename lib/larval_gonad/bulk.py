@@ -165,3 +165,55 @@ def plot_corr_distribution(corr):
         ax.set_xlabel('Cells')
 
     plt.tight_layout()
+
+
+def scRNAseq_corr_distribution_random(umi, raw, bulk_dat, interval=100,
+                                      stop=10000, random_state=42):
+    """Calculate the correlation distribution between scRNASeq and Bulk.
+
+    Iterate by intervals of cells and calculate the correlation of summed
+    scRNASeq vs Bulk RNA-Seq.
+
+    Parameters
+    ----------
+    umi : pd.DataFrame
+        DataFrame of UMI counts by Cell (tidy)
+    raw : CellRangerCounts
+        A named tuple of CellRangerCounts.
+    bulk_dat : pd.DataFrame
+        DataFrame of bulk RNA-seq data (genes, samples)
+    interval : int
+        Number of cells to add each iteration [default 100]
+    stop : int
+        Number of cells to stop at [default 10,000]
+    random_state : None | int
+        Random state to use for sampling. Set to None if you want full random
+        with each iteration.
+
+    Returns
+    -------
+    pd.DataFrame
+        Rows are the number of UMI sorted cells. Columns are Bulk RNASeq
+        samples. Values are Spearman r coefficients.
+
+    """
+
+    res = []
+    loc = interval
+    while loc < stop:
+        idx = umi.sample(n=loc, random_state=random_state).index
+        dat = filter_gene_counts_by_barcode(idx, raw).sum(axis=1)
+        corrs = []
+        for col in bulk_dat.columns:
+            corrs.append(spearmanr(bulk_dat[col], dat).correlation)
+
+        res.append([loc, *corrs])
+        loc += interval
+
+    col_names = ['Cell Number']
+    col_names.extend(bulk_dat.columns)
+
+    df = pd.DataFrame(res, columns=col_names)
+
+    return df.set_index('Cell Number')
+
