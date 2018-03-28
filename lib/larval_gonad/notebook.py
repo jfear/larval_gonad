@@ -10,7 +10,7 @@ import matplotlib as mpl
 import seaborn as sns
 from IPython import get_ipython
 
-from .config import config, PROJECT_DIR, CONFIG_DIR, CACHE_DIR, REFERENCES_DIR
+from .config import config, PROJECT_DIR, CONFIG_DIR, REFERENCES_DIR
 from .plotting import add_styles
 
 
@@ -215,7 +215,6 @@ class Nb(object):
 
         mpl.style.use(['common', 'notebook'])
         sns.set_palette(self.colors)
-        mpl.rcParams['pdf.fonttype'] = 42
 
     def get_conda(self):
         conda_info = check_output(['conda', 'info']).decode('utf-8')
