@@ -10,10 +10,10 @@ import seaborn as sns
 
 from pysam import AlignmentFile
 
-from .io import memory, config
+from .config import memory, config
 
-CHROMS = ['2L', '2R', '3L', '3R', '4', 'X', 'Y']
-CHROMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrX', 'chrY']
+CHROMS = ['X', '2L', '2R', '3L', '3R', '4', 'Y']
+CHROMS_CHR = ['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrY']
 
 AUTOSOMES = ['2L', '2R', '3L', '3R', '4']
 AUTOSOMES_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']
@@ -232,6 +232,5 @@ def commonly_expressed(df, read_cutoff=0):
         criteria.
 
     """
-    return df.index[
-        (df > read_cutoff).sum(axis=1) > (df.shape[1] / 3)
-    ].tolist()
+    mask = (df > read_cutoff).sum(axis=1) > (df.shape[1] / 3)
+    return df.index[mask].tolist()
