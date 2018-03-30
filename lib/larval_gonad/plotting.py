@@ -48,8 +48,9 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
     return _plot_all
 
 
-def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None,
-             class_names=None, legend_kws=None, **kwargs):
+def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
+             palette=None, ax=None, class_names=None,
+             legend_kws=None, **kwargs):
     """ Make a TSNE plot using either continuous or discrete data.
 
     Parameters
@@ -113,7 +114,13 @@ def TSNEPlot(x, y, data=None, hue=None, cmap=None, palette=None, ax=None,
             else:
                 _class = class_names[l]
 
-            dd.plot.scatter(x, y, c=cmap[l], label=_class, ax=ax, **defaults)
+            try:
+                dd.plot.scatter(x, y, c=cmap[l], label=_class,
+                                ax=ax, **defaults)
+            except KeyError as e:
+                print('Try Setting Palette with the correct number of colors.')
+                print(len(cmap), len(values))
+                raise e
 
         ax.legend(**legend_defaults)
 
