@@ -1,4 +1,6 @@
 """Functions for use with X To A Analysis."""
+import os
+from pathlib import Path
 from typing import Union, Tuple
 from collections import defaultdict
 
@@ -234,3 +236,114 @@ def commonly_expressed(df, read_cutoff=0):
     """
     mask = (df > read_cutoff).sum(axis=1) > (df.shape[1] / 3)
     return df.index[mask].tolist()
+
+
+def _get_mapper():
+    REF_DIR = os.environ['REFERENCES_DIR']
+    assembly = config['assembly']
+    tag = config['tag']
+    fname = Path(REF_DIR, assembly, tag, 'fb_annotation',
+                 f'dmel_{tag}.fb_annotation')
+
+    annot = pd.read_csv(fname, sep='\t')
+    mapper = {}
+    for i, row in annot.iterrows():
+        fbgn = row.primary_FBgn
+        mapper[fbgn] = fbgn
+
+        if isinstance(row.annotation_ID, str):
+            mapper[row.annotation_ID] = fbgn
+
+        if isinstance(row.secondary_FBgn, str):
+            for sec in row.secondary_FBgn.split(','):
+                mapper[sec] = fbgn
+
+        if isinstance(row.secondary_annotation_ID, str):
+            for acn in row.secondary_annotation_ID.split(','):
+                mapper[acn] = fbgn
+
+    return mapper
+
+
+MAPPER = _get_mapper()
+
+
+def cleanup_FBgn(dat):
+    """Convert FBgn or Accn to current FBgn."""
+    res = []
+    for k in dat:
+        try:
+            res.append(MAPPER[k])
+        except KeyError:
+            if isinstance(k, str):
+                print(f'{k} not found in current annotation.')
+    return np.array(res)
+
+
+def get_gene_sets():
+    PROJ_DIR = '../'
+
+    genes = {}
+    # Tau
+    tau = pd.read_csv(Path(PROJ_DIR,
+                           'output/2018-02-05_tau_haiwang_male_tau.tsv'),
+                      sep='\t', index_col='FBgn', squeeze=True).dropna()
+    tau_genes = cleanup_FBgn(tau[tau <= 0.4].index)
+    genes['Haiwang_male_tau'] = tau_genes
+
+    # TSPS
+    tsps = pd.read_csv(Path(PROJ_DIR,
+                            'output/2018-02-05_tau_haiwang_male_tsps.tsv'),
+                       sep='\t', index_col='FBgn', squeeze=True).dropna()
+    tsps_genes = cleanup_FBgn(tsps[tsps < 1.0].index)
+    genes['Haiwang_male_tsps'] = tsps_genes
+
+    # Naieve Bayes
+    with open(Path(PROJ_DIR,
+                   'data/external/Ferrari_et_al_2006_housekeeping_FBgn.txt')) as fh:
+        housekeeping = np.array(fh.read().splitlines())
+
+    bayes_genes = cleanup_FBgn(housekeeping)
+    genes['Ferrari_housekeeping'] = bayes_genes
+
+    # Protein groups from DroID and DPiM
+    protein = pd.read_csv(Path(PROJ_DIR,
+                               'data/external/DroID_DPiM_2018-03-29.txt'),
+                          sep='\t', low_memory=False)
+
+    network = defaultdict(set)
+    for i, (bait, inter) in protein[['FBGN_BAIT', 'FBGN_INTERACTOR']].iterrows():
+        network[bait].add(inter)
+        network[inter].add(bait)
+
+    # Sanity check to make sure I only have genes with at least one interaction
+    dpim = set()
+    for k, v in network.items():
+        if len(v) > 1:
+            dpim.add(k)
+            dpim.union(set(v))
+
+    dpim_genes = cleanup_FBgn(dpim)
+    genes['DPiM_protein_complex'] = dpim_genes
+
+    # Parse FlyBase Gene Groups
+    header = [
+        'FB_group_id',
+        'FB_group_symbol',
+        'FB_group_name',
+        'Parent_FB_group_id',
+        'Parent_FB_group_symbol',
+        'FBgn',
+        'gene_symbol',
+    ]
+
+    # Genes in any gene group
+    fb_groups = pd.read_csv(Path(PROJ_DIR,
+                                 'data/external/gene_group_data_fb_2017_03.tsv'),
+                            sep='\t', comment='#', names=header)
+    genes['flybase_groups'] = {}
+    for i, group in fb_groups.groupby('FB_group_name'):
+        fb_genes = cleanup_FBgn(group.FBgn)
+        genes['flybase_groups'][i] = fb_genes
+
+    return genes
