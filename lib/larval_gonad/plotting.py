@@ -100,10 +100,17 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
         hue = 'on'
 
     values = sorted(df[hue].unique())
-    if isinstance(values[0], (int, float)) & (len(values) > 2):
+    if isinstance(values[0], (int, float, np.integer)) & (len(values) > 2):
         if cmap is None:
             cmap = mpl.colors.ListedColormap(palette)
-        df.plot.scatter(x, y, c=df[hue], cmap=cmap, ax=ax, **defaults)
+        zeros = df[df[hue] == 0]
+        if len(zeros) > 0:
+            zeros.plot.scatter(x, y, c=zeros[hue], cmap=cmap, ax=ax,
+                               colorbar=False, **defaults)
+
+        expressed = df[df[hue] > 0]
+        if len(expressed) > 0:
+            expressed.plot.scatter(x, y, c=expressed[hue], cmap=cmap, ax=ax, **defaults)
     else:
         if cmap is None:
             cmap = {k: v for k, v in zip(values, palette)}
@@ -123,6 +130,10 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
                 raise e
 
         ax.legend(**legend_defaults)
+    ax.set_xticks([])
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+    ax.set_yticks([])
 
 
 def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix',
