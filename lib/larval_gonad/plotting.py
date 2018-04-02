@@ -50,7 +50,7 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
 
 def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
              palette=None, ax=None, class_names=None,
-             legend_kws=None, **kwargs):
+             legend_kws=None, cbar=True, **kwargs):
     """ Make a TSNE plot using either continuous or discrete data.
 
     Parameters
@@ -100,7 +100,7 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
         hue = 'on'
 
     values = sorted(df[hue].unique())
-    if isinstance(values[0], (int, float, np.integer)) & (len(values) > 2):
+    if isinstance(values[0], (int, float, np.integer)) & (len(values) > 20):
         if cmap is None:
             cmap = mpl.colors.ListedColormap(palette)
         zeros = df[df[hue] == 0]
@@ -110,7 +110,8 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
 
         expressed = df[df[hue] > 0]
         if len(expressed) > 0:
-            expressed.plot.scatter(x, y, c=expressed[hue], cmap=cmap, ax=ax, **defaults)
+            expressed.plot.scatter(x, y, c=expressed[hue], cmap=cmap, ax=ax,
+                                   colorbar=cbar, **defaults)
     else:
         if cmap is None:
             cmap = {k: v for k, v in zip(values, palette)}
@@ -122,8 +123,8 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
                 _class = class_names[l]
 
             try:
-                dd.plot.scatter(x, y, c=cmap[l], label=_class,
-                                ax=ax, **defaults)
+                dd.plot.scatter(x, y, c=cmap[l], label=_class, ax=ax,
+                                **defaults)
             except KeyError as e:
                 print('Try Setting Palette with the correct number of colors.')
                 print(len(cmap), len(values))
