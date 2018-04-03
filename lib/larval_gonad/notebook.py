@@ -147,7 +147,7 @@ class Nb(object):
             self.seurat = Seurat(seurat_dir)
 
         # Add useful mappers
-        _annot = pd.read_csv(self.annot, sep='\t', index_col=1)
+        _annot = pd.read_csv(self.annot, sep='\t', index_col=1).fillna('nan')
         self.fbgn2symbol = _annot['gene_symbol'].to_dict()
         self.symbol2fbgn = {v: k for k, v in self.fbgn2symbol.items()}
 
