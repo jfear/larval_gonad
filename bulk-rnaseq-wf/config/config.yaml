@@ -30,7 +30,7 @@ rrna:
   tag: 'rRNA'
 
 gtf:
-  tag: "r6-16"
+  tag: "r6-16_and_ercc"
 
 salmon:
   tag: "r6-16_transcriptome"
