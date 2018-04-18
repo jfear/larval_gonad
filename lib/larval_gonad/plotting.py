@@ -32,7 +32,7 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             def plot_style(style, formats):
-                with plt.style.context([style, 'common']):
+                with plt.style.context(['common', style]):
                     func(*args, **kwargs)
                     plt.tight_layout(**kws_layout)
                     if ('notebook' not in style) & (fname is not None):
@@ -77,7 +77,9 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
     """
     defaults = {
         'vmin': 0,
-        'vmax': 5
+        'vmax': 5,
+        'edgecolor': 'k',
+        'linewidth': .02,
     }
     defaults.update(kwargs)
 
@@ -100,18 +102,18 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
         hue = 'on'
 
     values = sorted(df[hue].unique())
-    if isinstance(values[0], (int, float, np.integer)) & (len(values) > 20):
+    if (isinstance(values[0], (int, np.integer)) & (len(values) > 20)) | isinstance(values[0], (float, np.float64)):
         if cmap is None:
             cmap = mpl.colors.ListedColormap(palette)
         zeros = df[df[hue] == 0]
         if len(zeros) > 0:
             zeros.plot.scatter(x, y, c=zeros[hue], cmap=cmap, ax=ax,
-                               colorbar=False, **defaults)
+                               colorbar=False, zorder=1, **defaults)
 
         expressed = df[df[hue] > 0]
         if len(expressed) > 0:
             expressed.plot.scatter(x, y, c=expressed[hue], cmap=cmap, ax=ax,
-                                   colorbar=cbar, **defaults)
+                                   colorbar=cbar, zorder=3, **defaults)
     else:
         if cmap is None:
             cmap = {k: v for k, v in zip(values, palette)}
@@ -128,6 +130,7 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
             except KeyError as e:
                 print('Try Setting Palette with the correct number of colors.')
                 print(len(cmap), len(values))
+                print(type(values[0]))
                 raise e
 
         ax.legend(**legend_defaults)

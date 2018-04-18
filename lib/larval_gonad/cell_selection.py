@@ -18,6 +18,60 @@ import pandas as pd
 import scipy.sparse as sp_sparse
 import tables
 
+SOMA = [
+    'bnb',
+    'CadN',
+    'cora',
+    'crp',
+    'dsx',
+    'Egfr',
+    'egr',
+    'ems',
+    'Fas3',
+    'fax',
+    'foxo',
+    'fru',
+    'gbb',
+    'ImpL2',
+    'Lar',
+    'nord',
+    'Nrt',
+    'oys',
+    'Sox100B',
+    'spi',
+    'spict',
+    'tj',
+    'tkv',
+    'vkg',
+]
+
+EARLY_GERM = [
+    'bam',
+    'bgcn',
+    'hts',
+    'Marf'
+    'mle',
+    'Phf7',
+    'Rbp9',
+    'tej',
+    'tut',
+    'vas',
+]
+
+LATE_GERM = [
+    'aly',
+    'c-cup',
+    'CG3927',
+    'd-cup',
+    'fzo',
+    'mia',
+    'p-cup',
+    'r-cup',
+    'soti',
+    'sowi',
+    'sunz',
+    'wa-cup',
+]
 
 NUCS = ['A', 'C', 'G', 'T']
 NUCS_INVERSE = {'A': 0, 'C': 1, 'G': 2, 'T': 3}

@@ -24,11 +24,22 @@ MAJOR_ARMS = ['2L', '2R', '3L', '3R']
 MAJOR_ARMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
 
 
-def clean_pvalue(pval):
-    if pval < 0.0001:
+def clean_pvalue(pval, use_text=True):
+    if (pval < 0.0001) & use_text:
         pvalue = 'P<0.0001'
+    elif (pval < 0.0001):
+        pvalue = '***'
+    elif (pval < 0.001) & use_text:
+        pvalue = 'P<0.001'
+    elif (pval < 0.001):
+        pvalue = '**'
+    elif (pval < 0.01) & use_text:
+        pvalue = 'P<0.01'
+    elif (pval < 0.01):
+        pvalue = '**'
     else:
-        pvalue = f'P={round(pval, 5)}'
+        pvalue = 'N.S.'
+
     return pvalue
 
 
@@ -151,23 +162,25 @@ def estimate_dcc(chrom_col: str,
     return med_x, med_major, prop_dcc
 
 
-def multi_chrom_boxplot(x, y, **kwargs):
+def multi_chrom_boxplot(x, y, use_text=True, multiplier=2, **kwargs):
     """Designed to be used with Seaborn.FacetGrid"""
     _dat = kwargs['data']
     _dat = _dat[_dat[x].isin(CHROMS_CHR)]
-    curr_cluster = _dat['cluster'].values[0]
-    num_cells = kwargs.pop('num_cells')[curr_cluster]
-    num_genes = _dat.shape[0]
+    meds = _dat.groupby(x).median()
 
-    ax = sns.boxplot(x, y, order=CHROMS_CHR, **kwargs)
+    ax = sns.boxplot(x, y, order=CHROMS_CHR[:-1], **kwargs)
+    ax.scatter(range(meds.shape[0]), meds.loc[CHROMS_CHR[:-1]].values,
+               color='w', edgecolor='k', marker='d')
+
     med_x, med_major, prop_dcc = estimate_dcc(x, y, _dat)
-    ax.axhline(med_major, ls='--', color=config['colors']['c2'])
+    ax.axhline(med_major, ls='--', color=sns.xkcd_rgb['coral'],
+               lw=2, label='Median Autosomal Expression', zorder=3)
 
     # Clean up the pvalue for plotting
     pvalues = {}
     iqr = 0
-    chromX = _dat[_dat.chrom == 'chrX']
-    for g, df in _dat.groupby('chrom'):
+    chromX = _dat[_dat[x] == 'chrX']
+    for g, df in _dat.groupby(x):
         _iqr = sns.utils.iqr(df[y])
         if _iqr > iqr:
             iqr = _iqr
@@ -177,25 +190,36 @@ def multi_chrom_boxplot(x, y, **kwargs):
         if pval <= 0.001:
             pvalues[g] = pval
 
-    multiplier = 2
+    if isinstance(multiplier, tuple):
+        multiplier, increment = multiplier
+    else:
+        increment = 1
+
     xloc = CHROMS_CHR.index('chrX')
     for k, v in pvalues.items():
         oloc = CHROMS_CHR.index(k)
-        pval = clean_pvalue(v)
+        pval = clean_pvalue(v, use_text)
         y, h, col = iqr + iqr * multiplier, .4, 'k'
         plt.plot([xloc, xloc, oloc, oloc], [y, y+h, y+h, y], lw=1, c=col)
         plt.text((xloc+oloc)*.5, y+h+.01, f"{pval}", ha='center',
-                 va='bottom', color=col)
-        multiplier += 1
+                 va='bottom', color=col, fontsize=22)
+        multiplier += increment
 
-    ax.text(
-        .05, .85,
-        (f'X Compensation: {prop_dcc}\n'
-         f'(n={num_cells} cells)\n'
-         f'(g={num_genes:,} genes)'
-         ),
-        transform=ax.transAxes
-    )
+    try:
+        curr_cluster = _dat['cluster'].values[0]
+        num_cells = kwargs.pop('num_cells')[curr_cluster]
+        num_genes = _dat.shape[0]
+
+        ax.text(
+            .05, .85,
+            (f'X Compensation: {prop_dcc}\n'
+             f'(n={num_cells} cells)\n'
+             f'(g={num_genes:,} genes)'
+             ),
+            transform=ax.transAxes
+        )
+    except KeyError:
+        pass
 
     # Add gene counts per chrom
 #     gdsc = _dat.groupby(x)[y].describe()

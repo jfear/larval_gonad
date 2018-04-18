@@ -265,10 +265,9 @@ class Nb(object):
             'watermark': watermark
         }
 
-        defaults.update(kwargs)
-
         # Import external config
         defaults.update(config)
+        defaults.update(kwargs)
 
         # Add wide and full styles
         _styles = defaults['styles']
