@@ -79,7 +79,6 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
         'vmin': 0,
         'vmax': 5,
         'edgecolor': 'k',
-        'linewidth': .02,
     }
     defaults.update(kwargs)
 

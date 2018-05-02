@@ -1,17 +1,22 @@
-axes.labelsize: 10.0
-axes.titlesize: 12.0
-figure.figsize: 3.3, 3.34
+figure.figsize: 8, 8
+figure.titlesize: 18.0
+figure.titleweight: black
+figure.dpi: 600
+font.size: 20
+axes.labelsize: 12.0
+axes.titlesize: 14.0
 grid.linewidth: 0.8
-legend.fontsize: 10.0
-lines.linewidth: 1.4
-lines.markeredgewidth: 0.0
-lines.markersize: 4
-patch.linewidth: 0.24
-xtick.labelsize: 8.0
+axes.titleweight: normal
+lines.linewidth: 1.5
+lines.markeredgewidth: 1.00
+lines.markersize: 6
+legend.fontsize: 12.0
+patch.linewidth: 0.01
+xtick.labelsize: 10.0
 xtick.major.pad: 5.6
-xtick.major.width: 0.8
-xtick.minor.width: 0.4
-ytick.labelsize: 8.0
+xtick.major.width: 1.0
+xtick.minor.width: 0.5
+ytick.labelsize: 10.0
 ytick.major.pad: 5.6
-ytick.major.width: 0.8
-ytick.minor.width: 0.4
+ytick.major.width: 1.0
+ytick.minor.width: 0.5
