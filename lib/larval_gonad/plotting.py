@@ -14,7 +14,8 @@ def add_styles(dirname):
     mpl.style.core.update_user_library(mpl.style.library)
 
 
-def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
+def make_figs(fname=None, styles=None, formats=None, layout=True,
+              kws_layout=None):
     if isinstance(formats, str):
         formats = [formats]
     elif formats is None:
@@ -34,7 +35,8 @@ def make_figs(fname=None, styles=None, formats=None, kws_layout=None):
             def plot_style(style, formats):
                 with plt.style.context(['common', style]):
                     func(*args, **kwargs)
-                    plt.tight_layout(**kws_layout)
+                    if layout:
+                        plt.tight_layout(**kws_layout)
                     if ('notebook' not in style) & (fname is not None):
                         fn = fname + '_' + style
                         for f in formats:
