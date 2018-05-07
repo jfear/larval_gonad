@@ -162,13 +162,16 @@ def estimate_dcc(chrom_col: str,
     return med_x, med_major, prop_dcc
 
 
-def multi_chrom_boxplot(x, y, use_text=True, multiplier=2, **kwargs):
+def multi_chrom_boxplot(x, y, use_text=True, multiplier=2, ax=None, **kwargs):
     """Designed to be used with Seaborn.FacetGrid"""
     _dat = kwargs['data']
     _dat = _dat[_dat[x].isin(CHROMS_CHR)]
     meds = _dat.groupby(x).median()
 
-    ax = sns.boxplot(x, y, order=CHROMS_CHR[:-1], **kwargs)
+    if ax is None:
+        fig, ax = plt.subplots(1, 1)
+
+    sns.boxplot(x, y, order=CHROMS_CHR[:-1], ax=ax, **kwargs)
     ax.scatter(range(meds.shape[0]), meds.loc[CHROMS_CHR[:-1]].values,
                color='w', edgecolor='k', marker='d')
 
@@ -200,8 +203,8 @@ def multi_chrom_boxplot(x, y, use_text=True, multiplier=2, **kwargs):
         oloc = CHROMS_CHR.index(k)
         pval = clean_pvalue(v, use_text)
         y, h, col = iqr + iqr * multiplier, .4, 'k'
-        plt.plot([xloc, xloc, oloc, oloc], [y, y+h, y+h, y], lw=1, c=col)
-        plt.text((xloc+oloc)*.5, y+h+.01, f"{pval}", ha='center',
+        ax.plot([xloc, xloc, oloc, oloc], [y, y+h, y+h, y], lw=1, c=col)
+        ax.text((xloc+oloc)*.5, y+h+.01, f"{pval}", ha='center',
                  va='bottom', color=col, fontsize=22)
         multiplier += increment
 
