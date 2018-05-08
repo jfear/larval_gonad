@@ -29,16 +29,6 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE,
 
                       fig.ext='png')
 ```
-# Track hub
-
-Click the following link to load the track hub (and prepared session) on the UCSC genome browser:
-
-[Load hub and prepared session on UCSC Genome Browser](http://genome.ucsc.edu/cgi-bin/hgTracks?db=ASSEMBLY&hubUrl=https://HOST/PATH/hub.txt&hgS_loadUrlName=https://HOST/PATH/session.txt&hgS_doLoadUrl=submit&position=chr1:1-100)
-
-# Differential expression
-
-Note: if you're unfamiliar with any of the plots or tables here, see the
-[Background and help](#background) section for details.
 
 ## Experiment overview
 
@@ -78,7 +68,6 @@ ah <- AnnotationHub()
 orgdb <- ah[[annotation_key]]
 
 
-
 # Assumption: change to reflect KEGG ID of organism
 kegg.org <- 'dme'
 
@@ -92,33 +81,6 @@ library(readr)
 library(tximport)
 library(clusterProfiler)
 
-# Assumption: path name to sampletable
-sample.table.filename = '../config/sampletable.tsv'
-
-colData <- read.table(sample.table.filename, sep='\t', header=TRUE)
-colData <- colData[colData$group %in% c('ODP', 'TDT'),]
-
-# Assumption: data directory and extension to featurecounts output
-colData$featurecounts.path <- sapply(
-    colData$samplename,
-    function (x) file.path('..', 'data', 'rnaseq_samples', x, paste0(x, '.cutadapt.bam.featurecounts.txt')
-                           )
-    )
-
-# Assumption: data directory and salmon filenames
-colData$salmon.path <- sapply(
-    colData$samplename,
-    function (x) file.path('..', 'data', 'rnaseq_samples', x, paste0(x, '.salmon'), 'quant.sf')
-)
-
-# Assumption: which columns in sampletable, and that "group" should be factor
-colData <- colData[, c('samplename', 'featurecounts.path', 'salmon.path', 'group')]
-colData$group <- factor(colData$group)
-knitr::kable(colData[, !grepl('path', colnames(colData))])
-```
-
-```{r}
-
 #' Simple wrapper of cat() that makes markdown text easier to print
 #'
 #' @param ... Arguments to print
@@ -127,78 +89,48 @@ knitr::kable(colData[, !grepl('path', colnames(colData))])
 mdcat <- function(...){
   cat(..., sep='', fill=1500)
 }
+```
 
+```{r}
+# Assumption: path name to sampletable
+sample.table.filename = '../config/sampletable.tsv'
+colData <- read.table(sample.table.filename, sep='\t', header=TRUE, stringsAsFactors=F)
 
-#' Load featureCounts output into a DESeq object.
-#'
-#' Revised version of DESeq2::DESeqDataSetFromHTSeqCount to handle the
-#' featureCounts default output format, which contains many more columns.
-#'
-#' @param sampleTable data.frame containing at least "featurecounts.path" column
-#' @param directory Paths to featureCounts output are relative to this dir
-#' @param design Model used for creating DESeq object
-#'
-#' @return DESeq object
-#'
-#' Additional args are passed to DESeq2::DESeqDataSetFromMatrix.
-DESeqDataSetFromFeatureCounts <- function (sampleTable, directory='.', design,
-                                           ignoreRank=FALSE,  ...)
-{
-  l <- lapply(
-    as.character(sampleTable[, 'featurecounts.path']),
-    function(fn) read.table(file.path(directory, fn), stringsAsFactors=FALSE, skip=2)
-  )
-  if (!all(sapply(l, function(a) all(a$V1 == l[[1]]$V1))))
-    stop("Gene IDs in first column differ between files")
-  tbl <- sapply(l, function(a) a$V7)
-  colnames(tbl) <- sampleTable[, 1]
-  rownames(tbl) <- l[[1]]$V1
-  rownames(sampleTable) <- sampleTable[, 1]
-  object <- DESeqDataSetFromMatrix(countData=tbl, colData=sampleTable[, -grepl('path', colnames(sampleTable)),
-                                   drop=FALSE], design=design, ignoreRank, ...)
-  return(object)
+# Assumption: data directory and extension to featurecounts output
+mk.featurecounts <- function(x){
+	fname <- file.path('..', '..', 'bulk-rnaseq-wf', 'data', 'rnaseq_samples', x, paste0(x, '.cutadapt.bam.featurecounts.txt'))
+	dat <- read.table(fname, stringsAsFactors=F, skip=2)[,c('V1', 'V7')]
+	colnames(dat) <- c('FBgn', x)
+	return(dat)
 }
 
-#' Load Salmon quantification data into a DESeq object
-#'
-#' @param sampleTable data.frame containing at least "salmon.path" column
-#' @param design Model used for creating DESeq object
-#'
-#' @return DESeq object with transcript-level counts
-#'
-#' Additional args are passed to DESeq2::DESeqDataSetFromMatrix.
-DESeqDataSetFromSalmon <- function (sampleTable, directory='.', design,
-                                           ignoreRank=FALSE,  ...)
-{
-    txi <- tximport(sampleTable[, 'salmon.path'], type='salmon', txOut=TRUE)
-    object <- DESeqDataSetFromTximport(txi, colData=sampleTable[, -grepl('path', colnames(sampleTable)),
-                                       drop=FALSE], design=design, ignoreRank, ...)
-    return(object)
-}
-```
 
-```{r ddstxi, cache=TRUE}
-# Load transcript-level counts
-dds.txi <- DESeqDataSetFromSalmon(
-                                  sampleTable=colData,
-                                  directory='.',
-                                  design=~group)
-```
+bulk <-  merge(mk.featurecounts('C1_TDT'), mk.featurecounts('C2_TDT'), by='FBgn')
+bulk <-  merge(bulk, mk.featurecounts('C3_TDT'), by='FBgn')
+bulk <-  merge(bulk, mk.featurecounts('C4_TDT'), by='FBgn')
+bulk <-  merge(bulk, mk.featurecounts('B5_TCP'), by='FBgn')
+bulk <-  merge(bulk, mk.featurecounts('B6_TCP'), by='FBgn')
+bulk <-  merge(bulk, mk.featurecounts('B7_TCP'), by='FBgn')
+bulk <-  merge(bulk, mk.featurecounts('B8_TCP'), by='FBgn')
 
-```{r rldtxi, cache=TRUE, depends='ddstxi'}
-# rlog normalize transcript counts
-rld.txi <- rlog(dds.txi, blind=FALSE)
-```
 
+# Import scRNA-seq
+scRNAseq <- read.table('../../output/combined_testis_force/raw_agg.tsv', header=T)
+
+# Merge everything
+dat <- merge(scRNAseq, bulk, by='FBgn', all.x=T, all.y=F)
+rownames(dat) <- dat$FBgn
+dat <- dat[, !names(dat) %in% 'FBgn']
+dat <- dat[, colData$samplename]
+
+# Assumption: which columns in sampletable, and that "group" should be factor
+colData$group <- factor(colData$group)
+knitr::kable(colData[, !grepl('path', colnames(colData))])
+```
 
 ```{r dds, cache=TRUE}
 # Load gene-level counts
-dds <- DESeqDataSetFromFeatureCounts(
-                                  sampleTable=colData,
-                                  directory='.',
-                                  design=~group)
-
-rownames(dds) <- sapply(strsplit(rownames(dds), '.', fixed=TRUE), function (x) x[1])
+dds <- DESeqDataSetFromMatrix(countData=dat, colData=colData, design=~group, ignoreRank=TRUE)
 ```
 
 ```{r rld, cache=TRUE, depends='dds'}
@@ -286,9 +218,13 @@ dds <- DESeq(dds)
 # Results are put in a list here so we can iterate over them later. Names here
 # will be used to create output files.
 res.list <- list(
-                 tod=results(dds)
+                 tcp=results(dds, contrast=c('group', 'TCP', 'sc'), alpha=0.01),
+                 tdt=results(dds, contrast=c('group', 'TDT', 'sc'), alpha=0.01)
                  )
-res.list.lookup <- list(tod="Dissociated Testis vs Ovary")
+res.list.lookup <- list(
+			tcp="TCP vs scRNA-Seq",
+			tdt="TDT vs scRNA-Seq"
+			)
 ```
 
 ```{r}
@@ -438,7 +374,10 @@ for (name in names(res.list)){
   mdcat('## ', res.list.lookup[[name]])
   mdcat('### Summary of results')
   res <- res.list[[name]]
+
   print(knitr::kable(my.summary(res, dds)))
+  cat('\n')
+
   mdcat('### Normalized counts of top 3 upregulated genes')
   top.plots(padj.order(res), 3, my.counts, dds, add_cols)
   mdcat('### Normalized counts of top 3 downregulated genes')

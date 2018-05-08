@@ -17,14 +17,13 @@ CLUSTER_ANNOT = {
     8: 'Early Primary Spermatocytes (8)',
     9: 'Pigment Cells (9)',
     10: 'Early Somatic Cyst Cells (10)',
-    11: 'Mid Primary Spermatocytes (11)',
+    11: 'Unknown (11)',
 }
 
 CLUSTER_ORDER = [
     'Spermatogonia (4)',
     'Early Primary Spermatocytes (8)',
     'Mid Primary Spermatocytes (6)',
-    'Mid Primary Spermatocytes (11)',
     'Late Primary Spermatocytes (0)',
     'Early Somatic Cyst Cells (1)',
     'Early Somatic Cyst Cells (10)',
@@ -33,4 +32,5 @@ CLUSTER_ORDER = [
     'Late Somatic Cyst Cells (7)',
     'Terminal Epithelium (5)',
     'Pigment Cells (9)',
+    'Unknown (11)',
 ]

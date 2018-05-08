@@ -161,7 +161,7 @@ rule rRNA:
     log:
         c.patterns['rrna']['bam'] + '.log'
     params:
-        samtools_view_extra='-F 0x04'
+        samtools_view_extra="--threads 4 -q 20",
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
@@ -541,7 +541,6 @@ rule rseqc_bam_stat:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     wrapper: wrapper_for('rseqc/bam_stat')
 
 
@@ -569,7 +568,7 @@ rule bigwig_neg:
         '--ignoreDuplicates '
         '--smoothLength 10 '
         '--filterRNAstrand forward '
-        '--normalizeUsingRPKM '
+        '--normalizeUsing RPKM '
         '&> {log}'
 
 
@@ -597,7 +596,7 @@ rule bigwig_pos:
         '--ignoreDuplicates '
         '--smoothLength 10 '
         '--filterRNAstrand reverse '
-        '--normalizeUsingRPKM '
+        '--normalizeUsing RPKM '
         '&> {log}'
 
 
