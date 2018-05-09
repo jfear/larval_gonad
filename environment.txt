@@ -95,3 +95,4 @@ ucsc-gtftogenepred
 ucsc-oligomatch
 ucsc-twobittofa
 watermark
+xlrd
