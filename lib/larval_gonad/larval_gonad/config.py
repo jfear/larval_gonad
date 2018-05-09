@@ -5,7 +5,7 @@ from yaml import load
 from joblib import Memory
 
 # Useful directories
-PROJECT_DIR = Path(__file__).absolute().parents[2].as_posix()
+PROJECT_DIR = Path(__file__).absolute().parents[3].as_posix()
 CONFIG_DIR = Path(PROJECT_DIR, 'config').as_posix()
 CACHE_DIR = Path(PROJECT_DIR, 'output/cache').as_posix()
 

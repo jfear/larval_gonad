@@ -4,6 +4,7 @@
 import os
 import sys
 from pathlib import Path
+from yaml import load
 
 import numpy as np
 import pandas as pd
@@ -13,26 +14,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Project level imports
-sys.path.insert(0, '../lib')
 from larval_gonad.plotting import add_styles, TSNEPlot
 from larval_gonad.notebook import Seurat
 from larval_gonad.scRNAseq import CLUSTER_ANNOT, CLUSTER_ORDER
-from larval_gonad.config import REFERENCES_DIR
+from larval_gonad.config import CONFIG_DIR, REFERENCES_DIR
 
 workdir: '.'
-configfile: 'config.yaml'
+configfile: '../config/common.yaml'
+
+# update with local config
+with open('config.yaml') as fh:
+    config.update(load(fh))
 
 # Set up figure
-add_styles('../config/stylelib')
-mpl.style.use(['common', config['style']])
+add_styles(Path(CONFIG_DIR, 'stylelib'))
+mpl.style.use(['common', *config['styles']])
 
 # Grab Config Data
 seurat = Seurat(config['seurat_dir'])
 resolution = config['resolution']
 assembly = config['assembly']
 tag = config['tag']
-annot_fn = os.path.join(REFERENCES_DIR, assembly, tag, 'fb_annotation',
-                        f'{assembly}_{tag}.fb_annotation')
+annot_fn = Path(REFERENCES_DIR, assembly, tag, 'fb_annotation',
+                f'{assembly}_{tag}.fb_annotation')
 
 # Files
 figures = [

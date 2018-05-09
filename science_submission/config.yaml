@@ -1,7 +1,6 @@
-seurat_dir: '../output/combined_testis_force'
-assembly: dmel
-tag: r6-16
-style: paper
+seurat_dir: '../scrnaseq-combine-force/data'
+styles:
+ - paper
 resolution: 'res.0.4'
 alpha: 0.001
 lit_genes:
