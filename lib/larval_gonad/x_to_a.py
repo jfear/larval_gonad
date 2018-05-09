@@ -6,7 +6,7 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from scipy.stats import mannwhitneyu
+from scipy.stats import mannwhitneyu, scoreatpercentile
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -41,6 +41,14 @@ def clean_pvalue(pval, use_text=True):
         pvalue = 'N.S.'
 
     return pvalue
+
+
+def strip_chr(ax):
+    labels = ax.get_xticklabels()
+    new = []
+    for l in labels:
+        new.append(l.get_text().strip('chr'))
+    ax.set_xticklabels(new)
 
 
 @memory.cache
@@ -224,21 +232,106 @@ def multi_chrom_boxplot(x, y, use_text=True, multiplier=2, ax=None, **kwargs):
     except KeyError:
         pass
 
-    # Add gene counts per chrom
-#     gdsc = _dat.groupby(x)[y].describe()
-#     gcnts = gdsc['count'].to_dict()
-#     loc = (gdsc['75%'] + _dat.groupby(x)[y].apply(sns.utils.iqr) * 1.5).max()
 
-#     for i, chrom in enumerate(CHROMS_CHR):
-#         try:
-#             pop_genes = np.round(gcnts[chrom] / num_genes * 100, 2)
-#             ax.text(
-#                 i,
-#                 loc + .1, f'{gcnts[chrom]:0.0f}\n{pop_genes}%',
-#                 ha='center'
-#             )
-#         except KeyError:
-#             pass
+def multi_chrom_boxplot2(x, y, use_text=True, multiplier=2, ax=None, **kwargs):
+    """Designed to be used with Seaborn.FacetGrid"""
+    _dat = kwargs['data']
+    _dat = _dat[_dat[x].isin(CHROMS_CHR)]
+    meds = _dat.groupby(x).median()
+
+    if ax is None:
+        fig, ax = plt.subplots(1, 1)
+
+    sns.boxplot(x, y, order=CHROMS_CHR[:-1], ax=ax, **kwargs)
+    ax.scatter(range(meds.shape[0]), meds.loc[CHROMS_CHR[:-1]].values,
+               color='w', edgecolor='k', marker='d')
+
+    med_x, med_major, prop_dcc = estimate_dcc(x, y, _dat)
+    ax.axhline(med_major, ls='--', color=sns.xkcd_rgb['coral'],
+               lw=2, label='Median Autosomal Expression', zorder=3)
+
+    # Clean up the pvalue for plotting
+    pvaluesX = False
+    pvalues4 = False
+    chromX = _dat[_dat[x] == 'chrX']
+    chrom4 = _dat[_dat[x] == 'chr4']
+    for g, df in _dat.groupby(x):
+        if g == 'chrX':
+            q3X = scoreatpercentile(np.asarray(df[y]), 75)
+            iqrX = sns.utils.iqr(df[y])
+            continue
+
+        if g == 'chr4':
+            q34 = scoreatpercentile(np.asarray(df[y]), 75)
+            iqr4 = sns.utils.iqr(df[y])
+            continue
+
+        _, pval = mannwhitneyu(chromX[y], df[y], alternative='two-sided')
+        if pval <= 0.01:
+            pvaluesX = True
+
+        _, pval = mannwhitneyu(chrom4[y], df[y], alternative='two-sided')
+        if pval <= 0.01:
+            pvalues4 = True
+
+    xloc = CHROMS_CHR.index('chrX')
+    if pvaluesX:
+        ax.text(xloc, q3X + 1.51*iqrX, "*", ha='center', fontsize=12,
+                fontweight='bold')
+
+    _4loc = CHROMS_CHR.index('chr4')
+    if pvalues4:
+        ax.text(_4loc, q34 + 1.51*iqr4, "*", ha='center', fontsize=12,
+                fontweight='bold')
+
+
+def plot_cluster_x2a(dat, fbgns, cluster_id, ax1, ax2, fbgn2chrom):
+    reds = sns.color_palette('Reds')
+    boxplot_colors = [
+        reds[-1],     # X
+        '#ffffff',    # 2L
+        '#ffffff',    # 2R
+        '#ffffff',    # 3L
+        '#ffffff',    # 3R
+        reds[-1],     # 4
+    ]
+
+    idx = dat.query(f'cluster == {cluster_id}').index
+    dat.drop('cluster', axis=1)
+
+    dataM = dat.loc[idx, fbgns].median().to_frame()\
+        .join(fbgn2chrom).query('chrom != "chrY"')
+    dataM.columns = ['Normalized Expression (Median)', 'Chromosome Arm']
+
+    dataS = dat.loc[idx, fbgns].sum().to_frame()\
+        .join(fbgn2chrom).query('chrom != "chrY"')
+
+    dataS.columns = ['Normalized Expression (Sum)', 'Chromosome Arm']
+
+    multi_chrom_boxplot2('Chromosome Arm', 'Normalized Expression (Sum)',
+                         data=dataS, notch=True,
+                         palette=boxplot_colors,
+                         use_text=False,
+                         multiplier=(1, .1),
+                         showfliers=False,
+                         ax=ax1)
+
+    multi_chrom_boxplot2('Chromosome Arm', 'Normalized Expression (Median)',
+                         data=dataM, notch=True,
+                         palette=boxplot_colors,
+                         use_text=False,
+                         multiplier=(1, 0),
+                         showfliers=False,
+                         ax=ax2)
+
+    strip_chr(ax1)
+    strip_chr(ax2)
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
 
 
 def commonly_expressed(df, read_cutoff=0):

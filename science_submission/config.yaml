@@ -1,0 +1,37 @@
+seurat_dir: '../output/combined_testis_force'
+assembly: dmel
+tag: r6-16
+style: paper
+resolution: 'res.0.4'
+alpha: 0.001
+lit_genes:
+# spermatogonia
+  - 'vas'
+  - 'bam'
+  - 'p53'
+# early_primary_sperm
+  - 'nht'
+  - 'can'
+  - 'aly'
+# late_primary_spermatocyte
+  - 'fzo'
+  - 'soti'
+  - 'bol'
+  - 'dj'
+  - 'ocn'
+# early_soma
+  - 'tj'
+  - 'hui'
+  - 'sano'
+# late_soma
+  - 'eya'
+  - 'glob1'
+  - 'Eip93F'
+# terminal
+  - 'nord'
+  - 'retn'
+  - 'Abd-B'
+# pigment:
+  - 'vkg'
+  - 'Sox100B'
+  - 'bw'

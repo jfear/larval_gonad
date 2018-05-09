@@ -1,0 +1,215 @@
+"""Scrip to generate figures and needed material for the Science Submssion.
+
+"""
+import os
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Project level imports
+sys.path.insert(0, '../lib')
+from larval_gonad.plotting import add_styles, TSNEPlot
+from larval_gonad.notebook import Seurat
+from larval_gonad.scRNAseq import CLUSTER_ANNOT, CLUSTER_ORDER
+from larval_gonad.config import REFERENCES_DIR
+
+workdir: '.'
+configfile: 'config.yaml'
+
+# Set up figure
+add_styles('../config/stylelib')
+mpl.style.use(['common', config['style']])
+
+# Grab Config Data
+seurat = Seurat(config['seurat_dir'])
+resolution = config['resolution']
+assembly = config['assembly']
+tag = config['tag']
+annot_fn = os.path.join(REFERENCES_DIR, assembly, tag, 'fb_annotation',
+                        f'{assembly}_{tag}.fb_annotation')
+
+# Files
+figures = [
+    'figures/tsne_clusters.pdf',
+    'figures/heatmap_diff_genes.pdf',
+    'figures/heatmap_literature_genes.pdf',
+    'figures/HistogramBoxFig.pdf',
+]
+
+tables = [
+]
+
+rule targets:
+    input: figures + tables
+
+
+def get_clusters():
+    clusters = seurat.get_clusters()[resolution]
+    clusters.name = 'cluster'
+    return clusters
+
+
+def get_deg():
+    _res = resolution.replace('res.', '')
+    _alpha = config['alpha']
+    bio = pd.read_csv(
+        Path(config['seurat_dir'], f'biomarkers_{_res}.tsv'), sep='\t'
+    )
+    sig_genes = bio[bio.p_val_adj < _alpha].primary_FBgn.unique().tolist()
+
+    return sig_genes
+
+
+def get_fbgn2symbol():
+    annot = pd.read_csv(annot_fn, sep='\t', index_col=1).fillna('nan')
+    return annot['gene_symbol'].to_dict()
+
+
+def get_symbol2fbgn(fbgn2symbol=None):
+    if fbgn2symbol is None:
+        fbgn2symbol = get_fbgn2symbol()
+    return {v: k for k, v in fbgn2symbol.items()}
+
+
+def get_fbgn2chrom():
+    return pd.read_csv('../output/fbgn2chrom.tsv', sep='\t', index_col=0)
+
+
+rule tsne:
+    output: 'figures/tsne_clusters.pdf'
+    run:
+        colors = sns.color_palette('tab20', n_colors=12, desat=.8)
+        tsne = seurat.get_tsne()
+        clusters = get_clusters()
+
+        TSNEPlot(
+            data=tsne.join(clusters),
+            hue='cluster',
+            palette=colors,
+            s=40,
+        )
+        ax = plt.gca()
+        ax.set_aspect('equal')
+        sns.despine()
+        plt.savefig(output[0])
+
+
+rule heatmap_diff:
+    output: 'figures/heatmap_diff_genes.pdf'
+    run:
+        clusters = get_clusters()
+        norm = seurat.get_normalized_read_counts()
+        sig_genes = get_deg()
+
+        dat = norm.T.join(
+            clusters.apply(lambda x: CLUSTER_ANNOT[x])
+        ).groupby('cluster').sum().T[CLUSTER_ORDER]
+
+        g = sns.clustermap(
+            dat[dat.index.isin(sig_genes)],
+            col_cluster=False,
+            yticklabels=False,
+            z_score=0,
+            cmap='viridis',
+            cbar_kws={
+                'label': 'Normalized Read Counts\n(z-score)'
+            }, rasterized=True,
+        )
+        g.ax_heatmap.set_title('Differentially Expressed Genes (One vs Rest)')
+        g.ax_heatmap.set_ylabel('Genes')
+        g.savefig(output[0])
+
+
+rule heatmap_lit:
+    output: 'figures/heatmap_literature_genes.pdf'
+    run:
+        clusters = get_clusters()
+        norm = seurat.get_normalized_read_counts()
+        dat = norm.T.join(
+            clusters.apply(lambda x: CLUSTER_ANNOT[x])
+        ).groupby('cluster').sum().T[CLUSTER_ORDER]
+
+        # Get lit supported genes
+        fbgn2symbol = get_fbgn2symbol()
+        symbol2fbgn = get_symbol2fbgn(fbgn2symbol)
+        select = [symbol2fbgn[g] for g in config['lit_genes']]
+
+        g = sns.clustermap(
+            dat.loc[select],
+            col_cluster=False,
+            row_cluster=False,
+            z_score=0,
+            cmap='viridis',
+            cbar_kws={'label': 'Normalized Read Counts\n(z-score)'},
+            rasterized=False,
+        )
+
+        ax = g.ax_heatmap
+        new_labels = []
+        for l in ax.get_yticklabels():
+            new_labels.append(fbgn2symbol[l.get_text()])
+
+        ax.set_yticklabels(new_labels)
+        ax.set_title('Literature Based\nDifferentially Expressed Genes (One vs Rest)')
+        g.savefig(output[0])
+
+
+rule boxplot:
+    output: 'figures/HistogramBoxFig.pdf'
+    run:
+        from larval_gonad.x_to_a import plot_cluster_x2a, commonly_expressed
+
+        clusters = get_clusters()
+        norm = seurat.get_normalized_read_counts()
+        expressed = commonly_expressed(norm)
+        dat = norm.T.join(clusters)
+        fbgn2chrom = get_fbgn2chrom()
+
+        fig, axes = plt.subplots(4, 2, figsize=(8.5, 11), sharex=True)
+        plot_cluster_x2a(dat, expressed, 4, *axes[0], fbgn2chrom)
+        plot_cluster_x2a(dat, expressed, 8, *axes[1], fbgn2chrom)
+        plot_cluster_x2a(dat, expressed, 6, *axes[2], fbgn2chrom)
+        plot_cluster_x2a(dat, expressed, 0, *axes[3], fbgn2chrom)
+
+        axes[0][0].set_title('Normalized Expression (Sum)', fontsize=12,
+                             fontweight='bold')
+
+        axes[0][1].set_title('Normalized Expression (Median)', fontsize=12,
+                             fontweight='bold')
+
+        ax = axes[0][1]
+        axes[0][1].text(1.01, .5, 'Spermatogonia', rotation=-90,
+                        transform=axes[0][1].transAxes, fontsize=12,
+                        va='center', fontweight='bold')
+
+        axes[1][1].text(1.01, .5, 'Early 1º Spermatocytes', rotation=-90,
+                        transform=axes[1][1].transAxes, fontsize=12,
+                        va='center', fontweight='bold')
+
+        axes[2][1].text(1.01, .5, 'Middle 1º Spermatocytes', rotation=-90,
+                        transform=axes[2][1].transAxes, fontsize=12,
+                        va='center', fontweight='bold')
+
+        axes[3][1].text(1.01, .5, 'Late 1º Spermatocytes', rotation=-90,
+                        transform=axes[3][1].transAxes, fontsize=12,
+                        va='center', fontweight='bold')
+
+        plt.text(0, .5, 'Normalized Read Counts', rotation=90,
+                 transform=fig.transFigure, fontsize=12,
+                 va='center', fontweight='bold')
+
+        plt.text(.5, 0, 'Chromosome Arm', transform=fig.transFigure,
+                 fontsize=12, fontweight='bold', ha='center')
+
+        for axs in axes[:3]:
+            axs[0].xaxis.set_visible(False)
+            axs[1].xaxis.set_visible(False)
+
+        plt.tight_layout()
+        fig.savefig(output[0])
