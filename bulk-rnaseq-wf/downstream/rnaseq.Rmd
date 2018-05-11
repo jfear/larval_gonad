@@ -1,3 +1,7 @@
+---
+title: Differential Expression Testis vs Ovary
+author: Justin M. Fear
+---
 
 ```{r, include=FALSE}
 #-----------------------------------------------------------------------------
@@ -96,7 +100,7 @@ library(clusterProfiler)
 sample.table.filename = '../config/sampletable.tsv'
 
 colData <- read.table(sample.table.filename, sep='\t', header=TRUE)
-colData <- colData[colData$group %in% c('ODP', 'TDT'),]
+colData <- colData[colData$group %in% c('OCP', 'TCP'),]
 
 # Assumption: data directory and extension to featurecounts output
 colData$featurecounts.path <- sapply(
