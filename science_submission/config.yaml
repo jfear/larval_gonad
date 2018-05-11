@@ -1,4 +1,4 @@
-seurat_dir: '../scrnaseq-combine-force/data'
+seurat_dir: '../output/scrnaseq_combine_force'
 styles:
  - paper
 resolution: 'res.0.4'

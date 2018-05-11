@@ -175,11 +175,10 @@ rule boxplot:
         dat = norm.T.join(clusters)
         fbgn2chrom = get_fbgn2chrom()
 
-        fig, axes = plt.subplots(4, 2, figsize=(8.5, 11), sharex=True)
-        plot_cluster_x2a(dat, expressed, 4, *axes[0], fbgn2chrom)
-        plot_cluster_x2a(dat, expressed, 8, *axes[1], fbgn2chrom)
-        plot_cluster_x2a(dat, expressed, 6, *axes[2], fbgn2chrom)
-        plot_cluster_x2a(dat, expressed, 0, *axes[3], fbgn2chrom)
+        fig, axes = plt.subplots(3, 2, figsize=(8.5, 11), sharex=True)
+        plot_cluster_x2a(dat, expressed, 2, *axes[0], fbgn2chrom)
+        plot_cluster_x2a(dat, expressed, 3, *axes[1], fbgn2chrom)
+        plot_cluster_x2a(dat, expressed, 0, *axes[2], fbgn2chrom)
 
         axes[0][0].set_title('Normalized Expression (Sum)', fontsize=12,
                              fontweight='bold')
@@ -196,12 +195,8 @@ rule boxplot:
                         transform=axes[1][1].transAxes, fontsize=12,
                         va='center', fontweight='bold')
 
-        axes[2][1].text(1.01, .5, 'Middle 1º Spermatocytes', rotation=-90,
+        axes[2][1].text(1.01, .5, 'Late 1º Spermatocytes', rotation=-90,
                         transform=axes[2][1].transAxes, fontsize=12,
-                        va='center', fontweight='bold')
-
-        axes[3][1].text(1.01, .5, 'Late 1º Spermatocytes', rotation=-90,
-                        transform=axes[3][1].transAxes, fontsize=12,
                         va='center', fontweight='bold')
 
         plt.text(0, .5, 'Normalized Read Counts', rotation=90,
@@ -211,7 +206,7 @@ rule boxplot:
         plt.text(.5, 0, 'Chromosome Arm', transform=fig.transFigure,
                  fontsize=12, fontweight='bold', ha='center')
 
-        for axs in axes[:3]:
+        for axs in axes[:2]:
             axs[0].xaxis.set_visible(False)
             axs[1].xaxis.set_visible(False)
 
