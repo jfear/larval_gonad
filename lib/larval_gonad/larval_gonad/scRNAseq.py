@@ -6,29 +6,33 @@ again with the scRNA-seq data.
 """
 
 CLUSTER_ANNOT = {
-    0: 'Late 1º Spermatocytes (0)',
-    1: 'Late Cyst Cells (1)',
-    2: 'Spermatogonia (2)',
+    0: 'Mid 1º Spermatocytes (0)',
+    1: 'Mid Cyst Cells (1)',
+    2: 'Late 1º Spermatocytes (2)',
     3: 'Early 1º Spermatocytes (3)',
     4: 'Late Cyst Cells (4)',
-    5: 'Late Cyst Cells (5)',
-    6: 'Early Cyst Cells (6)',
-    7: 'Terminal Epithelium(7)',
-    8: 'Pigment (8)',
+    5: 'Early Cyst Cells (5)',
+    6: 'Spermatogonia (6)',
+    7: 'Terminal Epithelium (7)',
+    8: 'Pigment Cells (8)',
     9: 'Unknown (9)',
+    10: 'Unknown (10)',
+    11: 'Unknown (11)',
 }
 
 CLUSTER_ORDER = [
-    'Spermatogonia (2)',
+    'Spermatogonia (6)',
     'Early 1º Spermatocytes (3)',
-    'Late 1º Spermatocytes (0)',
-    'Early Cyst Cells (6)',
-    'Late Cyst Cells (1)',
+    'Mid 1º Spermatocytes (0)',
+    'Late 1º Spermatocytes (2)',
+    'Early Cyst Cells (5)',
+    'Mid Cyst Cells (1)',
     'Late Cyst Cells (4)',
-    'Late Cyst Cells (5)',
-    'Terminal Epithelium(7)',
-    'Pigment (8)',
+    'Terminal Epithelium (7)',
+    'Pigment Cells (8)',
     'Unknown (9)',
+    'Unknown (10)',
+    'Unknown (11)',
 ]
 
 
