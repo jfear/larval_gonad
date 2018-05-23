@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Project level imports
-sys.path.insert(0, '../lib')
 from larval_gonad.plotting import TSNEPlot, add_styles
 from larval_gonad.logging import logger
 
@@ -158,7 +157,7 @@ if __name__ == '__main__':
     FIGS = '../output/figures/combined_tsne_force_png'
     Path(FIGS).mkdir(exist_ok=True)
 
-    DAT = '../output/combined_testis_force'
+    DAT = '../output/scrnaseq_combine_force'
     tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
     norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
     data = tsne.join(norm.T)
@@ -166,18 +165,3 @@ if __name__ == '__main__':
     for fbgn in data.columns[2:]:
         symbol = fbgn2symbol[fbgn]
         plot_gene(data, fbgn, symbol, FIGS, palette=colors)
-
-    # combined
-    logger.info('Plotting Combined Extended')
-    FIGS = '../output/figures/combined_tsne_force_extended'
-    Path(FIGS).mkdir(exist_ok=True)
-
-    DAT = '../output/combined_testis_force'
-    tsne = pd.read_csv(Path(DAT, 'tsne.tsv'), sep='\t')
-    norm = pd.read_csv(Path(DAT, 'normalized_read_counts.tsv'), sep='\t')
-    data = tsne.join(norm.T)
-
-    for fbgn in data.columns[2:]:
-        symbol = fbgn2symbol[fbgn]
-        plot_gene(data, fbgn, symbol, FIGS, palette=colors, vmax=None)
-
