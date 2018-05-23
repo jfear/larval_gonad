@@ -2,6 +2,9 @@ fastq: '{sample_dir}/{sample}/{sample}_R1.fastq.gz'
 cutadapt: '{sample_dir}/{sample}/{sample}_R1.cutadapt.fastq.gz'
 bam: '{sample_dir}/{sample}/{sample}.cutadapt.bam'
 splice_sites: '{sample_dir}/known_splice_sites.txt'
+intergenic:
+  gtf: 'data/intergenic.gtf'
+  bed: 'data/intergenic.bed'
 
 fastqc:
   raw: '{sample_dir}/{sample}/fastqc/{sample}_R1.fastq.gz_fastqc.zip'
@@ -15,6 +18,7 @@ libsizes:
 
 fastq_screen: '{sample_dir}/{sample}/{sample}.cutadapt.screen.txt'
 featurecounts: '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.txt'
+featurecounts_intergenic: '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.intergenic.txt'
 libsizes_table: '{agg_dir}/libsizes_table.tsv'
 libsizes_yaml: '{agg_dir}/libsizes_table_mqc.yaml'
 rrna_percentages_table: '{agg_dir}/rrna_percentages_table.tsv'

@@ -23,7 +23,7 @@ references_dir: 'references_data'
 
 aligner:
   index: 'hisat2'
-  tag: 'r6-16'
+  tag: 'r6-16_and_ercc'
 
 rrna:
   index: 'bowtie2'
@@ -31,6 +31,9 @@ rrna:
 
 gtf:
   tag: "r6-16_and_ercc"
+
+db:
+  tag: "r6-16"
 
 salmon:
   tag: "r6-16_transcriptome"

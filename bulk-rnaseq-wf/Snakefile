@@ -46,6 +46,7 @@ rule targets:
             [c.targets['rrna_percentages_table']] +
             [c.targets['multiqc']] +
             utils.flatten(c.targets['featurecounts']) +
+            utils.flatten(c.targets['featurecounts_intergenic']) +
             utils.flatten(c.targets['rrna']) +
             utils.flatten(c.targets['markduplicates']) +
             utils.flatten(c.targets['salmon']) +
@@ -617,6 +618,69 @@ rule rnaseq_rmarkdown:
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+rule intergenic:
+    input:
+        db=c.refdict[c.assembly][config['db']['tag']]['gtf'] + '.db'
+    output:
+        bed=c.patterns['intergenic']['bed'],
+        gtf=c.patterns['intergenic']['gtf']
+    resources:
+      mem_gb=lambda wildcards, attempt: attempt * 1,
+      time_hr=lambda wildcards, attempt: attempt * 1
+    run:
+        import gffutils
+        from gffutils.pybedtools_integration import to_bedtool, featurefuncs
+        db = gffutils.FeatureDB(input.db)
+        gene = to_bedtool(db.features_of_type('gene')).saveas()
+        slopped = gene.slop(b=100, genome='dm6')
+        merged = slopped.sort().merge()
+        complement = merged.complement(genome='dm6').saveas()
+
+        global cnt
+        cnt = 1
+
+        def interName(feature):
+            global cnt
+            feature = featurefuncs.extend_fields(feature, 4)
+            feature.name = 'intergenic{}'.format(cnt)
+            cnt += 1
+            return feature
+
+        def interGFF(feature):
+            gff = featurefuncs.bed2gff(feature)
+            gff[1] = 'bedtools'
+            gff[2] = 'exon'
+            gff.attrs['gene_id'] = gff.name
+            return gff
+
+        bed = complement.each(interName).saveas(output.bed)
+        bed.each(interGFF).saveas(output.gtf)
+
+
+rule featurecounts_intergenic:
+    """
+    Count reads in annotations with featureCounts from the subread package
+    """
+    input:
+        annotation=c.patterns['intergenic']['gtf'],
+        bam=rules.hisat2.output
+    output:
+        counts=c.patterns['featurecounts_intergenic']
+    log:
+        c.patterns['featurecounts_intergenic'] + '.log'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 2
+    conda: "config/conda.yaml"
+    shell:
+        'featureCounts '
+        '-T {threads} '
+        '-a {input.annotation} '
+        '-o {output.counts} '
+        '{input.bam} '
+        '&> {log}'
 
 
 # vim: ft=snakemake.python
