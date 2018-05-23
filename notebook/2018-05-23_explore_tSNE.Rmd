@@ -1,0 +1,53 @@
+---
+title: tSNE Comparison
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r setup}
+options(repr.plot.width=10, repr.plot.height=10)
+source('../lib/seurat.R')
+library(Seurat)
+library(dplyr)
+library(Matrix)
+library(data.table)
+```
+
+```{r load.data}
+load('../output/scrnaseq_combine_force/seurat.Robj')
+combined <- object
+combined <- SetAllIdent(combined, id  = 'res.0.6')
+```
+
+```{r}
+make_tSNE <- function(sobj, perplexity){
+  combined <- RunTSNE(sobj, reduction.use = "cca.aligned", dims.use = 1:25, do.fast = T, perplexity = perplexity)
+  TSNEPlot(sobj, do.label = T, do.return = F, pt.size = 0.5)
+}
+```
+
+```{r}
+make_tSNE(combined, 5)
+```
+
+```{r}
+make_tSNE(combined, 10)
+```
+
+```{r}
+make_tSNE(combined, 30)
+```
+
+```{r}
+make_tSNE(combined, 100)
+```
+
+```{r}
+make_tSNE(combined, 200)
+```
