@@ -1,7 +1,7 @@
 seurat_dir: '../output/scrnaseq_combine_force'
 styles:
  - paper
-resolution: 'res.0.4'
+resolution: 'res.0.6'
 alpha: 0.001
 lit_genes:
 # spermatogonia
@@ -9,15 +9,15 @@ lit_genes:
   - 'bam'
   - 'p53'
 # early_primary_sperm
-  - 'nht'
   - 'can'
+  - 'nht'
   - 'aly'
 # late_primary_spermatocyte
+  - 'dj'
+  - 'ocn'
   - 'fzo'
   - 'soti'
   - 'bol'
-  - 'dj'
-  - 'ocn'
 # early_soma
   - 'tj'
   - 'hui'
