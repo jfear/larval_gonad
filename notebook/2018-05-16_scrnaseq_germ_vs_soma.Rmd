@@ -1,0 +1,54 @@
+---
+title: Germcells vs Soma
+author: Justin Fear
+---
+
+I would like to do a differential expression analysis of germcell vs somatic
+cells. This is pretty staright forward given a seurot object. I just need to
+load the object and then run the findmarkers with the correct groups.
+
+I am assuming the following annotations:
+
+* 0: 'Late 1º Spermatocytes (0)',
+* 1: 'Mid Cyst Cells (1)',
+* 2: 'Mid 1º Spermatocytes (2)',
+* 3: 'Early 1º Spermatocytes (3)',
+* 4: 'Late Cyst Cells (4)',
+* 5: 'Early Cyst Cells (5)',
+* 6: 'Spermatogonia (6)',
+* 7: 'Terminal Epithelium (7)',
+* 8: 'Pigment Cells (8)',
+* 9: 'Unknown (9)',
+* 10: 'Unknown (10)',
+* 11: 'Unknown (11)',
+
+```{r load_libs}
+library(Seurat)
+library(dplyr)
+source('../lib/seurat.R')
+
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR')
+OUTDIR <- '../output/scrnaseq_combine_force'
+fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
+```
+
+```{r load.data}
+load('../output/scrnaseq_combine_force/seurat.Robj')
+sobj <- object
+```
+
+```{r load.resolution}
+sobj <- SetAllIdent(sobj, id='res.0.6')
+```
+
+```{r find.markers}
+markers <- FindMarkers(sobj, ident.1 = c(6, 3, 2, 0), ident.2 = c(5, 1, 4, 7, 8))
+```
+
+```{r write.output}
+fname <- '2018-05-16_scrnaseq_germ_vs_soma_biomarkers.tsv'
+markers$gene = rownames(markers)
+markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+```
+

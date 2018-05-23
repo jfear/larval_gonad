@@ -64,15 +64,28 @@ r3 <- load.data('../output/testis3_force/outs/filtered_gene_bc_matrices/dm6.16',
 
 ```
 
+```{r plot.ngene}
+VlnPlot(object = r1, features.plot = c("nGene", "nUMI"), nCol = 2)
+VlnPlot(object = r2, features.plot = c("nGene", "nUMI"), nCol = 2)
+VlnPlot(object = r3, features.plot = c("nGene", "nUMI"), nCol = 2)
+```
+
 ## Combined Data
 
 ```{r combine, cache=TRUE}
 print('Combining Data')
 # Create list of genes to use
 g.1 <- r1@var.genes
+print(paste0('variable genes rep 1: ', length(g.1)))
+
 g.2 <- r2@var.genes
+print(paste0('variable genes rep 2: ', length(g.2)))
+
 g.3 <- r3@var.genes
+print(paste0('variable genes rep 3: ', length(g.3)))
+
 genes.use <- intersect(intersect(g.1, g.2), g.3)
+print(paste0('variable genes intersection: ', length(genes.use)))
 
 combined <- RunMultiCCA(
 			list(r1, r2, r3),
