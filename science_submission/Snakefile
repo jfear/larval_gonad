@@ -95,8 +95,11 @@ rule tsne:
         tsne = seurat.get_tsne()
         clusters = get_clusters()
 
+        dat = tsne.join(clusters)
+        dat.cluster.replace(CLUSTER_ANNOT, inplace=True)
+
         TSNEPlot(
-            data=tsne.join(clusters),
+            data=dat,
             hue='cluster',
             palette=colors,
             s=40,
@@ -104,6 +107,7 @@ rule tsne:
         ax = plt.gca()
         ax.set_aspect('equal')
         sns.despine()
+        plt.tight_layout(rect=[0, 0, .7, 1])
         plt.savefig(output[0])
 
 
@@ -281,7 +285,7 @@ rule differntial_expression_tables:
 
 
         comment = "Here I have done a differential expression between the germ cell and somatic cell lines. " \
-            "For this analysis I combine all of the germ cell clusters vs all of the somatic cell clusters.\n" \
+            "For this analysis I combine all of the germ cell clusters (6, 3, 2, 0) vs all of the somatic cell clusters (5, 1, 4, 7, 8).\n" \
             "Positve avg_logFC are germ biased genes.\n" \
             "Negative avg_logFC are soma biased genes.\n" \
 
