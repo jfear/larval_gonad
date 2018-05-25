@@ -169,24 +169,6 @@ rule heatmap_lit:
         ax.set_yticklabels(new_labels)
         ax.set_title('Literature Based\nDifferentially Expressed Genes (One vs Rest)')
 
-        # Separate the different groups of genes to show clearly different
-        # classes.
-        ax.axhline(3, color='w', lw=3)
-        ax.axhline(11, color='w', lw=3)
-        ax.axhline(17, color='w', lw=3)
-        ax.axhline(20, color='w', lw=3)
-
-        _defaults = {
-            'fontweight': 'bold',
-            'ha': 'left',
-            'va': 'center',
-        }
-        ax.text(13.4, 1.5, 'Spermatagonia', **_defaults)
-        ax.text(13.4, 7.5, '1º Spermatocytes', **_defaults)
-        ax.text(13.4, 14, 'Cyst Cells', **_defaults)
-        ax.text(13.4, 18.5, 'Terminal\nEpithelium', **_defaults)
-        ax.text(13.4, 21.5, 'Pigment\nCells', **_defaults)
-
         g.savefig(output[0])
 
 
