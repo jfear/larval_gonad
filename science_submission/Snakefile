@@ -160,6 +160,7 @@ rule heatmap_lit:
             cmap='viridis',
             cbar_kws={'label': 'Normalized Read Counts\n(z-score)'},
             rasterized=False,
+            figsize=(20, 20),
         )
 
         ax = g.ax_heatmap
@@ -195,6 +196,7 @@ rule heatmap_ptrap:
             cmap='viridis',
             cbar_kws={'label': 'Normalized Read Counts\n(z-score)'},
             rasterized=False,
+            figsize=(20, 20),
         )
 
         ax = g.ax_heatmap
