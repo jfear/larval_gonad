@@ -1,0 +1,100 @@
+---
+title: Monocle Exploration
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r setup}
+options(repr.plot.width=10, repr.plot.height=10)
+library(cellrangerRkit)
+library(AnnotationHub)
+library(monocle)
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+library(Matrix)
+library(data.table)
+
+OUTDIR <- '../output/monocle_test'
+dir.create(file.path(OUTDIR), showWarnings = FALSE)
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR')
+
+# Get list of mitochondiral genes
+fbgn2chrom <- read.table('../output/fbgn2chrom.tsv', header=T)
+fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
+mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
+```
+
+```{r}
+annotation_genus_species <- 'Drosophila melanogaster'
+annotation_key_override <- NA
+
+find.annotationhub.name <- function(species.name, override.code) { #autodetect ah names based on loaded database
+    if (is.na(override.code)) {
+    require(AnnotationHub)
+    ah <- AnnotationHub()
+    ah.query <- query(ah, "OrgDb")
+    ah.query.speciesmatch <- grepl(paste("^", species.name, "$", sep=""), ah.query$species)
+    ah.query.which <- which(ah.query.speciesmatch)
+    stopifnot(length(ah.query.which) > 0) #require at least one match
+    if (length(ah.query.which) > 1) { #warn of duplicate matches
+       print("WARNING: found multiple candidate species in AnnotationHub: ");
+       print(ah.query.speciesmatch)
+    }
+    names(ah.query)[ah.query.which[1]]
+    } else {
+    override.code
+    }
+}
+
+annotation_key <- find.annotationhub.name(annotation_genus_species, annotation_key_override)
+ah <- AnnotationHub()
+orgdb <- ah[[annotation_key]]
+```
+
+
+```{r}
+
+# Assumption: path name to sampletable
+sample.table.filename = '../config/sampletable.tsv'
+
+colData <- read.table(sample.table.filename, sep='\t', header=TRUE)
+colData <- colData[colData$group %in% c('OCP', 'TCP'),]
+
+# Assumption: data directory and extension to featurecounts output
+colData$featurecounts.path <- sapply(
+    colData$samplename,
+    function (x) file.path('..', 'data', 'rnaseq_samples', x, paste0(x, '.cutadapt.bam.featurecounts.txt')
+                           )
+    )
+
+# Assumption: data directory and salmon filenames
+colData$salmon.path <- sapply(
+    colData$samplename,
+    function (x) file.path('..', 'data', 'rnaseq_samples', x, paste0(x, '.salmon'), 'quant.sf')
+)
+
+# Assumption: which columns in sampletable, and that "group" should be factor
+colData <- colData[, c('samplename', 'featurecounts.path', 'salmon.path', 'group')]
+colData$group <- factor(colData$group)
+knitr::kable(colData[, !grepl('path', colnames(colData))])
+
+```
+
+
+```{r load.data}
+cellranger_path <- "../output/testis3_force"
+gbm <- load_cellranger_matrix(cellranger_path)
+fd <- fData(gbm)
+
+colnames(fd)[2] <- "gene_short_name"
+
+gdm_cds <- newCellDataSet(exprs(gbm),
+                          phenoData
+```
