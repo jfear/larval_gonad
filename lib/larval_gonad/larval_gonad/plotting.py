@@ -14,6 +14,11 @@ def add_styles(dirname):
     mpl.style.core.update_user_library(mpl.style.library)
 
 
+def make_ax(*args, **kwargs):
+    fig, ax = plt.subplots(*args, **kwargs)
+    return ax
+
+
 def make_figs(fname=None, styles=None, formats=None, layout=True,
               kws_layout=None):
     if isinstance(formats, str):
