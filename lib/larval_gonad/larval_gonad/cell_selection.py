@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp_sparse
 import tables
+from .config import memory
 
 SOMA = [
     'bnb',
@@ -146,6 +147,18 @@ def two_bit_mapper(iterable):
     return {k: decompress_seq(k) for k in iterable.unique()}
 
 
+def decode_cell_names(iterable):
+    """Use two_bit_mapper to decode cell names.
+
+    iterable : np.array
+        An array of twobit encoded cell names.
+
+    """
+    mapper = two_bit_mapper(np.unique(iterable))
+    return [mapper[x] for x in iterable]
+
+
+@memory.cache
 def cellranger_umi(fname):
     with tables.open_file(fname, 'r') as f:
         group = f.get_node('/')
@@ -160,6 +173,7 @@ def cellranger_umi(fname):
     ))
 
 
+@memory.cache
 def cellranger_counts(fname, genome='dm6.16'):
     """Import cell ranger counts.
 
