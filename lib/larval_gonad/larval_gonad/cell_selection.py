@@ -17,7 +17,9 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp_sparse
 import tables
+
 from .config import memory
+from .plotting import make_ax
 
 SOMA = [
     'bnb',
@@ -271,29 +273,28 @@ def get_number_of_expressed_genes(fname):
     return (cnts.sum(axis=1) > 0).sum()
 
 
-def plot_barcode_rank(background, selected=None, title=None, ax=None):
-    """Plot Barcode Rank Plot.
+def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
+    """Plot Barcode Rank Plot."""
+    options = {
+        'kind': 'scatter',
+        's': 3,
+        'logx': True,
+        'logy': True
+    }
+    options.update(kwargs)
+    ax = options.pop('ax', make_ax())
 
-    Example
-    -------
-    >>> selected = background.query(f'umi_count > {cutoff}')
-    >>> barcode_rank_plot_with_cells(background, selected, 'test')
+    dat = umi.groupby('cell_id').size().to_frame()
+    dat.columns = ['umi']
+    dat = dat.sort_values('umi', ascending=False)
+    dat['cell_num'] = list(range(1, dat.shape[0] + 1))
 
-    """
-    if ax is None:
-        fig, ax = plt.subplots(1, 1)
+    dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
 
-    ax.plot(range(len(background)), background, label='background')
-
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlabel('Unique Cell (log10)')
-    ax.set_ylabel('UMI Count (log10)')
+    if selected is not None:
+        dat.loc[selected, :].plot('cell_num', 'umi', c='g', ax=ax, **options)
 
     if title is not None:
         ax.set_title(title)
-
-    if selected is not None:
-        ax.plot(range(len(selected)), selected, label='cell')
 
     return ax
