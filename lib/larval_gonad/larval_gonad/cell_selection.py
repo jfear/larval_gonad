@@ -214,6 +214,32 @@ def cellranger_counts(fname, genome='dm6.16'):
     return CellRangerCounts(matrix, gene_ids, barcodes)
 
 
+def cells_with_min_gene_expression(cr: CellRangerCounts, cutoff=200):
+    """Get cell ids with more than `cutoff` genes.
+
+    We are tyring to determine what kind of cell filtering should be preformed.
+    In downstream analysis we use a gene level filter to remove cells that have
+    fewer than `cutoff` expressed genes.  I am trying to determine if the cell
+    ranger filter is having any affect on this or not.
+
+    Parameters
+    ----------
+    cr : CellRangerCounts
+        The raw_gene_bc_matrices_h5.h5 from cell ranger.
+    cutoff : int
+        The minimum number of expressed genes.
+
+    Example
+    -------
+    >>> cr = cellranger_counts(...)
+    >>> cells_on = cells_with_min_gene_expression(cr, cutoff=300)
+
+    """
+    num_genes_on = np.asarray((cr.matrix > 0).sum(axis=0))[0]
+    flag_cell_on = num_genes_on > cutoff
+    return cr.barcodes[flag_cell_on]
+
+
 def filter_gene_counts_by_barcode(barcodes: np.array, cr: CellRangerCounts):
     """Given the raw gene counts matrix pull out specific cells.
 
