@@ -138,15 +138,15 @@ def two_bit_mapper(iterable):
 
     Parameters
     ----------
-    iterable : np.array | pd.Series
-        Array of 2bit encoded sequences.
+    iterable : list-like
+        Unique list of 2bit encoded sequences.
 
     Returns
     -------
     dict : Mapper from encoded to decoded
 
     """
-    return {k: decompress_seq(k) for k in iterable.unique()}
+    return {k: decompress_seq(k) for k in iterable}
 
 
 def decode_cell_names(iterable):
