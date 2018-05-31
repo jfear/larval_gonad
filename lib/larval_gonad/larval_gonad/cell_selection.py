@@ -216,6 +216,18 @@ def cellranger_counts(fname, genome='dm6.16'):
     return CellRangerCounts(matrix, gene_ids, barcodes)
 
 
+def calc_num_genes_on(cr: CellRangerCounts):
+    """Number of genes that have >0 reads.
+
+    Series containng the number of genes expressed by cell ID given a
+    CellRangerCounts object.
+
+    """
+    num_genes_on = np.asarray((cr.matrix > 0).sum(axis=0))[0]
+    idx = pd.Index(cr.barcodes, name='cell_id')
+    return pd.Series(data=num_genes_on, index=idx, name='gene_cnt')
+
+
 def cells_with_min_gene_expression(cr: CellRangerCounts, cutoff=200):
     """Get cell ids with more than `cutoff` genes.
 
