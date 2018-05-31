@@ -61,6 +61,44 @@ def read_bulk(path, filter=None, pattern='*/*.featurecounts.txt'):
     return bulk_dat
 
 
+def read_bulk_for_lengths(path, filter=None, pattern='*/*.featurecounts.txt'):
+    """Read in a folder of feature count data to get gene lengths.
+
+    Using the lcdb-wf, featurecounts are organized in a set of sub-folders for
+    each sample. Given a path will read in the data and return a dataframe.
+    Optionally a list of sample names can be given to filter by.
+
+    Parameters
+    ----------
+    path : str
+        Directory path to output from the lcdb-wf.
+    filter : None | list
+        List of sample names to include. Defaults to use the TCP libraries.
+    pattern : str
+        Glob pattern for finding the featurecounts files.
+
+    Example
+    -------
+    >>> df = read_build('../bulk-rnaseq-wf/data/rnaseq_samples',
+            filter=['B5_TCP', 'B6_TCP'])
+    """
+    bulk = Path(path)
+
+    dfs = []
+    for fname in bulk.glob('*/*.featurecounts.txt'):
+        sname = fname.parent.name
+        if (filter is not None) & (sname in filter):
+
+            dat = pd.read_csv(fname, sep='\t', comment='#',
+                              index_col=[0]).iloc[:, -2]
+
+            dat.name = 'length'
+            dfs.append(dat)
+
+    bulk_dat = pd.concat(dfs, axis=0)
+    return bulk_dat.to_frame().reset_index().drop_duplicates().set_index('Geneid').length
+
+
 def plot_bulk_pairwise_corr(bulk_dat, subplots_kws=None, scatter_kws=None,
                             corrfunc_kws=None):
     """Plot a pairgrid of RNA-seq data.
