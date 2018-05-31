@@ -273,28 +273,13 @@ def get_number_of_expressed_genes(fname):
     return (cnts.sum(axis=1) > 0).sum()
 
 
-def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
-    """Plot Barcode Rank Plot."""
-    options = {
-        'kind': 'scatter',
-        's': 3,
-        'logx': True,
-        'logy': True
-    }
-    options.update(kwargs)
-    ax = options.pop('ax', make_ax())
+@memory.cache
+def build_umi_gene_count_table(cr_raw, cr_umi):
+    cr = cellranger_counts(cr_raw)
+    umi = cellranger_umi(cr_umi)
 
-    dat = umi.groupby('cell_id').size().to_frame()
-    dat.columns = ['umi']
-    dat = dat.sort_values('umi', ascending=False)
-    dat['cell_num'] = list(range(1, dat.shape[0] + 1))
+    num_genes_on = calc_num_genes_on(cr)
+    umi_cnts = umi.query('read_cnt > 0').groupby('cell_id').size().to_frame()
+    umi_cnts.columns = ['umi_cnt']
 
-    dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
-
-    if selected is not None:
-        dat.loc[selected, :].plot('cell_num', 'umi', c='g', ax=ax, **options)
-
-    if title is not None:
-        ax.set_title(title)
-
-    return ax
+    return umi_cnts.join(num_genes_on).sort_values('umi_cnt', ascending=False)
