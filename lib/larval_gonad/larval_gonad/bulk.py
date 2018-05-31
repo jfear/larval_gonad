@@ -12,7 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from lcdblib.plotting import maPlot, PairGrid, corrfunc
 
-from .cell_selection import filter_gene_counts_by_barcode, CellRangerCounts
+from .cell_selection import filter_gene_counts_by_barcode
 
 TESTIS_BULK = [
     'B5_TCP',
@@ -254,4 +254,3 @@ def scRNAseq_corr_distribution_random(umi, raw, bulk_dat, interval=100,
     df = pd.DataFrame(res, columns=col_names)
 
     return df.set_index('Cell Number')
-
