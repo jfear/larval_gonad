@@ -168,8 +168,10 @@ def cellranger_umi(fname):
         umi = getattr(group, 'umi').read()
         read_cnts = getattr(group, 'reads').read()
 
+    cell_names = decode_cell_names(cell_ids)
+
     return pd.DataFrame(dict(
-        cell_id=cell_ids,
+        cell_id=cell_names,
         umi=umi,
         read_cnt=read_cnts
     ))
