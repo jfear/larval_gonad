@@ -12,6 +12,7 @@ import seaborn as sns
 def add_styles(dirname):
     mpl.style.core.USER_LIBRARY_PATHS.append(dirname)
     mpl.style.core.update_user_library(mpl.style.library)
+    mpl.style.reload_library()
 
 
 def make_ax(*args, **kwargs):
@@ -175,3 +176,32 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+
+
+def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
+    """Plot Barcode Rank Plot."""
+    options = {
+        'kind': 'scatter',
+        's': 3,
+        'logx': True,
+        'logy': True
+    }
+    options.update(kwargs)
+    try:
+        ax = options.pop('ax')
+    except KeyError:
+        ax = make_ax()
+
+    dat = umi.to_frame()
+    dat.columns = ['umi']
+
+    dat = dat.sort_values('umi', ascending=False)
+    dat['cell_num'] = list(range(1, dat.shape[0] + 1))
+
+    dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
+
+    if selected is not None:
+        dat.loc[selected, :].plot('cell_num', 'umi', c='g', ax=ax, **options)
+
+    if title is not None:
+        ax.set_title(title)
