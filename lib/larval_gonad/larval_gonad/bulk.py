@@ -46,7 +46,7 @@ def read_bulk(path, filter=None, pattern='*/*.featurecounts.txt'):
     bulk = Path(path)
 
     dfs = []
-    for fname in bulk.glob('*/*.featurecounts.txt'):
+    for fname in bulk.glob(pattern):
         sname = fname.parent.name
         if (filter is not None) & (sname in filter):
 
@@ -85,7 +85,7 @@ def read_bulk_for_lengths(path, filter=None, pattern='*/*.featurecounts.txt'):
     bulk = Path(path)
 
     dfs = []
-    for fname in bulk.glob('*/*.featurecounts.txt'):
+    for fname in bulk.glob(pattern):
         sname = fname.parent.name
         if (filter is not None) & (sname in filter):
 
