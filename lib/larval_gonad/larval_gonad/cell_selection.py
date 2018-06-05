@@ -12,14 +12,12 @@ formats and munging data do decide what selection criteria should be.
 """
 from collections import namedtuple
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp_sparse
 import tables
 
 from .config import memory
-from .plotting import make_ax
 
 SOMA = [
     'bnb',
@@ -251,9 +249,9 @@ def cells_with_min_gene_expression(cr: CellRangerCounts, cutoff=200):
     >>> cells_on = cells_with_min_gene_expression(cr, cutoff=300)
 
     """
-    num_genes_on = np.asarray((cr.matrix > 0).sum(axis=0))[0]
-    flag_cell_on = num_genes_on > cutoff
-    return cr.barcodes[flag_cell_on]
+    num_genes_on = calc_num_genes_on(cr)
+    cells_on = num_genes_on > cutoff
+    return num_genes_on[cells_on].index.unique().tolist()
 
 
 def filter_gene_counts_by_barcode(barcodes: np.array, cr: CellRangerCounts):
