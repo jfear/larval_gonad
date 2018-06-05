@@ -52,8 +52,6 @@ Note: if you're unfamiliar with any of the plots or tables here, see the
 # Try disabling this when running locally to get nicer figures
 # options(bitmapType='cairo')
 
-
-
 # Assumption: change to reflect the appropriate organism
 library(AnnotationHub)
 annotation_genus_species <- 'Drosophila melanogaster' # first pass: provide full, case-sensitive genus/species here
@@ -290,9 +288,9 @@ dds <- DESeq(dds)
 # Results are put in a list here so we can iterate over them later. Names here
 # will be used to create output files.
 res.list <- list(
-                 tod=results(dds)
+                 all_comparisons=results(dds)
                  )
-res.list.lookup <- list(tod="Dissociated Testis vs Ovary")
+res.list.lookup <- list(all_comparisons="Basic Group Comparisons")
 ```
 
 ```{r}
