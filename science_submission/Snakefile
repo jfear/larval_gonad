@@ -191,7 +191,7 @@ rule heatmap_ptrap:
         g = sns.clustermap(
             dat.loc[select],
             col_cluster=False,
-            row_cluster=False,
+            row_cluster=True,
             z_score=0,
             cmap='viridis',
             cbar_kws={'label': 'Normalized Read Counts\n(z-score)'},
