@@ -201,7 +201,7 @@ def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
     dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
 
     if selected is not None:
-        dat.loc[selected, :].plot('cell_num', 'umi', c='g', ax=ax, **options)
+        dat.loc[dat.index.isin(selected), :].plot('cell_num', 'umi', c='g', ax=ax, **options)
 
     if title is not None:
         ax.set_title(title)
