@@ -48,6 +48,11 @@ dump_seurat <- function(object, dir) {
 	    write.table(gene_loadings_full, file = file.path(dir, 'cca_gene_full.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
     }
 
+    if (length(object@dr$cca.aligned) > 0){
+	    pca_res <- as.data.frame(object@dr$cca.aligned@cell.embeddings)
+	    write.table(pca_res, file = file.path(dir, 'cca_aligned_cell.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+    }
+
     clusters <- object@meta.data[, grepl('res', colnames(object@meta.data))]
     write.table(clusters, file = file.path(dir, 'clusters.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 
