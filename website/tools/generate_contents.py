@@ -11,6 +11,7 @@ CHAPTERS = {"00": "Preface",
             "02": "Ovary scRNA-Seq",
             "03": "Combined scRNA-Seq",
             "04": "X To A",
+            "05": "Bulk RNA-Seq",
             }
 
 REG = re.compile(r'(\d\d)\.(\d\d)-(.*)\.ipynb')
