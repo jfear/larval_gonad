@@ -1,0 +1,176 @@
+---
+title: Combining scRNA-Seq
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+We are interested in seeing how down sampling the number of cells affects clustering. I am just going to repeat the entire analysis using different precentages of cells from each replicate.
+
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r setup}
+options(repr.plot.width=10, repr.plot.height=10)
+source('../lib/seurat.R')
+library(Seurat)
+library(dplyr)
+library(Matrix)
+library(data.table)
+
+OUTDIR <- '../output/scrnaseq_combine_force_downsample'
+dir.create(file.path(OUTDIR), showWarnings = FALSE)
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR')
+
+# Get list of mitochondiral genes
+fbgn2chrom <- read.table('../output/fbgn2chrom.tsv', header=T)
+fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
+mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
+```
+
+```{r functions, cache=TRUE}
+load.data <- function(fname, name, pct){
+  print(paste0('Running: ', name))
+  # Load the 10x dataset
+  tenX.data <- Read10X(data.dir = fname)
+  obj <- CreateSeuratObject(
+    raw.data = tenX.data,
+    min.cells = 3,
+    min.genes = 200,
+    project = 'GroupCluster',
+    display.progress = FALSE
+  )
+  obj@meta.data$rep <- name
+
+	umis <- obj@meta.data
+	umis <- umis[order(umis$nUMI, decreasing = TRUE),]
+	num_keep <- dim(umis)[1] * pct
+	keep <- rownames(umis[1:num_keep,])
+
+  obj <- FilterCells(
+    object = obj,
+    subset.names = "nGene",
+    low.thresholds = 200,
+		cells.use = keep
+  )
+
+  obj <- NormalizeData(
+    object = obj,
+    normalization.method = "LogNormalize",
+    scale.factor = 1e4,
+    display.progress = FALSE
+  )
+
+  obj <- ScaleData(
+   object = obj,
+   vars.to.regress = c("nUMI"),
+   display.progress = FALSE
+ )
+
+  # Find the highly variable genes
+  obj <- FindVariableGenes(
+    object = obj,
+    do.plot = FALSE,
+    display.progress = FALSE
+  )
+
+  # Rename cells incase they overlap between replicates
+  obj@cell.names <- paste(name, obj@cell.names, sep='_')
+  colnames(obj@raw.data) <- paste(name, colnames(obj@raw.data), sep = "_")
+  rownames(obj@meta.data) <- paste(name, rownames(obj@meta.data), sep = "_")
+  return(obj)
+}
+
+combine.data <- function(pct){
+	r1 <- load.data('../output/testis1_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep1', pct)
+	r2 <- load.data('../output/testis2_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep2', pct)
+	r3 <- load.data('../output/testis3_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep3', pct)
+
+	cat("## ", pct)
+	print('Combining Data')
+	g.1 <- r1@var.genes
+	print(paste0('variable genes rep 1: ', length(g.1)))
+
+	g.2 <- r2@var.genes
+	print(paste0('variable genes rep 2: ', length(g.2)))
+
+	g.3 <- r3@var.genes
+	print(paste0('variable genes rep 3: ', length(g.3)))
+
+	genes.use <- intersect(intersect(g.1, g.2), g.3)
+	print(paste0('variable genes intersection: ', length(genes.use)))
+
+	combined <- RunMultiCCA(
+		list(r1, r2, r3),
+		genes.use = genes.use,
+		num.cc = 30
+	)
+
+	print('Aligning Data')
+	combined <- AlignSubspace(
+					combined,
+					reduction.type = "cca",
+					grouping.var = "rep",
+					dims.align = 1:25
+					)
+
+	print('Building Clusters')
+	combined <- RunTSNE(combined, reduction.use = "cca.aligned", dims.use = 1:25, do.fast = T)
+	combined <- FindClusters(combined, reduction.type = "cca.aligned", resolution = 0.6, dims.use = 1:25)
+	return(combined)
+
+}
+
+build.res <- function(pct){
+	combined <- combine.data(pct)
+	p1 <- TSNEPlot(combined, do.return = T, pt.size = 0.5, group.by = "rep")
+	p2 <- TSNEPlot(combined, do.label = T, do.return = T, pt.size = 0.5)
+	p <- plot_grid(p1, p2)
+	title <- ggdraw() + draw_label("res 0.6", fontface='bold')
+	plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
+
+	clusters <- combined@meta.data[, grepl('res', colnames(combined@meta.data)), drop=FALSE]
+	write.table(clusters, file = file.path(OUTDIR, paste0('clusters_', pct, '.tsv')), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+	tsne <- as.data.frame(combined@dr$tsne@cell.embeddings)
+	write.table(tsne, file = file.path(OUTDIR, paste0('tsne_', pct, '.tsv')), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+}
+```
+
+## 0.05
+```{r run05, cache=TRUE}
+build.res(0.05)
+```
+
+## 0.10
+```{r run10, cache=TRUE}
+build.res(0.10)
+```
+
+## 0.20
+```{r run20, cache=TRUE}
+build.res(0.20)
+```
+
+## 0.40
+```{r run40, cache=TRUE}
+build.res(0.40)
+```
+
+## 0.60
+```{r run60, cache=TRUE}
+build.res(0.60)
+```
+
+## 0.80
+```{r run80, cache=TRUE}
+build.res(0.80)
+```
+
+## 100
+```{r run100, cache=TRUE}
+build.res(1)
+```
