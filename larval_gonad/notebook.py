@@ -9,7 +9,6 @@ import pandas as pd
 import matplotlib as mpl
 from IPython import get_ipython
 
-from .io import read_config
 from .config import config, PROJECT_DIR, CONFIG_DIR, REFERENCES_DIR
 from .plotting import add_styles
 from .scRNAseq import Seurat
@@ -252,9 +251,6 @@ class Nb(object):
         # Import external config
         defaults.update(config)
         defaults.update(kwargs)
-        defaults.update(
-            {'colors': read_config(Path(CONFIG_DIR, 'colors.yaml'))}
-        )
 
         # Add wide and full styles
         _styles = defaults['styles']
