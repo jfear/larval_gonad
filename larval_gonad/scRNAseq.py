@@ -14,6 +14,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from .config import memory, config
+
 
 class Seurat(object):
     """Class that stores basic paths for files from Seurat analysis."""
@@ -153,6 +155,38 @@ class Seurat(object):
         return clusters
 
 
+# Data Munging Functions
+@memory.cache
+def raw_data(seurat_dir, cluster=None, resolution=None):
+    s = Seurat(seurat_dir)
+
+    if cluster is None:
+        return s.get_raw()
+
+    if resolution is None:
+        resolution = config['resolution']
+
+    clusters = s.get_clusters(resolution)
+    cells = clusters.index[clusters == cluster].tolist()
+    return s.get_raw()[cells]
+
+
+@memory.cache
+def norm_data(seurat_dir, cluster=None, resolution=None):
+    s = Seurat(seurat_dir)
+
+    if cluster is None:
+        return s.get_normalized_read_counts()
+
+    if resolution is None:
+        resolution = config['resolution']
+
+    clusters = s.get_clusters(resolution)
+    cells = clusters.index[clusters == cluster].tolist()
+    return s.get_normalized_read_counts()[cells]
+
+
+# Plotting Functions
 def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
              palette=None, ax=None, class_names=None,
              legend_kws=None, cbar=True, **kwargs):
