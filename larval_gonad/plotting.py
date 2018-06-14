@@ -32,6 +32,7 @@ def figure_element(func):
             fig, ax = plt.subplots()
             kwargs.update({'ax': ax})
         return func(*args, **kwargs)
+    return wrapper
 
 
 def make_figs(fname=None, styles=None, formats=None, layout=True,
