@@ -165,6 +165,9 @@ def read_config(fname, keepers=None):
     if keepers is None:
         return c
 
+    if isinstance(keepers, str):
+        return c.get(keepers, None)
+
     config = {}
     for k in keepers:
         v = c.get(k, None)
