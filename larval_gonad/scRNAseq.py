@@ -14,6 +14,144 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
+class Seurat(object):
+    """Class that stores basic paths for files from Seurat analysis."""
+    def __init__(self, path=None):
+        """Create a list of Seurat paths.
+        raw : str
+            Path to raw.
+        metadata : str
+            Path to metadata.
+        scaled : str
+            Path to scaled data.
+        dispersion : str
+            Path to dispersion estimates.
+        var_genes : str
+            Path to variable gene list.
+        normalized_read_counts : str
+            Path to normalized read counts.
+        principal_components_cell : str
+            Path to PCA cell loadings.
+        principal_components_gene : str
+            Path to PCA gene loadings.
+        tsne : str
+            Path to tsne.
+        biomarkers : str
+            Path to biomarkers list.
+        clusters : str
+            Path to clusters identities.
+        robj : str
+            Path to seurat R object.
+
+        """
+
+        if (path is None):
+            self.raw = None
+            self.metadata = None
+            self.scaled = None
+            self.dispersion = None
+            self.var_genes = None
+            self.normalized_read_counts = None
+            self.principal_components_cell = None
+            self.principal_components_gene = None
+            self.principal_components_stdev = None
+            self.tsne = None
+            self.biomarkers = None
+            self.clusters = None
+            self.robj = None
+        else:
+            self.raw = os.path.join(path, 'raw.tsv')
+            self.metadata = os.path.join(path, 'metadata.tsv')
+            self.scaled = os.path.join(path, 'scaled.tsv')
+            self.dispersion = os.path.join(path, 'dispersion.tsv')
+            self.var_genes = os.path.join(path, 'var_genes.txt')
+            self.normalized_read_counts = os.path.join(
+                path, 'normalized_read_counts.tsv'
+            )
+            self.principal_components_cell = os.path.join(
+                path, 'principal_components_cell.tsv'
+            )
+            self.principal_components_gene = os.path.join(
+                path, 'principal_components_gene.tsv'
+            )
+            self.principal_components_stdev = os.path.join(
+                path, 'principal_components_stdev.tsv'
+            )
+            self.tsne = os.path.join(path, 'tsne.tsv')
+            self.biomarkers = os.path.join(path, 'biomarkers.tsv')
+            self.clusters = os.path.join(path, 'clusters.tsv')
+            self.robj = os.path.join(path, 'seurat.Robj')
+
+    def get_raw(self):
+        df = pd.read_csv(self.raw, sep='\t')
+        df.index.name = 'FBgn'
+        df.columns.name = 'cell_id'
+        return df
+
+    def get_metadata(self):
+        df = pd.read_csv(self.metadata, sep='\t')
+        df.index.name = 'cell_id'
+        return df
+
+    def get_scaled(self):
+        df = pd.read_csv(self.scaled, sep='\t')
+        df.index.name = 'FBgn'
+        df.columns.name = 'cell_id'
+        return df
+
+    def get_dispersion(self):
+        df = pd.read_csv(self.dispersion, sep='\t')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_var_genes(self):
+        with open(self.var_genes) as fh:
+            return [x.strip() for x in fh.readlines()]
+
+    def get_normalized_read_counts(self):
+        df = pd.read_csv(self.normalized_read_counts, sep='\t')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_principal_components_cell(self):
+        df = pd.read_csv(self.principal_components_cell, sep='\t')
+        df.index.name = 'cell_id'
+        df.columns.name = 'PC'
+        return df
+
+    def get_principal_components_gene(self):
+        df = pd.read_csv(self.principal_components_gene, sep='\t')
+        df.index.name = 'FBgn'
+        df.columns.name = 'PC'
+        return df
+
+    def get_principal_components_stdev(self):
+        df = pd.read_csv(self.principal_components_stdev, sep='\t')
+        df.index.name = 'PC'
+        df.columns.name = 'stdev'
+        return df
+
+    def get_tsne(self):
+        df = pd.read_csv(self.tsne, sep='\t')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_biomarkers(self):
+        df = pd.read_csv(self.biomarkers, sep='\t', index_col='gene')
+        df.index.name = 'FBgn'
+        return df
+
+    def get_clusters(self, resolution=None):
+        df = pd.read_csv(self.clusters, sep='\t', index_col=0)
+
+        if resolution is None:
+            return df
+
+        clusters = df[resolution]
+        clusters.name = 'cluster'
+        return clusters
+
+
 def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
              palette=None, ax=None, class_names=None,
              legend_kws=None, cbar=True, **kwargs):
@@ -105,8 +243,8 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
     ax.set_yticks([])
 
 
-def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix',
-                     cmap=plt.cm.Blues):
+def plot_confusion_matrix(cm, classes, normalize=False,
+                          title='Confusion matrix', cmap=plt.cm.Blues):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
@@ -134,5 +272,3 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-
-

@@ -16,7 +16,7 @@ import seaborn as sns
 
 # Project level imports
 from larval_gonad.plotting import add_styles, TSNEPlot
-from larval_gonad.notebook import Seurat
+from larval_gonad.scRNAseq import Seurat
 from larval_gonad.scRNAseq import CLUSTER_ANNOT, CLUSTER_ORDER
 from larval_gonad.config import CONFIG_DIR, REFERENCES_DIR
 
@@ -57,12 +57,6 @@ rule targets:
     input: figures + tables
 
 
-def get_clusters():
-    clusters = seurat.get_clusters()[resolution]
-    clusters.name = 'cluster'
-    return clusters
-
-
 def get_deg():
     _res = resolution.replace('res.', '')
     _alpha = config['alpha']
@@ -94,7 +88,7 @@ rule tsne:
     run:
         colors = sns.color_palette('tab20', n_colors=12, desat=.8)
         tsne = seurat.get_tsne()
-        clusters = get_clusters()
+        clusters = seurat.get_clusters(resolution=resolution)
 
         dat = tsne.join(clusters)
         dat.cluster.replace(CLUSTER_ANNOT, inplace=True)
@@ -115,7 +109,7 @@ rule tsne:
 rule heatmap_diff:
     output: 'figures/heatmap_diff_genes.pdf'
     run:
-        clusters = get_clusters()
+        clusters = seurat.get_clusters(resolution=resolution)
         norm = seurat.get_normalized_read_counts()
         sig_genes = get_deg()
 
@@ -141,7 +135,7 @@ rule heatmap_diff:
 rule heatmap_lit:
     output: 'figures/heatmap_literature_genes.pdf'
     run:
-        clusters = get_clusters()
+        clusters = seurat.get_clusters(resolution=resolution)
         norm = seurat.get_normalized_read_counts()
         dat = norm.T.join(
             clusters.apply(lambda x: CLUSTER_ANNOT[x])
@@ -177,7 +171,7 @@ rule heatmap_lit:
 rule heatmap_ptrap:
     output: 'figures/heatmap_protein_trap_genes.pdf'
     run:
-        clusters = get_clusters()
+        clusters = seurat.get_clusters(resolution=resolution)
         norm = seurat.get_normalized_read_counts()
         dat = norm.T.join(
             clusters.apply(lambda x: CLUSTER_ANNOT[x])
@@ -215,7 +209,7 @@ rule boxplot:
     run:
         from larval_gonad.x_to_a import plot_cluster_x2a, commonly_expressed
 
-        clusters = get_clusters()
+        clusters = seurat.get_clusters(resolution=resolution)
         norm = seurat.get_normalized_read_counts()
         expressed = commonly_expressed(norm)
         dat = norm.T.join(clusters)
