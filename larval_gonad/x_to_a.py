@@ -13,6 +13,8 @@ import seaborn as sns
 from pysam import AlignmentFile
 
 from .config import memory, config
+from .plotting import figure_element
+from .scRNAseq import norm_data, raw_data, seurat_or_data
 
 CHROMS = ['X', '2L', '2R', '3L', '3R', '4', 'Y']
 CHROMS_CHR = ['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrY']
@@ -22,6 +24,79 @@ AUTOSOMES_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']
 
 MAJOR_ARMS = ['2L', '2R', '3L', '3R']
 MAJOR_ARMS_CHR = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
+
+fbgn2chrom = pd.read_csv('../output/fbgn2chrom.tsv', sep='\t', index_col=0)
+
+
+# Data Munging Functions
+def agg_all(kind, seurat_dir, cluster=None, resolution=None):
+    try:
+        assert kind in ['raw', 'norm']
+    except AssertionError as e:
+        print('kind must be "raw" or "norm"')
+        raise e
+
+    if kind == 'raw':
+        df = raw_data(seurat_dir, cluster=cluster,
+                      resolution=resolution).sum(axis=1)
+    elif kind == 'norm':
+        df = norm_data(seurat_dir, cluster=cluster,
+                       resolution=resolution).sum(axis=1)
+
+    df.name = 'cnts'
+    return df
+
+
+@seurat_or_data
+def x_to_a(cluster, data=None, seurat_dir=None):
+    """Calculates the X:A ratio of medians for a given cluster."""
+    if data is None:
+        cnts = agg_all('norm', seurat_dir=seurat_dir, cluster=cluster)
+        data = cnts.to_frame().join(fbgn2chrom)
+
+    med_by_chrom = data.groupby('chrom').median().loc[CHROMS_CHR[:-1]]
+    autosome_median = data[data.chrom.isin(MAJOR_ARMS_CHR)].cnts.median()
+    return med_by_chrom / autosome_median
+
+
+@seurat_or_data
+def mann_whitney_by_arm(cluster, data=None, seurat_dir=None, sample=False):
+    """Calculates MannWhitney U for each chrom arm against major arms."""
+    if data is None:
+        cnts = agg_all('norm', seurat_dir=seurat_dir, cluster=cluster)
+        data = cnts.to_frame().join(fbgn2chrom)
+
+    major = data.loc[data.chrom.isin(MAJOR_ARMS_CHR), 'cnts']
+
+    res = {}
+    for chrom, dd in data.groupby('chrom'):
+
+        if chrom not in CHROMS_CHR:
+            continue
+
+        _dat = dd.cnts
+
+        if sample:
+            _, pval = mannwhitneyu(_dat,
+                                   major.sample(_dat.size, random_state=42),
+                                   alternative='less')
+        else:
+            _, pval = mannwhitneyu(_dat, major, alternative='less')
+
+        res[chrom] = pval
+
+    return pd.DataFrame(res, index=pd.Index([cluster], name='cluster'))
+
+
+@seurat_or_data
+def commonly_expressed(data=None, seurat_dir=None, read_cutoff=0):
+    """Create list of genes expressed in 1/3 of cells."""
+
+    if data is None:
+        data = norm_data(seurat_dir)
+
+    mask = (data > read_cutoff).sum(axis=1) > (data.shape[1] / 3)
+    return data.index[mask].tolist()
 
 
 def clean_pvalue(pval, use_text=True):
