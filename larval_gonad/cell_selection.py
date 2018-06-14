@@ -17,61 +17,6 @@ from .config import memory
 from .plotting import make_ax
 from .io import CellRangerCounts, cellranger_counts, cellranger_umi
 
-SOMA = [
-    'bnb',
-    'CadN',
-    'cora',
-    'crp',
-    'dsx',
-    'Egfr',
-    'egr',
-    'ems',
-    'Fas3',
-    'fax',
-    'foxo',
-    'fru',
-    'gbb',
-    'ImpL2',
-    'Lar',
-    'nord',
-    'Nrt',
-    'oys',
-    'Sox100B',
-    'spi',
-    'spict',
-    'tj',
-    'tkv',
-    'vkg',
-]
-
-EARLY_GERM = [
-    'bam',
-    'bgcn',
-    'hts',
-    'Marf'
-    'mle',
-    'Phf7',
-    'Rbp9',
-    'tej',
-    'tut',
-    'vas',
-]
-
-LATE_GERM = [
-    'aly',
-    'c-cup',
-    'CG3927',
-    'd-cup',
-    'fzo',
-    'mia',
-    'p-cup',
-    'r-cup',
-    'soti',
-    'sowi',
-    'sunz',
-    'wa-cup',
-]
-
 
 @memory.cache
 def build_umi_gene_count_table(cr_raw, cr_umi):
