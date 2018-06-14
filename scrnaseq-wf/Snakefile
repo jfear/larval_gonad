@@ -1,0 +1,140 @@
+"""Testis Single Cell Workflow."""
+import sys
+sys.path.insert(0, srcdir('../lcdb-wf'))
+import os
+from textwrap import dedent
+import yaml
+import tempfile
+import pandas as pd
+from lcdblib.snakemake import helpers, aligners
+from lcdblib.utils import utils
+from lib import common
+from lib.patterns_targets import RNASeqConfig
+
+configfile: 'config/config.yaml'
+shell.prefix('set -euo pipefail; export TMPDIR={};'.format(common.tempdir_for_biowulf()))
+shell.executable('/bin/bash')
+
+c = RNASeqConfig(config, 'config/scrnaseq_patterns.yaml')
+
+# ----------------------------------------------------------------------------
+# RULES
+# ----------------------------------------------------------------------------
+final_targets = utils.flatten((
+    utils.flatten(c.targets['cellranger']['bam']),
+    utils.flatten(c.targets['cellranger_force']['bam']),
+    'scripts/scrnaseq_combine_force.html',
+))
+
+rule targets:
+    """
+    Final targets to create
+    """
+    input: final_targets
+
+
+rule fix_gtf:
+    input:
+        gtf = [c.refdict[c.assembly][config['gtf']['tag']]['gtf']]
+    output: '../references/dmel-all-r6.16.modFix.gtf'
+    shell: """
+        awk 'BEGIN{{FS="\t"}}{{
+            if (!($9 ~ /FBgn0002781/ && ($7 == "+" || $7 == "."))){{print $0}}
+        }}' {input} > {output[0]}
+    """
+
+
+rule cellranger_mkref:
+    input:
+        gtf = rules.fix_gtf.output,
+        fasta = [c.refdict[c.assembly][config['gtf']['tag']]['fasta']]
+    output:
+        fasta = '../references/dm6.16/fasta/genome.fa',
+        gtf = '../references/dm6.16/genes/genes.gtf',
+        star = '../references/dm6.16/star/SA'
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 4
+    shell:
+        'module load cellranger/2.1.1 && '
+        'cd ../references/ && '
+        'cellranger mkref '
+        '--genome=dm6.16 '
+        '--fasta={input.fasta} '
+        '--genes={input.gtf} '
+        '--nthreads={threads} '
+        '--memgb={resources.mem_gb} '
+
+
+rule cellranger:
+    input:
+        ref = rules.cellranger_mkref.output.star,
+    output: '{sample_dir}/{sample,testis1|testis2|testis3}/outs/possorted_genome_bam.bam'
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 25,
+        time_hr = lambda wildcards, attempt: attempt * 24
+    run:
+        stable = c.sampletable.set_index('samplename')
+        record = stable.loc[wildcards.sample, :]
+        sample = record['sample']
+        fname = record['orig_filename']
+        cmd = (
+            f'module load cellranger/2.1.1 && '
+            f'cd {c.sample_dir} && '
+            f'rm -rf {wildcards.sample} &&'
+            f'cellranger count '
+            f'--id={wildcards.sample} '
+            f'--transcriptome=../../../references/dm6.16 '
+            f'--fastqs={fname} '
+            f'--sample={sample} '
+            f'--localcores={threads} '
+            f'--localmem={resources.mem_gb} '
+        )
+        shell(cmd)
+
+
+rule cellranger_force:
+    input:
+        ref = rules.cellranger_mkref.output.star,
+    output:
+        bam='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/possorted_genome_bam.bam',
+        h5='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/filtered_gene_bc_matrices_h5.h5'
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 25,
+        time_hr = lambda wildcards, attempt: attempt * 24
+    run:
+        stable = c.sampletable.set_index('samplename')
+        record = stable.loc[wildcards.sample, :]
+        sample = record['sample']
+        fname = record['orig_filename']
+        cmd = (
+            f'module load cellranger/2.1.1 && '
+            f'cd {c.sample_dir} && '
+            f'rm -rf {wildcards.sample}_force &&'
+            f'cellranger count '
+            f'--id={wildcards.sample}_force '
+            f'--transcriptome=../../../references/dm6.16 '
+            f'--fastqs={fname} '
+            f'--sample={sample} '
+            f'--localcores={threads} '
+            f'--localmem={resources.mem_gb} '
+            f'--force-cells=3000 '
+        )
+        shell(cmd)
+
+
+rule scrnaseq_rmarkdown:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1=utils.flatten(c.targets['cellranger_force']['filtered_h5']),
+        rmd='scripts/scrnaseq_combine_force.Rmd',
+    output:
+        'scripts/scrnaseq_combine_force.html',
+    shell:
+        'Rscript -e '
+        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''

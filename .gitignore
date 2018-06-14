@@ -24,15 +24,15 @@ references
 _build
 .*
 *logs
-notebook/*_files
-notebook/*_cache
+*_files
+*_cache
 website/content
 dask-worker-space
 figures
 tables
 
 # Files
-notebook/*.html
+*.html
 *.adapters
 *.log
 *.pdf

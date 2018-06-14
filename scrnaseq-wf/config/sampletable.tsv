@@ -1,0 +1,4 @@
+samplename	orig_filename	group	sample	run
+testis1	../../../data/singleCellSeqData/run0570/SV_1_10X_Te	testis	SV_1_10X_Te	run0570
+testis2	../../../data/singleCellSeqData/180206_run0615/SV_3_10X_Te	testis	SV-3-10X-Te-2	180206_run0615
+testis3	../../../data/singleCellSeqData/180207_run0616/SV_5_10X_Te	testis	SV-5-10X-Te-3	180207_run0616
