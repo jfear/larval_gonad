@@ -15,9 +15,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Project level imports
-from larval_gonad.plotting import add_styles, TSNEPlot
-from larval_gonad.scRNAseq import Seurat
-from larval_gonad.scRNAseq import CLUSTER_ANNOT, CLUSTER_ORDER
+from larval_gonad.plotting import add_styles
+from larval_gonad.scRNAseq import Seurat, TSNEPlot
 from larval_gonad.config import CONFIG_DIR, REFERENCES_DIR
 
 workdir: '.'
@@ -39,6 +38,9 @@ assembly = config['assembly']
 tag = config['tag']
 annot_fn = Path(REFERENCES_DIR, assembly, tag, 'fb_annotation',
                 f'{assembly}_{tag}.fb_annotation')
+
+CLUSTER_ANNOT = config['CLUSTER_ANNOT']
+CLUSTER_ORDER = config['CLUSTER_ORDER']
 
 # Files
 figures = [
