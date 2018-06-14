@@ -39,3 +39,31 @@ styles:
   - notebook
   - paper
   - talk
+
+CLUSTER_ANNOT:
+  0: 'Late 1º Spermatocytes (0)'
+  1: 'Mid Cyst Cells (1)'
+  2: 'Mid 1º Spermatocytes (2)'
+  3: 'Early 1º Spermatocytes (3)'
+  4: 'Late Cyst Cells (4)'
+  5: 'Early Cyst Cells (5)'
+  6: 'Spermatogonia (6)'
+  7: 'Terminal Epithelium (7)'
+  8: 'Pigment Cells (8)'
+  9: 'Unknown (9)'
+  10: 'Unknown (10)'
+  11: 'Unknown (11)'
+
+CLUSTER_ORDER:
+  - 'Spermatogonia (6)'
+  - 'Early 1º Spermatocytes (3)'
+  - 'Mid 1º Spermatocytes (2)'
+  - 'Late 1º Spermatocytes (0)'
+  - 'Early Cyst Cells (5)'
+  - 'Mid Cyst Cells (1)'
+  - 'Late Cyst Cells (4)'
+  - 'Terminal Epithelium (7)'
+  - 'Pigment Cells (8)'
+  - 'Unknown (9)'
+  - 'Unknown (10)'
+  - 'Unknown (11)'
