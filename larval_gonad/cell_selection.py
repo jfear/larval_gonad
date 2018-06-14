@@ -18,6 +18,7 @@ import scipy.sparse as sp_sparse
 import tables
 
 from .config import memory
+from .plotting import make_ax
 
 SOMA = [
     'bnb',
@@ -295,3 +296,37 @@ def build_umi_gene_count_table(cr_raw, cr_umi):
     umi_cnts.columns = ['umi_cnt']
 
     return umi_cnts.join(num_genes_on).sort_values('umi_cnt', ascending=False)
+
+
+def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
+    """Plot Barcode Rank Plot."""
+    options = {
+        'kind': 'scatter',
+        's': 3,
+        'logx': True,
+        'logy': True
+    }
+    options.update(kwargs)
+    try:
+        ax = options.pop('ax')
+    except KeyError:
+        ax = make_ax()
+
+    dat = umi.to_frame()
+    dat.columns = ['umi']
+
+    dat = dat.sort_values('umi', ascending=False)
+    dat['cell_num'] = list(range(1, dat.shape[0] + 1))
+
+    dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
+
+    if selected is not None:
+        dat.loc[dat.index.isin(selected), :].plot('cell_num',
+                                                  'umi',
+                                                  c='g',
+                                                  ax=ax,
+                                                  **options
+                                                  )
+
+    if title is not None:
+        ax.set_title(title)

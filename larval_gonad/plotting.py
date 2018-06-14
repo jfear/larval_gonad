@@ -68,32 +68,3 @@ def make_figs(fname=None, styles=None, formats=None, layout=True,
 
         return wrapper
     return _plot_all
-
-
-def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
-    """Plot Barcode Rank Plot."""
-    options = {
-        'kind': 'scatter',
-        's': 3,
-        'logx': True,
-        'logy': True
-    }
-    options.update(kwargs)
-    try:
-        ax = options.pop('ax')
-    except KeyError:
-        ax = make_ax()
-
-    dat = umi.to_frame()
-    dat.columns = ['umi']
-
-    dat = dat.sort_values('umi', ascending=False)
-    dat['cell_num'] = list(range(1, dat.shape[0] + 1))
-
-    dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
-
-    if selected is not None:
-        dat.loc[dat.index.isin(selected), :].plot('cell_num', 'umi', c='g', ax=ax, **options)
-
-    if title is not None:
-        ax.set_title(title)
