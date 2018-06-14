@@ -4,6 +4,7 @@ This is a place to store functions and variables that are used over and over
 again with the scRNA-seq data.
 
 """
+import os
 import itertools
 
 import numpy as np
