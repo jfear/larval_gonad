@@ -4,6 +4,32 @@ from yaml import load
 
 from joblib import Memory
 
+
+def read_config(fname, keepers=None):
+    """Reads a YAML file.
+
+    If a list of keepers is provided, will look through the YAML and only
+    return those keys.
+
+    """
+    with open(fname, 'r') as fh:
+        c = load(fh)
+
+    if keepers is None:
+        return c
+
+    if isinstance(keepers, str):
+        return c.get(keepers, None)
+
+    config = {}
+    for k in keepers:
+        v = c.get(k, None)
+        if v is not None:
+            config[k] = v
+
+    return config
+
+
 # Useful directories
 PROJECT_DIR = Path(__file__).absolute().parents[1].as_posix()
 CONFIG_DIR = Path(PROJECT_DIR, 'config').as_posix()
@@ -14,8 +40,8 @@ Path(CACHE_DIR).mkdir(exist_ok=True, parents=True)
 Path(CONFIG_DIR).mkdir(exist_ok=True, parents=True)
 
 # Load config file
-with Path(CONFIG_DIR, 'common.yaml').open() as fh:
-    config = load(fh)
+config = read_config(Path(CONFIG_DIR, 'common.yaml'))
+config.update({'colors': read_config(Path(CONFIG_DIR, 'colors.yaml'))})
 
 REFERENCES_DIR = config.get('references_dir',
                             os.environ.get('REFERENCES_DIR', None))
