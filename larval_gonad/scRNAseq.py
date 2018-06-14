@@ -17,6 +17,14 @@ import seaborn as sns
 from .config import memory, config
 
 
+@memory.cache
+def read_counts(fname):
+    df = pd.read_csv(fname, sep='\t')
+    df.index.name = 'FBgn'
+    df.columns.name = 'cell_id'
+    return df
+
+
 class Seurat(object):
     """Class that stores basic paths for files from Seurat analysis."""
     def __init__(self, path=None):
@@ -86,10 +94,7 @@ class Seurat(object):
             self.robj = os.path.join(path, 'seurat.Robj')
 
     def get_raw(self):
-        df = pd.read_csv(self.raw, sep='\t')
-        df.index.name = 'FBgn'
-        df.columns.name = 'cell_id'
-        return df
+        return read_counts(self.raw)
 
     def get_metadata(self):
         df = pd.read_csv(self.metadata, sep='\t')
@@ -112,9 +117,7 @@ class Seurat(object):
             return [x.strip() for x in fh.readlines()]
 
     def get_normalized_read_counts(self):
-        df = pd.read_csv(self.normalized_read_counts, sep='\t')
-        df.index.name = 'FBgn'
-        return df
+        return read_counts(self.normalized_read_counts)
 
     def get_principal_components_cell(self):
         df = pd.read_csv(self.principal_components_cell, sep='\t')
