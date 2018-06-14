@@ -1,11 +1,19 @@
 """Collection of io related items."""
+from collections import namedtuple
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp_sparse
 import tables
 
+from .config import memory
+
 NUCS = ['A', 'C', 'G', 'T']
 NUCS_INVERSE = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+
+
+CellRangerCounts = namedtuple('CellRangerCounts',
+                              ['matrix', 'gene_ids', 'barcodes'])
 
 
 def compress_seq(s: str):
@@ -58,6 +66,34 @@ def decompress_seq(x: int, length=16):
     return result.decode()
 
 
+def two_bit_mapper(iterable):
+    """Return a dictionary mapping 2bit encoded Seqs.
+
+    Parameters
+    ----------
+    iterable : list-like
+        Unique list of 2bit encoded sequences.
+
+    Returns
+    -------
+    dict : Mapper from encoded to decoded
+
+    """
+    return {k: decompress_seq(k) for k in iterable}
+
+
+def decode_cell_names(iterable):
+    """Use two_bit_mapper to decode cell names.
+
+    iterable : np.array
+        An array of twobit encoded cell names.
+
+    """
+    mapper = two_bit_mapper(np.unique(iterable))
+    return [mapper[x] for x in iterable]
+
+
+@memory.cache
 def cellranger_umi(fname):
     with tables.open_file(fname, 'r') as f:
         group = f.get_node('/')
@@ -65,15 +101,17 @@ def cellranger_umi(fname):
         umi = getattr(group, 'umi').read()
         read_cnts = getattr(group, 'reads').read()
 
+    cell_names = decode_cell_names(cell_ids)
+
     return pd.DataFrame(dict(
-        cell_id=cell_ids,
+        cell_id=cell_names,
         umi=umi,
         read_cnt=read_cnts
     ))
 
 
-# Import Cell Ranger molecular info
-def cellranger_counts(fname, genome='dm6.16', barcodes=None):
+@memory.cache
+def cellranger_counts(fname, genome='dm6.16'):
     """Import cell ranger counts.
 
     Cell ranger stores it counts tables in a hdf5 formatted file. This reads
@@ -88,6 +126,10 @@ def cellranger_counts(fname, genome='dm6.16', barcodes=None):
     barcodes : list of int
         Encoded barcodes names to filter by
 
+    Returns
+    -------
+    namedtuple: matrix, gene_ids, barcodes
+
     """
     with tables.open_file(fname, 'r') as f:
         try:
@@ -96,27 +138,14 @@ def cellranger_counts(fname, genome='dm6.16', barcodes=None):
             print("That genome does not exist in this file.")
             return None
         gene_ids = getattr(group, 'genes').read()
-        bcs = getattr(group, 'barcodes').read()
+        barcodes = getattr(group, 'barcodes').read()
         data = getattr(group, 'data').read()
         indices = getattr(group, 'indices').read()
         indptr = getattr(group, 'indptr').read()
         shape = getattr(group, 'shape').read()
-        matrix = sp_sparse.csc_matrix((data, indices, indptr), shape=shape)
 
-    if barcodes is not None:
-        cell_ids = [bytes(decompress_seq(x) + '-1', 'utf-8') for x in barcodes]
-        idx = []
-        for i, bc in enumerate(bcs):
-            if bc in cell_ids:
-                idx.append(i)
+    matrix = sp_sparse.csc_matrix((data, indices, indptr), shape=shape)
+    gene_ids = np.array([x.decode() for x in gene_ids])
+    barcodes = np.array([x.decode().replace('-1', '') for x in barcodes])
 
-        bcs = bcs[idx]
-        matrix = matrix[:, idx]
-
-    return pd.DataFrame(
-        data=matrix.todense(),
-        index=[x.decode() for x in gene_ids],
-        columns=[x.decode() for x in bcs]
-    )
-
-
+    return CellRangerCounts(matrix, gene_ids, barcodes)
