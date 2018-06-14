@@ -189,6 +189,17 @@ def norm_data(seurat_dir, cluster=None, resolution=None):
     return s.get_normalized_read_counts()[cells]
 
 
+def seurat_or_data(func):
+    def wrapper(*args, **kwargs):
+        data = kwargs.get('data', None)
+        seurat_dir = kwargs.get('seurat_dir', None)
+        if (data is None) & (seurat_dir is None):
+            raise ValueError('You must provide either data or a seurat_dir')
+
+        return func(*args, **kwargs)
+    return wrapper
+
+
 # Plotting Functions
 def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
              palette=None, ax=None, class_names=None,
