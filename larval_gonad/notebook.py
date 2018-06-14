@@ -433,6 +433,12 @@ class Seurat(object):
         df.index.name = 'FBgn'
         return df
 
-    def get_clusters(self):
+    def get_clusters(self, resolution=None):
         df = pd.read_csv(self.clusters, sep='\t', index_col=0)
-        return df
+
+        if resolution is None:
+            return df
+
+        clusters = df[resolution]
+        clusters.name = 'cluster'
+        return clusters
