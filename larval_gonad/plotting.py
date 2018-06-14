@@ -20,6 +20,25 @@ def make_ax(*args, **kwargs):
     return ax
 
 
+def figure_element(func):
+    """Decorate figure elements to create an Axes if none is given.
+
+    I define a figure element as a function that imports, munges, and plots. A
+    figure panel can be built by combining multiple figure elements using
+    matplotlib.Axes. However, some times I will only want to plot the element,
+    so this wrapper will generate a new Axes and pass it to the function for
+    me.
+
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        ax = kwargs.get('ax', None)
+        if ax is None:
+            fig, ax = plt.subplots()
+            kwargs.update({'ax': ax})
+        return func(*args, **kwargs)
+
+
 def make_figs(fname=None, styles=None, formats=None, layout=True,
               kws_layout=None):
     if isinstance(formats, str):
