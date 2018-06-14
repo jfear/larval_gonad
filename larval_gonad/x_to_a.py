@@ -218,9 +218,7 @@ def x_autosome_boxplot(x, y, pvalue_cutoff=0.001, x_chrom=None, autosomes=None,
     return ax
 
 
-def estimate_dcc(chrom_col: str,
-                 count_col: str,
-                 df: pd.DataFrame) -> Tuple[float, float, float]:
+def estimate_dcc(chrom_col, count_col, df):
     """Estimate Dosage Compensation.
 
     Parameters
