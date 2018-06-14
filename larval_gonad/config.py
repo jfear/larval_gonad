@@ -33,7 +33,7 @@ def read_config(fname, keepers=None):
 # Useful directories
 PROJECT_DIR = Path(__file__).absolute().parents[1].as_posix()
 CONFIG_DIR = Path(PROJECT_DIR, 'config').as_posix()
-CACHE_DIR = Path(PROJECT_DIR, 'output/cache').as_posix()
+CACHE_DIR = Path('~/.cache').expanduser().as_posix()
 
 # Make missing dirs
 Path(CACHE_DIR).mkdir(exist_ok=True, parents=True)
