@@ -3,7 +3,7 @@
 
 from setuptools import setup
 
-requirements = [i.strip() for i in open('requirements.txt').readlines()]
+#requirements = [i.strip() for i in open('requirements.txt').readlines()]
 
 setup(
     name='larval_gonad',
@@ -13,6 +13,6 @@ setup(
     author_email='justin.m.fear@gmail.com',
     url='https://github.com/jfear/larval_gonad',
     packages=['larval_gonad'],
-    install_requires=requirements,
+#    install_requires=requirements,
     license="MIT license",
 )
