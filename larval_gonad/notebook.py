@@ -7,9 +7,9 @@ from subprocess import check_output
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
-import seaborn as sns
 from IPython import get_ipython
 
+from .io import read_config
 from .config import config, PROJECT_DIR, CONFIG_DIR, REFERENCES_DIR
 from .plotting import add_styles
 from .scRNAseq import Seurat
@@ -162,22 +162,6 @@ class Nb(object):
                 'If it does not exist, run bin/fbgn2chrom.py'
             )
 
-        # Add Colors
-        colors = kwargs.pop('colors')
-        self.colors = colors['cycle']
-
-        self.color_chrom = colors['chrom']
-        self.color_xa = [colors['chrom'][5], colors['chrom'][0]]
-
-        self.color_female = colors['female']
-        self.color_male = colors['male']
-        self.colors_sex = sns.color_palette([self.color_female,
-                                             self.color_male])
-
-        self.color_c1 = colors['c1']
-        self.color_c2 = colors['c2']
-        self.color_c3 = colors['c3']
-
         # Add any key word args
         self._config_attrs = kwargs.keys()
         for k, v in kwargs.items():
@@ -215,7 +199,6 @@ class Nb(object):
             add_styles(styles)
 
         mpl.style.use(['common', 'notebook'])
-        sns.set_palette(self.colors)
 
     def get_conda(self):
         conda_info = check_output(['conda', 'info']).decode('utf-8')
@@ -269,6 +252,9 @@ class Nb(object):
         # Import external config
         defaults.update(config)
         defaults.update(kwargs)
+        defaults.update(
+            {'colors': read_config(Path(CONFIG_DIR, 'colors.yaml'))}
+        )
 
         # Add wide and full styles
         _styles = defaults['styles']
