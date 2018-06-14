@@ -1,6 +1,5 @@
 """Collection of io related items."""
 from collections import namedtuple
-from yaml import load
 
 import numpy as np
 import pandas as pd
@@ -150,28 +149,3 @@ def cellranger_counts(fname, genome='dm6.16'):
     barcodes = np.array([x.decode().replace('-1', '') for x in barcodes])
 
     return CellRangerCounts(matrix, gene_ids, barcodes)
-
-
-def read_config(fname, keepers=None):
-    """Reads a YAML file.
-
-    If a list of keepers is provided, will look through the YAML and only
-    return those keys.
-
-    """
-    with open(fname, 'r') as fh:
-        c = load(fh)
-
-    if keepers is None:
-        return c
-
-    if isinstance(keepers, str):
-        return c.get(keepers, None)
-
-    config = {}
-    for k in keepers:
-        v = c.get(k, None)
-        if v is not None:
-            config[k] = v
-
-    return config
