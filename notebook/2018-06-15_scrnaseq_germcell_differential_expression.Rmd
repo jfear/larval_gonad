@@ -1,0 +1,63 @@
+---
+title: Germ Cell Differential Expression
+author: Justin Fear
+---
+
+Here I focus on the 4 germ cell clusters {Spermatogonia, Early, Mid, and Late
+Spermatocytes}. The goal is to figure out what are the differences between
+these groups of cells.
+
+I am assuming the following annotations:
+
+* 0: 'Late 1º Spermatocytes (0)',
+* 2: 'Mid 1º Spermatocytes (2)',
+* 3: 'Early 1º Spermatocytes (3)',
+* 6: 'Spermatogonia (6)',
+* 11: 'Unknown but possibley 1º Spermatocytes (11)',
+
+```{r load_libs}
+library(Seurat)
+library(dplyr)
+source('../lib/seurat.R')
+
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR')
+OUTDIR <- '../output'
+fbgn2symbol <- read.csv(
+  file.path(REFERENCES_DIR,
+    'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'
+  ),
+  header=T,
+  sep = '\t'
+)[, c('gene_symbol', 'primary_FBgn')]
+```
+
+```{r load.data}
+load('../scrnaseq-wf/data/scrnaseq_combine_force/seurat.Robj')
+sobj <- object
+sobj <- SetAllIdent(sobj, id='res.0.6')
+```
+
+```{r early}
+markers <- FindMarkers(sobj, ident.1 = 6, ident.2 = 3)
+fname <- '2018-06-15_scrnaseq_spermatogonia_vs_early_biomarkers.tsv'
+markers$gene = rownames(markers)
+markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+```
+
+```{r mid}
+markers <- FindMarkers(sobj, ident.1 = 6, ident.2 = 2)
+fname <- '2018-06-15_scrnaseq_spermatogonia_vs_mid_biomarkers.tsv'
+markers$gene = rownames(markers)
+markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+```
+
+```{r late}
+markers <- FindMarkers(sobj, ident.1 = 6, ident.2 = 0)
+fname <- '2018-06-15_scrnaseq_spermatogonia_vs_late_biomarkers.tsv'
+markers$gene = rownames(markers)
+markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+```
+
