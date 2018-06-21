@@ -6,6 +6,7 @@ again with the scRNA-seq data.
 """
 import os
 import itertools
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -55,6 +56,8 @@ class Seurat(object):
             Path to seurat R object.
 
         """
+
+        self.path = path
 
         if (path is None):
             self.raw = None
@@ -142,8 +145,9 @@ class Seurat(object):
         df.index.name = 'FBgn'
         return df
 
-    def get_biomarkers(self):
-        df = pd.read_csv(self.biomarkers, sep='\t', index_col='gene')
+    def get_biomarkers(self, resolution):
+        fname = Path(self.path, f'biomarkers_{resolution}.tsv')
+        df = pd.read_csv(fname, sep='\t', index_col='primary_FBgn')
         df.index.name = 'FBgn'
         return df
 
