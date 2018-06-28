@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from .config import memory, config
+from .plotting import figure_element
 
 
 @memory.cache
@@ -325,3 +326,42 @@ def plot_confusion_matrix(cm, classes, normalize=False,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+
+
+@seurat_or_data
+@figure_element
+def fe_tsne(data=None, seurat_dir=None, ax=None, resolution=None, **kwargs):
+    if resolution is None:
+        resolution = config['resolution']
+
+    if data is None:
+        s = Seurat(seurat_dir)
+        tsne = s.get_tsne()
+        clusters = s.get_clusters(resolution)
+        data = tsne.join(clusters)
+
+    TSNEPlot(data=data, hue='cluster',
+             class_names=config['CLUSTER_ANNOT'],
+             palette=config['colors']['clusters'], ax=ax, **kwargs)
+
+    return ax
+
+
+@seurat_or_data
+@figure_element
+def fe_heatmap_all(data=None, seurat_dir=None, ax=None, resolution=None,
+                   **kwargs):
+    if resolution is None:
+        resolution = config['resolution']
+
+    if data is None:
+        s = Seurat(seurat_dir)
+        norm = s.get_normalized_read_counts()
+        clusters = s.get_clusters(resolution)
+        data = tsne.join(clusters)
+
+    TSNEPlot(data=data, hue='cluster',
+             class_names=config['CLUSTER_ANNOT'],
+             palette=config['colors']['clusters'], ax=ax, **kwargs)
+
+    return ax

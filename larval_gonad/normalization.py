@@ -101,3 +101,9 @@ def tpm(df, gene_length, scale_library=1e6, scale_length=1e3, log=None):
         log = np.log
 
     return log((rpk / (totals / scale_library)) + 1)
+
+
+def zscore(df):
+    mu = df.mean(axis=1)
+    sigma = df.std(axis=1)
+    return df.subtract(mu, axis='rows').div(sigma, axis='rows')
