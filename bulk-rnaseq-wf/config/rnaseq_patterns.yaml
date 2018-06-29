@@ -18,6 +18,7 @@ libsizes:
 
 fastq_screen: '{sample_dir}/{sample}/{sample}.cutadapt.screen.txt'
 featurecounts: '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.txt'
+agg_featurecounts: '{agg_dir}/gene_level_counts.parquet'
 featurecounts_intergenic: '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.intergenic.txt'
 libsizes_table: '{agg_dir}/libsizes_table.tsv'
 libsizes_yaml: '{agg_dir}/libsizes_table_mqc.yaml'

@@ -1,12 +1,16 @@
 import sys
-sys.path.insert(0, srcdir('../lcdb-wf'))
 import os
 from textwrap import dedent
 import yaml
 import tempfile
+from pathlib import Path
+
 import pandas as pd
+
 from lcdblib.snakemake import helpers, aligners
 from lcdblib.utils import utils
+
+sys.path.insert(0, srcdir('../lcdb-wf'))
 from lib import common
 from lib.patterns_targets import RNASeqConfig
 
@@ -39,6 +43,7 @@ rule targets:
     input:
         (
             c.targets['bam'] +
+            c.targets['agg_featurecounts'] +
             utils.flatten(c.targets['fastqc']) +
             utils.flatten(c.targets['libsizes']) +
             [c.targets['fastq_screen']] +
@@ -53,8 +58,8 @@ rule targets:
             #utils.flatten(c.targets['dupradar']) +
             utils.flatten(c.targets['rseqc']) +
             utils.flatten(c.targets['collectrnaseqmetrics']) +
-            utils.flatten(c.targets['bigwig']) +
-            utils.flatten(c.targets['downstream'])
+            #utils.flatten(c.targets['downstream']) +
+            utils.flatten(c.targets['bigwig'])
         )
 
 
@@ -682,6 +687,21 @@ rule featurecounts_intergenic:
         '{input.bam} '
         '&> {log}'
 
+rule gene_counts_agg:
+    input: c.targets['featurecounts']
+    output: c.targets['agg_featurecounts']
+    run:
+        dfs = []
+        for f in input:
+            fname = Path(f)
+            sname = fname.name.split('.')[0]
+            df = pd.read_csv(fname, sep='\t', comment='#', index_col=0)
+            df = df.iloc[:, -1]
+            df.name = sname
+            dfs.append(df)
+
+        data = pd.concat(dfs, axis=1, sort=True)
+        data.to_parquet(output[0])
 
 # vim: ft=snakemake.python
 # vim: foldmethod=indent
