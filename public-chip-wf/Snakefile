@@ -1,0 +1,65 @@
+"""Look at public pol II ChIP-Seq in testis.
+
+There are a few public chip-seq datasets with bam mutants in testis. This
+workflow does what ever necessary processing to generate the needed files to
+take a quick look.
+
+"""
+
+rule targets:
+    input:
+        'data/dm3Todm6.over.chain',
+        'data/GSM480449_dm3-bam-PolII_lifted_dm6.bed',
+        'data/GSM480449_dm3-S2-PolII_lifted_dm6.bed',
+
+
+rule download_chain:
+    output: 'data/dm3Todm6.over.chain'
+    shell: """
+    curl -o {output[0]}.gz http://hgdownload.cse.ucsc.edu/goldenPath/dm3/liftOver/dm3ToDm6.over.chain.gz
+    gzip -d -c {output[0]}.gz > {output[0]}
+    rm {output[0]}.gz
+    """
+
+rule download_schones:
+    output: 'data/GSM480449_dm3-bam-PolII.bed'
+    shell: """
+    curl -o {output[0]}.gz ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM480nnn/GSM480449/suppl/GSM480449_dm3-bam-PolII.bed.gz
+    gzip -d -c {output[0]}.gz > {output[0]}
+    rm {output[0]}.gz
+    """
+
+
+rule liftOver_bam:
+    input:
+        bed = rules.download_schones.output,
+        chain = rules.download_chain.output,
+    output:
+        mapped = 'data/GSM480449_dm3-bam-PolII_lifted_dm6.bed',
+        unmapped = 'data/GSM480449_dm3-bam-PolII_lifted_umapped.bed',
+    shell: """
+    liftOver {input.bed} {input.chain} {output.mapped} {output.unmapped}
+    """
+
+
+rule download_schones_s2:
+    output: 'data/GSM480449_dm3-S2-PolII.bed'
+    shell: """
+    curl -o {output[0]}.gz ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM480nnn/GSM480159/suppl/GSM480159_dm3-S2-PolII.bed.gz
+    gzip -d -c {output[0]}.gz > {output[0]}
+    rm {output[0]}.gz
+    """
+
+
+rule liftOver_s2:
+    input:
+        bed = rules.download_schones_s2.output,
+        chain = rules.download_chain.output,
+    output:
+        mapped = 'data/GSM480449_dm3-S2-PolII_lifted_dm6.bed',
+        unmapped = 'data/GSM480449_dm3-S2-PolII_lifted_umapped.bed',
+    shell: """
+    liftOver {input.bed} {input.chain} {output.mapped} {output.unmapped}
+    """
+
+
