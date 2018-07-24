@@ -1,0 +1,15 @@
+---
+title: Initial Monocle Pseudotime Analysis
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r setup}
+options(repr.plot.width=10, repr.plot.height=10)
+```
