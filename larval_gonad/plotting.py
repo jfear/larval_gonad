@@ -3,6 +3,8 @@ from functools import wraps
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+from .config import config
+
 
 def add_styles(dirname):
     mpl.style.core.USER_LIBRARY_PATHS.append(dirname)
@@ -69,3 +71,11 @@ def make_figs(fname=None, styles=None, formats=None, layout=True,
 
         return wrapper
     return _plot_all
+
+
+# colormaps
+cluster_cmap = dict(zip(config['cluster_order'], config['colors']['clusters']))
+chrom_cmap = dict(zip(config['chrom_order'], config['colors']['chrom']))
+
+# I have a separate color scheme for boxplots, that does not contain Y.
+chrom_boxplot_cmap = dict(zip(config['chrom_order'][:-1], config['colors']['chrom_boxplot']))
