@@ -15,7 +15,7 @@ styles:
   - paper
   - talk
 resolution: 'res.0.6'
-CLUSTER_ANNOT:
+cluster_annot:
   0: 'Late 1º Spermatocytes (0)'
   1: 'Mid Cyst Cells (1)'
   2: 'Mid 1º Spermatocytes (2)'
@@ -28,8 +28,7 @@ CLUSTER_ANNOT:
   9: 'Unknown (9)'
   10: 'Unknown (10)'
   11: 'Unknown (11)'
-
-CLUSTER_ORDER:
+cluster_order:
   - 'Spermatogonia (6)'
   - 'Early 1º Spermatocytes (3)'
   - 'Mid 1º Spermatocytes (2)'
@@ -42,3 +41,11 @@ CLUSTER_ORDER:
   - 'Unknown (10)'
   - 'Terminal Epithelium (7)'
   - 'Pigment Cells (8)'
+chrom_order:
+  - chrX
+  - chr2L
+  - chr2R
+  - chr3L
+  - chr3R
+  - chr4
+  - chrY
