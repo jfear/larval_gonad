@@ -10,7 +10,9 @@ configfile: 'config.yaml'
 rule all:
     input:
         'data/clusters.parquet',
-        expand('figures/{fig}.svg', fig=['tsne',])
+        'data/fbgn2symbol.pkl',
+        'data/symbol2fbgn.pkl',
+        expand('figures/{fig}.svg', fig=['tsne', 'heatmap-all-genes', 'heatmap-lit-genes', 'fig1'])
 
 
 rule clusters:
@@ -21,11 +23,44 @@ rule clusters:
     script: 'scripts/parse_clusters.py'
 
 
+rule fbgn2symbol:
+    output: 'data/fbgn2symbol.pkl'
+    script: 'scripts/parse_fbgn2symbol.py'
+
+
+rule symbol2fbgn:
+    input: rules.fbgn2symbol.output[0]
+    output: 'data/symbol2fbgn.pkl'
+    script: 'scripts/convert_fbgn2symbol_to_symbol2fbgn.py'
+
+
 rule plot_tsne:
     input:
         tsne=Path(config['seurat_dir'], 'tsne.tsv').as_posix(),
-        clusters=rules.clusters.output[0]
+        clusters=rules.clusters.output[0],
     output: 'figures/tsne.svg'
     script: 'scripts/plot-tsne.py'
+
+
+rule plot_heatmap_all_genes:
+    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
+    output: 'figures/heatmap-all-genes.svg'
+    script: 'scripts/plot-heatmap-all-genes.py'
+
+
+rule plot_heatmap_lit_genes:
+    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
+    output: 'figures/heatmap-lit-genes.svg'
+    params: lit_genes=config['lit_genes']
+    script: 'scripts/plot-heatmap-lit-genes.py'
+
+
+rule fig1:
+    input:
+        tsne=rules.plot_tsne.output[0],
+        hmap_all=rules.plot_heatmap_all_genes.output[0],
+        hmap_lit=rules.plot_heatmap_lit_genes.output[0],
+    output: 'figures/fig1.svg'
+    script: 'scripts/fig1.py'
 
 # vim: set ft=python.snakemake
