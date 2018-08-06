@@ -3,5 +3,5 @@ pdf.fonttype: 42
 svg.fonttype: none
 font.sans-serif: Helvetica, Arial, DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Avant Garde, sans-serif
 figure.dpi: 300
-savefig.bbox: tight
-savefig.pad_inches: 0.01
+#savefig.bbox: tight
+#savefig.pad_inches: 0.01
