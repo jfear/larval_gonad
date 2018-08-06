@@ -1,496 +1,94 @@
 """Scrip to generate figures and needed material for the Science Submssion.
 
 """
-import os
-import sys
 from pathlib import Path
-from yaml import load
-from textwrap import dedent
-
-import numpy as np
-import pandas as pd
-
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Project level imports
-from larval_gonad.plotting import add_styles
-from larval_gonad.scRNAseq import Seurat, TSNEPlot
-from larval_gonad.config import CONFIG_DIR, REFERENCES_DIR
-from larval_gonad.config import config as sconfig
 
 workdir: '.'
-configfile: '../config/common.yaml'
+configfile: 'config.yaml'
 
-# update with local config
-with open('config.yaml') as fh:
-    config.update(load(fh))
 
-# Set up figure
-add_styles(Path(CONFIG_DIR, 'stylelib'))
-mpl.style.use(['common', *config['styles']])
-
-# Grab Config Data
-seurat_dir = config['seurat_dir']
-seurat = Seurat(seurat_dir)
-resolution = config['resolution']
-assembly = config['assembly']
-tag = config['tag']
-annot_fn = Path(REFERENCES_DIR, assembly, tag, 'fb_annotation',
-                f'{assembly}_{tag}.fb_annotation')
-
-CLUSTER_ANNOT = config['CLUSTER_ANNOT']
-CLUSTER_ORDER = config['CLUSTER_ORDER']
-
-# Files
-figures = [
-    'figures/tsne_clusters.pdf',
-    'figures/heatmap_diff_genes.pdf',
-    'figures/heatmap_literature_genes.pdf',
-    'figures/HistogramBoxFig.pdf',
-    'figures/heatmap_protein_trap_genes.pdf',
-]
-
-tables = [
-    'tables/scRNASeq_cluster_deg.xlsx',
-    'tables/results.xlsx',
-]
-
-rule targets:
-    input: figures + tables
-
-
-def get_deg():
-    _res = resolution.replace('res.', '')
-    _alpha = config['alpha']
-    bio = pd.read_csv(
-        Path(config['seurat_dir'], f'biomarkers_res.{_res}.tsv'), sep='\t'
-    )
-    sig_genes = bio[bio.p_val_adj < _alpha].primary_FBgn.unique().tolist()
-
-    return sig_genes
-
-
-def get_fbgn2symbol():
-    annot = pd.read_csv(annot_fn, sep='\t', index_col=1).fillna('nan')
-    return annot['gene_symbol'].to_dict()
-
-
-def get_symbol2fbgn(fbgn2symbol=None):
-    if fbgn2symbol is None:
-        fbgn2symbol = get_fbgn2symbol()
-    return {v: k for k, v in fbgn2symbol.items()}
-
-
-def get_fbgn2chrom():
-    return pd.read_csv('../output/fbgn2chrom.tsv', sep='\t', index_col=0)
-
-
-rule tsne:
-    output: 'figures/tsne_clusters.pdf'
-    run:
-        colors = sns.color_palette('tab20', n_colors=12, desat=.8)
-        tsne = seurat.get_tsne()
-        clusters = seurat.get_clusters(resolution=resolution)
-
-        dat = tsne.join(clusters)
-        dat.cluster.replace(CLUSTER_ANNOT, inplace=True)
-
-        TSNEPlot(
-            data=dat,
-            hue='cluster',
-            palette=colors,
-            s=40,
-        )
-        ax = plt.gca()
-        ax.set_aspect('equal')
-        sns.despine()
-        plt.tight_layout(rect=[0, 0, .7, 1])
-        plt.savefig(output[0])
-
-
-rule heatmap_diff:
-    output: 'figures/heatmap_diff_genes.pdf'
-    run:
-        clusters = seurat.get_clusters(resolution=resolution)
-        norm = seurat.get_normalized_read_counts()
-        sig_genes = get_deg()
-
-        dat = norm.T.join(
-            clusters.apply(lambda x: CLUSTER_ANNOT[x])
-        ).groupby('cluster').sum().T[CLUSTER_ORDER]
-
-        g = sns.clustermap(
-            dat[dat.index.isin(sig_genes)],
-            col_cluster=False,
-            yticklabels=False,
-            z_score=0,
-            cmap='viridis',
-            cbar_kws={
-                'label': 'Normalized Read Counts\n(z-score)'
-            }, rasterized=True,
-        )
-        g.ax_heatmap.set_title('Differentially Expressed Genes (One vs Rest)')
-        g.ax_heatmap.set_ylabel('Genes')
-        g.savefig(output[0])
-
-
-rule heatmap_lit:
-    output: 'figures/heatmap_literature_genes.pdf'
-    run:
-        clusters = seurat.get_clusters(resolution=resolution)
-        norm = seurat.get_normalized_read_counts()
-        dat = norm.T.join(
-            clusters.apply(lambda x: CLUSTER_ANNOT[x])
-        ).groupby('cluster').sum().T[CLUSTER_ORDER]
-
-        # Get lit supported genes
-        fbgn2symbol = get_fbgn2symbol()
-        symbol2fbgn = get_symbol2fbgn(fbgn2symbol)
-        select = [symbol2fbgn[g] for g in config['lit_genes']]
-
-        g = sns.clustermap(
-            dat.loc[select],
-            col_cluster=False,
-            row_cluster=False,
-            z_score=0,
-            cmap='viridis',
-            cbar_kws={'label': 'Normalized Read Counts\n(z-score)'},
-            rasterized=False,
-            figsize=(20, 20),
-        )
-
-        ax = g.ax_heatmap
-        new_labels = []
-        for l in ax.get_yticklabels():
-            new_labels.append(fbgn2symbol[l.get_text()])
-
-        ax.set_yticklabels(new_labels)
-        ax.set_title('Literature Based\nDifferentially Expressed Genes (One vs Rest)')
-
-        g.savefig(output[0])
-
-
-rule heatmap_ptrap:
-    output: 'figures/heatmap_protein_trap_genes.pdf'
-    run:
-        clusters = seurat.get_clusters(resolution=resolution)
-        norm = seurat.get_normalized_read_counts()
-        dat = norm.T.join(
-            clusters.apply(lambda x: CLUSTER_ANNOT[x])
-        ).groupby('cluster').sum().T[CLUSTER_ORDER]
-
-        # Get lit supported genes
-        fbgn2symbol = get_fbgn2symbol()
-        symbol2fbgn = get_symbol2fbgn(fbgn2symbol)
-        select = [symbol2fbgn[g] for g in config['protein_trap_genes']]
-
-        g = sns.clustermap(
-            dat.loc[select],
-            col_cluster=False,
-            row_cluster=True,
-            z_score=0,
-            cmap='viridis',
-            cbar_kws={'label': 'Normalized Read Counts\n(z-score)'},
-            rasterized=False,
-            figsize=(20, 20),
-        )
-
-        ax = g.ax_heatmap
-        new_labels = []
-        for l in ax.get_yticklabels():
-            new_labels.append(fbgn2symbol[l.get_text()])
-
-        ax.set_yticklabels(new_labels)
-        ax.set_title('Protein Trap Genes\nDifferentially Expressed Genes (One vs Rest)')
-
-        g.savefig(output[0])
-
-
-rule boxplot:
-    output: 'figures/HistogramBoxFig.pdf'
-    run:
-        from larval_gonad.x_to_a import plot_cluster_x2a, commonly_expressed
-
-        clusters = seurat.get_clusters(resolution=resolution)
-        norm = seurat.get_normalized_read_counts()
-        expressed = commonly_expressed(norm)
-        dat = norm.T.join(clusters)
-        fbgn2chrom = get_fbgn2chrom()
-
-        fig, axes = plt.subplots(4, 2, figsize=(8.5, 11), sharex=True)
-        plot_cluster_x2a(dat, expressed, 6, *axes[0], fbgn2chrom)
-        plot_cluster_x2a(dat, expressed, 3, *axes[1], fbgn2chrom)
-        plot_cluster_x2a(dat, expressed, 2, *axes[2], fbgn2chrom)
-        plot_cluster_x2a(dat, expressed, 0, *axes[3], fbgn2chrom)
-
-        axes[0][0].set_title('Normalized Expression (Sum)', fontsize=12,
-                             fontweight='bold')
-
-        axes[0][1].set_title('Normalized Expression (Median)', fontsize=12,
-                             fontweight='bold')
-
-        ax = axes[0][1]
-        axes[0][1].text(1.01, .5, 'Spermatogonia', rotation=-90,
-                        transform=axes[0][1].transAxes, fontsize=12,
-                        va='center', fontweight='bold')
-
-        axes[1][1].text(1.01, .5, 'Early 1º Spermatocytes', rotation=-90,
-                        transform=axes[1][1].transAxes, fontsize=12,
-                        va='center', fontweight='bold')
-
-        axes[2][1].text(1.01, .5, 'Mid 1º Spermatocytes', rotation=-90,
-                        transform=axes[2][1].transAxes, fontsize=12,
-                        va='center', fontweight='bold')
-
-        axes[3][1].text(1.01, .5, 'Late 1º Spermatocytes', rotation=-90,
-                        transform=axes[3][1].transAxes, fontsize=12,
-                        va='center', fontweight='bold')
-
-        plt.text(0, .5, 'Normalized Read Counts', rotation=90,
-                 transform=fig.transFigure, fontsize=12,
-                 va='center', fontweight='bold')
-
-        plt.text(.5, 0, 'Chromosome Arm', transform=fig.transFigure,
-                 fontsize=12, fontweight='bold', ha='center')
-
-        for axs in axes[:3]:
-            axs[0].xaxis.set_visible(False)
-            axs[1].xaxis.set_visible(False)
-
-        plt.tight_layout()
-        fig.savefig(output[0])
-
-
-rule differntial_expression_tables:
-    output: 'tables/scRNASeq_cluster_deg.xlsx'
-    run:
-        import pandas as pd
-
-        def _add_sheet(writer, sheet_name, fname, alpha=0.01, comment=None, headers=None):
-            sheet = writer.book.add_worksheet(sheet_name)
-            writer.sheets[sheet_name] = sheet
-            sheet.set_column(0, 1, 20)
-
-            df = pd.read_csv(Path(seurat_dir, fname), sep='\t').query(f'p_val_adj <= {alpha}')
-            df.sort_values(by='avg_logFC', ascending=False, inplace=True)
-
-            if 'cluster' in df.columns:
-                df.sort_values(by='cluster', inplace=True)
-                df.cluster.replace(CLUSTER_ANNOT, inplace=True)
-                idx = df.columns.tolist().index('cluster')
-                sheet.set_column(idx, idx, 20)
-
-            if headers:
-                df.rename({'pct.1': headers[0], 'pct.2': headers[1]}, inplace=True, axis=1)
-            df.to_excel(writer, sheet_name=sheet_name, index=False, startrow=1, freeze_panes=(2, 2))
-
-            if comment:
-                sheet.set_row(0, 100, cell_format)
-                sheet.merge_range('A1:G1', dedent(comment))
-
-        writer = pd.ExcelWriter(output[0])
-        cell_format = writer.book.add_format({'valign': 'top'})
-        cell_format.set_text_wrap()
-
-        comment = "This is the initial differential expression analysis to identify 'biomarkers' for lack of a better term. " \
-            "Here we take each cluster and compare it's expression to all other cells. " \
-            "This creates a list of genes that are upregulated in each cluster. " \
-            "This table is grouped by clusters and sorted by avg_logFC." \
-
-        _add_sheet(writer, 'One vs Rest (biomarkers)', f'biomarkers_{resolution}.tsv', comment=comment)
-
-
-        comment = "Here I have done a differential expression between the germ cell and somatic cell lines. " \
-            "For this analysis I combine all of the germ cell clusters (6, 3, 2, 0) vs all of the somatic cell clusters (5, 1, 4, 7, 8).\n" \
-            "Positve avg_logFC are germ biased genes.\n" \
-            "Negative avg_logFC are soma biased genes.\n" \
-
-        _add_sheet(
-            writer,
-            'Germ Cells vs Somatic Cells',
-            '2018-05-16_scrnaseq_germ_vs_soma_biomarkers.tsv',
-            comment=comment,
-            headers=('pct.germ', 'pct.soma')
-        )
-
-        comment = "Here I have done a differential expression of spermatogonia vs 1º spermatocytes. " \
-            "For this analysis I took the spermatogonia cluster and compared it to all spermatocyte " \
-            "clusters combined together.\n\n" \
-            "Positve avg_logFC are spermatogonia biased genes.\n" \
-            "Negative avg_logFC are 1º spermatocyte biased genes."
-
-        _add_sheet(
-            writer,
-            'Gonia vs Cytes',
-            '2018-05-16_scrnaseq_spermatogonia_vs_spermatocytes_biomarkers.tsv',
-            comment=comment,
-            headers=('pct.gonia', 'pct.cytes')
-        )
-
-        comment = "Here I have done a differential expression of Early 1º spermatocytes vs Mid and Late 1º spermatocytes.\n" \
-            "Positve avg_logFC are early 1º spermatocyte biased genes.\n" \
-            "Negative avg_logFC are mid and late 1º spermatocyte biased genes."
-
-        _add_sheet(
-            writer,
-            'Early cytes vs Mid and Late',
-            '2018-05-16_scrnaseq_early_spermatocytes_vs_spermatocytes_biomarkers.tsv',
-            comment=comment,
-            headers=('pct.early', 'pct.midLate')
-        )
-
-        comment = "Here I have done a differential expression of Mid 1º spermatocytes vs Early and Late 1º spermatocytes.\n" \
-            "Positve avg_logFC are mid 1º spermatocyte biased genes.\n" \
-            "Negative avg_logFC are early and late 1º spermatocyte biased genes."
-
-        _add_sheet(
-            writer,
-            'Mid cytes vs Early and Late',
-            '2018-05-16_scrnaseq_mid_spermatocytes_vs_spermatocytes_biomarkers.tsv',
-            comment=comment,
-            headers=('pct.mid', 'pct.earlyLate')
-        )
-
-        comment = "Here I have done a differential expression of Late 1º spermatocytes vs Early and Mid 1º spermatocytes.\n" \
-            "Positve avg_logFC are late 1º spermatocyte biased genes.\n" \
-            "Negative avg_logFC are early and mid 1º spermatocyte biased genes."
-
-        _add_sheet(
-            writer,
-            'Late cytes vs Early and Mid',
-            '2018-05-16_scrnaseq_late_spermatocytes_vs_spermatocytes_biomarkers.tsv',
-            comment=comment,
-            headers=('pct.late', 'pct.earlyMid')
-        )
-
-        comment = "Cluster eleven is a little bit of a mystery to us. " \
-            "It behaves kind of like a 1º spermatocyte, but has very low expression. " \
-            "Here I run a differential expression between cluster eleven and the 1º spermatocyte clusters.\n" \
-            "Positve avg_logFC are cluster 11 biased genes.\n" \
-            "Negative avg_logFC are 1º spermatocyte biased genes."
-
-        _add_sheet(
-            writer,
-            'Cluster 11 vs cytes',
-            '2018-05-16_scrnaseq_eleven_vs_spermatocytes_biomarkers.tsv',
-            comment=comment,
-            headers=('pct.eleven', 'pct.cytes')
-        )
-
-        writer.close()
-
-
-rule results_table:
+rule all:
     input:
-        raw = '../scrnaseq-wf/data/raw_by_cluster.parquet',
-        tpm = '../scrnaseq-wf/data/tpm.parquet',
-        rpkm = '../scrnaseq-wf/data/rpkm.parquet',
-        zscore = '../scrnaseq-wf/data/tpm_zscore.parquet',
+        'data/clusters.parquet',
+        'data/fbgn2symbol.pkl',
+        'data/symbol2fbgn.pkl',
+        expand('figures/{fig}.svg', fig=['tsne', 'heatmap-all-genes', 'heatmap-lit-genes', 'fig1']),
+#         expand('figures/{fig}.png', fig=['fig1']), expand('figures/{fig}.pdf', fig=['fig1'])
+
+
+rule clusters:
+    input: Path(config['seurat_dir'], 'clusters.tsv').as_posix()
     params:
-        seurat_dir = '../scrnaseq-wf/data/scrnaseq_combine_force'
-    output: 'tables/results.xlsx'
-    run:
-        fbgn2symbol = get_fbgn2symbol()
-        fbgn2chrom = get_fbgn2chrom()
+        resolution=config['resolution'],
+    output: 'data/clusters.parquet'
+    script: 'scripts/parse_clusters.py'
 
-        # Open writer and add some formats
-        writer = pd.ExcelWriter(output[0])
-        cell_format = writer.book.add_format({'valign': 'top'})
-        cell_format.set_text_wrap()
 
-        # README Sheet
-        sheet = writer.book.add_worksheet('README')
-        writer.sheets['README'] = sheet
+rule fbgn2symbol:
+    output: 'data/fbgn2symbol.pkl'
+    script: 'scripts/parse_fbgn2symbol.py'
 
-        comment = """\
-        Genes with missing counts were not captured by the experiment.
-        """
 
-        sheet.set_column(0, 0, width=30, cell_format=cell_format)
-        sheet.set_column(1, 1, width=50, cell_format=cell_format)
-        sheet.set_row(0, height=50, cell_format=cell_format)
-        sheet.merge_range('A1:C1', comment)
+rule symbol2fbgn:
+    input: rules.fbgn2symbol.output[0]
+    output: 'data/symbol2fbgn.pkl'
+    script: 'scripts/convert_fbgn2symbol_to_symbol2fbgn.py'
 
-        col_desc = {
-            'FBgn': 'FlyBase Gene ID',
-            'gene_symbol': 'Gene Symbol',
-            'chrom': 'Chromosomal Arm',
-            'Total Read Cnts': 'Sum of raw read counts across cells',
-            'Median Scaled Read Cnts': 'Sum of raw read counts across cells scaled by median total read count across genes',
-            'Cluster p_val Cluster': 'Seurat FindMarkers p-value',
-            'Cluster p_val_adj': 'FDR Adjusted p-value',
-            'Cluster avg_logFC': 'Average log Fold Change',
-            'Cluster Prop Cells in Cluster': 'Proportion of Cells in cluster 0 with gene expressed.',
-            'Cluster Prop Cells in Other Clusters': 'Proportion of Cells in all other clusters with gene expressed.',
-            'Cluster TPM Read Cnts': 'TPM normalized read count',
-            'Cluster RPKM Read Cnts': 'RPKM normalized read count',
-            'Z-score Cluster #': 'RPKM normalized read count',
-        }
 
-        _desc = pd.Series(col_desc).to_frame()
-        _desc.index.name = 'Column Name'
-        _desc.columns = ['Column Description']
-        _desc.to_excel(writer, sheet_name='README', startrow=1)
+rule ptrap_scores:
+    output: 'data/ptrap_scores.parquet'
+    script: 'scripts/ptrap-scores.py'
 
-        # Gene annotation with symbols
-        gene_annot = pd.Series(fbgn2symbol)
-        gene_annot.name = 'gene_symbol'
-        gene_annot = gene_annot.to_frame().join(fbgn2chrom)
 
-        # Total counts
-        raw = pd.read_parquet(input.raw)
+rule plot_tsne:
+    input:
+        tsne=Path(config['seurat_dir'], 'tsne.tsv').as_posix(),
+        clusters=rules.clusters.output[0],
+    output: 'figures/tsne.svg'
+    script: 'scripts/plot-tsne.py'
 
-        total = raw.sum(axis=1)
-        total.name = 'Total Read Cnts'
 
-        scaled = total / total.median()
-        scaled.name = 'Median Scaled Read Cnts'
+rule plot_heatmap_all_genes:
+    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
+    output: 'figures/heatmap-all-genes.svg'
+    script: 'scripts/plot-heatmap-all-genes.py'
 
-        def prepend(dat, text):
-            dat.columns = [text + '|' + x for x in dat.columns]
 
-        # import normalized counts
-        tpm = pd.read_parquet(input.tpm)
-        prepend(tpm, 'TPM Read Counts')
+rule plot_heatmap_lit_genes:
+    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
+    output: 'figures/heatmap-lit-genes.svg'
+    params: lit_genes=config['lit_genes']
+    script: 'scripts/plot-heatmap-lit-genes.py'
 
-        rpkm = pd.read_parquet(input.rpkm)
-        prepend(rpkm, 'RPKM Read Cnts')
 
-        zscore = pd.read_parquet(input.zscore)
-        prepend(zscore, 'Z-score')
+rule plot_heatmap_ptrap_genes:
+    input:
+        zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
+        ptrap_score=rules.ptrap_scores.output[0]
+    output: 'figures/heatmap-ptrap-genes.svg'
+    script: 'scripts/plot-heatmap-ptrap-genes.py'
 
-        # Unstack biomarker information
-        s = Seurat(params.seurat_dir)
-        biomarker = s.get_biomarkers('res.0.6')
-        biomarker.drop('gene_symbol', axis=1, inplace=True)
 
-        dfs = []
-        for g, dd in biomarker.groupby('cluster'):
-            _clus = sconfig['CLUSTER_ANNOT'][g]
-            bio = dd.drop('cluster', axis=1)[['p_val', 'p_val_adj', 'avg_logFC', 'pct.1', 'pct.2']]
-            bio.rename({'pct.1': f'Per Cells in Cluster', 'pct.2': 'Per Cells in Other Clusters'}, axis=1, inplace=True)
-            prepend(bio, f'{_clus}')
-            dfs.append(bio)
+rule fig1:
+    input:
+        dia='../data/external/larval_testis_diagram.svg',
+        tsne=rules.plot_tsne.output[0],
+        hmap_all=rules.plot_heatmap_all_genes.output[0],
+        hmap_lit=rules.plot_heatmap_lit_genes.output[0],
+        hmap_ptrap=rules.plot_heatmap_ptrap_genes.output[0],
+    output: 'figures/fig1.svg'
+    script: 'scripts/fig1.py'
 
-        results = pd.concat([gene_annot, total, scaled, *dfs, tpm, rpkm, zscore], axis=1, sort=True)
-        results.index.name = 'FBgn'
-        results.set_index('gene_symbol', append=True, inplace=True)
 
-        # split into multi-index
-        upper = []
-        lower = []
-        for header in results.columns.str.split('|').tolist():
-            if len(header) == 2:
-                upper.append(header[0])
-                lower.append(header[1])
-            else:
-                upper.append(' ')
-                lower.append(header[0])
+rule svg_png:
+    input: '{fig}.svg'
+    output: '{fig}.png'
+    shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
 
-        results.columns = pd.MultiIndex.from_arrays([upper, lower])
-        results.to_excel(writer, sheet_name='data_table')
+rule svg_pdf:
+    input: '{fig}.svg'
+    output: '{fig}.pdf'
+    shell: "inkscape {input[0]} --export-pdf={output[0]}"
 
-        writer.save()
-        writer.close()
+
+# vim: set ft=python.snakemake

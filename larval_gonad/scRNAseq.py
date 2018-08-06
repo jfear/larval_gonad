@@ -341,7 +341,7 @@ def fe_tsne(data=None, seurat_dir=None, ax=None, resolution=None, **kwargs):
         data = tsne.join(clusters)
 
     TSNEPlot(data=data, hue='cluster',
-             class_names=config['CLUSTER_ANNOT'],
+             class_names=config['cluster_annot'],
              palette=config['colors']['clusters'], ax=ax, **kwargs)
 
     return ax
@@ -361,7 +361,7 @@ def fe_heatmap_all(data=None, seurat_dir=None, ax=None, resolution=None,
         data = tsne.join(clusters)
 
     TSNEPlot(data=data, hue='cluster',
-             class_names=config['CLUSTER_ANNOT'],
+             class_names=config['cluster_annot'],
              palette=config['colors']['clusters'], ax=ax, **kwargs)
 
     return ax

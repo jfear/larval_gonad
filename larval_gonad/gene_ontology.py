@@ -83,7 +83,7 @@ def print_example_command():
         """))
 
 
-def run_fly(genes, background, cutoff=0.001):
+def run_fly(genes, background, cutoff=0.001, return_obj=False):
     fly = get_fly_assoc()
     goObj = GOEnrichmentStudy(
         background,
@@ -94,10 +94,13 @@ def run_fly(genes, background, cutoff=0.001):
         methods=['fdr_bh']
     )
 
-    return [res for res in goObj.run_study(genes) if res.p_fdr_bh <= cutoff]
+    if return_obj:
+        return [res for res in goObj.run_study(genes) if res.p_fdr_bh <= cutoff], goObj
+    else:
+        return [res for res in goObj.run_study(genes) if res.p_fdr_bh <= cutoff]
 
 
-def run_flyslim(genes, background, cutoff=0.001):
+def run_flyslim(genes, background, cutoff=0.001, return_obj=False):
     flyslim = get_flyslim()
     goObj = GOEnrichmentStudy(
         background,
@@ -108,7 +111,10 @@ def run_flyslim(genes, background, cutoff=0.001):
         methods=['fdr_bh']
     )
 
-    return [res for res in goObj.run_study(genes) if res.p_fdr_bh <= cutoff]
+    if return_obj:
+        return [res for res in goObj.run_study(genes) if res.p_fdr_bh <= cutoff], goObj
+    else:
+        return [res for res in goObj.run_study(genes) if res.p_fdr_bh <= cutoff]
 
 
 def go_wordcloud(results):
