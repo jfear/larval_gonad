@@ -81,10 +81,10 @@ def make_figs(fname=None, styles=None, formats=None, layout=True,
     return _plot_all
 
 
-def add_color_labels(ax):
+def add_color_labels(ax, s=5):
     pos = 0.04
     for clus in config['cluster_order']:
-        ax.plot(pos, 1, 'bo', markersize=5, color=cluster_cmap[clus])
+        ax.plot(pos, 1, 'bo', markersize=s, color=cluster_cmap[clus])
         pos += 0.084
         sns.despine(ax=ax, left=True, bottom=True)
         ax.xaxis.set_visible(False)
