@@ -12,7 +12,7 @@ rule all:
         'data/clusters.parquet',
         'data/fbgn2symbol.pkl',
         'data/symbol2fbgn.pkl',
-        expand('figures/{fig}.svg', fig=['tsne', 'heatmap-all-genes', 'heatmap-lit-genes', 'fig1']),
+        expand('figures/{fig}.svg', fig=['fig1']),
 #         expand('figures/{fig}.png', fig=['fig1']), expand('figures/{fig}.pdf', fig=['fig1'])
 
 
@@ -91,4 +91,4 @@ rule svg_pdf:
     shell: "inkscape {input[0]} --export-pdf={output[0]}"
 
 
-# vim: set ft=python.snakemake
+# vim: set ft=snakemake.python

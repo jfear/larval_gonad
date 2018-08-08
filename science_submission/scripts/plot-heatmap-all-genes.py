@@ -22,7 +22,7 @@ leaves = tree['leaves']
 
 # plot
 fig = plt.figure(figsize=(2, 4))
-gs = GridSpec(2, 2, width_ratios=[.1, 1], height_ratios=[1, .08], hspace=0, wspace=.04)
+gs = GridSpec(2, 2, width_ratios=[.1, 1], height_ratios=[1, .06], hspace=0, wspace=.04)
 axCbar = plt.subplot(gs[0, 0])
 axMain = plt.subplot(gs[0, 1])
 axLabel = plt.subplot(gs[1, 1])
@@ -37,5 +37,5 @@ axCbar.yaxis.set_ticks_position('left')
 axCbar.yaxis.set_label_position('left')
 axCbar.set_ylabel('Normalized Read Counts (Z-score)')
 
-fig.subplot_adjust()
+fig.subplots_adjust(left=0.28, right=.99, bottom=0.01, top=0.95)
 fig.savefig(oname)

@@ -33,5 +33,5 @@ axMain.yaxis.set_label_position('right')
 axMain.set_ylabel('')
 plt.setp(axMain.get_yticklabels(), rotation=0, fontsize=10)
 
-plt.tight_layout()
+fig.subplots_adjust(left=0.1, right=0.80, bottom=0.01, top=0.9)
 fig.savefig(oname)
