@@ -24,6 +24,15 @@ rule clusters:
     script: 'scripts/parse_clusters.py'
 
 
+rule tsne:
+    input: Path(config['seurat_dir'], 'tsne.tsv').as_posix()
+    output: 'data/tsne.parquet'
+    run:
+        import pandas as pd
+        df = pd.read_csv(input[0], sep='\t', index_col=0)
+        df.to_parquet(output[0])
+
+
 rule fbgn2symbol:
     output: 'data/fbgn2symbol.pkl'
     script: 'scripts/parse_fbgn2symbol.py'
@@ -41,37 +50,31 @@ rule ptrap_scores:
 
 
 rule plot_tsne:
-    input:
-        tsne=Path(config['seurat_dir'], 'tsne.tsv').as_posix(),
-        clusters=rules.clusters.output[0],
+    input: rules.tsne.output[0], rules.clusters.output[0]
     output: 'figures/tsne.svg'
-    script: 'scripts/plot-tsne.py'
+    script: 'scripts/plot_tsne.py'
 
 
 rule plot_heatmap_all_genes:
     input: '../scrnaseq-wf/data/tpm_zscore.parquet'
     output: 'figures/heatmap-all-genes.svg'
-    script: 'scripts/plot-heatmap-all-genes.py'
+    script: 'scripts/plot_heatmap_all_genes.py'
 
 
 rule plot_heatmap_lit_genes:
     input: '../scrnaseq-wf/data/tpm_zscore.parquet'
     output: 'figures/heatmap-lit-genes.svg'
-    params: lit_genes=config['lit_genes']
-    script: 'scripts/plot-heatmap-lit-genes.py'
+    script: 'scripts/plot_heatmap_lit_genes.py'
 
 
 rule plot_heatmap_ptrap_genes:
-    input:
-        zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
-        ptrap_score=rules.ptrap_scores.output[0]
+    input: '../scrnaseq-wf/data/tpm_zscore.parquet', rules.ptrap_scores.output[0]
     output: 'figures/heatmap-ptrap-genes.svg'
-    script: 'scripts/plot-heatmap-ptrap-genes.py'
+    script: 'scripts/plot_heatmap_ptrap_genes.py'
 
 
 rule fig1:
     input:
-        dia='../data/external/larval_testis_diagram.svg',
         tsne=rules.plot_tsne.output[0],
         hmap_all=rules.plot_heatmap_all_genes.output[0],
         hmap_lit=rules.plot_heatmap_lit_genes.output[0],

@@ -89,3 +89,8 @@ def add_color_labels(ax, s=5):
         sns.despine(ax=ax, left=True, bottom=True)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
+
+
+def flip_ticks(ax, pos='left'):
+    ax.yaxis.set_ticks_position(pos)
+    ax.yaxis.set_label_position(pos)
