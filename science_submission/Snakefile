@@ -12,8 +12,10 @@ rule all:
         'data/clusters.parquet',
         'data/fbgn2symbol.pkl',
         'data/symbol2fbgn.pkl',
+        'figures/heatmap-ptrap-scores.svg',
         expand('figures/{fig}.svg', fig=['fig1']),
-#         expand('figures/{fig}.png', fig=['fig1']), expand('figures/{fig}.pdf', fig=['fig1'])
+        expand('figures/{fig}.png', fig=['fig1']),
+        expand('figures/{fig}.pdf', fig=['fig1']),
 
 
 rule clusters:
@@ -71,6 +73,12 @@ rule plot_heatmap_ptrap_genes:
     input: '../scrnaseq-wf/data/tpm_zscore.parquet', rules.ptrap_scores.output[0]
     output: 'figures/heatmap-ptrap-genes.svg'
     script: 'scripts/plot_heatmap_ptrap_genes.py'
+
+
+rule plot_heatmap_ptrap_scores:
+    input: rules.ptrap_scores.output[0]
+    output: 'figures/heatmap-ptrap-scores.svg'
+    script: 'scripts/plot_heatmap_ptrap_scores.py'
 
 
 rule fig1:

@@ -1,6 +1,7 @@
 """Plot heatmap of literature genes."""
 
 import pandas as pd
+from scipy import ndimage
 import matplotlib as mpl
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ from common import fbgn2symbol
 mpl.style.use('scripts/paper_1c.mplstyle')
 
 
-def plot_heatmap_ptrap_genes(gsMain, axLabel, label_size=5, expression_heatmap_kws=None, ptrap_heatmap_kws=None):
+def plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=None, ptrap_heatmap_kws=None):
     zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore.parquet')
     ptrap_scores = pd.read_parquet('data/ptrap_scores.parquet')
     ptrap_scores.index = ptrap_scores.index.droplevel(0)
@@ -37,41 +38,58 @@ def plot_heatmap_ptrap_genes(gsMain, axLabel, label_size=5, expression_heatmap_k
     if isinstance(ptrap_heatmap_kws, dict):
         defaults2.update(ptrap_heatmap_kws)
 
-    add_color_labels(axLabel, s=label_size)
-
-    # Iterate over genes and build
-    genes = [
-        'osa',
-        'Mapmodulin',
-        'SRPK',
-        'bol',
-        'Fas3',
-        'cindr',
-    ]
-
+    # plot
     fig = plt.gcf()
-    gs0 = GridSpecFromSubplotSpec(6, 1, subplot_spec=gsMain, hspace=0.2)
-    for i, gene in zip(range(6), genes):
-        gs00 = GridSpecFromSubplotSpec(2, 1, subplot_spec=gs0[i, 0], hspace=0)
+    gs = GridSpecFromSubplotSpec(2, 3, subplot_spec=gsMain, hspace=0.03, wspace=0.03)
+
+    fnames = {
+        'SRPK': '../data/external/miriam/65332_srpk_Image 2_c1+2+3.tif',
+        'bol': '../data/external/miriam/5.18.18_64431_bol_Image 2-Image Export-03_c1+2+3.tif',
+        'Piezo': '../data/external/miriam/60209_piezo_Image 1_retake_c1+2+3.tif',
+        'osa': '../data/external/miriam/51579_osa_Image 1_c1+2+3.tif',
+        'mbl': '../data/external/miriam/59758_mbl_Image 1_c1+2+3.tif',
+        'ADD1': '../data/external/miriam/60569_add1_Image 1_c1+2+3.tif',
+    }
+
+    gss = [gs[0, 0], gs[0, 1], gs[0, 2], gs[1, 0], gs[1, 1], gs[1, 2]]
+    for gene, gs0 in zip(['SRPK', 'bol', 'Piezo', 'osa', 'mbl', 'ADD1'], gss):
+        gs00 = GridSpecFromSubplotSpec(4, 1, height_ratios=[.1, .1, .1, 1], subplot_spec=gs0, hspace=0)
+
+        axbg = fig.add_subplot(gs00[:, 0], facecolor='k')
+        axbg.set_xticks([])
+        axbg.set_yticks([])
+
         ax1 = fig.add_subplot(gs00[0, 0])
         ax2 = fig.add_subplot(gs00[1, 0])
+        ax3 = fig.add_subplot(gs00[2, 0])
+        ax4 = fig.add_subplot(gs00[3, 0])
 
+        # plot the heatmaps and labels
         sns.heatmap(zscores.loc[gene].to_frame().T, ax=ax1, **defaults)
         sns.heatmap(ptrap_scores.loc[gene].to_frame().T, ax=ax2, **defaults2)
-        ax1.text(1.01, 0, gene, transform=ax1.transAxes, ha='left', va='center', fontsize=10)
+
+        add_color_labels(ax3, s=label_size)
+
+        # Plot miriams images
+        img = plt.imread(fnames[gene])
+        if gene == 'Piezo':
+            img = ndimage.rotate(img, 90)
+
+        ax4.imshow(img, aspect='equal')
+        ax4.axis('off')
+        ax4.text(0, -0.2, gene, transform=ax3.transAxes, color='green', ha='left', va='top',
+                 fontsize=9, fontweight='bold')
 
 
 if __name__ == '__main__':
-    fig = plt.figure(figsize=(8, 8))
-    gs = GridSpec(2, 3, height_ratios=[1, 0.06], width_ratios=[0.1, 0.1, 1], hspace=0, wspace=0.2)
+    fig = plt.figure(figsize=(8, 5))
+    gs = GridSpec(1, 3, width_ratios=[0.1, 0.1, 1], hspace=0, wspace=0.3)
 
     gsMain = gs[0, 2]
-    axLabel = fig.add_subplot(gs[1, 2])
     axCbar1 = fig.add_subplot(gs[0, 0])
     axCbar2 = fig.add_subplot(gs[0, 1])
 
-    plot_heatmap_ptrap_genes(gsMain, axLabel, label_size=10,
-                             expression_heatmap_kws=dict(cbar_ax=axCbar1),
+    plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=dict(cbar_ax=axCbar1),
                              ptrap_heatmap_kws=dict(cbar_ax=axCbar2),
                              )
 

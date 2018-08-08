@@ -20,6 +20,8 @@ def main(fig):
     gs2 = GridSpecFromSubplotSpec(4, 3, subplot_spec=gs[:, 1], width_ratios=[.3, .1, 1],
                                   height_ratios=[1, .1, 1, .1], hspace=0, wspace=0.05)
 
+    axDia = fig.add_subplot(gs[0, 0])
+
     axtSNE = fig.add_subplot(gs[2, 0])
 
     axCbar1 = fig.add_subplot(gs2[0, 1])
@@ -31,14 +33,17 @@ def main(fig):
     axLit = fig.add_subplot(gs[0, 2])
     axLitLabel = fig.add_subplot(gs[1, 2])
 
-    gsPtrap = gs[2, 2]
-    axPtrapLabel = fig.add_subplot(gs[3, 2])
+    gsPtrap = gs[2:, 2]
 
     # Add plots
+    img = plt.imread('../data/external/larval_testis_diagram.png')
+    axDia.imshow(img)
+    axDia.axis('off')
+
     plot_tsne(axtSNE)
     plot_heatmap_all_genes(axAll, axAllLabel, cbar_ax=axCbar1)
     plot_heatmap_lit_genes(axLit, axLitLabel, cbar=False)
-    plot_heatmap_ptrap_genes(gsPtrap, axPtrapLabel, expression_heatmap_kws=dict(cbar=False),
+    plot_heatmap_ptrap_genes(gsPtrap, label_size=3, expression_heatmap_kws=dict(cbar=False),
                              ptrap_heatmap_kws=dict(cbar_ax=axCbar2),
                              )
 
