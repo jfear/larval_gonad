@@ -1,4 +1,11 @@
-"""Plot heatmap of literature genes."""
+"""Plot heatmap of protein trap genes.
+
+Plots a heatmap of tpm zscores of genes that we have protein trap scores for.
+Protein traps were selected based on their presence in the biomarkers
+identified by Seurat. Protein traps were imaged and scored by multiple people
+and were summarized by Miriam into a score ranging from 0-10. Currently I am
+using 6 ptraps based on what images I had from miriam.
+"""
 
 import pandas as pd
 from scipy import ndimage

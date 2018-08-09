@@ -1,4 +1,10 @@
-"""Plot heatmap of literature genes."""
+"""Plot heatmap of protein trap genes.
+
+Plots a heatmap of protein trap scores. Protein traps were selected based on
+their presence in the biomarkers identified by Seurat. Protein traps were
+imaged and scored by multiple people and were summarized by Miriam into a score
+ranging from 0-10. There were no 10s so I scaled down to 0-8.
+"""
 
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, dendrogram
