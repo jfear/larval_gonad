@@ -1,5 +1,6 @@
 from functools import wraps
 
+from numpy import arange
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -81,11 +82,19 @@ def make_figs(fname=None, styles=None, formats=None, layout=True,
     return _plot_all
 
 
-def add_color_labels(ax, s=5):
-    pos = 0.04
-    for clus in config['cluster_order']:
-        ax.plot(pos, 1, 'bo', markersize=s, color=cluster_cmap[clus])
-        pos += 0.084
+def add_color_labels(ax, s=5, germ=False):
+    clusters = config['cluster_order']
+
+    if germ:
+        clusters = clusters[:5]
+
+    lclus = len(clusters)
+
+    ax.set_xticks(arange(0, lclus + 1, 0.5))
+    ax.set_xlim(0, lclus)
+
+    for i, clus in enumerate(clusters):
+        ax.plot(i + 0.5, 1, 'bo', markersize=s, color=cluster_cmap[clus])
         sns.despine(ax=ax, left=True, bottom=True)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
