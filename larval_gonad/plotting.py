@@ -103,3 +103,15 @@ def add_color_labels(ax, s=5, germ=False):
 def flip_ticks(ax, pos='left'):
     ax.yaxis.set_ticks_position(pos)
     ax.yaxis.set_label_position(pos)
+
+
+def add_triangle(ax, add_text=True, **kwargs):
+    points = [[0, 0], [1, 0], [1, 1]]
+    polygon = plt.Polygon(points, alpha=.6)
+    ax.add_artist(polygon)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+
+    if add_text:
+        ax.text(0.5, .1, 'Pseudotime', ha='center', )
