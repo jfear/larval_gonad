@@ -1,4 +1,8 @@
-"""Plot heatmap of literature genes."""
+"""Plot heatmap of literature genes.
+
+Plots the tpm normalized zscores of gene from the literature. The current gene
+list can be found in `science_submission/config.yaml`.
+"""
 
 import pandas as pd
 import matplotlib as mpl
