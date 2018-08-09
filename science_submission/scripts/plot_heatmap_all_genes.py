@@ -1,5 +1,6 @@
 """Plot heatmap of all genes.
 
+Plots the tpm normalized zscores of all genes as a heatmap.
 """
 
 import pandas as pd
