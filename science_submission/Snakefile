@@ -1,21 +1,28 @@
 """Scrip to generate figures and needed material for the Science Submssion.
 
 """
+import os
 from pathlib import Path
+
+from larval_gonad.config import read_config
 
 workdir: '.'
 configfile: 'config.yaml'
 
+config.update(read_config('../config/common.yaml'))
 
 rule all:
     input:
         'data/clusters.parquet',
         'data/fbgn2symbol.pkl',
         'data/symbol2fbgn.pkl',
+        'data/fbgn2chrom.parquet',
+        'data/pseudotime.parquet',
+        'data/raw_germcells.parquet',
         'figures/heatmap-ptrap-scores.svg',
-        expand('figures/{fig}.svg', fig=['fig1']),
-        expand('figures/{fig}.png', fig=['fig1']),
-        expand('figures/{fig}.pdf', fig=['fig1']),
+        expand('figures/{fig}.svg', fig=['fig1', 'fig2']),
+        expand('figures/{fig}.png', fig=['fig1', 'fig2']),
+        expand('figures/{fig}.pdf', fig=['fig1', 'fig2']),
 
 
 rule clusters:
@@ -46,9 +53,45 @@ rule symbol2fbgn:
     script: 'scripts/convert_fbgn2symbol_to_symbol2fbgn.py'
 
 
+def _fbgn2chrom(wildcards):
+    refdir = os.environ.get('REFERENCES_DIR', config.get('references_dir', ''))
+    assembly = config['assembly']
+    tag = config['tag']
+    gtf = Path(refdir, assembly, tag, 'gtf', f'{assembly}_{tag}.gtf')
+    return gtf.as_posix()
+
+
+rule fbgn2chrom:
+    input: _fbgn2chrom
+    output: 'data/fbgn2chrom.parquet'
+    script: 'scripts/parse_fbgn2chrom.py'
+
+
 rule ptrap_scores:
     output: 'data/ptrap_scores.parquet'
     script: 'scripts/ptrap-scores.py'
+
+
+rule pseudotime:
+    input: '../pseudotime-wf/data/pseudotime.tsv'
+    output: 'data/pseudotime.parquet'
+    run:
+        import pandas as pd
+        dat = pd.read_csv(input[0], sep='\t', index_col='cell_id')
+        dat.sort_values('Pseudotime', inplace=True)
+        dat.to_parquet(output[0])
+
+
+rule raw_germ_subset:
+    input:
+        raw='../scrnaseq-wf/data/scrnaseq_combine_force/raw.tsv',
+        germ=rules.pseudotime.output[0],
+    output: 'data/raw_germcells.parquet',
+    run:
+        import pandas as pd
+        germ = pd.read_parquet(input.germ).index.tolist()
+        raw = pd.read_csv(input.raw, sep='\t').loc[:, germ]
+        raw.to_parquet(output[0])
 
 
 rule plot_tsne:
@@ -89,6 +132,71 @@ rule fig1:
         hmap_ptrap=rules.plot_heatmap_ptrap_genes.output[0],
     output: 'figures/fig1.svg'
     script: 'scripts/fig1.py'
+
+
+rule plot_heatmap_X_genes:
+    input:
+        zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/heatmap-X-genes.svg'
+    script: 'scripts/plot_heatmap_X_genes.py'
+
+
+rule plot_heatmap_Y_genes:
+    input:
+        zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+        fbgn2sybol=rules.fbgn2symbol.output[0],
+    output: 'figures/heatmap-Y-genes.svg'
+    script: 'scripts/plot_heatmap_Y_genes.py'
+
+
+rule plot_barchart_germ_x2a_ratio:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/barchart-germ-x2a-ratio.svg'
+    script: 'scripts/plot_barchart_germ_x2a_ratio.py'
+
+
+rule plot_heatmap_X_genes_pseudotime:
+    input:
+        raw=rules.raw_germ_subset.output[0],
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+        gene_lengths='../output/gene_ts_lengths.tsv',
+    output: 'figures/heatmap-X-genes-pseudotime.svg'
+    script: 'scripts/plot_heatmap_X_genes_pseudotime.py'
+
+
+rule plot_heatmap_Y_genes_pseudotime:
+    input:
+        raw=rules.raw_germ_subset.output[0],
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+        fbgn2sybol=rules.fbgn2symbol.output[0],
+        gene_lengths='../output/gene_ts_lengths.tsv',
+    output: 'figures/heatmap-Y-genes-pseudotime.svg'
+    script: 'scripts/plot_heatmap_Y_genes_pseudotime.py'
+
+
+rule plot_scatter_x2a_pseudotime:
+    input:
+        raw=rules.raw_germ_subset.output[0],
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+        pstime=rules.pseudotime.output[0],
+    output: 'figures/scatter-X2A-pseudotime.svg'
+    script: 'scripts/plot_scatter_x2a_pseudotime.py'
+
+
+rule fig2:
+    input:
+        heatmapX=rules.plot_heatmap_X_genes.output[0],
+        heatmapXPT=rules.plot_heatmap_X_genes_pseudotime.output[0],
+        heatmapY=rules.plot_heatmap_Y_genes.output[0],
+        heatmapYPT=rules.plot_heatmap_Y_genes_pseudotime.output[0],
+        x2a=rules.plot_barchart_germ_x2a_ratio.output[0],
+        x2aPT=rules.plot_scatter_x2a_pseudotime.output[0],
+    output: 'figures/fig2.svg'
+    script: 'scripts/fig2.py'
 
 
 rule svg_png:
