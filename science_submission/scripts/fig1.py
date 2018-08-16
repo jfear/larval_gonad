@@ -10,6 +10,7 @@ from plot_tsne import plot_tsne
 from plot_heatmap_all_genes import plot_heatmap_all_genes
 from plot_heatmap_lit_genes import plot_heatmap_lit_genes
 from plot_heatmap_ptrap_genes import plot_heatmap_ptrap_genes
+from plot_barchart_bulk_corr import plot_barchart_bulk_corr
 
 
 def main(fig):
@@ -18,7 +19,6 @@ def main(fig):
 
     axDia = fig.add_subplot(gs[0, 0])
     axtSNE = fig.add_subplot(gs[1, 0])
-
 
     # Heatmap All Genes:
     gsAll = GridSpecFromSubplotSpec(2, 3,
@@ -76,11 +76,17 @@ def main(fig):
     plot_heatmap_ptrap_genes(gsPtrap2, label_size=3, expression_heatmap_kws=dict(cbar=False),
                              ptrap_heatmap_kws=dict(cbar_ax=axCbar2),
                              )
+    plot_barchart_bulk_corr(axBulk)
 
     # Tweak plots
     flip_ticks(axCbar1)
     flip_ticks(axLit, pos='right')
     plt.setp(axLit.get_yticklabels(), rotation=0)
+
+    axBulk.set_xticklabels([])
+    axBulk.set_xticks([])
+    axBulk.set_ylabel('Bulk RNA-Seq Correlation')
+    flip_ticks(axBulk, pos='right')
 
     # Add labels
     txt_defaults = dict(transform=fig.transFigure, fontweight='bold')
