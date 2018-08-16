@@ -115,7 +115,7 @@ def cellranger_counts(fname, genome='dm6.16'):
     """Import cell ranger counts.
 
     Cell ranger stores it counts tables in a hdf5 formatted file. This reads
-    this file and outputs them as a DataFrame.
+    this file and outputs them as a named tuple.
 
     Parameters
     ----------
