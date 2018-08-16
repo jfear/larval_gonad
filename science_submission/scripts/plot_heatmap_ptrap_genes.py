@@ -47,7 +47,7 @@ def plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=None, 
 
     # plot
     fig = plt.gcf()
-    gs = GridSpecFromSubplotSpec(2, 3, subplot_spec=gsMain, hspace=0.03, wspace=0.03)
+    gs = GridSpecFromSubplotSpec(2, 3, subplot_spec=gsMain, hspace=0.05, wspace=0.03)
 
     fnames = {
         'SRPK': '../data/external/miriam/65332_srpk_Image 2_c1+2+3.tif',
@@ -72,10 +72,9 @@ def plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=None, 
         ax4 = fig.add_subplot(gs00[3, 0])
 
         # plot the heatmaps and labels
-        sns.heatmap(zscores.loc[gene].to_frame().T, ax=ax1, **defaults)
-        sns.heatmap(ptrap_scores.loc[gene].to_frame().T, ax=ax2, **defaults2)
-
-        add_color_labels(ax3, s=label_size)
+        add_color_labels(ax1, s=label_size)
+        sns.heatmap(zscores.loc[gene].to_frame().T, ax=ax2, **defaults)
+        sns.heatmap(ptrap_scores.loc[gene].to_frame().T, ax=ax3, **defaults2)
 
         # Plot miriams images
         img = plt.imread(fnames[gene])
@@ -84,7 +83,7 @@ def plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=None, 
 
         ax4.imshow(img, aspect='equal')
         ax4.axis('off')
-        ax4.text(0, -0.2, gene, transform=ax3.transAxes, color='green', ha='left', va='top',
+        ax4.text(0.01, -0.2, gene, transform=ax3.transAxes, color='#01ff07', ha='left', va='top',
                  fontsize=9, fontweight='bold')
 
 
