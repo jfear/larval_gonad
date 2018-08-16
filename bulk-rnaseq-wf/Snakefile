@@ -44,6 +44,7 @@ rule targets:
         (
             c.targets['bam'] +
             c.targets['agg_featurecounts'] +
+            c.targets['tpm_featurecounts'] +
             utils.flatten(c.targets['fastqc']) +
             utils.flatten(c.targets['libsizes']) +
             [c.targets['fastq_screen']] +
@@ -702,6 +703,22 @@ rule gene_counts_agg:
 
         data = pd.concat(dfs, axis=1, sort=True)
         data.to_parquet(output[0])
+
+
+rule tpm:
+    input:
+        cnts = rules.gene_counts_agg.output[0],
+        lens = '../output/gene_ts_lengths.tsv'
+    output: c.targets['tpm_featurecounts']
+    run:
+        from larval_gonad.normalization import tpm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens.reindex(raw.index)
+
+        res = tpm(raw, lens).dropna()
+        res.to_parquet(output[0])
+
 
 # vim: ft=snakemake.python
 # vim: foldmethod=indent
