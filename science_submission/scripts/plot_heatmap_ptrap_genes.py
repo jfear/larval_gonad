@@ -60,7 +60,11 @@ def plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=None, 
 
     gss = [gs[0, 0], gs[0, 1], gs[0, 2], gs[1, 0], gs[1, 1], gs[1, 2]]
     for gene, gs0 in zip(['SRPK', 'bol', 'Piezo', 'osa', 'mbl', 'ADD1'], gss):
-        gs00 = GridSpecFromSubplotSpec(4, 1, height_ratios=[.1, .1, .1, 1], subplot_spec=gs0, hspace=0)
+        gs00 = GridSpecFromSubplotSpec(4, 1,
+                                       subplot_spec=gs0,
+                                       height_ratios=[.1, .1, .1, 1],
+                                       hspace=0,
+                                       )
 
         axbg = fig.add_subplot(gs00[:, 0], facecolor='k')
         axbg.set_xticks([])
