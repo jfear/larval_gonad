@@ -1,6 +1,7 @@
 # Imports
 import os
 import sys
+import re
 from pathlib import Path
 
 from IPython.display import display, HTML, Markdown
@@ -15,4 +16,4 @@ import seaborn as sns
 from larval_gonad.notebook import Nb
 
 # Setup notebook
-nbconfig = Nb.setup_notebook()
+nbconfig = Nb.setup_notebook(seurat_dir='../scrnaseq-wf/data/scrnaseq_combine_force')
