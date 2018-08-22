@@ -13,7 +13,7 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 config.update(read_config('config.yaml'))
 
 
-def plot_barchart_bulk_corr(ax, **kwargs):
+def plot_barchart_bulk_corr(gs, **kwargs):
     sc = pd.read_parquet('../scrnaseq-wf/data/tpm.parquet')
 
     bulk = pd.read_parquet('../bulk-rnaseq-wf/data/aggregation/tpm_gene_level_counts.parquet',
@@ -28,19 +28,48 @@ def plot_barchart_bulk_corr(ax, **kwargs):
     # Make colors for plotting
     colors = [cluster_cmap[x] for x in dat.index]
 
+    # Setup borken axis
+    fig = plt.gcf()
+    broken = mpl.gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs, hspace=0.1)
+    ax1 = fig.add_subplot(broken[0, 0])
+    ax2 = fig.add_subplot(broken[1, 0], sharex=ax1)
+
     # plot
-    dat.plot.bar(color=colors, ax=ax)
-    ax.set_axisbelow(True)
-    ax.grid(linestyle=':', axis='y')
+    dat.plot.bar(color=colors, ax=ax1)
+    ax1.set_axisbelow(True)
+    ax1.grid(linestyle=':', axis='y')
+
+    dat.plot.bar(color=colors, ax=ax2)
+    ax2.set_axisbelow(True)
+    ax2.grid(linestyle=':', axis='y')
+
+    # zoom axis in
+    ax1.set_ylim(.7, 1)
+    ax2.set_ylim(0, .3)
+
+    # hide the spines between ax and ax2
+    ax1.spines['bottom'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax1.xaxis.set_visible(False)
+
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    # arguments to pass to plot, just so we don't keep repeating them
+    kwargs = dict(transform=ax1.transAxes, color='k', clip_on=False)
+    ax1.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+    ax1.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+    ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+    return ax1, ax2
 
 
 if __name__ == '__main__':
-    fig, ax = plt.subplots(figsize=(8, 4))
-
-    plot_barchart_bulk_corr(ax)
-    ax.set_xticklabels([])
-    ax.set_xticks([])
-    ax.set_xlabel('Cell Cluster')
-    ax.set_ylabel('Correlation with Bulk RNA-Seq (Spearman)')
+    fig = plt.figure(figsize=(8, 4))
+    gs = mpl.gridspec.GridSpec(1, 1)
+    ax1, ax2 = plot_barchart_bulk_corr(gs[0, 0])
+    ax2.set_xlabel('Cell Cluster')
+    fig.text(0.03, 0.5, 'Correlation with Bulk RNA-Seq (Spearman)', ha='center', va='center', rotation=90)
 
     fig.savefig(snakemake.output[0], bbox_inches='tight')
