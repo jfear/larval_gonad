@@ -5,7 +5,7 @@ font.sans-serif: Arial, Helvetica, DejaVu Sans, Bitstream Vera Sans, Computer Mo
 figure.dpi: 500
 figure.figsize: 7, 7
 axes.labelsize: 10.0
-axes.titlesize: 12.0
+axes.titlesize: 10.0
 legend.fontsize: 10.0
 grid.linewidth: 0.8
 lines.linewidth: 1.4

@@ -11,7 +11,7 @@ from scipy.cluster.hierarchy import linkage, dendrogram
 import seaborn as sns
 
 from larval_gonad.config import config
-from larval_gonad.plotting import add_color_labels, flip_ticks
+from larval_gonad.plotting import add_color_labels, flip_ticks, cluster_cmap
 
 mpl.style.use('scripts/paper_1c.mplstyle')
 
@@ -35,25 +35,27 @@ def plot_heatmap_all_genes(axMain, axLabel, label_size=5, **kwargs):
 
     axMain.set_ylabel('')
 
-    # Add some annotation
-    txt_defaults = dict(xytext=(0, 8), textcoords='offset points', color='r', fontsize=8, fontweight='bold',
+    # Add call out box annotations
+    box_defaults = dict(edgecolor='k', facecolor='none', linewidth=2, clip_on=False)
+    txt_defaults = dict(xytext=(0, 8), textcoords='offset points', color='k', fontsize=8, fontweight='bold',
                         ha='center', bbox=dict(color='w', alpha=.6, pad=0))
-    axMain.add_artist(plt.Rectangle((0, 9000), 1, 1000, edgecolor='r', facecolor='none', linewidth=2, clip_on=False))
+
+    axMain.add_artist(plt.Rectangle((0, 9000), 1, 1000, **box_defaults))
     axMain.annotate('1', xy=(0.5, 9000), **txt_defaults)
 
-    axMain.add_artist(plt.Rectangle((2, 2600), 1, 500, edgecolor='r', facecolor='none', linewidth=2, clip_on=False))
+    axMain.add_artist(plt.Rectangle((2, 2600), 1, 500, **box_defaults))
     axMain.annotate('2', xy=(2.5, 2600), **txt_defaults)
 
-    axMain.add_artist(plt.Rectangle((3, 2100), 1, 500, edgecolor='r', facecolor='none', linewidth=2, clip_on=False))
+    axMain.add_artist(plt.Rectangle((3, 2100), 1, 500, **box_defaults))
     axMain.annotate('3', xy=(3.5, 2100), **txt_defaults)
 
-    axMain.add_artist(plt.Rectangle((4, 2300), 1, 500, edgecolor='r', facecolor='none', linewidth=2, clip_on=False))
+    axMain.add_artist(plt.Rectangle((4, 2300), 1, 500, **box_defaults))
     axMain.annotate('4', xy=(4.5, 2300), **txt_defaults)
 
-    axMain.add_artist(plt.Rectangle((10, 11300), 1, 1000, edgecolor='r', facecolor='none', linewidth=2, clip_on=False))
+    axMain.add_artist(plt.Rectangle((10, 11300), 1, 1000, **box_defaults))
     axMain.annotate('5', xy=(10.5, 11300), **txt_defaults)
 
-    axMain.add_artist(plt.Rectangle((11, 10800), 1, 1000, edgecolor='r', facecolor='none', linewidth=2, clip_on=False))
+    axMain.add_artist(plt.Rectangle((11, 10800), 1, 1000, **box_defaults))
     axMain.annotate('6', xy=(11.5, 10800), **txt_defaults)
 
 
