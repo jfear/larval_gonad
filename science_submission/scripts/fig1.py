@@ -4,7 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 
-from larval_gonad.plotting import flip_ticks
+from larval_gonad.plotting import flip_ticks, cluster_cmap
 
 from plot_tsne import plot_tsne
 from plot_heatmap_all_genes import plot_heatmap_all_genes
@@ -15,7 +15,7 @@ from plot_barchart_bulk_corr import plot_barchart_bulk_corr
 
 def main(fig):
     # Make large grid
-    gs = GridSpec(2, 3, width_ratios=[1, 1, 1], wspace=0.2)
+    gs = GridSpec(2, 3, width_ratios=[.8, .6, 1], wspace=0.1)
 
     axDia = fig.add_subplot(gs[0, 0])
     axtSNE = fig.add_subplot(gs[1, 0])
@@ -33,27 +33,37 @@ def main(fig):
     axAllLabel = fig.add_subplot(gsAll[0, 2])
     axAll = fig.add_subplot(gsAll[1, 2])
 
+    # labels to distinguish cell types
+    fontdict = dict(weight='bold', size=10, color=cluster_cmap['Early Cyst Cells (5)'])
+    axAllLabel.text(0.5, 1, 'Cyst', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
+
+    fontdict.update(dict(color=cluster_cmap['Spermatogonia (6)']))
+    axAllLabel.text(0, 1, 'Germline', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
+
     # Right column
     gsRight = GridSpecFromSubplotSpec(
         3, 1,
         subplot_spec=gs[:, 2],
-        height_ratios=[.7, 1, 1],
+        height_ratios=[.5, .4, 1],
         hspace=0.1
     )
 
     # Heatmap Lit Genes:
     gsLit = GridSpecFromSubplotSpec(2, 1,
                                     subplot_spec=gsRight[0, 0],
-                                    height_ratios=[.12, 1],
+                                    height_ratios=[.22, 1],
                                     hspace=0
                                     )
 
     axLitLabel = fig.add_subplot(gsLit[0, 0])
     axLit = fig.add_subplot(gsLit[1, 0])
 
+    # Bulk RNA-Seq:
+    axBulk = fig.add_subplot(gsRight[1, 0])
+
     # Heatmap Ptrap Genes:
     gsPtrap = GridSpecFromSubplotSpec(1, 2,
-                                      subplot_spec=gsRight[1, 0],
+                                      subplot_spec=gsRight[2, 0],
                                       width_ratios=[1, .1],
                                       hspace=0,
                                       wspace=0.05,
@@ -61,9 +71,6 @@ def main(fig):
 
     axCbar2 = fig.add_subplot(gsPtrap[0, 1])
     gsPtrap2 = gsPtrap[0, 0]
-
-    # Bulk RNA-Seq:
-    axBulk = fig.add_subplot(gsRight[2, 0])
 
     # Add plots
     img = plt.imread('../data/external/larval_testis_diagram.png')
@@ -92,10 +99,10 @@ def main(fig):
     txt_defaults = dict(transform=fig.transFigure, fontweight='bold')
     plt.text(0.09, 0.89, 'A', **txt_defaults)
     plt.text(0.09, 0.50, 'B', **txt_defaults)
-    plt.text(0.40, 0.89, 'C', **txt_defaults)
-    plt.text(0.64, 0.89, 'D', **txt_defaults)
-    plt.text(0.64, 0.68, 'E', **txt_defaults)
-    plt.text(0.64, 0.40, 'F', **txt_defaults)
+    plt.text(0.38, 0.89, 'C', **txt_defaults)
+    plt.text(0.58, 0.89, 'D', **txt_defaults)
+    plt.text(0.58, 0.68, 'E', **txt_defaults)
+    plt.text(0.58, 0.50, 'F', **txt_defaults)
 
 
 if __name__ == '__main__':
