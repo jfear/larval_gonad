@@ -30,6 +30,7 @@ final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger']['bam']),
     utils.flatten(c.targets['cellranger_force']['bam']),
     'scripts/scrnaseq_combine_force.html',
+    'scripts/germcell_differential_expression.html',
     'data/seurat_norm_by_cluster.parquet',
     'data/raw.parquet',
     'data/raw_by_cluster.parquet',
@@ -148,11 +149,38 @@ rule scrnaseq_rmarkdown:
         mtx1=utils.flatten(c.targets['cellranger_force']['filtered_h5']),
         rmd='scripts/scrnaseq_combine_force.Rmd',
     output:
-        'scripts/scrnaseq_combine_force.html',
-        'data/scrnaseq_combine_force/raw.tsv',
-        'data/scrnaseq_combine_force/normalized_read_counts.tsv',
-        'data/scrnaseq_combine_force/clusters.tsv',
-        'data/scrnaseq_combine_force/tsne.tsv',
+        html='scripts/scrnaseq_combine_force.html',
+        raw='data/scrnaseq_combine_force/raw.tsv',
+        norm='data/scrnaseq_combine_force/normalized_read_counts.tsv',
+        cluster='data/scrnaseq_combine_force/clusters.tsv',
+        tsne='data/scrnaseq_combine_force/tsne.tsv',
+        robj='data/scrnaseq_combine_force/seurat.Robj',
+    shell:
+        'Rscript -e '
+        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+rule germcell_rmarkdown:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        robj=rules.scrnaseq_rmarkdown.output.robj,
+        rmd='scripts/germcell_differential_expression.Rmd',
+    output:
+        'scripts/germcell_differential_expression.html',
+        'data/gonia_vs_cytes.tsv',
+        'data/gonia_vs_cytes_plus_11.tsv',
+        'data/gonia_vs_early.tsv',
+        'data/gonia_vs_mid.tsv',
+        'data/gonia_vs_late.tsv',
+        'data/gonia_vs_eleven.tsv',
+        'data/early_vs_mid.tsv',
+        'data/early_vs_late.tsv',
+        'data/early_vs_eleven.tsv',
+        'data/mid_vs_late.tsv',
+        'data/mid_vs_eleven.tsv',
+        'data/late_vs_eleven.tsv',
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''

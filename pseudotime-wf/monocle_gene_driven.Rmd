@@ -75,127 +75,74 @@ dds_germ <- detectGenes(dds_germ, min_expr = 0.1)
 ```
 
 ```{r celltype.hierarchy}
-#gonia <- row.names(subset(fData(dds_germ), gene_short_name %in% c('peb', 'Phf7', 'p53', 'nos', 'bgcn')))
-#early <- row.names(subset(fData(dds_germ), gene_short_name %in% c('vas', 'bam', 'tut', 'tej', 'mle')))
-#late <- row.names(subset(fData(dds_germ), gene_short_name %in% c('c-cup', 'soti', 'sowi', 'can', 'nht', 'dj', 'ocn', 'fzo')))
-
 cth <- newCellTypeHierarchy()
 
 # Spermatogonia
-peb <- row.names(subset(fData(dds_germ), gene_short_name  == 'peb'))
-Phf7 <- row.names(subset(fData(dds_germ), gene_short_name  == 'Phf7'))
 p53 <- row.names(subset(fData(dds_germ), gene_short_name  == 'p53'))
-nos <- row.names(subset(fData(dds_germ), gene_short_name  == 'nos'))
-bgcn <- row.names(subset(fData(dds_germ), gene_short_name  == 'bgcn'))
-cth <- addCellType(cth, "Gonia", classify_fun = function(x) {
-			   x[peb,] > 0 & x[Phf7,] > 0 & x[p53,] > 0 & x[nos,] > 0 & x[bgcn,] > 0
-		    })
-
+cth <- addCellType(cth, "Gonia", classify_fun = function(x) { x[p53,] > 0 })
 
 # Early Spermatocytes
 vas <- row.names(subset(fData(dds_germ), gene_short_name  == 'vas'))
-bam <- row.names(subset(fData(dds_germ), gene_short_name  == 'bam'))
-tut <- row.names(subset(fData(dds_germ), gene_short_name  == 'tut'))
-tej <- row.names(subset(fData(dds_germ), gene_short_name  == 'tej'))
-mle <- row.names(subset(fData(dds_germ), gene_short_name  == 'mle'))
-
-cth <- addCellType(cth, "Early", classify_fun = function(x) {
-			   x[vas,] > 0 & x[bam,] > 0 & x[tut,] > 0 & x[tej,] > 0 & x[mle,] > 0
-		    })
+cth <- addCellType(cth, "Early", classify_fun = function(x) { x[vas,] > 0 })
 
 # Mid Spermatocytes
 aly <- row.names(subset(fData(dds_germ), gene_short_name  == 'aly'))
 cth <- addCellType(cth, "Mid", classify_fun = function(x) { x[aly,] > 0 })
 
 # Late Spermatocytes
-ccup <- row.names(subset(fData(dds_germ), gene_short_name  == 'c-cup'))
-soti <- row.names(subset(fData(dds_germ), gene_short_name  == 'soti'))
-sowi <- row.names(subset(fData(dds_germ), gene_short_name  == 'sowi'))
-can <- row.names(subset(fData(dds_germ), gene_short_name  == 'can'))
-nht <- row.names(subset(fData(dds_germ), gene_short_name  == 'nht'))
 dj <- row.names(subset(fData(dds_germ), gene_short_name  == 'dj'))
-ocn <- row.names(subset(fData(dds_germ), gene_short_name  == 'ocn'))
-fzo <- row.names(subset(fData(dds_germ), gene_short_name  == 'fzo'))
-cth <- addCellType(cth, "Late", classify_fun = function(x) {
-			   x[ccup,] > 0 & x[soti,] > 0 & x[sowi,] > 0 & x[can,] > 0 & x[nht,] > 0 & x[dj,] > 0 & x[ocn,] > 0 & x[fzo,] > 0
-		    })
+cth <- addCellType(cth, "Late", classify_fun = function(x) { x[dj,] > 0 })
 ```
 
 ```{r classify.cells}
 dds_germ <- classifyCells(dds_germ, cth, 0.1)
+table(pData(dds_germ)$CellType)
 ```
 
-
-```{r recluster}
-# Create a list of genes for ordering trajectory.
-# (1) Filter genes in a few cells
-# (2) run the differential expression analysis
-# (3) selecte significant genes for use as ordering
-# (4) filter genes not in this list.
-
-# TODO: currently I am using clusters called by seurat, but it is probably worth
-# calling clusters again on just this subset of data.
-disp_table <- dispersionTable(dds_germ)
-unsup_clustering_genes <- subset(disp_table, mean_expression >= 0.1)
-dds_germ <- setOrderingFilter(dds_germ, unsup_clustering_genes$gene_id)
-plot_ordering_genes(dds_germ)
-plot_pc_variance_explained(dds_germ, return_all = F)
-
-dds_germ <- reduceDimension(dds_germ, max_components = 2, num_dim = 10, reduction_method = 'tSNE', verbose = T)
-dds_germ <- clusterCells(dds_germ, num_clusters = 5)
-
-png('data/recluster.png', width = 1600, height = 1600, res = 150)
-p1 <- plot_cell_clusters(dds_germ, 1, 2, color = "Cluster")
-p2 <- plot_cell_clusters(dds_germ, 1, 2, color = "res.0.6")
-grid.arrange(p1, p2, nrow=1)
+```{r plot.celltype}
+png('data/supervised_cell_type.png')
+pie <- ggplot(pData(dds_germ),
+aes(x = factor(1), fill = factor(CellType))) + geom_bar(width = 1)
+pie + coord_polar(theta = "y") +
+theme(axis.title.x = element_blank(), axis.title.y = element_blank())
 dev.off()
 ```
 
-```{r deg.select.for.order}
+```{r cluster.celltype}
 expressed_genes <- row.names(subset(fData(dds_germ), num_cells_expressed >= 10))
-diff_test_res <- differentialGeneTest(dds_germ[expressed_genes,], fullModelFormulaStr = "~Cluster")
-ordering_genes = row.names(subset(diff_test_res, qval < 0.01))
-dds_order = setOrderingFilter(dds_germ, ordering_genes)
-plot_ordering_genes(dds_order)
+
+marker_diff <- markerDiffTable(dds_germ[expressed_genes,],
+            cth,
+            residualModelFormulaStr = "~rep + num_genes_expressed",
+            cores = 1)
 ```
 
-```{r order.cells}
-# TODO: RUNNING
-dds_order <- reduceDimension(dds_order, max_components = 2, method = 'DDRTree')
-dds_order <- orderCells(dds_order)
+```{r}
+semisup_clustering_genes <- row.names(marker_diff)[order(marker_diff$qval)][1:1000]
+dds_germ <- setOrderingFilter(dds_germ, semisup_clustering_genes)
+dds_germ <- reduceDimension(dds_germ, max_components = 2, method = 'DDRTree', norm_method = 'log')
+dds_germ <- orderCells(dds_germ)
 ```
 
-```{r plot.trajectory}
-png('data/reclustered_trajectory.png', width = 1600, height = 1600, res = 150)
-plot_cell_trajectory(dds_order, color_by = 'res.0.6')
-dev.off()
+```{r}
+Gonia_state <- function(cds){
+  if (length(unique(pData(cds)$State)) > 1){
+    T0_counts <- table(pData(cds)$State, pData(cds)$CellType)[,"Gonia"]
+    return(as.numeric(names(T0_counts)[which
+          (T0_counts == max(T0_counts))]))
+  } else {
+    return (1)
+  }
+}
 ```
 
-```{r output}
-save(dds_order, file = 'data/monocle_recluster.Robj')
-#load('data/monocle_recluster.Robj')
+
+```{r}
+dds_germ <- orderCells(dds_germ, root_state = Gonia_state(dds_germ))
 ```
 
-```{r dump.obj}
-# Save useful data for python plotting
-
-# Cell location
-cell.loc <- t(reducedDimS(dds_order))
-colnames(cell.loc) <- c('C1', 'C2')
-cell.loc <- as.data.frame(cell.loc) %>% tibble::rownames_to_column('cell_id')
-write.table(cell.loc, file = 'data/cell_location_recluster.tsv', sep = '\t', quote = F, row.names = F)
-
-# Tree location
-tree.loc <- t(reducedDimK(dds_order))
-colnames(tree.loc) <- c('C1', 'C2')
-tree.loc <- as.data.frame(tree.loc) %>% tibble::rownames_to_column('tree_id')
-write.table(tree.loc, file = 'data/tree_location_recluster.tsv', sep = '\t', quote = F, row.names = F)
-
-branch.point <- dds_order@auxOrderingData[['DDRTree']]$branch_points
-write(branch.point, file = 'data/branch_points_recluster.txt', sep = '\n')
-
-metadata <- pData(dds_order)[c('Size_Factor', 'num_genes_expressed', 'Pseudotime', 'State')]
-metadata <- as.data.frame(metadata) %>% tibble::rownames_to_column('cell_id')
-write.table(metadata, file = 'data/pseudotime_recluster.tsv', sep = '\t', quote = F, row.names = F)
+```{r}
+png('data/supervised_tree.png')
+plot_cell_trajectory(dds_germ, color_by = "CellType") + theme(legend.position = "right")
+def.off()
 ```
-
