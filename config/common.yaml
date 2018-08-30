@@ -25,22 +25,22 @@ cluster_annot:
   6: 'Spermatogonia'
   7: 'Terminal Epithelium'
   8: 'Pigment Cells'
-  #  9: 'Unknown (9)'
-  #  10: 'Unknown (10)'
-  #  11: 'Unknown (11)'
+  9: 'Unknown (9)'
+  10: 'Unknown (10)'
+  11: 'Unknown (11)'
 cluster_order:
   - 'Spermatogonia'
   - 'Early 1º Spermatocytes'
   - 'Mid 1º Spermatocytes'
-    #- 'Unknown (11)'
   - 'Late 1º Spermatocytes'
   - 'Early Cyst Cells'
   - 'Mid Cyst Cells'
   - 'Late Cyst Cells'
-    #- 'Unknown (9)'
-    #- 'Unknown (10)'
   - 'Terminal Epithelium'
   - 'Pigment Cells'
+  - 'Unknown (9)'
+  - 'Unknown (10)'
+  - 'Unknown (11)'
 chrom_order:
   - chrX
   - chr2L
