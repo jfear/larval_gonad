@@ -122,3 +122,17 @@ def centerify(text, width=-1):
     lines = text.split(' ')
     width = max(map(len, lines)) if width == -1 else width
     return '\n'.join(line.center(width) for line in lines)
+
+
+def dechr(ax, axis=0):
+    """Remove chr prefix from axis labels."""
+    labels = []
+    if axis == 0:
+        for label in ax.get_xticklabels():
+            labels.append(label.get_text().replace('chr', ''))
+        ax.set_xticklabels(labels)
+    elif axis == 1:
+        for lable in ax.get_yticklabels():
+            labels.append(label.get_text().replace('chr', ''))
+        ax.set_yticklabels(labels)
+

@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.config import config
+from larval_gonad.plotting import dechr
 from common import fbgn2chrom
 
 mpl.style.use('scripts/paper_1c.mplstyle')
@@ -17,18 +18,18 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 def plot_boxplot_all_genes_by_chrom(gs):
     # Get list of germ cells
-    germ_cells = config['cluster_order'][:4]
+    germ_cells = config['sel_cluster_order'][:4]
 
-    # Combine autosomes into 'A'
-    chroms = fbgn2chrom.copy()
-    chroms.loc[chroms['chrom'] == 'chrX', 'XA'] = 'X'
-    chroms.loc[chroms['chrom'] == 'chr4', 'XA'] = '4'
-    chroms.loc[chroms['chrom'] == 'chrY', 'XA'] = 'Y'
-    chroms.loc[chroms.chrom.isin(['chr2L', 'chr2R', 'chr3L', 'chr3R']), 'XA'] = 'A'
+    # Skip Y chrom
+    chrom_order = config['chrom_order'][:-1]
 
     # munge data
-    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1).join(chroms)
-    melted = tpm.reset_index().melt(id_vars=['FBgn', 'chrom', 'XA'], var_name='Cluster', value_name='logTPM')
+    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1)\
+        .join(fbgn2chrom).query(f'chrom == {chrom_order}')
+    median_by_chrom = tpm.groupby('chrom').median()
+    autosome_median = tpm.query('chrom == ["chr2L", "chr2R", "chr3L", "chr3R"]').median()
+
+    melted = tpm.reset_index().melt(id_vars=['FBgn', 'chrom'], var_name='Cluster', value_name='logTPM')
     melted.Cluster = pd.Categorical(melted.Cluster, categories=germ_cells, ordered=True)
 
     # Create axes
@@ -42,8 +43,20 @@ def plot_boxplot_all_genes_by_chrom(gs):
 
     # Plot each cluster on different axes
     for ax, (g, dd) in zip(axes, melted.groupby('Cluster')):
-        sns.boxplot('XA', 'logTPM', data=dd, notch=True, showfliers=False, order=['X', 'A', '4'], ax=ax)
+
+        meds = median_by_chrom.loc[chrom_order, g].reset_index()
+        auto_med = autosome_median[g]
+
+        sns.boxplot('chrom', 'logTPM', data=dd, notch=True, showfliers=False, order=chrom_order,
+                    palette=config['colors']['chrom_boxplot'], ax=ax)
+
+        # Add the little diamonds on the median
+        sns.stripplot('chrom', g, data=meds, color='w', marker='d', linewidth=1, edgecolor='k', ax=ax)
+
+        ax.axhline(auto_med, color='r', ls='--')
         ax.set_title(g, fontsize=10)
+        ax.set_xlabel('')
+        ax.set_ylabel('TPM (log)')
         sns.despine(ax=ax)
 
     # Tweak secondary axes removing unecessary stuff
@@ -51,6 +64,7 @@ def plot_boxplot_all_genes_by_chrom(gs):
         ax.set_ylabel('')
         ax.yaxis.set_visible(False)
         sns.despine(ax=ax, left=True)
+        dechr(ax)
 
     return axes
 
