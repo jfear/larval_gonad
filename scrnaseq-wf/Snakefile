@@ -208,9 +208,9 @@ rule agg_raw_counts:
         s = Seurat(params.seurat_dir)
         clusters = s.get_clusters(resolution=params.resolution)
         raw = s.get_raw().T.join(clusters).groupby('cluster').sum().T
-        raw.columns = [sconfig['CLUSTER_ANNOT'][x] for x in raw.columns]
+        raw.columns = [sconfig['cluster_annot'][x] for x in raw.columns]
         raw.index.name = 'FBgn'
-        raw[sconfig['CLUSTER_ORDER']].to_parquet(output[0])
+        raw[sconfig['cluster_order']].to_parquet(output[0])
 
 
 rule agg_norm_counts:
@@ -225,9 +225,9 @@ rule agg_norm_counts:
         s = Seurat(params.seurat_dir)
         clusters = s.get_clusters(resolution=params.resolution)
         norm = s.get_normalized_read_counts().T.join(clusters).groupby('cluster').sum().T
-        norm.columns = [sconfig['CLUSTER_ANNOT'][x] for x in norm.columns]
+        norm.columns = [sconfig['cluster_annot'][x] for x in norm.columns]
         norm.index.name = 'FBgn'
-        norm[sconfig['CLUSTER_ORDER']].to_parquet(output[0])
+        norm[sconfig['cluster_order']].to_parquet(output[0])
 
 
 rule cpm:
