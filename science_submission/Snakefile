@@ -11,6 +11,11 @@ configfile: 'config.yaml'
 
 config.update(read_config('../config/common.yaml'))
 
+ref = os.environ.get('REFERENCES_DIR', config.get('REFERENCES_DIR', ''))
+assembly = config['assembly']
+tag = config['tag']
+
+
 rule all:
     input:
         'data/clusters.parquet',
@@ -94,6 +99,12 @@ rule raw_germ_subset:
         raw.to_parquet(output[0])
 
 
+rule gene_locs:
+    input: Path(ref, assembly, tag, 'gtf', f'{assembly}_{tag}.gtf.db').as_posix()
+    output: 'data/gene_locations.parquet'
+    script: 'scripts/gene_locations.py'
+
+
 ################################################################################
 # Fig 1
 ################################################################################
@@ -149,6 +160,78 @@ rule fig1:
 ################################################################################
 # Fig 2
 ################################################################################
+rule plot_boxplot_all_genes_by_chrom:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/boxplot-all-genes-by-chrom.svg'
+    script: 'scripts/plot_boxplot_all_genes_by_chrom.py'
+
+
+rule plot_boxplot_common_genes_by_chrom:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/boxplot-common-genes-by-chrom.svg'
+    script: 'scripts/plot_boxplot_common_genes_by_chrom.py'
+
+
+rule plot_boxplot_germ_common_genes_by_chrom:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/boxplot-germ-common-genes-by-chrom.svg'
+    script: 'scripts/plot_boxplot_germ_common_genes_by_chrom.py'
+
+
+rule plot_boxplot_upregulated_genes_by_chrom:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/boxplot-upregulated-genes-by-chrom.svg'
+    script: 'scripts/plot_boxplot_upregulated_genes_by_chrom.py'
+
+
+rule plot_manhatten:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        locs=rules.gene_locs.output[0],
+    output: 'figures/manhatten.svg'
+    script: 'scripts/plot_manhatten.py'
+
+
+rule plot_genome_view:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        db=rules.gene_locs.output[0],
+    output: 'figures/genome_view.svg'
+    script: 'scripts/plot_genome_view.py'
+
+
+rule plot_genome_view_log:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        db=rules.gene_locs.output[0],
+    output: 'figures/genome_view_log.svg'
+    script: 'scripts/plot_genome_view_log.py'
+
+
+rule plot_upset:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/upset.svg'
+    script: 'scripts/plot_upset.py'
+
+
+rule plot_stacked_bar_prop_by_chrom:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/stacked-bar-prop-by-chrom.svg'
+    script: 'scripts/plot_stacked_bar_prop_by_chrom.py'
+
+
 rule plot_heatmap_X_genes:
     input:
         zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
@@ -204,12 +287,12 @@ rule plot_scatter_x2a_pseudotime:
 
 rule fig2:
     input:
-        heatmapX=rules.plot_heatmap_X_genes.output[0],
-        heatmapXPT=rules.plot_heatmap_X_genes_pseudotime.output[0],
-        heatmapY=rules.plot_heatmap_Y_genes.output[0],
-        heatmapYPT=rules.plot_heatmap_Y_genes_pseudotime.output[0],
-        x2a=rules.plot_barchart_germ_x2a_ratio.output[0],
-        x2aPT=rules.plot_scatter_x2a_pseudotime.output[0],
+        bp_all_genes=rules.plot_boxplot_all_genes_by_chrom.output[0],
+        bp_common_genes=rules.plot_boxplot_common_genes_by_chrom.output[0],
+        bp_germ_common_genes=rules.plot_boxplot_germ_common_genes_by_chrom.output[0],
+        manhatten=rules.plot_manhatten.output[0],
+        gview=rules.plot_genome_view.output[0],
+        gviewlog=rules.plot_genome_view_log.output[0],
     output: 'figures/fig2.svg'
     script: 'scripts/fig2.py'
 
@@ -218,6 +301,7 @@ rule svg_png:
     input: '{fig}.svg'
     output: '{fig}.png'
     shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
+
 
 rule svg_pdf:
     input: '{fig}.svg'
