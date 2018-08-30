@@ -33,10 +33,10 @@ def plot_boxplot_upregulated_genes_by_chrom(gs):
 
     # import each upregulated dataset and make a list of genes to use
     upgenes = {
-        'Spermatogonia (6)': pd.read_csv('../scrnaseq-wf/data/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC > 0').set_index('primary_FBgn').index.tolist(),
-        'Early 1º Spermatocytes (3)': pd.read_csv('../scrnaseq-wf/data/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
-        'Mid 1º Spermatocytes (2)': pd.read_csv('../scrnaseq-wf/data/early_vs_mid.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
-        'Late 1º Spermatocytes (0)': pd.read_csv('../scrnaseq-wf/data/mid_vs_late.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
+        'Spermatogonia': pd.read_csv('../scrnaseq-wf/data/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC > 0').set_index('primary_FBgn').index.tolist(),
+        'Early 1º Spermatocytes': pd.read_csv('../scrnaseq-wf/data/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
+        'Mid 1º Spermatocytes': pd.read_csv('../scrnaseq-wf/data/early_vs_mid.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
+        'Late 1º Spermatocytes': pd.read_csv('../scrnaseq-wf/data/mid_vs_late.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
     }
 
     # Create axes

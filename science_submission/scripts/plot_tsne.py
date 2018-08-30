@@ -39,10 +39,10 @@ def plot_tsne(ax, **kwargs):
     ax.set_ylabel('tSNE_2', y=.15)
 
     # Add basic labels to distinguish cell types
-    _color = cluster_cmap['Early Cyst Cells (5)']
+    _color = cluster_cmap['Early Cyst Cells']
     ax.text(0.1, .99, 'Cyst Lineage', transform=ax.transAxes, fontdict={'weight': 'bold', 'color': _color})
 
-    _color = cluster_cmap['Spermatogonia (6)']
+    _color = cluster_cmap['Spermatogonia']
     ax.text(0.4, 0.03, 'Germline Lineage', va='top', ha='left', transform=ax.transAxes,
             fontdict={'weight': 'bold', 'color': _color})
 

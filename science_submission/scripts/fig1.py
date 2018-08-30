@@ -105,11 +105,11 @@ def main(fig):
     axBulk2.set_xlabel('Cell Cluster')
 
     # labels to distinguish cell types
-    fontdict = dict(weight='bold', size=9, color=cluster_cmap['Early Cyst Cells (5)'])
+    fontdict = dict(weight='bold', size=9, color=cluster_cmap['Early Cyst Cells'])
     axAllLabel.text(0.4, 1, 'Cyst', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
     axLitLabel.text(0.4, 1, 'Cyst', va='bottom', ha='left', transform=axLitLabel.transAxes, fontdict=fontdict)
 
-    fontdict.update(dict(color=cluster_cmap['Spermatogonia (6)']))
+    fontdict.update(dict(color=cluster_cmap['Spermatogonia']))
     axAllLabel.text(0, 1, 'Germline', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
     axLitLabel.text(0, 1, 'Germline', va='bottom', ha='left', transform=axLitLabel.transAxes, fontdict=fontdict)
 
