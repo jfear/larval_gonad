@@ -115,3 +115,10 @@ def add_triangle(ax, add_text=True, **kwargs):
 
     if add_text:
         ax.text(0.5, .1, 'Pseudotime', ha='center', )
+
+
+def centerify(text, width=-1):
+    """Center multiline text."""
+    lines = text.split('\n')
+    width = max(map(len, lines)) if width == -1 else width
+    return '\n'.join(line.center(width) for line in lines)
