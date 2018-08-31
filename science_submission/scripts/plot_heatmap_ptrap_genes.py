@@ -22,7 +22,7 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 
 def plot_heatmap_ptrap_genes(gsMain, label_size=5, expression_heatmap_kws=None, ptrap_heatmap_kws=None):
-    zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore.parquet')
+    zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore.parquet', columns=config['sel_cluster_order'])
     ptrap_scores = pd.read_parquet('data/ptrap_scores.parquet')
     ptrap_scores.index = ptrap_scores.index.droplevel(0)
     ptrap_genes = ptrap_scores.index

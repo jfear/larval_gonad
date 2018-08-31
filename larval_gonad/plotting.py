@@ -83,7 +83,7 @@ def make_figs(fname=None, styles=None, formats=None, layout=True,
 
 
 def add_color_labels(ax, s=5, germ=False):
-    clusters = config['cluster_order']
+    clusters = config['sel_cluster_order']
 
     if germ:
         clusters = clusters[:5]

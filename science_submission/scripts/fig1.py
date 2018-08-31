@@ -7,7 +7,7 @@ from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 from larval_gonad.plotting import flip_ticks, cluster_cmap
 
 from plot_tsne import plot_tsne
-from plot_heatmap_all_genes import plot_heatmap_all_genes
+from plot_heatmap_kmeans_all_genes import plot_heatmap_kmeans_all_genes
 from plot_heatmap_lit_genes import plot_heatmap_lit_genes
 from plot_heatmap_ptrap_genes import plot_heatmap_ptrap_genes
 from plot_barchart_bulk_corr import plot_barchart_bulk_corr
@@ -86,7 +86,7 @@ def main(fig):
     axDia.axis('off')
 
     plot_tsne(axtSNE)
-    plot_heatmap_all_genes(axAll, axAllLabel, cbar_ax=axCbar1)
+    plot_heatmap_kmeans_all_genes(axAll, axAllLabel, cbar_ax=axCbar1)
     plot_heatmap_lit_genes(axLit, axLitLabel, cbar=False)
     plot_heatmap_ptrap_genes(gsPtrap2, label_size=3, expression_heatmap_kws=dict(cbar=False),
                              ptrap_heatmap_kws=dict(cbar_ax=axCbar2),
@@ -106,8 +106,8 @@ def main(fig):
 
     # labels to distinguish cell types
     fontdict = dict(weight='bold', size=9, color=cluster_cmap['Early Cyst Cells'])
-    axAllLabel.text(0.4, 1, 'Cyst', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
-    axLitLabel.text(0.4, 1, 'Cyst', va='bottom', ha='left', transform=axLitLabel.transAxes, fontdict=fontdict)
+    axAllLabel.text(0.55, 1, 'Cyst', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
+    axLitLabel.text(0.55, 1, 'Cyst', va='bottom', ha='left', transform=axLitLabel.transAxes, fontdict=fontdict)
 
     fontdict.update(dict(color=cluster_cmap['Spermatogonia']))
     axAllLabel.text(0, 1, 'Germline', va='bottom', ha='left', transform=axAllLabel.transAxes, fontdict=fontdict)
@@ -115,7 +115,7 @@ def main(fig):
 
     # Add labels
     txt_defaults = dict(transform=fig.transFigure, fontweight='bold')
-    plt.text(-0.05, 0.89, 'A', **txt_defaults)
+    plt.text(-0.02, 0.89, 'A', **txt_defaults)
     plt.text(-0.02, 0.50, 'B', **txt_defaults)
     plt.text(0.30, 0.89, 'C', **txt_defaults)
     plt.text(0.53, 0.89, 'D', **txt_defaults)

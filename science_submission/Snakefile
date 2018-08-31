@@ -120,6 +120,12 @@ rule plot_heatmap_all_genes:
     script: 'scripts/plot_heatmap_all_genes.py'
 
 
+rule plot_heatmap_kmeans_all_genes:
+    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
+    output: 'figures/heatmap-kmeans-all-genes.svg'
+    script: 'scripts/plot_heatmap_kmeans_all_genes.py'
+
+
 rule plot_heatmap_lit_genes:
     input: '../scrnaseq-wf/data/tpm_zscore.parquet'
     output: 'figures/heatmap-lit-genes.svg'
@@ -149,7 +155,7 @@ rule plot_barchart_bulk_corr:
 rule fig1:
     input:
         tsne=rules.plot_tsne.output[0],
-        hmap_all=rules.plot_heatmap_all_genes.output[0],
+        hmap_all=rules.plot_heatmap_kmeans_all_genes.output[0],
         hmap_lit=rules.plot_heatmap_lit_genes.output[0],
         hmap_ptrap=rules.plot_heatmap_ptrap_genes.output[0],
         bulk_corr=rules.plot_barchart_bulk_corr.output[0],
@@ -249,12 +255,20 @@ rule plot_heatmap_Y_genes:
     script: 'scripts/plot_heatmap_Y_genes.py'
 
 
-rule plot_barchart_germ_x2a_ratio:
+rule plot_barchart_x2a_ratio:
     input:
         tpm='../scrnaseq-wf/data/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/barchart-germ-x2a-ratio.svg'
-    script: 'scripts/plot_barchart_germ_x2a_ratio.py'
+    output: 'figures/barchart-x2a-ratio.svg'
+    script: 'scripts/plot_barchart_x2a_ratio.py'
+
+
+rule plot_barchart_deg:
+    input:
+        tpm='../scrnaseq-wf/data/tpm.parquet',
+        fbgn2chrom=rules.fbgn2chrom.output[0],
+    output: 'figures/barchart-deg.svg'
+    script: 'scripts/plot_barchart_deg.py'
 
 
 rule plot_heatmap_X_genes_pseudotime:
@@ -287,12 +301,12 @@ rule plot_scatter_x2a_pseudotime:
 
 rule fig2:
     input:
-        bp_all_genes=rules.plot_boxplot_all_genes_by_chrom.output[0],
-        bp_common_genes=rules.plot_boxplot_common_genes_by_chrom.output[0],
-        bp_germ_common_genes=rules.plot_boxplot_germ_common_genes_by_chrom.output[0],
-        manhatten=rules.plot_manhatten.output[0],
-        gview=rules.plot_genome_view.output[0],
-        gviewlog=rules.plot_genome_view_log.output[0],
+#         bp_all_genes=rules.plot_boxplot_all_genes_by_chrom.output[0],
+#         bp_common_genes=rules.plot_boxplot_common_genes_by_chrom.output[0],
+#         bp_germ_common_genes=rules.plot_boxplot_germ_common_genes_by_chrom.output[0],
+#         manhatten=rules.plot_manhatten.output[0],
+#         gview=rules.plot_genome_view.output[0],
+#         gviewlog=rules.plot_genome_view_log.output[0],
     output: 'figures/fig2.svg'
     script: 'scripts/fig2.py'
 
