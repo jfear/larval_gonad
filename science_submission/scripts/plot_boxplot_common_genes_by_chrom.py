@@ -17,7 +17,11 @@ from common import fbgn2chrom
 mpl.style.use('scripts/paper_1c.mplstyle')
 
 
-def plot_boxplot_common_genes_by_chrom(gs):
+def plot_boxplot_common_genes_by_chrom(gs, box_kws=None, line_kws=None, stripplot_kws=None):
+    box_kws = box_kws or {}
+    line_kws = line_kws or {}
+    stripplot_kws = stripplot_kws or {}
+
     # Get list of germ cells
     germ_cells = config['sel_cluster_order'][:4]
 
@@ -45,19 +49,28 @@ def plot_boxplot_common_genes_by_chrom(gs):
     ax4 = fig.add_subplot(gs0[0, 3], sharex=ax1, sharey=ax1)
     axes = [ax1, ax2, ax3, ax4]
 
+    # Set up defaults for plotting
+    box_defaults = dict(notch=True, showfliers=False, order=chrom_order, palette=config['colors']['chrom_boxplot'])
+    box_defaults.update(box_kws)
+
+    stripplot_defaults = dict(color='w', marker='d', linewidth=1, edgecolor='k')
+    stripplot_defaults.update(stripplot_kws)
+
+    line_defaults = dict(color='r', ls='--')
+    line_defaults.update(line_kws)
+
     # Plot each cluster on different axes
     for ax, (g, dd) in zip(axes, melted.groupby('Cluster')):
 
         meds = median_by_chrom.loc[chrom_order, g].reset_index()
         auto_med = autosome_median[g]
 
-        sns.boxplot('chrom', 'logTPM', data=dd, notch=True, showfliers=False, order=chrom_order,
-                    palette=config['colors']['chrom_boxplot'], ax=ax)
+        sns.boxplot('chrom', 'logTPM', data=dd, ax=ax, **box_defaults)
 
         # Add the little diamonds on the median
-        sns.stripplot('chrom', g, data=meds, color='w', marker='d', linewidth=1, edgecolor='k', ax=ax)
+        sns.stripplot('chrom', g, data=meds, ax=ax, **stripplot_defaults)
 
-        ax.axhline(auto_med, color='r', ls='--')
+        ax.axhline(auto_med, **line_defaults)
         ax.set_title(g, fontsize=10)
         ax.set_xlabel('')
         ax.set_ylabel('TPM (log)')

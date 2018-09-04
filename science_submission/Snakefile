@@ -27,7 +27,7 @@ rule all:
         'figures/heatmap-ptrap-scores.svg',
         expand('figures/{fig}.svg', fig=['fig1', 'fig2']),
         expand('figures/{fig}.png', fig=['fig1', 'fig2']),
-        expand('figures/{fig}.pdf', fig=['fig1', 'fig2']),
+#         expand('figures/{fig}.pdf', fig=['fig1', 'fig2']),
 
 
 rule clusters:

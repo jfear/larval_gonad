@@ -72,7 +72,9 @@ def parse_genes(g, chroms):
     return xpval, fourpval, prop
 
 
-def plot_barchart_deg(gs):
+def plot_barchart_deg(gs, bar_kws=None):
+    bar_kws = bar_kws or {}
+
     # Get list of germ cells
     germ_cells = config['sel_cluster_order'][:4]
 
@@ -96,16 +98,18 @@ def plot_barchart_deg(gs):
     ax4 = fig.add_subplot(gs0[0, 3], sharex=ax1, sharey=ax1)
     axes = [ax1, ax2, ax3, ax4]
 
+    # set up plot defaults
+    bar_defaults = dict(order=chrom_order, palette=config['colors']['chrom_boxplot'], edgecolor='k', linewidth=1.2, )
+    bar_defaults.update(bar_kws)
+
     # Plot each cluster on different axes
     for ax, g, in zip(axes, germ_cells):
         xpval, fourpval, prop = parse_genes(g, chroms)
-
-        sns.barplot('chrom', 'prop', data=prop.reset_index(), order=chrom_order,
-                    palette=config['colors']['chrom_boxplot'], edgecolor='k', linewidth=1.2, ax=ax)
+        sns.barplot('chrom', 'prop', data=prop.reset_index(), ax=ax, **bar_defaults)
 
         ax.set_title(g, fontsize=10)
         ax.set_xlabel('')
-        ax.set_ylabel('Proportion Genes (DEG)')
+        ax.set_ylabel('Proportion DEG')
         sns.despine(ax=ax)
 
         # Add astrics for chrX
