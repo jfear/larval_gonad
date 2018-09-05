@@ -53,7 +53,7 @@ def plot_boxplot_common_genes_by_chrom(gs, box_kws=None, line_kws=None, stripplo
     box_defaults = dict(notch=True, showfliers=False, order=chrom_order, palette=config['colors']['chrom_boxplot'])
     box_defaults.update(box_kws)
 
-    stripplot_defaults = dict(color='w', marker='d', linewidth=1, edgecolor='k')
+    stripplot_defaults = dict(color='w', marker='d', linewidth=1, edgecolor='k', jitter=False)
     stripplot_defaults.update(stripplot_kws)
 
     line_defaults = dict(color='r', ls='--')
