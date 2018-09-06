@@ -39,6 +39,14 @@ final_targets = utils.flatten((
     'data/tpm.parquet',
     'data/tpm_zscore.parquet',
     'data/rpkm_zscore.parquet',
+
+    'data/seurat_norm_by_cluster_w_rep.parquet',
+    'data/raw_by_cluster_w_rep.parquet',
+    'data/cpm_w_rep.parquet',
+    'data/rpkm_w_rep.parquet',
+    'data/tpm_w_rep.parquet',
+    'data/tpm_zscore_w_rep.parquet',
+    'data/rpkm_zscore_w_rep.parquet',
 ))
 
 rule targets:
@@ -213,6 +221,28 @@ rule agg_raw_counts:
         raw[sconfig['cluster_order']].to_parquet(output[0])
 
 
+rule agg_raw_counts_w_rep:
+    input:
+        cnts = 'data/scrnaseq_combine_force/raw.tsv',
+        clusters = 'data/scrnaseq_combine_force/clusters.tsv',
+    output: 'data/raw_by_cluster_w_rep.parquet'
+    params:
+        seurat_dir = 'data/scrnaseq_combine_force',
+        resolution = sconfig['resolution']
+    run:
+        s = Seurat(params.seurat_dir)
+        clusters = s.get_clusters(resolution=params.resolution)
+        clusters = clusters.map(sconfig['cluster_annot'])
+        rep = clusters.index.str.extract(r'(?P<rep>rep\d)')
+        rep.index = clusters.index
+
+        raw = s.get_raw().T.join(clusters).join(rep).groupby(['cluster', 'rep']).sum().T
+        raw.index.name = 'FBgn'
+        raw = raw.loc[:, (sconfig['cluster_order'], slice(None))]
+        raw.columns = raw.columns.to_series().apply(lambda x: '{0}-{1}'.format(*x)).values
+        raw.to_parquet(output[0])
+
+
 rule agg_norm_counts:
     input:
         cnts = 'data/scrnaseq_combine_force/normalized_read_counts.tsv',
@@ -230,6 +260,28 @@ rule agg_norm_counts:
         norm[sconfig['cluster_order']].to_parquet(output[0])
 
 
+rule agg_norm_counts_w_rep:
+    input:
+        cnts = 'data/scrnaseq_combine_force/normalized_read_counts.tsv',
+        clusters = 'data/scrnaseq_combine_force/clusters.tsv',
+    output: 'data/seurat_norm_by_cluster_w_rep.parquet'
+    params:
+        seurat_dir = 'data/scrnaseq_combine_force',
+        resolution = sconfig['resolution']
+    run:
+        s = Seurat(params.seurat_dir)
+        clusters = s.get_clusters(resolution=params.resolution)
+        clusters = clusters.map(sconfig['cluster_annot'])
+        rep = clusters.index.str.extract(r'(?P<rep>rep\d)')
+        rep.index = clusters.index
+
+        norm = s.get_normalized_read_counts().T.join(clusters).join(rep).groupby(['cluster', 'rep']).sum().T
+        norm.index.name = 'FBgn'
+        norm = norm.loc[:, (sconfig['cluster_order'], slice(None))]
+        norm.columns = norm.columns.to_series().apply(lambda x: '{0}-{1}'.format(*x)).values
+        norm.to_parquet(output[0])
+
+
 rule cpm:
     input:
         cnts = 'data/raw_by_cluster.parquet',
@@ -242,11 +294,38 @@ rule cpm:
         res.to_parquet(output[0])
 
 
+rule cpm_w_rep:
+    input:
+        cnts = 'data/raw_by_cluster_w_rep.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: 'data/cpm_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import cpm
+        raw = pd.read_parquet(input.cnts)
+        res = cpm(raw)
+        res.to_parquet(output[0])
+
+
 rule rpkm:
     input:
         cnts = 'data/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: 'data/rpkm.parquet',
+    run:
+        from larval_gonad.normalization import rpkm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens[raw.index.tolist()]
+
+        res = rpkm(raw, lens)
+        res.to_parquet(output[0])
+
+
+rule rpkm_w_rep:
+    input:
+        cnts = 'data/raw_by_cluster_w_rep.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: 'data/rpkm_w_rep.parquet',
     run:
         from larval_gonad.normalization import rpkm
         raw = pd.read_parquet(input.cnts)
@@ -272,6 +351,21 @@ rule tpm:
         res.to_parquet(output[0])
 
 
+rule tpm_w_rep:
+    input:
+        cnts = 'data/raw_by_cluster_w_rep.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: 'data/tpm_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import tpm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens[raw.index.tolist()]
+
+        res = tpm(raw, lens)
+        res.to_parquet(output[0])
+
+
 rule tpm_zscore:
     input:
         cnts = 'data/tpm.parquet',
@@ -283,10 +377,32 @@ rule tpm_zscore:
         res.to_parquet(output[0])
 
 
+rule tpm_zscore_w_rep:
+    input:
+        cnts = 'data/tpm_w_rep.parquet',
+    output: 'data/tpm_zscore_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import zscore
+        tpm = pd.read_parquet(input.cnts)
+        res = zscore(tpm)
+        res.to_parquet(output[0])
+
+
 rule rpkm_zscore:
     input:
         cnts = 'data/rpkm.parquet',
     output: 'data/rpkm_zscore.parquet',
+    run:
+        from larval_gonad.normalization import zscore
+        rpkm = pd.read_parquet(input.cnts)
+        res = zscore(rpkm)
+        res.to_parquet(output[0])
+
+
+rule rpkm_zscore_w_rep:
+    input:
+        cnts = 'data/rpkm_w_rep.parquet',
+    output: 'data/rpkm_zscore_w_rep.parquet',
     run:
         from larval_gonad.normalization import zscore
         rpkm = pd.read_parquet(input.cnts)

@@ -126,6 +126,12 @@ rule plot_heatmap_kmeans_all_genes:
     script: 'scripts/plot_heatmap_kmeans_all_genes.py'
 
 
+rule plot_heatmap_kmeans_all_genes_w_rep:
+    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet'
+    output: 'figures/heatmap-kmeans-all-genes-w-rep.svg'
+    script: 'scripts/plot_heatmap_kmeans_all_genes_w_rep.py'
+
+
 rule plot_heatmap_lit_genes:
     input: '../scrnaseq-wf/data/tpm_zscore.parquet'
     output: 'figures/heatmap-lit-genes.svg'

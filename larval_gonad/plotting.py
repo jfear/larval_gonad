@@ -9,6 +9,7 @@ from .config import config
 
 # colormaps
 cluster_cmap = dict(zip(config['cluster_order'], config['colors']['clusters']))
+cluster_cmap_w_rep = dict(zip(config['sel_cluster_order_w_rep'], config['colors']['sel_clusters_w_rep']))
 chrom_cmap = dict(zip(config['chrom_order'], config['colors']['chrom']))
 
 # I have a separate color scheme for boxplots, that does not contain Y.
@@ -87,6 +88,24 @@ def add_color_labels(ax, s=5, germ=False):
 
     if germ:
         clusters = clusters[:5]
+
+    lclus = len(clusters)
+
+    ax.set_xticks(arange(0, lclus + 1, 0.5))
+    ax.set_xlim(0, lclus)
+
+    for i, clus in enumerate(clusters):
+        ax.plot(i + 0.5, 1, 'bo', markersize=s, color=cluster_cmap[clus])
+        sns.despine(ax=ax, left=True, bottom=True)
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+
+
+def add_color_labels_w_rep(ax, s=5, germ=False):
+    clusters = config['sel_cluster_order_w_rep']
+
+    if germ:
+        clusters = clusters[:12]
 
     lclus = len(clusters)
 
