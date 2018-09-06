@@ -49,6 +49,6 @@ if __name__ == '__main__':
 
     flip_ticks(axCbar)
     flip_ticks(axMain, pos='right')
-    plt.setp(axMain.get_yticklabels(), rotation=0)
+    plt.setp(axMain.get_yticklabels(), rotation=0, fontstyle='italic')
 
     fig.savefig(snakemake.output[0], bbox_inches='tight')
