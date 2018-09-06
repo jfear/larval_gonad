@@ -113,7 +113,7 @@ def add_color_labels_w_rep(ax, s=5, germ=False):
     ax.set_xlim(0, lclus)
 
     for i, clus in enumerate(clusters):
-        ax.plot(i + 0.5, 1, 'bo', markersize=s, color=cluster_cmap[clus])
+        ax.plot(i + 0.5, 1, 'bo', markersize=s, color=cluster_cmap_w_rep[clus])
         sns.despine(ax=ax, left=True, bottom=True)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)

@@ -150,6 +150,12 @@ rule plot_heatmap_ptrap_genes:
     script: 'scripts/plot_heatmap_ptrap_genes.py'
 
 
+rule plot_heatmap_ptrap_genes_w_rep:
+    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
+    output: 'figures/heatmap-ptrap-genes-w-rep.svg'
+    script: 'scripts/plot_heatmap_ptrap_genes_w_rep.py'
+
+
 rule plot_heatmap_ptrap_scores:
     input: rules.ptrap_scores.output[0]
     output: 'figures/heatmap-ptrap-scores.svg'
