@@ -16,7 +16,7 @@ from larval_gonad.plotting import add_color_labels_w_rep, flip_ticks, cluster_cm
 mpl.style.use('scripts/paper_1c.mplstyle')
 
 
-def plot_heatmap_kmeans_all_genes(axMain, label_size=5, **kwargs):
+def plot_heatmap_kmeans_all_genes(axMain, **kwargs):
     zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
 
     # calculate linkages
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01 )
     axMain = fig.add_subplot(gs[0, 0])
     axCbar = fig.add_subplot(gs[1, 0])
-    plot_heatmap_kmeans_all_genes(axMain, label_size=10, cbar_ax=axCbar, cbar_kws={'orientation': 'horizontal'})
+    plot_heatmap_kmeans_all_genes(axMain, cbar_ax=axCbar, cbar_kws={'orientation': 'horizontal'})
 
     axMain.xaxis.set_ticks_position('top')
     axMain.xaxis.set_label_position('top')
