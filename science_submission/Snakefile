@@ -170,6 +170,12 @@ rule plot_barchart_bulk_corr:
     script: 'scripts/plot_barchart_bulk_corr.py'
 
 
+rule plot_heatmap_bulk_scRNAseq_w_rep:
+    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet'
+    output: 'figures/heatmap-bulk-scRNAseq-w-rep.svg'
+    script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
+
+
 rule fig1:
     input:
         tsne=rules.plot_tsne.output[0],

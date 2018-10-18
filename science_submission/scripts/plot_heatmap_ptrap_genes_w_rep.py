@@ -69,11 +69,11 @@ def plot_heatmap_ptrap_genes_w_rep(gsMain, label_size=5, expression_heatmap_kws=
     fnames = {
         'SRPK': '../data/external/miriam/65332_srpk_Image 2_c1+2+3.tif',
         'bol': '../data/external/miriam/5.18.18_64431_bol_Image 2-Image Export-03_c1+2+3.tif',
-        'Piezo': '../data/external/miriam/60209_piezo_Image 1_retake_c1+2+3.tif',
+        'p53': '../data/external/miriam/5.4.18_40_60516_p53_c1+2+3.tif',
     }
 
     gss = [gs[0, 0], gs[0, 1], gs[0, 2]]
-    for gene, gs0 in zip(['SRPK', 'bol', 'Piezo'], gss):
+    for gene, gs0 in zip(['p53', 'SRPK', 'bol'], gss):
         gs00 = GridSpecFromSubplotSpec(4, 1,
                                        subplot_spec=gs0,
                                        height_ratios=[.1, .1, .1, 1],
