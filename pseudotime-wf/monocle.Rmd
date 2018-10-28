@@ -32,7 +32,7 @@ genes <- subset(genes, select=-primary_FBgn)
 
 ```{r load.seurat}
 # Load data from seurat object.
-load('../scrnaseq-wf/data/scrnaseq_combine_force/seurat.Robj')
+load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
 
 dds <- importCDS(sobj)
@@ -97,14 +97,14 @@ dds_order <- reduceDimension(dds_order, max_components = 2, method = 'DDRTree')
 dds_order <- orderCells(dds_order)
 ```
 ```{r plot.trajectory}
-png('data/rough_trajectory.png', width = 1600, height = 1600, res = 150)
+png('../output/pseudotime-wf/rough_trajectory.png', width = 1600, height = 1600, res = 150)
 plot_cell_trajectory(dds_order, color_by = 'res.0.6')
 dev.off()
 ```
 
 ```{r output}
-save(dds_order, file = 'data/monocle.Robj')
-load('data/monocle.Robj')
+save(dds_order, file = '../output/pseudotime-wf/monocle.Robj')
+load('../output/pseudotime-wf/monocle.Robj')
 ```
 
 ```{r dump.obj}
@@ -114,20 +114,20 @@ load('data/monocle.Robj')
 cell.loc <- t(reducedDimS(dds_order))
 colnames(cell.loc) <- c('C1', 'C2')
 cell.loc <- as.data.frame(cell.loc) %>% tibble::rownames_to_column('cell_id')
-write.table(cell.loc, file = 'data/cell_location.tsv', sep = '\t', quote = F, row.names = F)
+write.table(cell.loc, file = '../output/pseudotime-wf/cell_location.tsv', sep = '\t', quote = F, row.names = F)
 
 # Tree location
 tree.loc <- t(reducedDimK(dds_order))
 colnames(tree.loc) <- c('C1', 'C2')
 tree.loc <- as.data.frame(tree.loc) %>% tibble::rownames_to_column('tree_id')
-write.table(tree.loc, file = 'data/tree_location.tsv', sep = '\t', quote = F, row.names = F)
+write.table(tree.loc, file = '../output/pseudotime-wf/tree_location.tsv', sep = '\t', quote = F, row.names = F)
 
 branch.point <- dds_order@auxOrderingData[['DDRTree']]$branch_points
-write(branch.point, file = 'data/branch_points.txt', sep = '\n')
+write(branch.point, file = '../output/pseudotime-wf/branch_points.txt', sep = '\n')
 
 metadata <- pData(dds_order)[c('Size_Factor', 'num_genes_expressed', 'Pseudotime', 'State')]
 metadata <- as.data.frame(metadata) %>% tibble::rownames_to_column('cell_id')
-write.table(metadata, file = 'data/pseudotime.tsv', sep = '\t', quote = F, row.names = F)
+write.table(metadata, file = '../output/pseudotime-wf/pseudotime.tsv', sep = '\t', quote = F, row.names = F)
 
 ```
 

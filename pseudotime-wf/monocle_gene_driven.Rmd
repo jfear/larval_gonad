@@ -33,7 +33,7 @@ row.names(genes) <- genes$FBgn
 
 ```{r load.seurat}
 # Load data from seurat object.
-load('../scrnaseq-wf/data/scrnaseq_combine_force/seurat.Robj')
+load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
 dds <- importCDS(sobj)
 ```
@@ -100,7 +100,7 @@ table(pData(dds_germ)$CellType)
 ```
 
 ```{r plot.celltype}
-png('data/supervised_cell_type.png')
+png('../output/pseudotime-wf/supervised_cell_type.png')
 pie <- ggplot(pData(dds_germ),
 aes(x = factor(1), fill = factor(CellType))) + geom_bar(width = 1)
 pie + coord_polar(theta = "y") +
@@ -142,7 +142,7 @@ dds_germ <- orderCells(dds_germ, root_state = Gonia_state(dds_germ))
 ```
 
 ```{r}
-png('data/supervised_tree.png')
+png('../output/pseudotime-wf/supervised_tree.png')
 plot_cell_trajectory(dds_germ, color_by = "CellType") + theme(legend.position = "right")
 def.off()
 ```

@@ -33,7 +33,7 @@ genes <- subset(genes, select=-primary_FBgn)
 
 ```{r load.seurat}
 # Load data from seurat object.
-load('../scrnaseq-wf/data/scrnaseq_combine_force/seurat.Robj')
+load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
 
 dds <- importCDS(sobj)
@@ -95,7 +95,7 @@ plot_pc_variance_explained(dds_germ, return_all = F)
 dds_germ <- reduceDimension(dds_germ, max_components = 2, num_dim = 10, reduction_method = 'tSNE', verbose = T)
 dds_germ <- clusterCells(dds_germ, num_clusters = 5)
 
-png('data/recluster.png', width = 1600, height = 1600, res = 150)
+png('../output/pseudotime-wf/recluster.png', width = 1600, height = 1600, res = 150)
 p1 <- plot_cell_clusters(dds_germ, 1, 2, color = "Cluster")
 p2 <- plot_cell_clusters(dds_germ, 1, 2, color = "res.0.6")
 grid.arrange(p1, p2, nrow=1)
@@ -117,14 +117,14 @@ dds_order <- orderCells(dds_order)
 ```
 
 ```{r plot.trajectory}
-png('data/reclustered_trajectory.png', width = 1600, height = 1600, res = 150)
+png('../output/pseudotime-wf/reclustered_trajectory.png', width = 1600, height = 1600, res = 150)
 plot_cell_trajectory(dds_order, color_by = 'res.0.6')
 dev.off()
 ```
 
 ```{r output}
-save(dds_order, file = 'data/monocle_recluster.Robj')
-#load('data/monocle_recluster.Robj')
+save(dds_order, file = '../output/pseudotime-wf/monocle_recluster.Robj')
+#load('../output/pseudotime-wf/monocle_recluster.Robj')
 ```
 
 ```{r dump.obj}
@@ -134,19 +134,19 @@ save(dds_order, file = 'data/monocle_recluster.Robj')
 cell.loc <- t(reducedDimS(dds_order))
 colnames(cell.loc) <- c('C1', 'C2')
 cell.loc <- as.data.frame(cell.loc) %>% tibble::rownames_to_column('cell_id')
-write.table(cell.loc, file = 'data/cell_location_recluster.tsv', sep = '\t', quote = F, row.names = F)
+write.table(cell.loc, file = '../output/pseudotime-wf/cell_location_recluster.tsv', sep = '\t', quote = F, row.names = F)
 
 # Tree location
 tree.loc <- t(reducedDimK(dds_order))
 colnames(tree.loc) <- c('C1', 'C2')
 tree.loc <- as.data.frame(tree.loc) %>% tibble::rownames_to_column('tree_id')
-write.table(tree.loc, file = 'data/tree_location_recluster.tsv', sep = '\t', quote = F, row.names = F)
+write.table(tree.loc, file = '../output/pseudotime-wf/tree_location_recluster.tsv', sep = '\t', quote = F, row.names = F)
 
 branch.point <- dds_order@auxOrderingData[['DDRTree']]$branch_points
-write(branch.point, file = 'data/branch_points_recluster.txt', sep = '\n')
+write(branch.point, file = '../output/pseudotime-wf/branch_points_recluster.txt', sep = '\n')
 
 metadata <- pData(dds_order)[c('Size_Factor', 'num_genes_expressed', 'Pseudotime', 'State')]
 metadata <- as.data.frame(metadata) %>% tibble::rownames_to_column('cell_id')
-write.table(metadata, file = 'data/pseudotime_recluster.tsv', sep = '\t', quote = F, row.names = F)
+write.table(metadata, file = '../output/pseudotime-wf/pseudotime_recluster.tsv', sep = '\t', quote = F, row.names = F)
 ```
 
