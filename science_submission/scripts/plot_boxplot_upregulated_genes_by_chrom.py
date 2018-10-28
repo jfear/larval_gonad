@@ -27,16 +27,16 @@ def plot_boxplot_upregulated_genes_by_chrom(gs):
     chroms.loc[chroms.chrom.isin(['chr2L', 'chr2R', 'chr3L', 'chr3R']), 'XA'] = 'A'
 
     # munge data
-    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1).join(chroms)
+    tpm = np.log10(pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells) + 1).join(chroms)
     melted = tpm.reset_index().melt(id_vars=['FBgn', 'chrom', 'XA'], var_name='Cluster', value_name='logTPM')
     melted.Cluster = pd.Categorical(melted.Cluster, categories=germ_cells, ordered=True)
 
     # import each upregulated dataset and make a list of genes to use
     upgenes = {
-        'Spermatogonia': pd.read_csv('../scrnaseq-wf/data/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC > 0').set_index('primary_FBgn').index.tolist(),
-        'Early 1º Spermatocytes': pd.read_csv('../scrnaseq-wf/data/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
-        'Mid 1º Spermatocytes': pd.read_csv('../scrnaseq-wf/data/early_vs_mid.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
-        'Late 1º Spermatocytes': pd.read_csv('../scrnaseq-wf/data/mid_vs_late.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
+        'Spermatogonia': pd.read_csv('../output/scrnaseq-wf/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC > 0').set_index('primary_FBgn').index.tolist(),
+        'Early 1º Spermatocytes': pd.read_csv('../output/scrnaseq-wf/gonia_vs_early.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
+        'Mid 1º Spermatocytes': pd.read_csv('../output/scrnaseq-wf/early_vs_mid.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
+        'Late 1º Spermatocytes': pd.read_csv('../output/scrnaseq-wf/mid_vs_late.tsv', sep='\t').query('p_val_adj <= 0.01 & avg_logFC < 0').set_index('primary_FBgn').index.tolist(),
     }
 
     # Create axes

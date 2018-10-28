@@ -17,7 +17,7 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 def plot_upset(gs):
     germ_cells = config['cluster_order'][:4]
-    tpm = pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells)
+    tpm = pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells)
     xlink = fbgn2chrom.query('chrom == "chrX"').index
 
     # munge data

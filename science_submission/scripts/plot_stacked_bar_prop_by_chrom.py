@@ -30,7 +30,7 @@ def run_test(up, down, dat):
 
 
 def _plot(up, down, ax, chroms):
-    df = pd.read_csv(f'../scrnaseq-wf/data/{up}_vs_{down}.tsv', sep='\t', index_col=0).query('p_val_adj <= 0.01')
+    df = pd.read_csv(f'../output/scrnaseq-wf/{up}_vs_{down}.tsv', sep='\t', index_col=0).query('p_val_adj <= 0.01')
     df.index.name = 'FBgn'
 
     genes_up = df.query('avg_logFC > 0').index.tolist()
@@ -63,7 +63,7 @@ def plot_stacked_bar_prop_by_chrom(gs):
 
     # munge data
     germ_cells = config['cluster_order'][:4]
-    tpm = pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells)
+    tpm = pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells)
     in_data = tpm.index[(tpm.loc[:, germ_cells].sum(axis=1) > 0)].tolist()
     chroms = fbgn2chrom.copy().query('chrom == ["chrX", "chr2L", "chr2R", "chr3L", "chr3R"]').reindex(in_data).dropna()
 

@@ -31,10 +31,10 @@ def plot_boxplot_common_genes_by_chrom_gonia_late(gs, box_kws=None, line_kws=Non
     chrom_order = config['chrom_order'][:-1]
 
     # Get common genes
-    common = commonly_expressed(seurat_dir='../scrnaseq-wf/data/scrnaseq_combine_force')
+    common = commonly_expressed(seurat_dir='../output/scrnaseq-wf/scrnaseq_combine_force')
 
     # munge data
-    tpm = pd.read_parquet('../scrnaseq-wf/data/seurat_norm_by_cluster.parquet', columns=germ_cells)\
+    tpm = pd.read_parquet('../output/scrnaseq-wf/seurat_norm_by_cluster.parquet', columns=germ_cells)\
         .join(fbgn2chrom).query(f'chrom == {chrom_order} & FBgn == {common}')
     median_by_chrom = tpm.groupby('chrom').median()
     autosome_median = tpm.query('chrom == ["chr2L", "chr2R", "chr3L", "chr3R"]').median()

@@ -20,7 +20,7 @@ config.update(read_config('config.yaml'))
 
 
 def plot_heatmap_lit_genes_w_rep(axMain, **kwargs):
-    zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
+    zscores = pd.read_parquet('../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
     lit_genes = config['lit_genes']
 
     # Pull out lit genes

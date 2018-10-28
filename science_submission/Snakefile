@@ -18,29 +18,29 @@ tag = config['tag']
 
 rule all:
     input:
-        'data/clusters.parquet',
-        'data/fbgn2symbol.pkl',
-        'data/symbol2fbgn.pkl',
-        'data/fbgn2chrom.parquet',
-        'data/pseudotime.parquet',
-        'data/raw_germcells.parquet',
-        'figures/heatmap-ptrap-scores.svg',
-        expand('figures/{fig}.svg', fig=['fig1', 'fig2']),
-        expand('figures/{fig}.png', fig=['fig1', 'fig2']),
-#         expand('figures/{fig}.pdf', fig=['fig1', 'fig2']),
+        '../output/science_submission/clusters.parquet',
+        '../output/science_submission/fbgn2symbol.pkl',
+        '../output/science_submission/symbol2fbgn.pkl',
+        '../output/science_submission/fbgn2chrom.parquet',
+        '../output/science_submission/pseudotime.parquet',
+        '../output/science_submission/raw_germcells.parquet',
+        '../output/science_submission/figures/heatmap-ptrap-scores.svg',
+        expand('../output/science_submission/figures/{fig}.svg', fig=['fig1', 'fig2']),
+        expand('../output/science_submission/figures/{fig}.png', fig=['fig1', 'fig2']),
+#         expand('../output/science_submission/figures/{fig}.pdf', fig=['fig1', 'fig2']),
 
 
 rule clusters:
     input: Path(config['seurat_dir'], 'clusters.tsv').as_posix()
     params:
         resolution=config['resolution'],
-    output: 'data/clusters.parquet'
+    output: '../output/science_submission/clusters.parquet'
     script: 'scripts/parse_clusters.py'
 
 
 rule tsne:
     input: Path(config['seurat_dir'], 'tsne.tsv').as_posix()
-    output: 'data/tsne.parquet'
+    output: '../output/science_submission/tsne.parquet'
     run:
         import pandas as pd
         df = pd.read_csv(input[0], sep='\t', index_col=0)
@@ -48,13 +48,13 @@ rule tsne:
 
 
 rule fbgn2symbol:
-    output: 'data/fbgn2symbol.pkl'
+    output: '../output/science_submission/fbgn2symbol.pkl'
     script: 'scripts/parse_fbgn2symbol.py'
 
 
 rule symbol2fbgn:
     input: rules.fbgn2symbol.output[0]
-    output: 'data/symbol2fbgn.pkl'
+    output: '../output/science_submission/symbol2fbgn.pkl'
     script: 'scripts/convert_fbgn2symbol_to_symbol2fbgn.py'
 
 
@@ -68,18 +68,18 @@ def _fbgn2chrom(wildcards):
 
 rule fbgn2chrom:
     input: _fbgn2chrom
-    output: 'data/fbgn2chrom.parquet'
+    output: '../output/science_submission/fbgn2chrom.parquet'
     script: 'scripts/parse_fbgn2chrom.py'
 
 
 rule ptrap_scores:
-    output: 'data/ptrap_scores.parquet'
+    output: '../output/science_submission/ptrap_scores.parquet'
     script: 'scripts/ptrap-scores.py'
 
 
 rule pseudotime:
     input: '../pseudotime-wf/data/pseudotime.tsv'
-    output: 'data/pseudotime.parquet'
+    output: '../output/science_submission/pseudotime.parquet'
     run:
         import pandas as pd
         dat = pd.read_csv(input[0], sep='\t', index_col='cell_id')
@@ -89,9 +89,9 @@ rule pseudotime:
 
 rule raw_germ_subset:
     input:
-        raw='../scrnaseq-wf/data/scrnaseq_combine_force/raw.tsv',
+        raw='../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
         germ=rules.pseudotime.output[0],
-    output: 'data/raw_germcells.parquet',
+    output: '../output/science_submission/raw_germcells.parquet',
     run:
         import pandas as pd
         germ = pd.read_parquet(input.germ).index.tolist()
@@ -101,7 +101,7 @@ rule raw_germ_subset:
 
 rule gene_locs:
     input: Path(ref, assembly, tag, 'gtf', f'{assembly}_{tag}.gtf.db').as_posix()
-    output: 'data/gene_locations.parquet'
+    output: '../output/science_submission/gene_locations.parquet'
     script: 'scripts/gene_locations.py'
 
 
@@ -110,69 +110,69 @@ rule gene_locs:
 ################################################################################
 rule plot_tsne:
     input: rules.tsne.output[0], rules.clusters.output[0]
-    output: 'figures/tsne.svg'
+    output: '../output/science_submission/figures/tsne.svg'
     script: 'scripts/plot_tsne.py'
 
 
 rule plot_heatmap_all_genes:
-    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
-    output: 'figures/heatmap-all-genes.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore.parquet'
+    output: '../output/science_submission/figures/heatmap-all-genes.svg'
     script: 'scripts/plot_heatmap_all_genes.py'
 
 
 rule plot_heatmap_kmeans_all_genes:
-    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
-    output: 'figures/heatmap-kmeans-all-genes.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore.parquet'
+    output: '../output/science_submission/figures/heatmap-kmeans-all-genes.svg'
     script: 'scripts/plot_heatmap_kmeans_all_genes.py'
 
 
 rule plot_heatmap_kmeans_all_genes_w_rep:
-    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet'
-    output: 'figures/heatmap-kmeans-all-genes-w-rep.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
+    output: '../output/science_submission/figures/heatmap-kmeans-all-genes-w-rep.svg'
     script: 'scripts/plot_heatmap_kmeans_all_genes_w_rep.py'
 
 
 rule plot_heatmap_lit_genes:
-    input: '../scrnaseq-wf/data/tpm_zscore.parquet'
-    output: 'figures/heatmap-lit-genes.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore.parquet'
+    output: '../output/science_submission/figures/heatmap-lit-genes.svg'
     script: 'scripts/plot_heatmap_lit_genes.py'
 
 
 rule plot_heatmap_lit_genes_w_rep:
-    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet'
-    output: 'figures/heatmap-lit-genes-w-rep.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
+    output: '../output/science_submission/figures/heatmap-lit-genes-w-rep.svg'
     script: 'scripts/plot_heatmap_lit_genes_w_rep.py'
 
 
 rule plot_heatmap_ptrap_genes:
-    input: '../scrnaseq-wf/data/tpm_zscore.parquet', rules.ptrap_scores.output[0]
-    output: 'figures/heatmap-ptrap-genes.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore.parquet', rules.ptrap_scores.output[0]
+    output: '../output/science_submission/figures/heatmap-ptrap-genes.svg'
     script: 'scripts/plot_heatmap_ptrap_genes.py'
 
 
 rule plot_heatmap_ptrap_genes_w_rep:
-    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
-    output: 'figures/heatmap-ptrap-genes-w-rep.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
+    output: '../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg'
     script: 'scripts/plot_heatmap_ptrap_genes_w_rep.py'
 
 
 rule plot_heatmap_ptrap_scores:
     input: rules.ptrap_scores.output[0]
-    output: 'figures/heatmap-ptrap-scores.svg'
+    output: '../output/science_submission/figures/heatmap-ptrap-scores.svg'
     script: 'scripts/plot_heatmap_ptrap_scores.py'
 
 
 rule plot_barchart_bulk_corr:
     input:
-        sc='../scrnaseq-wf/data/tpm.parquet',
+        sc='../output/scrnaseq-wf/tpm.parquet',
         bulk='../bulk-rnaseq-wf/data/aggregation/tpm_gene_level_counts.parquet',
-    output: 'figures/barchart-bulk-corr.svg'
+    output: '../output/science_submission/figures/barchart-bulk-corr.svg'
     script: 'scripts/plot_barchart_bulk_corr.py'
 
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
-    input: '../scrnaseq-wf/data/tpm_zscore_w_rep.parquet'
-    output: 'figures/heatmap-bulk-scRNAseq-w-rep.svg'
+    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
+    output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
     script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
 
 
@@ -183,7 +183,7 @@ rule fig1:
         hmap_lit=rules.plot_heatmap_lit_genes.output[0],
         hmap_ptrap=rules.plot_heatmap_ptrap_genes.output[0],
         bulk_corr=rules.plot_barchart_bulk_corr.output[0],
-    output: 'figures/fig1.svg'
+    output: '../output/science_submission/figures/fig1.svg'
     script: 'scripts/fig1.py'
 
 
@@ -192,114 +192,114 @@ rule fig1:
 ################################################################################
 rule plot_boxplot_all_genes_by_chrom:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/boxplot-all-genes-by-chrom.svg'
+    output: '../output/science_submission/figures/boxplot-all-genes-by-chrom.svg'
     script: 'scripts/plot_boxplot_all_genes_by_chrom.py'
 
 
 rule plot_boxplot_common_genes_by_chrom_gonia_late:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/boxplot-common-genes-by-chrom-gonia-late.svg'
+    output: '../output/science_submission/figures/boxplot-common-genes-by-chrom-gonia-late.svg'
     script: 'scripts/plot_boxplot_common_genes_by_chrom_gonia_late.py'
 
 
 rule plot_boxplot_common_genes_by_chrom:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/boxplot-common-genes-by-chrom.svg'
+    output: '../output/science_submission/figures/boxplot-common-genes-by-chrom.svg'
     script: 'scripts/plot_boxplot_common_genes_by_chrom.py'
 
 
 rule plot_boxplot_germ_common_genes_by_chrom:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/boxplot-germ-common-genes-by-chrom.svg'
+    output: '../output/science_submission/figures/boxplot-germ-common-genes-by-chrom.svg'
     script: 'scripts/plot_boxplot_germ_common_genes_by_chrom.py'
 
 
 rule plot_boxplot_upregulated_genes_by_chrom:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/boxplot-upregulated-genes-by-chrom.svg'
+    output: '../output/science_submission/figures/boxplot-upregulated-genes-by-chrom.svg'
     script: 'scripts/plot_boxplot_upregulated_genes_by_chrom.py'
 
 
 rule plot_manhatten:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         locs=rules.gene_locs.output[0],
-    output: 'figures/manhatten.svg'
+    output: '../output/science_submission/figures/manhatten.svg'
     script: 'scripts/plot_manhatten.py'
 
 
 rule plot_genome_view:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         db=rules.gene_locs.output[0],
-    output: 'figures/genome_view.svg'
+    output: '../output/science_submission/figures/genome_view.svg'
     script: 'scripts/plot_genome_view.py'
 
 
 rule plot_genome_view_log:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         db=rules.gene_locs.output[0],
-    output: 'figures/genome_view_log.svg'
+    output: '../output/science_submission/figures/genome_view_log.svg'
     script: 'scripts/plot_genome_view_log.py'
 
 
 rule plot_upset:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/upset.svg'
+    output: '../output/science_submission/figures/upset.svg'
     script: 'scripts/plot_upset.py'
 
 
 rule plot_stacked_bar_prop_by_chrom:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/stacked-bar-prop-by-chrom.svg'
+    output: '../output/science_submission/figures/stacked-bar-prop-by-chrom.svg'
     script: 'scripts/plot_stacked_bar_prop_by_chrom.py'
 
 
 rule plot_heatmap_X_genes:
     input:
-        zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
+        zscore='../output/scrnaseq-wf/tpm_zscore.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/heatmap-X-genes.svg'
+    output: '../output/science_submission/figures/heatmap-X-genes.svg'
     script: 'scripts/plot_heatmap_X_genes.py'
 
 
 rule plot_heatmap_Y_genes:
     input:
-        zscore='../scrnaseq-wf/data/tpm_zscore.parquet',
+        zscore='../output/scrnaseq-wf/tpm_zscore.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
         fbgn2sybol=rules.fbgn2symbol.output[0],
-    output: 'figures/heatmap-Y-genes.svg'
+    output: '../output/science_submission/figures/heatmap-Y-genes.svg'
     script: 'scripts/plot_heatmap_Y_genes.py'
 
 
 rule plot_barchart_x2a_ratio:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/barchart-x2a-ratio.svg'
+    output: '../output/science_submission/figures/barchart-x2a-ratio.svg'
     script: 'scripts/plot_barchart_x2a_ratio.py'
 
 
 rule plot_barchart_deg:
     input:
-        tpm='../scrnaseq-wf/data/tpm.parquet',
+        tpm='../output/scrnaseq-wf/tpm.parquet',
         fbgn2chrom=rules.fbgn2chrom.output[0],
-    output: 'figures/barchart-deg.svg'
+    output: '../output/science_submission/figures/barchart-deg.svg'
     script: 'scripts/plot_barchart_deg.py'
 
 
@@ -308,7 +308,7 @@ rule plot_heatmap_X_genes_pseudotime:
         raw=rules.raw_germ_subset.output[0],
         fbgn2chrom=rules.fbgn2chrom.output[0],
         gene_lengths='../output/gene_ts_lengths.tsv',
-    output: 'figures/heatmap-X-genes-pseudotime.svg'
+    output: '../output/science_submission/figures/heatmap-X-genes-pseudotime.svg'
     script: 'scripts/plot_heatmap_X_genes_pseudotime.py'
 
 
@@ -318,7 +318,7 @@ rule plot_heatmap_Y_genes_pseudotime:
         fbgn2chrom=rules.fbgn2chrom.output[0],
         fbgn2sybol=rules.fbgn2symbol.output[0],
         gene_lengths='../output/gene_ts_lengths.tsv',
-    output: 'figures/heatmap-Y-genes-pseudotime.svg'
+    output: '../output/science_submission/figures/heatmap-Y-genes-pseudotime.svg'
     script: 'scripts/plot_heatmap_Y_genes_pseudotime.py'
 
 
@@ -327,7 +327,7 @@ rule plot_scatter_x2a_pseudotime:
         raw=rules.raw_germ_subset.output[0],
         fbgn2chrom=rules.fbgn2chrom.output[0],
         pstime=rules.pseudotime.output[0],
-    output: 'figures/scatter-X2A-pseudotime.svg'
+    output: '../output/science_submission/figures/scatter-X2A-pseudotime.svg'
     script: 'scripts/plot_scatter_x2a_pseudotime.py'
 
 
@@ -339,7 +339,7 @@ rule fig2:
 #         manhatten=rules.plot_manhatten.output[0],
 #         gview=rules.plot_genome_view.output[0],
 #         gviewlog=rules.plot_genome_view_log.output[0],
-    output: 'figures/fig2.svg'
+    output: '../output/science_submission/figures/fig2.svg'
     script: 'scripts/fig2.py'
 
 

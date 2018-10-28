@@ -15,8 +15,8 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 def plot_genome_view_log(ax):
     germ_cells = config['cluster_order'][:4]
-    locs = pd.read_parquet('data/gene_locations.parquet')
-    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1)
+    locs = pd.read_parquet('../output/science_submission/gene_locations.parquet')
+    tpm = np.log10(pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells) + 1)
 
     # munge data
     dat = locs.join(tpm)

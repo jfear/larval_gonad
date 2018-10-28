@@ -24,7 +24,7 @@ def plot_scatter_x2a_pseudotime(axMain, axLabel, **kwargs):
     fbgn2chrom.chrom.replace(dict(chrX='X', chr2L='A', chr2R='A', chr3L='A', chr3R='A'), inplace=True)
 
     # Figure out how many reads are on X and A, scale for the number of genes.
-    raw = pd.read_parquet('data/raw_germcells.parquet').join(fbgn2chrom)
+    raw = pd.read_parquet('../output/science_submission/raw_germcells.parquet').join(fbgn2chrom)
     totals = raw.groupby('chrom').sum().div(fbgn2chrom.groupby('chrom').size(), axis=0).T
 
     # Calculate X/A ratio
@@ -32,7 +32,7 @@ def plot_scatter_x2a_pseudotime(axMain, axLabel, **kwargs):
     ratio.name = 'X2A'
 
     # add on pseudotime for plotting
-    psTime = pd.read_parquet('data/pseudotime.parquet')
+    psTime = pd.read_parquet('../output/science_submission/pseudotime.parquet')
     dat = psTime.join(ratio)
 
     # Plot

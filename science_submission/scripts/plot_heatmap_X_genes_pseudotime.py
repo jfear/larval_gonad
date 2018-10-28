@@ -22,7 +22,7 @@ config.update(read_config('config.yaml'))
 
 
 def plot_heatmap_X_genes_pseudotime(axMain, axLabel, label_size=5, **kwargs):
-    raw = pd.read_parquet('data/raw_germcells.parquet')
+    raw = pd.read_parquet('../output/science_submission/raw_germcells.parquet')
     gene_lengths = pd.read_csv('../output/gene_ts_lengths.tsv', sep='\t', index_col=0).gene_ts_length
     _tpm = tpm(raw, gene_lengths).dropna()
     zscores = zscore(_tpm).dropna()

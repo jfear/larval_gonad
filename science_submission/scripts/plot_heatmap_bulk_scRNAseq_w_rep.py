@@ -19,11 +19,11 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 def plot_heatmap_bulk_scRNAseq(axMain, **kwargs):
     # Bulk data
     tdt = ['C1_TDT', 'C3_TDT', 'C2_TDT', 'C4_TDT']
-    bulk = pd.read_parquet('../bulk-rnaseq-wf/data/aggregation/tpm_gene_level_counts.parquet', columns=tdt)
+    bulk = pd.read_parquet('../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet', columns=tdt)
     bulk.columns = ['Bulk-rep1', 'Bulk-rep2', 'Bulk-rep3', 'Bulk-rep4']
 
     # import scRNA-seq data
-    sc = pd.read_parquet('../scrnaseq-wf/data/tpm_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
+    sc = pd.read_parquet('../output/scrnaseq-wf/tpm_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
 
     # Merge
     dat = sc.join(bulk, how='inner')

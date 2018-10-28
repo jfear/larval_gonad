@@ -14,9 +14,9 @@ config.update(read_config('config.yaml'))
 
 
 def plot_barchart_bulk_corr(gs, **kwargs):
-    sc = pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=config['sel_cluster_order'])
+    sc = pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=config['sel_cluster_order'])
 
-    bulk = pd.read_parquet('../bulk-rnaseq-wf/data/aggregation/tpm_gene_level_counts.parquet',
+    bulk = pd.read_parquet('../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
                            columns=['C1_TDT', 'C2_TDT', 'C3_TDT', 'C4_TDT'])
     bulk = bulk.mean(axis=1)
     bulk.name = 'bulk'

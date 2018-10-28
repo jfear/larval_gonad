@@ -27,7 +27,7 @@ def tweak_plots(ax, x=False, title=False, legend=False):
 
 
 def _plot(up, down, locs, ax):
-    dat = pd.read_csv(f'../scrnaseq-wf/data/{up}_vs_{down}.tsv', sep='\t', index_col=0)
+    dat = pd.read_csv(f'../output/scrnaseq-wf/{up}_vs_{down}.tsv', sep='\t', index_col=0)
     dat['logpval'] = -np.log10(dat.p_val_adj.replace({0: 1e-300}))
     dat.loc[dat.avg_logFC < 0, 'logpval'] *= -1
     dat = dat.join(locs, how='left')[['chrom', 'location', 'logpval']]
@@ -49,8 +49,8 @@ def _plot(up, down, locs, ax):
 
 def plot_manhatten(gs):
     # Get list of germ cells
-    locs = pd.read_parquet('data/gene_locations.parquet')
-    tpm = pd.read_parquet('../scrnaseq-wf/data/tpm.parquet')
+    locs = pd.read_parquet('../output/science_submission/gene_locations.parquet')
+    tpm = pd.read_parquet('../output/scrnaseq-wf/tpm.parquet')
     locs = locs.reindex(tpm.index).sort_values(['chrom', 'pos'])
 
     # munge data

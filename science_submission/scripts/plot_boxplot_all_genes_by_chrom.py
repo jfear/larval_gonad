@@ -28,7 +28,7 @@ def plot_boxplot_all_genes_by_chrom(gs, box_kws=None, line_kws=None, stripplot_k
     chrom_order = config['chrom_order'][:-1]
 
     # munge data
-    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1)\
+    tpm = np.log10(pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells) + 1)\
         .join(fbgn2chrom).query(f'chrom == {chrom_order}')
     median_by_chrom = tpm.groupby('chrom').median()
     autosome_median = tpm.query('chrom == ["chr2L", "chr2R", "chr3L", "chr3R"]').median()

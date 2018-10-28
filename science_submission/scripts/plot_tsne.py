@@ -16,8 +16,8 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 def plot_tsne(ax, **kwargs):
     # Get data
-    tsne = pd.read_parquet('data/tsne.parquet')
-    clusters = pd.read_parquet('data/clusters.parquet')
+    tsne = pd.read_parquet('../output/science_submission/tsne.parquet')
+    clusters = pd.read_parquet('../output/science_submission/clusters.parquet')
 
     colors = clusters['cluster_name'].map(cluster_cmap)
     colors.name = 'colors'

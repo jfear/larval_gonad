@@ -21,19 +21,19 @@ def parse_genes(g, chroms):
     # import each upregulated dataset and make a list of genes to use
     upgenes = {
         'Spermatogonia': {
-            'fname': '../scrnaseq-wf/data/gonia_vs_cytes.tsv',
+            'fname': '../output/scrnaseq-wf/gonia_vs_cytes.tsv',
             'query': 'p_val_adj <= 0.01 & avg_logFC > 0',
         },
         'Early 1º Spermatocytes': {
-            'fname': '../scrnaseq-wf/data/gonia_vs_early.tsv',
+            'fname': '../output/scrnaseq-wf/gonia_vs_early.tsv',
             'query': 'p_val_adj <= 0.01 & avg_logFC < 0',
         },
         'Mid 1º Spermatocytes': {
-            'fname': '../scrnaseq-wf/data/early_vs_mid.tsv',
+            'fname': '../output/scrnaseq-wf/early_vs_mid.tsv',
             'query': 'p_val_adj <= 0.01 & avg_logFC < 0',
         },
         'Late 1º Spermatocytes': {
-            'fname': '../scrnaseq-wf/data/mid_vs_late.tsv',
+            'fname': '../output/scrnaseq-wf/mid_vs_late.tsv',
             'query': 'p_val_adj <= 0.01 & avg_logFC < 0',
         },
     }
@@ -83,7 +83,7 @@ def plot_barchart_deg(gs, bar_kws=None):
     chrom_order = config['chrom_order'][:-1]
 
     # munge data to get list of expressed genes
-    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1)\
+    tpm = np.log10(pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells) + 1)\
         .join(fbgn2chrom).query(f'chrom == {chrom_order}')
 
     expressed = tpm.index[tpm.iloc[:, :4].sum(axis=1) > 0].tolist()

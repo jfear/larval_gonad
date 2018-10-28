@@ -17,7 +17,7 @@ config.update(read_config('config.yaml'))
 
 
 def plot_barchart_x2a_ratio(ax, **kwargs):
-    tpm = pd.read_parquet('../scrnaseq-wf/data/tpm.parquet').join(fbgn2chrom)
+    tpm = pd.read_parquet('../output/scrnaseq-wf/tpm.parquet').join(fbgn2chrom)
     tpm.chrom = tpm.chrom.map(dict(chr2L='A', chr2R='A', chr3L='A', chr3R='A', chrX='X', chr4='4', chrY='Y'))
 
     # Calculate the median expression

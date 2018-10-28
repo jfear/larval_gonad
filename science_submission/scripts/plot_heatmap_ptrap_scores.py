@@ -21,7 +21,7 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 
 def plot_heatmap_ptrap_scores(axMain, axLabel=None, label_size=5, **kwargs):
-    ptrap_scores = pd.read_parquet('data/ptrap_scores.parquet')
+    ptrap_scores = pd.read_parquet('../output/science_submission/ptrap_scores.parquet')
     ptrap_scores.index = ptrap_scores.index.droplevel(0)
 
     # calculate linkages

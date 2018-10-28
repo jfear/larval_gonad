@@ -17,7 +17,7 @@ mpl.style.use('scripts/paper_1c.mplstyle')
 
 
 def plot_heatmap_kmeans_all_genes(axMain, **kwargs):
-    zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
+    zscores = pd.read_parquet('../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', columns=config['sel_cluster_order_w_rep'])
 
     # calculate linkages
     X = zscores.values

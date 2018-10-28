@@ -27,7 +27,7 @@ def plot_boxplot_germ_common_genes_by_chrom(gs):
     chroms.loc[chroms.chrom.isin(['chr2L', 'chr2R', 'chr3L', 'chr3R']), 'XA'] = 'A'
 
     # munge data
-    tpm = np.log10(pd.read_parquet('../scrnaseq-wf/data/tpm.parquet', columns=germ_cells) + 1).join(chroms)
+    tpm = np.log10(pd.read_parquet('../output/scrnaseq-wf/tpm.parquet', columns=germ_cells) + 1).join(chroms)
     melted = tpm.reset_index().melt(id_vars=['FBgn', 'chrom', 'XA'], var_name='Cluster', value_name='logTPM')
     melted.Cluster = pd.Categorical(melted.Cluster, categories=germ_cells, ordered=True)
 

@@ -21,7 +21,7 @@ config.update(read_config('config.yaml'))
 
 
 def plot_heatmap_X_genes(axMain, axLabel, label_size=5, **kwargs):
-    zscores = pd.read_parquet('../scrnaseq-wf/data/tpm_zscore.parquet')
+    zscores = pd.read_parquet('../output/scrnaseq-wf/tpm_zscore.parquet')
 
     # Pull out X genes
     zscoresX = zscores.join(fbgn2chrom).query('chrom == "chrX"').drop('chrom', axis=1)
