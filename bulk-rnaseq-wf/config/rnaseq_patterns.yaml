@@ -3,8 +3,8 @@ cutadapt: '{sample_dir}/{sample}/{sample}_R1.cutadapt.fastq.gz'
 bam: '{sample_dir}/{sample}/{sample}.cutadapt.bam'
 splice_sites: '{sample_dir}/known_splice_sites.txt'
 intergenic:
-  gtf: 'data/intergenic.gtf'
-  bed: 'data/intergenic.bed'
+  gtf: '../output/bulk-rnaseq-wf/intergenic.gtf'
+  bed: '../output/bulk-rnaseq-wf/intergenic.bed'
 
 fastqc:
   raw: '{sample_dir}/{sample}/fastqc/{sample}_R1.fastq.gz_fastqc.zip'
