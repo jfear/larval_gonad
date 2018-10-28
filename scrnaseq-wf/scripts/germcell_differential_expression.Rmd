@@ -46,7 +46,7 @@ fbgn2symbol <- read.csv(
 ```
 
 ```{r load.data}
-load('../data/scrnaseq_combine_force/seurat.Robj')
+load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
 sobj <- SetAllIdent(sobj, id='res.0.6')
 ```

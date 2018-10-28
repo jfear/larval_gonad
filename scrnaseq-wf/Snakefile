@@ -31,22 +31,22 @@ final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger_force']['bam']),
     'scripts/scrnaseq_combine_force.html',
     'scripts/germcell_differential_expression.html',
-    'data/seurat_norm_by_cluster.parquet',
-    'data/raw.parquet',
-    'data/raw_by_cluster.parquet',
-    'data/cpm.parquet',
-    'data/rpkm.parquet',
-    'data/tpm.parquet',
-    'data/tpm_zscore.parquet',
-    'data/rpkm_zscore.parquet',
+    '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
+    '../output/scrnaseq-wf/raw.parquet',
+    '../output/scrnaseq-wf/raw_by_cluster.parquet',
+    '../output/scrnaseq-wf/cpm.parquet',
+    '../output/scrnaseq-wf/rpkm.parquet',
+    '../output/scrnaseq-wf/tpm.parquet',
+    '../output/scrnaseq-wf/tpm_zscore.parquet',
+    '../output/scrnaseq-wf/rpkm_zscore.parquet',
 
-    'data/seurat_norm_by_cluster_w_rep.parquet',
-    'data/raw_by_cluster_w_rep.parquet',
-    'data/cpm_w_rep.parquet',
-    'data/rpkm_w_rep.parquet',
-    'data/tpm_w_rep.parquet',
-    'data/tpm_zscore_w_rep.parquet',
-    'data/rpkm_zscore_w_rep.parquet',
+    '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet',
+    '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
+    '../output/scrnaseq-wf/cpm_w_rep.parquet',
+    '../output/scrnaseq-wf/rpkm_w_rep.parquet',
+    '../output/scrnaseq-wf/tpm_w_rep.parquet',
+    '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
+    '../output/scrnaseq-wf/rpkm_zscore_w_rep.parquet',
 ))
 
 rule targets:
@@ -158,11 +158,11 @@ rule scrnaseq_rmarkdown:
         rmd='scripts/scrnaseq_combine_force.Rmd',
     output:
         html='scripts/scrnaseq_combine_force.html',
-        raw='data/scrnaseq_combine_force/raw.tsv',
-        norm='data/scrnaseq_combine_force/normalized_read_counts.tsv',
-        cluster='data/scrnaseq_combine_force/clusters.tsv',
-        tsne='data/scrnaseq_combine_force/tsne.tsv',
-        robj='data/scrnaseq_combine_force/seurat.Robj',
+        raw='../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
+        norm='../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+        cluster='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+        tsne='../output/scrnaseq-wf/scrnaseq_combine_force/tsne.tsv',
+        robj='../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj',
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
@@ -177,26 +177,26 @@ rule germcell_rmarkdown:
         rmd='scripts/germcell_differential_expression.Rmd',
     output:
         'scripts/germcell_differential_expression.html',
-        'data/gonia_vs_cytes.tsv',
-        'data/gonia_vs_cytes_plus_11.tsv',
-        'data/gonia_vs_early.tsv',
-        'data/gonia_vs_mid.tsv',
-        'data/gonia_vs_late.tsv',
-        'data/gonia_vs_eleven.tsv',
-        'data/early_vs_mid.tsv',
-        'data/early_vs_late.tsv',
-        'data/early_vs_eleven.tsv',
-        'data/mid_vs_late.tsv',
-        'data/mid_vs_eleven.tsv',
-        'data/late_vs_eleven.tsv',
+        '../output/scrnaseq-wf/gonia_vs_cytes.tsv',
+        '../output/scrnaseq-wf/gonia_vs_cytes_plus_11.tsv',
+        '../output/scrnaseq-wf/gonia_vs_early.tsv',
+        '../output/scrnaseq-wf/gonia_vs_mid.tsv',
+        '../output/scrnaseq-wf/gonia_vs_late.tsv',
+        '../output/scrnaseq-wf/gonia_vs_eleven.tsv',
+        '../output/scrnaseq-wf/early_vs_mid.tsv',
+        '../output/scrnaseq-wf/early_vs_late.tsv',
+        '../output/scrnaseq-wf/early_vs_eleven.tsv',
+        '../output/scrnaseq-wf/mid_vs_late.tsv',
+        '../output/scrnaseq-wf/mid_vs_eleven.tsv',
+        '../output/scrnaseq-wf/late_vs_eleven.tsv',
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
 
 
 rule raw:
-    input: 'data/scrnaseq_combine_force/raw.tsv',
-    output: 'data/raw.parquet'
+    input: '../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
+    output: '../output/scrnaseq-wf/raw.parquet'
     run:
         import pandas as pd
         raw = pd.read_csv(input[0], sep='\t', index_col=0)
@@ -206,11 +206,11 @@ rule raw:
 
 rule agg_raw_counts:
     input:
-        cnts = 'data/scrnaseq_combine_force/raw.tsv',
-        clusters = 'data/scrnaseq_combine_force/clusters.tsv',
-    output: 'data/raw_by_cluster.parquet'
+        cnts = '../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
+        clusters = '../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/scrnaseq-wf/raw_by_cluster.parquet'
     params:
-        seurat_dir = 'data/scrnaseq_combine_force',
+        seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
     run:
         s = Seurat(params.seurat_dir)
@@ -223,11 +223,11 @@ rule agg_raw_counts:
 
 rule agg_raw_counts_w_rep:
     input:
-        cnts = 'data/scrnaseq_combine_force/raw.tsv',
-        clusters = 'data/scrnaseq_combine_force/clusters.tsv',
-    output: 'data/raw_by_cluster_w_rep.parquet'
+        cnts = '../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
+        clusters = '../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet'
     params:
-        seurat_dir = 'data/scrnaseq_combine_force',
+        seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
     run:
         s = Seurat(params.seurat_dir)
@@ -245,11 +245,11 @@ rule agg_raw_counts_w_rep:
 
 rule agg_norm_counts:
     input:
-        cnts = 'data/scrnaseq_combine_force/normalized_read_counts.tsv',
-        clusters = 'data/scrnaseq_combine_force/clusters.tsv',
-    output: 'data/seurat_norm_by_cluster.parquet'
+        cnts = '../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+        clusters = '../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet'
     params:
-        seurat_dir = 'data/scrnaseq_combine_force',
+        seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
     run:
         s = Seurat(params.seurat_dir)
@@ -262,11 +262,11 @@ rule agg_norm_counts:
 
 rule agg_norm_counts_w_rep:
     input:
-        cnts = 'data/scrnaseq_combine_force/normalized_read_counts.tsv',
-        clusters = 'data/scrnaseq_combine_force/clusters.tsv',
-    output: 'data/seurat_norm_by_cluster_w_rep.parquet'
+        cnts = '../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+        clusters = '../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet'
     params:
-        seurat_dir = 'data/scrnaseq_combine_force',
+        seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
     run:
         s = Seurat(params.seurat_dir)
@@ -284,9 +284,9 @@ rule agg_norm_counts_w_rep:
 
 rule cpm:
     input:
-        cnts = 'data/raw_by_cluster.parquet',
+        cnts = '../output/scrnaseq-wf/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
-    output: 'data/cpm.parquet',
+    output: '../output/scrnaseq-wf/cpm.parquet',
     run:
         from larval_gonad.normalization import cpm
         raw = pd.read_parquet(input.cnts)
@@ -296,9 +296,9 @@ rule cpm:
 
 rule cpm_w_rep:
     input:
-        cnts = 'data/raw_by_cluster_w_rep.parquet',
+        cnts = '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
         lens = '../output/gene_ts_lengths.tsv'
-    output: 'data/cpm_w_rep.parquet',
+    output: '../output/scrnaseq-wf/cpm_w_rep.parquet',
     run:
         from larval_gonad.normalization import cpm
         raw = pd.read_parquet(input.cnts)
@@ -308,9 +308,9 @@ rule cpm_w_rep:
 
 rule rpkm:
     input:
-        cnts = 'data/raw_by_cluster.parquet',
+        cnts = '../output/scrnaseq-wf/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
-    output: 'data/rpkm.parquet',
+    output: '../output/scrnaseq-wf/rpkm.parquet',
     run:
         from larval_gonad.normalization import rpkm
         raw = pd.read_parquet(input.cnts)
@@ -323,9 +323,9 @@ rule rpkm:
 
 rule rpkm_w_rep:
     input:
-        cnts = 'data/raw_by_cluster_w_rep.parquet',
+        cnts = '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
         lens = '../output/gene_ts_lengths.tsv'
-    output: 'data/rpkm_w_rep.parquet',
+    output: '../output/scrnaseq-wf/rpkm_w_rep.parquet',
     run:
         from larval_gonad.normalization import rpkm
         raw = pd.read_parquet(input.cnts)
@@ -338,9 +338,9 @@ rule rpkm_w_rep:
 
 rule tpm:
     input:
-        cnts = 'data/raw_by_cluster.parquet',
+        cnts = '../output/scrnaseq-wf/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
-    output: 'data/tpm.parquet',
+    output: '../output/scrnaseq-wf/tpm.parquet',
     run:
         from larval_gonad.normalization import tpm
         raw = pd.read_parquet(input.cnts)
@@ -353,9 +353,9 @@ rule tpm:
 
 rule tpm_w_rep:
     input:
-        cnts = 'data/raw_by_cluster_w_rep.parquet',
+        cnts = '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
         lens = '../output/gene_ts_lengths.tsv'
-    output: 'data/tpm_w_rep.parquet',
+    output: '../output/scrnaseq-wf/tpm_w_rep.parquet',
     run:
         from larval_gonad.normalization import tpm
         raw = pd.read_parquet(input.cnts)
@@ -368,8 +368,8 @@ rule tpm_w_rep:
 
 rule tpm_zscore:
     input:
-        cnts = 'data/tpm.parquet',
-    output: 'data/tpm_zscore.parquet',
+        cnts = '../output/scrnaseq-wf/tpm.parquet',
+    output: '../output/scrnaseq-wf/tpm_zscore.parquet',
     run:
         from larval_gonad.normalization import zscore
         tpm = pd.read_parquet(input.cnts)
@@ -379,8 +379,8 @@ rule tpm_zscore:
 
 rule tpm_zscore_w_rep:
     input:
-        cnts = 'data/tpm_w_rep.parquet',
-    output: 'data/tpm_zscore_w_rep.parquet',
+        cnts = '../output/scrnaseq-wf/tpm_w_rep.parquet',
+    output: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
     run:
         from larval_gonad.normalization import zscore
         tpm = pd.read_parquet(input.cnts)
@@ -390,8 +390,8 @@ rule tpm_zscore_w_rep:
 
 rule rpkm_zscore:
     input:
-        cnts = 'data/rpkm.parquet',
-    output: 'data/rpkm_zscore.parquet',
+        cnts = '../output/scrnaseq-wf/rpkm.parquet',
+    output: '../output/scrnaseq-wf/rpkm_zscore.parquet',
     run:
         from larval_gonad.normalization import zscore
         rpkm = pd.read_parquet(input.cnts)
@@ -401,8 +401,8 @@ rule rpkm_zscore:
 
 rule rpkm_zscore_w_rep:
     input:
-        cnts = 'data/rpkm_w_rep.parquet',
-    output: 'data/rpkm_zscore_w_rep.parquet',
+        cnts = '../output/scrnaseq-wf/rpkm_w_rep.parquet',
+    output: '../output/scrnaseq-wf/rpkm_zscore_w_rep.parquet',
     run:
         from larval_gonad.normalization import zscore
         rpkm = pd.read_parquet(input.cnts)
