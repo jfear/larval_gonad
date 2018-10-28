@@ -72,7 +72,7 @@ copy_others:
 	cp ../output/testis1/outs/web_summary.html content/reports/testis1_web_summary.html
 	cp ../output/testis2/outs/web_summary.html content/reports/testis2_web_summary.html
 	cp ../output/testis3/outs/web_summary.html content/reports/testis3_web_summary.html
-	cp ../bulk-rnaseq-wf/data/aggregation/multiqc.html content/reports/bulk_qc.html
+	cp ../../output/bulk-rnaseq-wf/aggregation/multiqc.html content/reports/bulk_qc.html
 
 add_nav: copy_notebooks copy_others
 	python tools/add_navigation.py
