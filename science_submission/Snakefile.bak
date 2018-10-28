@@ -384,12 +384,12 @@ rule differntial_expression_tables:
 
 rule results_table:
     input:
-        raw = '../scrnaseq-wf/data/raw_by_cluster.parquet',
-        tpm = '../scrnaseq-wf/data/tpm.parquet',
-        rpkm = '../scrnaseq-wf/data/rpkm.parquet',
-        zscore = '../scrnaseq-wf/data/tpm_zscore.parquet',
+        raw = '../output/scrnaseq-wf/raw_by_cluster.parquet',
+        tpm = '../output/scrnaseq-wf/tpm.parquet',
+        rpkm = '../output/scrnaseq-wf/rpkm.parquet',
+        zscore = '../output/scrnaseq-wf/tpm_zscore.parquet',
     params:
-        seurat_dir = '../scrnaseq-wf/data/scrnaseq_combine_force'
+        seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force'
     output: 'tables/results.xlsx'
     run:
         fbgn2symbol = get_fbgn2symbol()

@@ -9,7 +9,7 @@ from larval_gonad.io import cellranger_counts
 
 
 def dump_counts(name):
-    fname = f'../scrnaseq-wf/data/scrnaseq_samples/{name}/outs/raw_gene_bc_matrices_h5.h5'
+    fname = f'../output/scrnaseq-wf/scrnaseq_samples/{name}/outs/raw_gene_bc_matrices_h5.h5'
     cnts = cellranger_counts(fname)
     df = pd.DataFrame(cnts.matrix.todense(), index=cnts.gene_ids, columns=cnts.barcodes)
 

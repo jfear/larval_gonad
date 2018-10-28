@@ -78,7 +78,7 @@ rule ptrap_scores:
 
 
 rule pseudotime:
-    input: '../pseudotime-wf/data/pseudotime.tsv'
+    input: '../output/pseudotime-wf/pseudotime.tsv'
     output: '../output/science_submission/pseudotime.parquet'
     run:
         import pandas as pd
@@ -165,7 +165,7 @@ rule plot_heatmap_ptrap_scores:
 rule plot_barchart_bulk_corr:
     input:
         sc='../output/scrnaseq-wf/tpm.parquet',
-        bulk='../bulk-rnaseq-wf/data/aggregation/tpm_gene_level_counts.parquet',
+        bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
     output: '../output/science_submission/figures/barchart-bulk-corr.svg'
     script: 'scripts/plot_barchart_bulk_corr.py'
 

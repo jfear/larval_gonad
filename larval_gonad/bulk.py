@@ -40,7 +40,7 @@ def read_bulk(path, filter=None, pattern='*/*.featurecounts.txt'):
 
     Example
     -------
-    >>> df = read_build('../bulk-rnaseq-wf/data/rnaseq_samples',
+    >>> df = read_build('../output/bulk-rnaseq-wf/rnaseq_samples',
             filter=['B5_TCP', 'B6_TCP'])
     """
     bulk = Path(path)
@@ -79,7 +79,7 @@ def read_bulk_for_lengths(path, filter=None, pattern='*/*.featurecounts.txt'):
 
     Example
     -------
-    >>> df = read_build('../bulk-rnaseq-wf/data/rnaseq_samples',
+    >>> df = read_build('../output/bulk-rnaseq-wf/rnaseq_samples',
             filter=['B5_TCP', 'B6_TCP'])
     """
     bulk = Path(path)
