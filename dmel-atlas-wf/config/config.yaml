@@ -10,10 +10,10 @@ hub_config: 'config/test_hub_config.yml'
 # directory and fastq file[s]. If `sampletable` lists a sample with samplename
 # SAMPLE1, then at least the file $sample_dir/SAMPLE1/SAMPLE1_R1.fastq.gz is
 # expected.
-sample_dir: 'data/rnaseq_samples'
+sample_dir: '../output/dmel-atlas-wf/rnaseq_samples'
 
 # Directory to contain reports and other aggregations
-aggregation_dir: 'data/aggregation'
+aggregation_dir: '../output/dmel-atlas-wf/aggregation'
 
 # Which key in the `references` dict below to use
 assembly: 'dmel'
