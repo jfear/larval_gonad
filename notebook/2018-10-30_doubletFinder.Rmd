@@ -1,0 +1,71 @@
+---
+title: "Testing DoubletFinder"
+output: html_document
+---
+
+There is a lot of concern that we have multiplet issues. doubletFinder is a tool that attempts to identify multiplets. It generates a model by combining cells together and looking for cells with similar expression profiles. I am testing to see if this works.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library}
+library('Seurat')
+library('doubletFinder')
+```
+
+```{r multi_rate}
+# https://assets.ctfassets.net/an68im79xiti/UhAMGmlaEMmYMaA4A4Uwa/d65ff7b9bb5e88c2bb9e15e58f280e18/CG00052_SingleCell3_ReagentKitv2UserGuide_RevE.pdf
+multi_rate = list(
+  rep1 = list(
+    n.cells = 6000,
+    pct.multi = 0.023 # from the 10x manual
+  ),
+  rep2 = list(
+    n.cells = 6000,
+    pct.multi = 0.023 # from the 10x manual
+  ),
+  rep3 = list(
+    n.cells = 16000,
+    pct.multi = 0.061 # from the 10x manual
+  )
+)
+```
+
+```{r doubletFinder_func}
+run.doubletFinder <- function(rep){
+  
+  # Figure out how many doublets there should be
+  n.cells <- multi_rate[[rep]]$n.cells
+  pct.multi <- multi_rate[[rep]]$pct.multi   
+  n.multi = n.cells * pct.multi
+  
+  # Load the seurat object
+  load('../output/scrnaseq-wf/scrnaseq_rep1_force/seurat.Robj')
+  sobj <- object
+  remove(object)
+  
+  # run doublet finder
+  sobj <- doubletFinder(sobj, expected.doublets = n.multi)
+  
+  # pull out a list of cells that are likely doublets
+  doublets <- rownames(sobj@meta.data)[sobj@meta.data$pANNPredictions == "Doublet"]
+  
+  # Write list out to file
+  fname = paste0('../output/notebook/2018-10-30_testing_doubletFinder_', rep, '.txt')
+  fileConn = file(fname, open = 'w')
+  writeLines(doublets, fileConn)
+  close(fileConn)
+}
+```
+
+
+
+```{r run}
+run.doubletFinder('rep1')
+run.doubletFinder('rep2')
+run.doubletFinder('rep3')
+```
+
+
+
