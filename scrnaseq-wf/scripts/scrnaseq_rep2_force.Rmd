@@ -1,0 +1,145 @@
+---
+title: Run Seurat on Testis Rep 2
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r setup}
+options(repr.plot.width=10, repr.plot.height=10)
+source('../../lib/seurat.R')
+library(Seurat)
+library(dplyr)
+library(Matrix)
+library(data.table)
+
+OUTDIR <- '../../output/scrnaseq-wf/scrnaseq_rep2_force'
+dir.create(file.path(OUTDIR), showWarnings = FALSE)
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
+params <- c(0.4, 0.6, 1)
+
+# Get list of mitochondiral genes
+fbgn2chrom <- read.table('../../output/fbgn2chrom.tsv', header=T)
+fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
+mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
+rep <- 'rep2'
+data.dir <- '../../output/scrnaseq-wf/scrnaseq_samples/testis2_force/outs/filtered_gene_bc_matrices/dm6.16'
+```
+
+```{r load.data.func}
+tenX.data <- Read10X(data.dir = data.dir)
+colnames(tenX.data) <- paste(rep, colnames(tenX.data), sep = "_")
+sobj <- CreateSeuratObject(
+  raw.data = tenX.data,
+  min.cells = 3,
+  min.genes = 200,
+  project = 'GroupCluster',
+  display.progress = FALSE
+)
+sobj@meta.data$rep <- rep
+
+remove(tenX.data)
+
+VlnPlot(
+  object = sobj,
+  features.plot = c("nGene", "nUMI"),
+  nCol = 2
+)
+```
+
+```{r filter_cells}
+sobj <- FilterCells(
+  object = sobj,
+  subset.names = "nGene",
+  low.thresholds = 200
+)
+```
+
+```{r normalize}
+sobj <- NormalizeData(
+  object = sobj,
+  normalization.method = "LogNormalize",
+  scale.factor = 1e4,
+  display.progress = FALSE
+)
+```
+
+```{r find_variable}
+sobj <- FindVariableGenes(
+  object = sobj,
+  do.plot = TRUE,
+  display.progress = FALSE
+)
+
+dispersion <- as.data.frame(as.matrix(sobj@hvg.info))
+write.table(dispersion, file = file.path(OUTDIR, paste0(rep, '_dispersion.tsv')), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+var.genes <- as.data.frame(as.matrix(sobj@var.genes))
+write.table(var.genes, file = file.path(OUTDIR, paste0(rep, '_var_genes.tsv')), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+```
+
+```{r scale_data}
+sobj <- ScaleData(
+ object = sobj,
+ vars.to.regress = "nUMI",
+ display.progress = FALSE
+)
+```
+
+
+```{r dim_reduce}
+sobj <- RunPCA(object = sobj, 
+               pc.genes = sobj@var.genes, 
+               do.print = FALSE 
+               )
+
+# Project other genes onto the PCA components
+#sobj <- ProjectPCA(object = sobj, do.print = FALSE)
+
+PCAPlot(object = sobj, dim.1 = 1, dim.2 = 2)
+PCAPlot(object = sobj, dim.1 = 1, dim.2 = 3)
+PCAPlot(object = sobj, dim.1 = 2, dim.2 = 3)
+PCElbowPlot(object = sobj)
+```
+
+```{r find_clusters}
+sobj <- FindClusters(object = sobj, 
+                     reduction.type = "pca", 
+                     resolution = .6, 
+                     dims.use = 1:5, 
+                     save.SNN = FALSE, 
+                     print.output = FALSE
+                     )
+```
+
+```{r run_tsne}
+sobj <- RunTSNE(sobj, reduction.use = "pca", dims.use = 1:5, do.fast = TRUE)
+
+p1 <- TSNEPlot(sobj, do.return = T, pt.size = 0.5, group.by = "rep")
+p2 <- TSNEPlot(sobj, do.label = T, do.return = T, pt.size = 0.5)
+p <- plot_grid(p1, p2)
+title <- ggdraw() + draw_label("res 0.6", fontface='bold')
+plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
+```
+
+## Save Results
+```{r dump.seurat}
+dump_seurat(object = sobj, dir = OUTDIR)
+```
+
+```{r save.biomarkers}
+name <- paste0('res.', 0.6)
+sobj <- SetAllIdent(sobj, id = name)
+
+# Get markers ignoring replicate.
+fname <- paste0('biomarkers_', name, '.tsv')
+markers <- FindAllMarkers(object = sobj, only.pos = TRUE, print.bar = FALSE)
+markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+```

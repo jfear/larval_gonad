@@ -30,6 +30,9 @@ final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger']['bam']),
     utils.flatten(c.targets['cellranger_force']['bam']),
     'scripts/scrnaseq_combine_force.html',
+    'scripts/scrnaseq_rep1_force.html',
+    'scripts/scrnaseq_rep2_force.html',
+    'scripts/scrnaseq_rep3_force.html',
     'scripts/germcell_differential_expression.html',
     '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
     '../output/scrnaseq-wf/raw.parquet',
@@ -149,7 +152,64 @@ rule cellranger_force:
         shell(cmd)
 
 
-rule scrnaseq_rmarkdown:
+rule scrnaseq_r1:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis1_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/scrnaseq_rep1_force.Rmd',
+    output:
+        html='scripts/scrnaseq_rep1_force.html',
+        raw='../output/scrnaseq-wf/scrnaseq_rep1_force/raw.tsv',
+        norm='../output/scrnaseq-wf/scrnaseq_rep1_force/normalized_read_counts.tsv',
+        cluster='../output/scrnaseq-wf/scrnaseq_rep1_force/clusters.tsv',
+        tsne='../output/scrnaseq-wf/scrnaseq_rep1_force/tsne.tsv',
+        robj='../output/scrnaseq-wf/scrnaseq_rep1_force/seurat.Robj',
+    shell:
+        'Rscript -e '
+        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+rule scrnaseq_r2:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis2_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/scrnaseq_rep2_force.Rmd',
+    output:
+        html='scripts/scrnaseq_rep2_force.html',
+        raw='../output/scrnaseq-wf/scrnaseq_rep2_force/raw.tsv',
+        norm='../output/scrnaseq-wf/scrnaseq_rep2_force/normalized_read_counts.tsv',
+        cluster='../output/scrnaseq-wf/scrnaseq_rep2_force/clusters.tsv',
+        tsne='../output/scrnaseq-wf/scrnaseq_rep2_force/tsne.tsv',
+        robj='../output/scrnaseq-wf/scrnaseq_rep2_force/seurat.Robj',
+    shell:
+        'Rscript -e '
+        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+rule scrnaseq_r3:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis3_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/scrnaseq_rep3_force.Rmd',
+    output:
+        html='scripts/scrnaseq_rep3_force.html',
+        raw='../output/scrnaseq-wf/scrnaseq_rep3_force/raw.tsv',
+        norm='../output/scrnaseq-wf/scrnaseq_rep3_force/normalized_read_counts.tsv',
+        cluster='../output/scrnaseq-wf/scrnaseq_rep3_force/clusters.tsv',
+        tsne='../output/scrnaseq-wf/scrnaseq_rep3_force/tsne.tsv',
+        robj='../output/scrnaseq-wf/scrnaseq_rep3_force/seurat.Robj',
+    shell:
+        'Rscript -e '
+        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+
+
+rule scrnaseq_combine:
     """
     Run and render the RMarkdown file that performs differential expression
     """
@@ -173,7 +233,7 @@ rule germcell_rmarkdown:
     Run and render the RMarkdown file that performs differential expression
     """
     input:
-        robj=rules.scrnaseq_rmarkdown.output.robj,
+        robj=rules.scrnaseq_combine.output.robj,
         rmd='scripts/germcell_differential_expression.Rmd',
     output:
         'scripts/germcell_differential_expression.html',
