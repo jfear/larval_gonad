@@ -92,9 +92,9 @@ load.data <- function(fname, name){
 ```
 
 ```{r load.data, cache=TRUE}
-r1 <- load.data('../output/scrnaseq-wf/scrnaseq_samples/testis1_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep1')
-r2 <- load.data('../output/scrnaseq-wf/scrnaseq_samples/testis2_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep2')
-r3 <- load.data('../output/scrnaseq-wf/scrnaseq_samples/testis3_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep3')
+r1 <- load.data('../../output/scrnaseq-wf/scrnaseq_samples/testis1_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep1')
+r2 <- load.data('../../output/scrnaseq-wf/scrnaseq_samples/testis2_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep2')
+r3 <- load.data('../../output/scrnaseq-wf/scrnaseq_samples/testis3_force/outs/filtered_gene_bc_matrices/dm6.16', 'rep3')
 ```
 
 ## Combined Data

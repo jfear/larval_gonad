@@ -34,8 +34,8 @@ library(Seurat)
 library(dplyr)
 source('../../lib/seurat.R')
 
-REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR')
-OUTDIR <- '../data'
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
+OUTDIR <- '../../output/scrnaseq-wf/germcell_deg'
 fbgn2symbol <- read.csv(
   file.path(REFERENCES_DIR,
     'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'
@@ -46,7 +46,7 @@ fbgn2symbol <- read.csv(
 ```
 
 ```{r load.data}
-load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
+load('../../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
 sobj <- SetAllIdent(sobj, id='res.0.6')
 ```

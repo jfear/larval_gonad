@@ -29,11 +29,11 @@ c = RNASeqConfig(config, 'config/scrnaseq_patterns.yaml')
 final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger']['bam']),
     utils.flatten(c.targets['cellranger_force']['bam']),
-    'scripts/scrnaseq_combine_force.html',
-    'scripts/scrnaseq_rep1_force.html',
-    'scripts/scrnaseq_rep2_force.html',
-    'scripts/scrnaseq_rep3_force.html',
-    'scripts/germcell_differential_expression.html',
+    '../output/scrnaseq-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
+    '../output/scrnaseq-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
+    '../output/scrnaseq-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
+    '../output/scrnaseq-wf/scrnaseq_rep3_force/scrnaseq_rep3_force.html',
+    '../output/scrnaseq-wf/germcell_deg/germcell_differential_expression.html',
     '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
     '../output/scrnaseq-wf/raw.parquet',
     '../output/scrnaseq-wf/raw_by_cluster.parquet',
@@ -42,7 +42,6 @@ final_targets = utils.flatten((
     '../output/scrnaseq-wf/tpm.parquet',
     '../output/scrnaseq-wf/tpm_zscore.parquet',
     '../output/scrnaseq-wf/rpkm_zscore.parquet',
-
     '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet',
     '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
     '../output/scrnaseq-wf/cpm_w_rep.parquet',
@@ -160,16 +159,16 @@ rule scrnaseq_r1:
         mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis1_force/outs/filtered_gene_bc_matrices_h5.h5',
         rmd='scripts/scrnaseq_rep1_force.Rmd',
     output:
-        html='scripts/scrnaseq_rep1_force.html',
+        html='../output/scrnaseq-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
         raw='../output/scrnaseq-wf/scrnaseq_rep1_force/raw.tsv',
         norm='../output/scrnaseq-wf/scrnaseq_rep1_force/normalized_read_counts.tsv',
         cluster='../output/scrnaseq-wf/scrnaseq_rep1_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep1_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep1_force/seurat.Robj',
-    shell:
-        'Rscript -e '
-        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
-
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_rep1_force.html {output.html}
+    """
 
 rule scrnaseq_r2:
     """
@@ -179,15 +178,16 @@ rule scrnaseq_r2:
         mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis2_force/outs/filtered_gene_bc_matrices_h5.h5',
         rmd='scripts/scrnaseq_rep2_force.Rmd',
     output:
-        html='scripts/scrnaseq_rep2_force.html',
+        html='../output/scrnaseq-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
         raw='../output/scrnaseq-wf/scrnaseq_rep2_force/raw.tsv',
         norm='../output/scrnaseq-wf/scrnaseq_rep2_force/normalized_read_counts.tsv',
         cluster='../output/scrnaseq-wf/scrnaseq_rep2_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep2_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep2_force/seurat.Robj',
-    shell:
-        'Rscript -e '
-        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_rep2_force.html {output.html}
+    """
 
 
 rule scrnaseq_r3:
@@ -198,15 +198,16 @@ rule scrnaseq_r3:
         mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis3_force/outs/filtered_gene_bc_matrices_h5.h5',
         rmd='scripts/scrnaseq_rep3_force.Rmd',
     output:
-        html='scripts/scrnaseq_rep3_force.html',
+        html='../output/scrnaseq-wf/scrnaseq_rep3_force/scrnaseq_rep3_force.html',
         raw='../output/scrnaseq-wf/scrnaseq_rep3_force/raw.tsv',
         norm='../output/scrnaseq-wf/scrnaseq_rep3_force/normalized_read_counts.tsv',
         cluster='../output/scrnaseq-wf/scrnaseq_rep3_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep3_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep3_force/seurat.Robj',
-    shell:
-        'Rscript -e '
-        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_rep3_force.html {output.html}
+    """
 
 
 rule scrnaseq_combine:
@@ -217,15 +218,16 @@ rule scrnaseq_combine:
         mtx1=utils.flatten(c.targets['cellranger_force']['filtered_h5']),
         rmd='scripts/scrnaseq_combine_force.Rmd',
     output:
-        html='scripts/scrnaseq_combine_force.html',
+        html='../output/scrnaseq-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
         raw='../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
         norm='../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
         cluster='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_combine_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj',
-    shell:
-        'Rscript -e '
-        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_combine_force.html {output.html}
+    """
 
 
 rule germcell_rmarkdown:
@@ -236,22 +238,23 @@ rule germcell_rmarkdown:
         robj=rules.scrnaseq_combine.output.robj,
         rmd='scripts/germcell_differential_expression.Rmd',
     output:
-        'scripts/germcell_differential_expression.html',
-        '../output/scrnaseq-wf/gonia_vs_cytes.tsv',
-        '../output/scrnaseq-wf/gonia_vs_cytes_plus_11.tsv',
-        '../output/scrnaseq-wf/gonia_vs_early.tsv',
-        '../output/scrnaseq-wf/gonia_vs_mid.tsv',
-        '../output/scrnaseq-wf/gonia_vs_late.tsv',
-        '../output/scrnaseq-wf/gonia_vs_eleven.tsv',
-        '../output/scrnaseq-wf/early_vs_mid.tsv',
-        '../output/scrnaseq-wf/early_vs_late.tsv',
-        '../output/scrnaseq-wf/early_vs_eleven.tsv',
-        '../output/scrnaseq-wf/mid_vs_late.tsv',
-        '../output/scrnaseq-wf/mid_vs_eleven.tsv',
-        '../output/scrnaseq-wf/late_vs_eleven.tsv',
-    shell:
-        'Rscript -e '
-        '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
+        html='../output/scrnaseq-wf/germcell_deg/germcell_differential_expression.html',
+        c1='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
+        c2='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes_plus_11.tsv',
+        c3='../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv',
+        c4='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
+        c5='../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv',
+        c6='../output/scrnaseq-wf/germcell_deg/gonia_vs_eleven.tsv',
+        c7='../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv',
+        c8='../output/scrnaseq-wf/germcell_deg/early_vs_late.tsv',
+        c9='../output/scrnaseq-wf/germcell_deg/early_vs_eleven.tsv',
+        c10='../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv',
+        c11='../output/scrnaseq-wf/germcell_deg/mid_vs_eleven.tsv',
+        c12='../output/scrnaseq-wf/germcell_deg/late_vs_eleven.tsv',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/germcell_differential_expression.html {output.html}
+    """
 
 
 rule raw:
