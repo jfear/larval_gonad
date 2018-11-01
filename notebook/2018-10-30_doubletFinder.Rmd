@@ -41,7 +41,8 @@ run.doubletFinder <- function(rep){
   n.multi = n.cells * pct.multi
   
   # Load the seurat object
-  load('../output/scrnaseq-wf/scrnaseq_rep1_force/seurat.Robj')
+  fname <- paste0('../output/scrnaseq-wf/scrnaseq_', rep, '_force/seurat.Robj')
+  load(fname)
   sobj <- object
   remove(object)
   
@@ -52,8 +53,8 @@ run.doubletFinder <- function(rep){
   doublets <- rownames(sobj@meta.data)[sobj@meta.data$pANNPredictions == "Doublet"]
   
   # Write list out to file
-  fname = paste0('../output/notebook/2018-10-30_testing_doubletFinder_', rep, '.txt')
-  fileConn = file(fname, open = 'w')
+  fname <- paste0('../output/notebook/2018-10-30_testing_doubletFinder_', rep, '.txt')
+  fileConn <- file(fname, open = 'w')
   writeLines(doublets, fileConn)
   close(fileConn)
 }
@@ -67,5 +68,7 @@ run.doubletFinder('rep2')
 run.doubletFinder('rep3')
 ```
 
-
+```{r }
+print('Done')
+```
 
