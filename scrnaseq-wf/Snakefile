@@ -171,6 +171,7 @@ rule scrnaseq_r1:
         mv scripts/scrnaseq_rep1_force.html {output.html}
     """
 
+
 rule scrnaseq_r2:
     """
     Run and render the RMarkdown file that performs differential expression
