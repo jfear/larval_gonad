@@ -34,6 +34,7 @@ final_targets = utils.flatten((
     '../output/scrnaseq-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
     '../output/scrnaseq-wf/scrnaseq_rep3_force/scrnaseq_rep3_force.html',
     '../output/scrnaseq-wf/germcell_deg/germcell_differential_expression.html',
+    '../output/scrnaseq-wf/germcell_soma_deg/germcell_soma_differential_expression.html',
     '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
     '../output/scrnaseq-wf/raw.parquet',
     '../output/scrnaseq-wf/raw_by_cluster.parquet',
@@ -254,6 +255,25 @@ rule germcell_rmarkdown:
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/germcell_differential_expression.html {output.html}
+    """
+
+
+rule germ_soma_rmarkdown:
+    """
+    Run and render the RMarkdown file that performs differential expression between germ cell and soma.
+    """
+    input:
+        robj=rules.scrnaseq_combine.output.robj,
+        rmd='scripts/germcell_soma_differential_expression.Rmd',
+    output:
+        html='../output/scrnaseq-wf/germcell_soma_deg/germcell_soma_differential_expression.html',
+        c1='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_soma.tsv',
+        c2='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_cysts.tsv',
+        c3='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_terminal_epithelium.tsv',
+        c4='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_pigment.tsv',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/germcell_soma_differential_expression.html {output.html}
     """
 
 
