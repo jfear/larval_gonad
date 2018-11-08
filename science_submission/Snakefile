@@ -26,8 +26,9 @@ rule all:
         '../output/science_submission/raw_germcells.parquet',
         '../output/science_submission/figures/heatmap-ptrap-scores.svg',
         expand('../output/science_submission/figures/{fig}.svg', fig=['fig1', 'fig2']),
-        expand('../output/science_submission/figures/{fig}.png', fig=['fig1', 'fig2']),
-#         expand('../output/science_submission/figures/{fig}.pdf', fig=['fig1', 'fig2']),
+        '../output/science_submission/tables/scRNASeq_cluster_deg.xlsx'
+#        expand('../output/science_submission/figures/{fig}.png', fig=['fig1', 'fig2']),
+#        expand('../output/science_submission/figures/{fig}.pdf', fig=['fig1', 'fig2']),
 
 
 rule clusters:
@@ -353,6 +354,23 @@ rule svg_pdf:
     input: '{fig}.svg'
     output: '{fig}.pdf'
     shell: "inkscape {input[0]} --export-pdf={output[0]}"
+
+################################################################################
+# Tables
+################################################################################
+rule differential_expression_tables:
+    input:
+        biomarkers='../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv',
+        germ_soma='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_soma.tsv',
+        gonia_cytes='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
+        gonia_early='../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv',
+        gonia_mid='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
+        gonia_late='../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv',
+        raw='../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
+        tpm='../output/scrnaseq-wf/tpm_w_rep.parquet',
+        zscore='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
+    output: '../output/science_submission/tables/scRNASeq_cluster_deg.xlsx'
+    script: 'scripts/table_scRNASeq_cluster_deg.py'
 
 
 # vim: set ft=snakemake.python
