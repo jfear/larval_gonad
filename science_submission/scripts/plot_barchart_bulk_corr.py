@@ -3,6 +3,7 @@
 import pandas as pd
 
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 from larval_gonad.config import read_config, config

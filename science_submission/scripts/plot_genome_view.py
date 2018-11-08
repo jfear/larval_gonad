@@ -4,6 +4,7 @@ Plots the tpm normalized zscores of all genes as a heatmap.
 """
 import pandas as pd
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 

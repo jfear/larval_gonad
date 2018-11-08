@@ -7,6 +7,7 @@ list can be found in `science_submission/config.yaml`.
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, dendrogram
 import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import seaborn as sns

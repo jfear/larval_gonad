@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import fisher_exact
 import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 import matplotlib.pyplot as plt
 import seaborn as sns

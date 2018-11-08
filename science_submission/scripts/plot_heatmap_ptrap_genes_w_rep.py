@@ -10,6 +10,7 @@ using 6 ptraps based on what images I had from miriam.
 import pandas as pd
 from scipy import ndimage
 import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 import matplotlib.pyplot as plt
 import seaborn as sns

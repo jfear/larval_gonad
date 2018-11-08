@@ -9,6 +9,7 @@ ranging from 0-10. There were no 10s so I scaled down to 0-8.
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, dendrogram
 import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 import matplotlib.pyplot as plt
 import seaborn as sns

@@ -5,6 +5,7 @@ Plots the tpm normalized zscores of all genes as a heatmap.
 
 import pandas as pd
 import matplotlib as mpl
+mpl.use('Agg')
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans

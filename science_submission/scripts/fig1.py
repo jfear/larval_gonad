@@ -1,6 +1,7 @@
 """Figure 1. Identification, annotation and validation of clusters."""
 
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 
