@@ -1,0 +1,473 @@
+"""Testis Single Cell Workflow."""
+import sys
+import os
+from textwrap import dedent
+import yaml
+import tempfile
+import pandas as pd
+from lcdblib.snakemake import helpers, aligners
+from lcdblib.utils import utils
+from larval_gonad.normalization import rpkm, cpm, tpm
+from larval_gonad.config import config as sconfig
+from larval_gonad.scRNAseq import Seurat
+
+sys.path.insert(0, srcdir('../lcdb-wf'))
+from lib import common
+from lib.patterns_targets import RNASeqConfig
+
+
+configfile: 'config/config.yaml'
+shell.prefix('set -euo pipefail; export TMPDIR={};'.format(common.tempdir_for_biowulf()))
+shell.executable('/bin/bash')
+
+c = RNASeqConfig(config, 'config/translocation_patterns.yaml')
+
+
+# ----------------------------------------------------------------------------
+# RULES
+# ----------------------------------------------------------------------------
+final_targets = utils.flatten((
+    utils.flatten(c.targets['cellranger']['bam']),
+#    utils.flatten(c.targets['cellranger_force']['bam']),
+#    '../output/translocation-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
+#    '../output/translocation-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
+#    '../output/translocation-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
+#    '../output/translocation-wf/scrnaseq_rep3_force/scrnaseq_rep3_force.html',
+#    '../output/translocation-wf/germcell_deg/germcell_differential_expression.html',
+#    '../output/translocation-wf/germcell_soma_deg/germcell_soma_differential_expression.html',
+#    '../output/translocation-wf/seurat_norm_by_cluster.parquet',
+#    '../output/translocation-wf/raw.parquet',
+#    '../output/translocation-wf/raw_by_cluster.parquet',
+#    '../output/translocation-wf/cpm.parquet',
+#    '../output/translocation-wf/rpkm.parquet',
+#    '../output/translocation-wf/tpm.parquet',
+#    '../output/translocation-wf/tpm_zscore.parquet',
+#    '../output/translocation-wf/rpkm_zscore.parquet',
+#    '../output/translocation-wf/seurat_norm_by_cluster_w_rep.parquet',
+#    '../output/translocation-wf/raw_by_cluster_w_rep.parquet',
+#    '../output/translocation-wf/cpm_w_rep.parquet',
+#    '../output/translocation-wf/rpkm_w_rep.parquet',
+#    '../output/translocation-wf/tpm_w_rep.parquet',
+#    '../output/translocation-wf/tpm_zscore_w_rep.parquet',
+#    '../output/translocation-wf/rpkm_zscore_w_rep.parquet',
+))
+
+rule targets:
+    """
+    Final targets to create
+    """
+    input: final_targets
+
+
+rule fix_gtf:
+    input:
+        gtf = [c.refdict[c.assembly][config['gtf']['tag']]['gtf']]
+    output: '../references/dmel-all-r6.16.modFix.gtf'
+    shell: """
+        awk 'BEGIN{{FS="\t"}}{{
+            if (!($9 ~ /FBgn0002781/ && ($7 == "+" || $7 == "."))){{print $0}}
+        }}' {input} > {output[0]}
+    """
+
+
+rule cellranger_mkref:
+    input:
+        gtf = rules.fix_gtf.output,
+        fasta = [c.refdict[c.assembly][config['gtf']['tag']]['fasta']]
+    output:
+        fasta = '../references/dm6.16/fasta/genome.fa',
+        gtf = '../references/dm6.16/genes/genes.gtf',
+        star = '../references/dm6.16/star/SA'
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 4
+    shell:
+        'module load cellranger/2.1.1 && '
+        'cd ../references/ && '
+        'cellranger mkref '
+        '--genome=dm6.16 '
+        '--fasta={input.fasta} '
+        '--genes={input.gtf} '
+        '--nthreads={threads} '
+        '--memgb={resources.mem_gb} '
+
+rule cellranger:
+    input:
+        ref = rules.cellranger_mkref.output.star,
+    output: '{sample_dir}/{sample,testis_trans1|testis_trans2}/outs/possorted_genome_bam.bam'
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 25,
+        time_hr = lambda wildcards, attempt: attempt * 24
+    run:
+        stable = c.sampletable.set_index('samplename')
+        record = stable.loc[wildcards.sample, :]
+        sample = record['sample']
+        fname = record['orig_filename']
+        cmd = (
+            f'module load cellranger/2.1.1 && '
+            f'cd {c.sample_dir} && '
+            f'rm -rf {wildcards.sample} &&'
+            f'cellranger count '
+            f'--id={wildcards.sample} '
+            f'--transcriptome=../../../references/dm6.16 '
+            f'--fastqs=../../{fname} '
+            f'--sample={sample} '
+            f'--localcores={threads} '
+            f'--localmem={resources.mem_gb} '
+        )
+        shell(cmd)
+
+
+rule cellranger_force:
+    input:
+        ref = rules.cellranger_mkref.output.star,
+    output:
+        bam='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/possorted_genome_bam.bam',
+        h5='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/filtered_gene_bc_matrices_h5.h5'
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 25,
+        time_hr = lambda wildcards, attempt: attempt * 24
+    run:
+        stable = c.sampletable.set_index('samplename')
+        record = stable.loc[wildcards.sample, :]
+        sample = record['sample']
+        fname = record['orig_filename']
+        cmd = (
+            f'module load cellranger/2.1.1 && '
+            f'cd {c.sample_dir} && '
+            f'rm -rf {wildcards.sample}_force &&'
+            f'cellranger count '
+            f'--id={wildcards.sample}_force '
+            f'--transcriptome=../../../references/dm6.16 '
+            f'--fastqs={fname} '
+            f'--sample={sample} '
+            f'--localcores={threads} '
+            f'--localmem={resources.mem_gb} '
+            f'--force-cells=3000 '
+        )
+        shell(cmd)
+
+
+rule translocation_r1:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1='../output/translocations-wf/scrnaseq_samples/testis_trans1_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/translocation_rep1_force.Rmd',
+    output:
+        html='../output/translocations-wf/translocation_rep1_force/scrnaseq_rep1_force.html',
+        raw='../output/translocations-wf/translocation_rep1_force/raw.tsv',
+        norm='../output/translocations-wf/translocation_rep1_force/normalized_read_counts.tsv',
+        cluster='../output/translocations-wf/translocation_rep1_force/clusters.tsv',
+        tsne='../output/translocations-wf/translocation_rep1_force/tsne.tsv',
+        robj='../output/translocations-wf/translocation_rep1_force/seurat.Robj',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/translocation_rep1_force.html {output.html}
+    """
+
+
+rule translocation_r2:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1='../output/translocations-wf/scrnaseq_samples/testis_trans2_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/scrnaseq_rep2_force.Rmd',
+    output:
+        html='../output/translocations-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
+        raw='../output/translocations-wf/scrnaseq_rep2_force/raw.tsv',
+        norm='../output/translocations-wf/scrnaseq_rep2_force/normalized_read_counts.tsv',
+        cluster='../output/translocations-wf/scrnaseq_rep2_force/clusters.tsv',
+        tsne='../output/translocations-wf/scrnaseq_rep2_force/tsne.tsv',
+        robj='../output/translocations-wf/scrnaseq_rep2_force/seurat.Robj',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_rep2_force.html {output.html}
+    """
+
+
+rule scrnaseq_combine:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1=utils.flatten(c.targets['cellranger_force']['filtered_h5']),
+        rmd='scripts/scrnaseq_combine_force.Rmd',
+    output:
+        html='../output/translocations-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
+        raw='../output/translocations-wf/scrnaseq_combine_force/raw.tsv',
+        norm='../output/translocations-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+        cluster='../output/translocations-wf/scrnaseq_combine_force/clusters.tsv',
+        tsne='../output/translocations-wf/scrnaseq_combine_force/tsne.tsv',
+        robj='../output/translocations-wf/scrnaseq_combine_force/seurat.Robj',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_combine_force.html {output.html}
+    """
+
+
+rule germcell_rmarkdown:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        robj=rules.scrnaseq_combine.output.robj,
+        rmd='scripts/germcell_differential_expression.Rmd',
+    output:
+        html='../output/translocations-wf/germcell_deg/germcell_differential_expression.html',
+        c1='../output/translocations-wf/germcell_deg/gonia_vs_cytes.tsv',
+        c2='../output/translocations-wf/germcell_deg/gonia_vs_cytes_plus_11.tsv',
+        c3='../output/translocations-wf/germcell_deg/gonia_vs_early.tsv',
+        c4='../output/translocations-wf/germcell_deg/gonia_vs_mid.tsv',
+        c5='../output/translocations-wf/germcell_deg/gonia_vs_late.tsv',
+        c6='../output/translocations-wf/germcell_deg/gonia_vs_eleven.tsv',
+        c7='../output/translocations-wf/germcell_deg/early_vs_mid.tsv',
+        c8='../output/translocations-wf/germcell_deg/early_vs_late.tsv',
+        c9='../output/translocations-wf/germcell_deg/early_vs_eleven.tsv',
+        c10='../output/translocations-wf/germcell_deg/mid_vs_late.tsv',
+        c11='../output/translocations-wf/germcell_deg/mid_vs_eleven.tsv',
+        c12='../output/translocations-wf/germcell_deg/late_vs_eleven.tsv',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/germcell_differential_expression.html {output.html}
+    """
+
+
+rule germ_soma_rmarkdown:
+    """
+    Run and render the RMarkdown file that performs differential expression between germ cell and soma.
+    """
+    input:
+        robj=rules.scrnaseq_combine.output.robj,
+        rmd='scripts/germcell_soma_differential_expression.Rmd',
+    output:
+        html='../output/translocations-wf/germcell_soma_deg/germcell_soma_differential_expression.html',
+        c1='../output/translocations-wf/germcell_soma_deg/germ_vs_soma.tsv',
+        c2='../output/translocations-wf/germcell_soma_deg/germ_vs_cysts.tsv',
+        c3='../output/translocations-wf/germcell_soma_deg/germ_vs_terminal_epithelium.tsv',
+        c4='../output/translocations-wf/germcell_soma_deg/germ_vs_pigment.tsv',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/germcell_soma_differential_expression.html {output.html}
+    """
+
+
+rule raw:
+    input: '../output/translocations-wf/scrnaseq_combine_force/raw.tsv',
+    output: '../output/translocations-wf/raw.parquet'
+    run:
+        import pandas as pd
+        raw = pd.read_csv(input[0], sep='\t', index_col=0)
+        raw.index.name = 'FBgn'
+        raw.to_parquet(output[0])
+
+
+rule agg_raw_counts:
+    input:
+        cnts = '../output/translocations-wf/scrnaseq_combine_force/raw.tsv',
+        clusters = '../output/translocations-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/translocations-wf/raw_by_cluster.parquet'
+    params:
+        seurat_dir = '../output/translocations-wf/scrnaseq_combine_force',
+        resolution = sconfig['resolution']
+    run:
+        s = Seurat(params.seurat_dir)
+        clusters = s.get_clusters(resolution=params.resolution)
+        raw = s.get_raw().T.join(clusters).groupby('cluster').sum().T
+        raw.columns = [sconfig['cluster_annot'][x] for x in raw.columns]
+        raw.index.name = 'FBgn'
+        raw[sconfig['cluster_order']].to_parquet(output[0])
+
+
+rule agg_raw_counts_w_rep:
+    input:
+        cnts = '../output/translocations-wf/scrnaseq_combine_force/raw.tsv',
+        clusters = '../output/translocations-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/translocations-wf/raw_by_cluster_w_rep.parquet'
+    params:
+        seurat_dir = '../output/translocations-wf/scrnaseq_combine_force',
+        resolution = sconfig['resolution']
+    run:
+        s = Seurat(params.seurat_dir)
+        clusters = s.get_clusters(resolution=params.resolution)
+        clusters = clusters.map(sconfig['cluster_annot'])
+        rep = clusters.index.str.extract(r'(?P<rep>rep\d)')
+        rep.index = clusters.index
+
+        raw = s.get_raw().T.join(clusters).join(rep).groupby(['cluster', 'rep']).sum().T
+        raw.index.name = 'FBgn'
+        raw = raw.loc[:, (sconfig['cluster_order'], slice(None))]
+        raw.columns = raw.columns.to_series().apply(lambda x: '{0}-{1}'.format(*x)).values
+        raw.to_parquet(output[0])
+
+
+rule agg_norm_counts:
+    input:
+        cnts = '../output/translocations-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+        clusters = '../output/translocations-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/translocations-wf/seurat_norm_by_cluster.parquet'
+    params:
+        seurat_dir = '../output/translocations-wf/scrnaseq_combine_force',
+        resolution = sconfig['resolution']
+    run:
+        s = Seurat(params.seurat_dir)
+        clusters = s.get_clusters(resolution=params.resolution)
+        norm = s.get_normalized_read_counts().T.join(clusters).groupby('cluster').sum().T
+        norm.columns = [sconfig['cluster_annot'][x] for x in norm.columns]
+        norm.index.name = 'FBgn'
+        norm[sconfig['cluster_order']].to_parquet(output[0])
+
+
+rule agg_norm_counts_w_rep:
+    input:
+        cnts = '../output/translocations-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+        clusters = '../output/translocations-wf/scrnaseq_combine_force/clusters.tsv',
+    output: '../output/translocations-wf/seurat_norm_by_cluster_w_rep.parquet'
+    params:
+        seurat_dir = '../output/translocations-wf/scrnaseq_combine_force',
+        resolution = sconfig['resolution']
+    run:
+        s = Seurat(params.seurat_dir)
+        clusters = s.get_clusters(resolution=params.resolution)
+        clusters = clusters.map(sconfig['cluster_annot'])
+        rep = clusters.index.str.extract(r'(?P<rep>rep\d)')
+        rep.index = clusters.index
+
+        norm = s.get_normalized_read_counts().T.join(clusters).join(rep).groupby(['cluster', 'rep']).sum().T
+        norm.index.name = 'FBgn'
+        norm = norm.loc[:, (sconfig['cluster_order'], slice(None))]
+        norm.columns = norm.columns.to_series().apply(lambda x: '{0}-{1}'.format(*x)).values
+        norm.to_parquet(output[0])
+
+
+rule cpm:
+    input:
+        cnts = '../output/translocations-wf/raw_by_cluster.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: '../output/translocations-wf/cpm.parquet',
+    run:
+        from larval_gonad.normalization import cpm
+        raw = pd.read_parquet(input.cnts)
+        res = cpm(raw)
+        res.to_parquet(output[0])
+
+
+rule cpm_w_rep:
+    input:
+        cnts = '../output/translocations-wf/raw_by_cluster_w_rep.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: '../output/translocations-wf/cpm_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import cpm
+        raw = pd.read_parquet(input.cnts)
+        res = cpm(raw)
+        res.to_parquet(output[0])
+
+
+rule rpkm:
+    input:
+        cnts = '../output/translocations-wf/raw_by_cluster.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: '../output/translocations-wf/rpkm.parquet',
+    run:
+        from larval_gonad.normalization import rpkm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens[raw.index.tolist()]
+
+        res = rpkm(raw, lens)
+        res.to_parquet(output[0])
+
+
+rule rpkm_w_rep:
+    input:
+        cnts = '../output/translocations-wf/raw_by_cluster_w_rep.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: '../output/translocations-wf/rpkm_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import rpkm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens[raw.index.tolist()]
+
+        res = rpkm(raw, lens)
+        res.to_parquet(output[0])
+
+
+rule tpm:
+    input:
+        cnts = '../output/translocations-wf/raw_by_cluster.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: '../output/translocations-wf/tpm.parquet',
+    run:
+        from larval_gonad.normalization import tpm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens[raw.index.tolist()]
+
+        res = tpm(raw, lens)
+        res.to_parquet(output[0])
+
+
+rule tpm_w_rep:
+    input:
+        cnts = '../output/translocations-wf/raw_by_cluster_w_rep.parquet',
+        lens = '../output/gene_ts_lengths.tsv'
+    output: '../output/translocations-wf/tpm_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import tpm
+        raw = pd.read_parquet(input.cnts)
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = lens[raw.index.tolist()]
+
+        res = tpm(raw, lens)
+        res.to_parquet(output[0])
+
+
+rule tpm_zscore:
+    input:
+        cnts = '../output/translocations-wf/tpm.parquet',
+    output: '../output/translocations-wf/tpm_zscore.parquet',
+    run:
+        from larval_gonad.normalization import zscore
+        tpm = pd.read_parquet(input.cnts)
+        res = zscore(tpm)
+        res.to_parquet(output[0])
+
+
+rule tpm_zscore_w_rep:
+    input:
+        cnts = '../output/translocations-wf/tpm_w_rep.parquet',
+    output: '../output/translocations-wf/tpm_zscore_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import zscore
+        tpm = pd.read_parquet(input.cnts)
+        res = zscore(tpm)
+        res.to_parquet(output[0])
+
+
+rule rpkm_zscore:
+    input:
+        cnts = '../output/translocations-wf/rpkm.parquet',
+    output: '../output/translocations-wf/rpkm_zscore.parquet',
+    run:
+        from larval_gonad.normalization import zscore
+        rpkm = pd.read_parquet(input.cnts)
+        res = zscore(rpkm)
+        res.to_parquet(output[0])
+
+
+rule rpkm_zscore_w_rep:
+    input:
+        cnts = '../output/translocations-wf/rpkm_w_rep.parquet',
+    output: '../output/translocations-wf/rpkm_zscore_w_rep.parquet',
+    run:
+        from larval_gonad.normalization import zscore
+        rpkm = pd.read_parquet(input.cnts)
+        res = zscore(rpkm)
+        res.to_parquet(output[0])
