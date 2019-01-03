@@ -52,6 +52,7 @@ final_targets = utils.flatten((
     '../output/scrnaseq-wf/rpkm_zscore_w_rep.parquet',
 ))
 
+
 rule targets:
     """
     Final targets to create
@@ -212,12 +213,32 @@ rule scrnaseq_r3:
     """
 
 
+rule scrnaseq_r4:
+    """
+    Run and render the RMarkdown file that performs differential expression
+    """
+    input:
+        mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis4_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/scrnaseq_rep4_force.Rmd',
+    output:
+        html='../output/scrnaseq-wf/scrnaseq_rep4_force/scrnaseq_rep3_force.html',
+        raw='../output/scrnaseq-wf/scrnaseq_rep4_force/raw.tsv',
+        norm='../output/scrnaseq-wf/scrnaseq_rep4_force/normalized_read_counts.tsv',
+        cluster='../output/scrnaseq-wf/scrnaseq_rep4_force/clusters.tsv',
+        tsne='../output/scrnaseq-wf/scrnaseq_rep4_force/tsne.tsv',
+        robj='../output/scrnaseq-wf/scrnaseq_rep4_force/seurat.Robj',
+    shell: """
+        Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
+        mv scripts/scrnaseq_rep4_force.html {output.html}
+    """
+
+
 rule scrnaseq_combine:
     """
     Run and render the RMarkdown file that performs differential expression
     """
     input:
-        mtx1=utils.flatten(c.targets['cellranger_force']['filtered_h5']),
+        mtx1=sorted(utils.flatten(c.targets['cellranger_force']['filtered_h5']))[:-1],
         rmd='scripts/scrnaseq_combine_force.Rmd',
     output:
         html='../output/scrnaseq-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
