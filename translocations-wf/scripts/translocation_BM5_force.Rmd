@@ -1,5 +1,5 @@
 ---
-title: Run Seurat on Testis Translocation Rep 1
+title: Run Seurat on Testis Translocation BM5
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
@@ -18,7 +18,7 @@ library(dplyr)
 library(Matrix)
 library(data.table)
 
-OUTDIR <- '../../output/translocations-wf/translocation_rep1_force'
+OUTDIR <- '../../output/translocations-wf/translocation_BM5_force'
 dir.create(file.path(OUTDIR), showWarnings = FALSE)
 REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
 params <- c(0.4, 0.6, 1)

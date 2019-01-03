@@ -28,7 +28,7 @@ c = RNASeqConfig(config, 'config/translocation_patterns.yaml')
 # ----------------------------------------------------------------------------
 final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger']['bam']),
-#    utils.flatten(c.targets['cellranger_force']['bam']),
+    utils.flatten(c.targets['cellranger_force']['bam']),
 #    '../output/translocation-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
 #    '../output/translocation-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
 #    '../output/translocation-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
@@ -92,10 +92,11 @@ rule cellranger_mkref:
         '--nthreads={threads} '
         '--memgb={resources.mem_gb} '
 
+
 rule cellranger:
     input:
         ref = rules.cellranger_mkref.output.star,
-    output: '{sample_dir}/{sample,testis_trans1|testis_trans2}/outs/possorted_genome_bam.bam'
+    output: '{sample_dir}/{sample,testis_BM5|testis_BM21}/outs/possorted_genome_bam.bam'
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 25,
@@ -124,8 +125,8 @@ rule cellranger_force:
     input:
         ref = rules.cellranger_mkref.output.star,
     output:
-        bam='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/possorted_genome_bam.bam',
-        h5='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/filtered_gene_bc_matrices_h5.h5'
+        bam='{sample_dir}/{sample,testis_BM5|testis_BM21}_force/outs/possorted_genome_bam.bam',
+        h5='{sample_dir}/{sample,testis_BM5|testis_BM21}_force/outs/filtered_gene_bc_matrices_h5.h5'
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 25,
@@ -151,23 +152,23 @@ rule cellranger_force:
         shell(cmd)
 
 
-rule translocation_r1:
+rule translocation_BM5:
     """
     Run and render the RMarkdown file that performs differential expression
     """
     input:
-        mtx1='../output/translocations-wf/scrnaseq_samples/testis_trans1_force/outs/filtered_gene_bc_matrices_h5.h5',
-        rmd='scripts/translocation_rep1_force.Rmd',
+        mtx1='../output/translocations-wf/scrnaseq_samples/testis_BM5_force/outs/filtered_gene_bc_matrices_h5.h5',
+        rmd='scripts/translocation_BM5_force.Rmd',
     output:
-        html='../output/translocations-wf/translocation_rep1_force/scrnaseq_rep1_force.html',
-        raw='../output/translocations-wf/translocation_rep1_force/raw.tsv',
-        norm='../output/translocations-wf/translocation_rep1_force/normalized_read_counts.tsv',
-        cluster='../output/translocations-wf/translocation_rep1_force/clusters.tsv',
-        tsne='../output/translocations-wf/translocation_rep1_force/tsne.tsv',
-        robj='../output/translocations-wf/translocation_rep1_force/seurat.Robj',
+        html='../output/translocations-wf/translocation_BM5_force/scrnaseq_rep1_force.html',
+        raw='../output/translocations-wf/translocation_BM5_force/raw.tsv',
+        norm='../output/translocations-wf/translocation_BM5_force/normalized_read_counts.tsv',
+        cluster='../output/translocations-wf/translocation_BM5_force/clusters.tsv',
+        tsne='../output/translocations-wf/translocation_BM5_force/tsne.tsv',
+        robj='../output/translocations-wf/translocation_BM5_force/seurat.Robj',
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
-        mv scripts/translocation_rep1_force.html {output.html}
+        mv scripts/translocation_BM5_force.html {output.html}
     """
 
 
