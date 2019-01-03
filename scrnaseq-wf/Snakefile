@@ -33,6 +33,7 @@ final_targets = utils.flatten((
     '../output/scrnaseq-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
     '../output/scrnaseq-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
     '../output/scrnaseq-wf/scrnaseq_rep3_force/scrnaseq_rep3_force.html',
+    '../output/scrnaseq-wf/scrnaseq_rep4_force/scrnaseq_rep4_force.html',
     '../output/scrnaseq-wf/germcell_deg/germcell_differential_expression.html',
     '../output/scrnaseq-wf/germcell_soma_deg/germcell_soma_differential_expression.html',
     '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
@@ -97,7 +98,7 @@ rule cellranger_mkref:
 rule cellranger:
     input:
         ref = rules.cellranger_mkref.output.star,
-    output: '{sample_dir}/{sample,testis1|testis2|testis3}/outs/possorted_genome_bam.bam'
+    output: '{sample_dir}/{sample,testis1|testis2|testis3|testis4}/outs/possorted_genome_bam.bam'
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 25,
@@ -126,8 +127,8 @@ rule cellranger_force:
     input:
         ref = rules.cellranger_mkref.output.star,
     output:
-        bam='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/possorted_genome_bam.bam',
-        h5='{sample_dir}/{sample,testis1|testis2|testis3}_force/outs/filtered_gene_bc_matrices_h5.h5'
+        bam='{sample_dir}/{sample,testis1|testis2|testis3|testis4}_force/outs/possorted_genome_bam.bam',
+        h5='{sample_dir}/{sample,testis1|testis2|testis3|testis4}_force/outs/filtered_gene_bc_matrices_h5.h5'
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 25,
@@ -221,7 +222,7 @@ rule scrnaseq_r4:
         mtx1='../output/scrnaseq-wf/scrnaseq_samples/testis4_force/outs/filtered_gene_bc_matrices_h5.h5',
         rmd='scripts/scrnaseq_rep4_force.Rmd',
     output:
-        html='../output/scrnaseq-wf/scrnaseq_rep4_force/scrnaseq_rep3_force.html',
+        html='../output/scrnaseq-wf/scrnaseq_rep4_force/scrnaseq_rep4_force.html',
         raw='../output/scrnaseq-wf/scrnaseq_rep4_force/raw.tsv',
         norm='../output/scrnaseq-wf/scrnaseq_rep4_force/normalized_read_counts.tsv',
         cluster='../output/scrnaseq-wf/scrnaseq_rep4_force/clusters.tsv',
