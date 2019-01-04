@@ -143,7 +143,7 @@ rule cellranger_force:
             f'cellranger count '
             f'--id={wildcards.sample}_force '
             f'--transcriptome=../../../references/dm6.16 '
-            f'--fastqs={fname} '
+            f'--fastqs=../../{fname} '
             f'--sample={sample} '
             f'--localcores={threads} '
             f'--localmem={resources.mem_gb} '
