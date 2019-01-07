@@ -65,6 +65,9 @@ rule fix_gtf:
     input:
         gtf = [c.refdict[c.assembly][config['gtf']['tag']]['gtf']]
     output: '../references/dmel-all-r6.16.modFix.gtf'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 1
     shell: """
         awk 'BEGIN{{FS="\t"}}{{
             if (!($9 ~ /FBgn0002781/ && ($7 == "+" || $7 == "."))){{print $0}}
@@ -168,6 +171,9 @@ rule scrnaseq_r1:
         cluster='../output/scrnaseq-wf/scrnaseq_rep1_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep1_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep1_force/seurat.Robj',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 16,
+        time_hr = lambda wildcards, attempt: attempt * 8
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/scrnaseq_rep1_force.html {output.html}
@@ -188,6 +194,9 @@ rule scrnaseq_r2:
         cluster='../output/scrnaseq-wf/scrnaseq_rep2_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep2_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep2_force/seurat.Robj',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 16,
+        time_hr = lambda wildcards, attempt: attempt * 8
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/scrnaseq_rep2_force.html {output.html}
@@ -208,6 +217,9 @@ rule scrnaseq_r3:
         cluster='../output/scrnaseq-wf/scrnaseq_rep3_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep3_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep3_force/seurat.Robj',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 16,
+        time_hr = lambda wildcards, attempt: attempt * 8
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/scrnaseq_rep3_force.html {output.html}
@@ -228,6 +240,9 @@ rule scrnaseq_r4:
         cluster='../output/scrnaseq-wf/scrnaseq_rep4_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_rep4_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_rep4_force/seurat.Robj',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 16,
+        time_hr = lambda wildcards, attempt: attempt * 8
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/scrnaseq_rep4_force.html {output.html}
@@ -248,6 +263,9 @@ rule scrnaseq_combine:
         cluster='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
         tsne='../output/scrnaseq-wf/scrnaseq_combine_force/tsne.tsv',
         robj='../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 16,
+        time_hr = lambda wildcards, attempt: attempt * 8
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/scrnaseq_combine_force.html {output.html}
@@ -275,6 +293,9 @@ rule germcell_rmarkdown:
         c10='../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv',
         c11='../output/scrnaseq-wf/germcell_deg/mid_vs_eleven.tsv',
         c12='../output/scrnaseq-wf/germcell_deg/late_vs_eleven.tsv',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 4
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/germcell_differential_expression.html {output.html}
@@ -294,6 +315,9 @@ rule germ_soma_rmarkdown:
         c2='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_cysts.tsv',
         c3='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_terminal_epithelium.tsv',
         c4='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_pigment.tsv',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 4
     shell: """
         Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" &&
         mv scripts/germcell_soma_differential_expression.html {output.html}
@@ -303,6 +327,9 @@ rule germ_soma_rmarkdown:
 rule raw:
     input: '../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
     output: '../output/scrnaseq-wf/raw.parquet'
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         import pandas as pd
         raw = pd.read_csv(input[0], sep='\t', index_col=0)
@@ -318,6 +345,9 @@ rule agg_raw_counts:
     params:
         seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         s = Seurat(params.seurat_dir)
         clusters = s.get_clusters(resolution=params.resolution)
@@ -335,6 +365,9 @@ rule agg_raw_counts_w_rep:
     params:
         seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         s = Seurat(params.seurat_dir)
         clusters = s.get_clusters(resolution=params.resolution)
@@ -357,6 +390,9 @@ rule agg_norm_counts:
     params:
         seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         s = Seurat(params.seurat_dir)
         clusters = s.get_clusters(resolution=params.resolution)
@@ -374,6 +410,9 @@ rule agg_norm_counts_w_rep:
     params:
         seurat_dir = '../output/scrnaseq-wf/scrnaseq_combine_force',
         resolution = sconfig['resolution']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         s = Seurat(params.seurat_dir)
         clusters = s.get_clusters(resolution=params.resolution)
@@ -393,6 +432,9 @@ rule cpm:
         cnts = '../output/scrnaseq-wf/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/cpm.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import cpm
         raw = pd.read_parquet(input.cnts)
@@ -405,6 +447,9 @@ rule cpm_w_rep:
         cnts = '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/cpm_w_rep.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import cpm
         raw = pd.read_parquet(input.cnts)
@@ -417,6 +462,9 @@ rule rpkm:
         cnts = '../output/scrnaseq-wf/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/rpkm.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import rpkm
         raw = pd.read_parquet(input.cnts)
@@ -432,6 +480,9 @@ rule rpkm_w_rep:
         cnts = '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/rpkm_w_rep.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import rpkm
         raw = pd.read_parquet(input.cnts)
@@ -447,6 +498,9 @@ rule tpm:
         cnts = '../output/scrnaseq-wf/raw_by_cluster.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/tpm.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import tpm
         raw = pd.read_parquet(input.cnts)
@@ -462,6 +516,9 @@ rule tpm_w_rep:
         cnts = '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
         lens = '../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/tpm_w_rep.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import tpm
         raw = pd.read_parquet(input.cnts)
@@ -476,6 +533,9 @@ rule tpm_zscore:
     input:
         cnts = '../output/scrnaseq-wf/tpm.parquet',
     output: '../output/scrnaseq-wf/tpm_zscore.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import zscore
         tpm = pd.read_parquet(input.cnts)
@@ -487,6 +547,9 @@ rule tpm_zscore_w_rep:
     input:
         cnts = '../output/scrnaseq-wf/tpm_w_rep.parquet',
     output: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import zscore
         tpm = pd.read_parquet(input.cnts)
@@ -498,6 +561,9 @@ rule rpkm_zscore:
     input:
         cnts = '../output/scrnaseq-wf/rpkm.parquet',
     output: '../output/scrnaseq-wf/rpkm_zscore.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import zscore
         rpkm = pd.read_parquet(input.cnts)
@@ -509,6 +575,9 @@ rule rpkm_zscore_w_rep:
     input:
         cnts = '../output/scrnaseq-wf/rpkm_w_rep.parquet',
     output: '../output/scrnaseq-wf/rpkm_zscore_w_rep.parquet',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 8,
+        time_hr = lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.normalization import zscore
         rpkm = pd.read_parquet(input.cnts)
