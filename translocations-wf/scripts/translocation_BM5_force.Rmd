@@ -28,7 +28,7 @@ fbgn2chrom <- read.table('../../output/fbgn2chrom.tsv', header=T)
 fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
 mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
 rep <- 'rep1'
-data.dir <- '../../output/translocations-wf/scrnaseq_samples/testis1_force/outs/filtered_gene_bc_matrices/dm6.16'
+data.dir <- '../../output/translocations-wf/scrnaseq_samples/testis_BM5_force/outs/filtered_gene_bc_matrices/dm6.16'
 ```
 
 ```{r load.data.func}
@@ -38,6 +38,7 @@ sobj <- CreateSeuratObject(
   raw.data = tenX.data,
   min.cells = 3,
   min.genes = 200,
+  max.genes = 6000,
   project = 'GroupCluster',
   display.progress = FALSE
 )
@@ -56,7 +57,8 @@ VlnPlot(
 sobj <- FilterCells(
   object = sobj,
   subset.names = "nGene",
-  low.thresholds = 200
+  low.thresholds = 200,
+  high.thresholds = 6000
 )
 ```
 
@@ -111,15 +113,15 @@ PCElbowPlot(object = sobj)
 ```{r find_clusters}
 sobj <- FindClusters(object = sobj, 
                      reduction.type = "pca", 
-                     resolution = .6, 
-                     dims.use = 1:5, 
+                     resolution = c(.4, .6, 1),
+                     dims.use = 1:6, 
                      save.SNN = FALSE, 
                      print.output = FALSE
                      )
 ```
 
 ```{r run_tsne}
-sobj <- RunTSNE(sobj, reduction.use = "pca", dims.use = 1:5, do.fast = TRUE)
+sobj <- RunTSNE(sobj, reduction.use = "pca", dims.use = 1:6, do.fast = TRUE)
 
 p1 <- TSNEPlot(sobj, do.return = T, pt.size = 0.5, group.by = "rep")
 p2 <- TSNEPlot(sobj, do.label = T, do.return = T, pt.size = 0.5)
@@ -134,12 +136,14 @@ dump_seurat(object = sobj, dir = OUTDIR)
 ```
 
 ```{r save.biomarkers}
-name <- paste0('res.', 0.6)
-sobj <- SetAllIdent(sobj, id = name)
-
-# Get markers ignoring replicate.
-fname <- paste0('biomarkers_', name, '.tsv')
-markers <- FindAllMarkers(object = sobj, only.pos = TRUE, print.bar = FALSE)
-markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
-save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+for (res in c(.4, .6, 1)){
+    name <- paste0('res.', res)
+    sobj <- SetAllIdent(sobj, id = name)
+    
+    # Get markers ignoring replicate.
+    fname <- paste0('biomarkers_', name, '.tsv')
+    markers <- FindAllMarkers(object = sobj, only.pos = TRUE, print.bar = FALSE)
+    markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+    save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+}
 ```

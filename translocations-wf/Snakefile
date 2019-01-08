@@ -29,6 +29,7 @@ c = RNASeqConfig(config, 'config/translocation_patterns.yaml')
 final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger']['bam']),
     utils.flatten(c.targets['cellranger_force']['bam']),
+    '../output/translocations-wf/translocation_BM5_force/BM5_force.html',
 #    '../output/translocation-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
 #    '../output/translocation-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
 #    '../output/translocation-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
@@ -160,7 +161,7 @@ rule translocation_BM5:
         mtx1='../output/translocations-wf/scrnaseq_samples/testis_BM5_force/outs/filtered_gene_bc_matrices_h5.h5',
         rmd='scripts/translocation_BM5_force.Rmd',
     output:
-        html='../output/translocations-wf/translocation_BM5_force/scrnaseq_rep1_force.html',
+        html='../output/translocations-wf/translocation_BM5_force/BM5_force.html',
         raw='../output/translocations-wf/translocation_BM5_force/raw.tsv',
         norm='../output/translocations-wf/translocation_BM5_force/normalized_read_counts.tsv',
         cluster='../output/translocations-wf/translocation_BM5_force/clusters.tsv',
