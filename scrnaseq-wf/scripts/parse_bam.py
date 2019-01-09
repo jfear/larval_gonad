@@ -1,5 +1,4 @@
 """Parse a bam file to get cell level counts by chromosomes"""
-import sys
 from typing import Dict, List
 from collections import defaultdict, namedtuple
 
@@ -9,11 +8,12 @@ import pysam
 
 CellCounts = namedtuple('CellCounts', 'cell_id chromosome number_reads')
 HEADER = 'cell_id\tchromosome\tnumber_reads\n'
+BAM_FILE = snakemake.input[0]
+COUNT_FILE = snakemake.output[0]
 
 
 def main():
-    bam_file = sys.argv[1]
-    sam_file_handler = pysam.AlignmentFile(bam_file, 'rb')
+    sam_file_handler = pysam.AlignmentFile(BAM_FILE, 'rb')
 
     chrom_counts_by_cell = []
     chrom_counts_by_cell.extend(fetch_reads_from_chromosome(sam_file_handler, '2L'))
@@ -27,10 +27,7 @@ def main():
     all_counts_sorted = sorted(chrom_counts_by_cell, key=lambda x: (x[0], x[1]))
     del chrom_counts_by_cell
 
-    if len(sys.argv) == 3:
-        write_output_to_file(all_counts_sorted, sys.argv[2])
-    else:
-        write_output_to_stdout(all_counts_sorted)
+    write_output_to_file(all_counts_sorted, COUNT_FILE)
 
 
 def fetch_reads_from_chromosome(fh, chromosome: str) -> List[CellCounts]:
@@ -59,12 +56,6 @@ def write_output_to_file(cell_counts: List[CellCounts], file_name: str):
         fh.write(HEADER)
         for row in cell_counts:
             fh.write('\t'.join(row) + '\n')
-
-
-def write_output_to_stdout(cell_counts: List[CellCounts]):
-    print(HEADER)
-    for row in cell_counts:
-        print('\t'.join(row))
 
 
 if __name__ == '__main__':
