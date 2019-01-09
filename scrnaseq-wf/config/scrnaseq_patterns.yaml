@@ -5,6 +5,7 @@ cellranger:
   filtered_h5: '{sample_dir}/{sample}/outs/filtered_gene_bc_matrices_h5.h5'
   bam: '{sample_dir}/{sample}/outs/possorted_genome_bam.bam'
   bai: '{sample_dir}/{sample}/outs/possorted_genome_bam.bam.bai'
+  bam_counts: '{sample_dir}/{sample}/outs/possorted_genome_bam.bam_counts'
 
 cellranger_force:
   raw: '{sample_dir}/{sample}_force/outs/raw_gene_bc_matrices'
@@ -13,3 +14,4 @@ cellranger_force:
   filtered_h5: '{sample_dir}/{sample}_force/outs/filtered_gene_bc_matrices_h5.h5'
   bam: '{sample_dir}/{sample}_force/outs/possorted_genome_bam.bam'
   bai: '{sample_dir}/{sample}_force/outs/possorted_genome_bam.bam.bai'
+  bam_counts: '{sample_dir}/{sample}_force/outs/possorted_genome_bam.bam_counts'

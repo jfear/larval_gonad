@@ -29,6 +29,8 @@ c = RNASeqConfig(config, 'config/scrnaseq_patterns.yaml')
 final_targets = utils.flatten((
     utils.flatten(c.targets['cellranger']['bam']),
     utils.flatten(c.targets['cellranger_force']['bam']),
+    utils.flatten(c.targets['cellranger']['bam_counts']),
+    utils.flatten(c.targets['cellranger_force']['bam_counts']),
     '../output/scrnaseq-wf/scrnaseq_combine_force/scrnaseq_combine_force.html',
     '../output/scrnaseq-wf/scrnaseq_rep1_force/scrnaseq_rep1_force.html',
     '../output/scrnaseq-wf/scrnaseq_rep2_force/scrnaseq_rep2_force.html',
@@ -155,6 +157,15 @@ rule cellranger_force:
             f'--force-cells=3000 '
         )
         shell(cmd)
+
+
+rule counts_by_chromosome:
+    input: '{prefix}.bam',
+    output: '{prefix}.bam_counts',
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 25,
+        time_hr = lambda wildcards, attempt: attempt * 4
+    script: 'scripts/parse_bam.py {input[0]} {output[0]}'
 
 
 rule scrnaseq_r1:
