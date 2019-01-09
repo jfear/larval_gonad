@@ -9,7 +9,7 @@ import numpy as np
 import scipy.stats
 
 
-def permutation_sample(data1: np.ndarray, data2: np.ndarray) -> Tuple[np.ndarray]:
+def permutation_sample(data1: np.ndarray, data2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Generate a permuted sample.
 
     Combines two arrays, randomly mixes samples and split them back out into two arrays.
@@ -65,7 +65,7 @@ def permuted_replicates(data1: np.ndarray, data2: np.ndarray, func: Callable, si
     return replicates
 
 
-def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks'):
+def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks') -> float:
     """
 
     Parameters
@@ -75,6 +75,11 @@ def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks')
     data2 : numpy.ndarray
         A numpy array of data.
     test : str
+        Which test statistic to use. If ks then use a ks 2 sample test, otherwise use a Mann-Whitney U test.
+
+    Note
+    ----
+    # TODO add description of KS test and Mann-Whitney U test.
 
     Returns
     -------
@@ -85,6 +90,7 @@ def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks')
     if test == 'ks':
         stat, _ = scipy.stats.ks_2samp(data1, data2)
     else:
+        # TODO I don't know if this is the right thing to return for the Mann-Whitney U test.
         stat, _ = scipy.stats.mannwhitneyu(data1, data2)
 
     return stat
