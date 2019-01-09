@@ -31,7 +31,7 @@ def read_config(fname, keepers=None):
 
 
 # Useful directories
-PROJECT_DIR = Path(__file__).absolute().parents[1].as_posix()
+PROJECT_DIR = Path(__file__).absolute().parents[2].as_posix()
 CONFIG_DIR = Path(PROJECT_DIR, 'config').as_posix()
 CACHE_DIR = Path('~/.cache').expanduser().as_posix()
 
