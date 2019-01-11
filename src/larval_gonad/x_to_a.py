@@ -487,26 +487,3 @@ def get_gene_sets():
 
     return genes
 
-
-# Figure elements
-
-@seurat_or_data
-@figure_element
-def fe_chrom_boxplot(cluster, data=None, seurat_dir=None, ax=None):
-    if data is None:
-        cnts = agg_all('norm', seurat_dir=seurat_dir, cluster=cluster)
-        data = cnts.to_frame().join(fbgn2chrom)
-
-    med_by_chrom = data.groupby('chrom').median().loc[CHROMS_CHR[:-1]].reset_index()
-    autosome_median = data[data.chrom.isin(MAJOR_ARMS_CHR)].cnts.median()
-
-    sns.boxplot(x='chrom', y='cnts', data=data,
-                palette=config['colors']['chrom_boxplot'],
-                order=CHROMS_CHR[:-1], showfliers=False, notch=True, ax=ax)
-
-    sns.stripplot(x='chrom', y='cnts', data=med_by_chrom, color='w',
-                  marker='d', linewidth=1, edgecolor='k', ax=ax)
-
-    ax.axhline(autosome_median, color='r', ls='--')
-
-    return ax
