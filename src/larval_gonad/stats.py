@@ -65,7 +65,7 @@ def permuted_replicates(data1: np.ndarray, data2: np.ndarray, func: Callable, si
     return replicates
 
 
-def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks') -> float:
+def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks', **kwargs) -> float:
     """
 
     Parameters
@@ -76,6 +76,9 @@ def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks')
         A numpy array of data.
     test : str
         Which test statistic to use. If ks then use a ks 2 sample test, otherwise use a Mann-Whitney U test.
+    **kwargs :
+        Keyword arguments that are passed to the test.
+
 
     Note
     ----
@@ -88,9 +91,9 @@ def enrichment_statistic(data1: np.ndarray, data2: np.ndarray, test: str = 'ks')
 
     """
     if test == 'ks':
-        stat, _ = scipy.stats.ks_2samp(data1, data2)
+        stat, _ = scipy.stats.ks_2samp(data1, data2, **kwargs)
     else:
         # TODO I don't know if this is the right thing to return for the Mann-Whitney U test.
-        stat, _ = scipy.stats.mannwhitneyu(data1, data2)
+        stat, _ = scipy.stats.mannwhitneyu(data1, data2, **kwargs)
 
     return stat
