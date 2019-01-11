@@ -36,3 +36,4 @@ tables
 *.adapters
 *.log
 *.pdf
+*.ipynb
