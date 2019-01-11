@@ -141,45 +141,83 @@ def run(g1):
     return 1 - (lt / cnt)
 
 # %%
+def run(g1, size=100):
+    x = g1.chrX / 23542271 / 1e7
+    a = g1.chr2L / 23513712 / 1e7
+    obs = np.median(x / a)
+
+    perm_results = np.empty(size)
+    for i in range(size):
+        px, pa = permutation_sample(x, a)
+        px = px / 23542271 / 1e7
+        pa = pa  / 23513712 / 1e7
+        perm_results[i] = np.median(px / pa)
+
+    return sum(perm_results <= obs) / len(perm_results)
+
+# %%
+def run(g1, size=100):
+    x = g1.chrX
+    a = g1.chr2L
+    obs = np.median(x / a)
+
+    perm_results = np.empty(size)
+    for i in range(size):
+        px, pa = permutation_sample(x, a)
+        px = px
+        pa = pa
+        perm_results[i] = np.median(px / pa)
+
+    return sum(perm_results <= obs) / len(perm_results)
+
+# %%
+from larval_gonad.stats import chromosome_permutation_test
+
+# %%
+
+
+# %%
 g1 = grps.get_group('SP')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('ES')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('MS')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('LS')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('EC')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('MC')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('LC')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('PC')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('TE')
-run(g1)
+chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -295,6 +333,7 @@ run(sp, te)
 # %%
 
 
+
 # %% [markdown]
 # ### ES
 
@@ -323,6 +362,7 @@ run(es, pc)
 run(es, te)
 
 # %%
+
 
 
 # %% [markdown]
@@ -355,7 +395,9 @@ run(ms, te)
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -388,7 +430,9 @@ run(ls, te)
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -421,7 +465,9 @@ run(ec, te)
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -454,7 +500,9 @@ run(mc, te)
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -487,7 +535,9 @@ run(lc, te)
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -520,7 +570,9 @@ run(pc, te)
 # %%
 
 
+
 # %%
+
 
 
 # %% [markdown]
@@ -553,8 +605,11 @@ run(pc, te)
 # %%
 
 
+
 # %%
 
 
+
 # %%
+
 
