@@ -59,35 +59,6 @@ def x_to_a(cluster, data=None, seurat_dir=None):
 
 
 @seurat_or_data
-def mann_whitney_by_arm(cluster, data=None, seurat_dir=None, sample=False):
-    """Calculates MannWhitney U for each chrom arm against major arms."""
-    if data is None:
-        cnts = agg_all('norm', seurat_dir=seurat_dir, cluster=cluster)
-        data = cnts.to_frame().join(fbgn2chrom)
-
-    major = data.loc[data.chrom.isin(MAJOR_ARMS_CHR), 'cnts']
-
-    res = {}
-    for chrom, dd in data.groupby('chrom'):
-
-        if chrom not in CHROMS_CHR:
-            continue
-
-        _dat = dd.cnts
-
-        if sample:
-            _, pval = mannwhitneyu(_dat,
-                                   major.sample(_dat.size, random_state=42),
-                                   alternative='less')
-        else:
-            _, pval = mannwhitneyu(_dat, major, alternative='less')
-
-        res[chrom] = pval
-
-    return pd.DataFrame(res, index=pd.Index([cluster], name='cluster'))
-
-
-@seurat_or_data
 def commonly_expressed(data=None, seurat_dir=None, read_cutoff=0):
     """Create list of genes expressed in 1/3 of cells."""
 
@@ -210,8 +181,8 @@ def x_autosome_boxplot(x, y, pvalue_cutoff=0.001, x_chrom=None, autosomes=None,
         x1, x2 = 0, 1
         iqr = sns.utils.iqr(_dat[y])
         y, h, col = iqr + iqr * 2, .6, 'k'
-        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-        plt.text((x1+x2)*.5, y+h+.01, f"{pvalue}", ha='center',
+        plt.plot([x1, x1, x2, x2], [y, y + h, y + h, y], lw=1.5, c=col)
+        plt.text((x1 + x2) * .5, y + h + .01, f"{pvalue}", ha='center',
                  va='bottom', color=col)
 
     return ax
@@ -283,9 +254,9 @@ def multi_chrom_boxplot(x, y, use_text=True, multiplier=2, ax=None, **kwargs):
         oloc = CHROMS_CHR.index(k)
         pval = clean_pvalue(v, use_text)
         y, h, col = iqr + iqr * multiplier, .4, 'k'
-        ax.plot([xloc, xloc, oloc, oloc], [y, y+h, y+h, y], lw=1, c=col)
-        ax.text((xloc+oloc)*.5, y+h+.01, f"{pval}", ha='center',
-                 va='bottom', color=col, fontsize=22)
+        ax.plot([xloc, xloc, oloc, oloc], [y, y + h, y + h, y], lw=1, c=col)
+        ax.text((xloc + oloc) * .5, y + h + .01, f"{pval}", ha='center',
+                va='bottom', color=col, fontsize=22)
         multiplier += increment
 
     try:
@@ -348,34 +319,34 @@ def multi_chrom_boxplot2(x, y, use_text=True, multiplier=2, ax=None, **kwargs):
 
     xloc = CHROMS_CHR.index('chrX')
     if pvaluesX:
-        ax.text(xloc, q3X + 1.51*iqrX, "*", ha='center', fontsize=12,
+        ax.text(xloc, q3X + 1.51 * iqrX, "*", ha='center', fontsize=12,
                 fontweight='bold')
 
     _4loc = CHROMS_CHR.index('chr4')
     if pvalues4:
-        ax.text(_4loc, q34 + 1.51*iqr4, "*", ha='center', fontsize=12,
+        ax.text(_4loc, q34 + 1.51 * iqr4, "*", ha='center', fontsize=12,
                 fontweight='bold')
 
 
 def plot_cluster_x2a(dat, fbgns, cluster_id, ax1, ax2, fbgn2chrom):
     reds = sns.color_palette('Reds')
     boxplot_colors = [
-        reds[-1],     # X
-        '#ffffff',    # 2L
-        '#ffffff',    # 2R
-        '#ffffff',    # 3L
-        '#ffffff',    # 3R
-        reds[-1],     # 4
+        reds[-1],  # X
+        '#ffffff',  # 2L
+        '#ffffff',  # 2R
+        '#ffffff',  # 3L
+        '#ffffff',  # 3R
+        reds[-1],  # 4
     ]
 
     idx = dat.query(f'cluster == {cluster_id}').index
     dat.drop('cluster', axis=1)
 
-    dataM = dat.loc[idx, fbgns].median().to_frame()\
+    dataM = dat.loc[idx, fbgns].median().to_frame() \
         .join(fbgn2chrom).query('chrom != "chrY"')
     dataM.columns = ['Normalized Expression (Median)', 'Chromosome Arm']
 
-    dataS = dat.loc[idx, fbgns].sum().to_frame()\
+    dataS = dat.loc[idx, fbgns].sum().to_frame() \
         .join(fbgn2chrom).query('chrom != "chrY"')
 
     dataS.columns = ['Normalized Expression (Sum)', 'Chromosome Arm']
