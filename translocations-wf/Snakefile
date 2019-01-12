@@ -97,7 +97,7 @@ rule cellranger_mkref:
 rule cellranger:
     input:
         ref = rules.cellranger_mkref.output.star,
-    output: '{sample_dir}/{sample,testis_BM5|testis_BM21}/outs/possorted_genome_bam.bam'
+    output: '{sample_dir}/{sample,testis_BM5|testis_BM21|testis_stock}/outs/possorted_genome_bam.bam'
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 25,
@@ -126,8 +126,8 @@ rule cellranger_force:
     input:
         ref = rules.cellranger_mkref.output.star,
     output:
-        bam='{sample_dir}/{sample,testis_BM5|testis_BM21}_force/outs/possorted_genome_bam.bam',
-        h5='{sample_dir}/{sample,testis_BM5|testis_BM21}_force/outs/filtered_gene_bc_matrices_h5.h5'
+        bam='{sample_dir}/{sample,testis_BM5|testis_BM21|testis_stock}_force/outs/possorted_genome_bam.bam',
+        h5='{sample_dir}/{sample,testis_BM5|testis_BM21|testis_stock}_force/outs/filtered_gene_bc_matrices_h5.h5'
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 25,
