@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from larval_gonad.stats import permutation_sample, chromosome_permutation_test
+from larval_gonad.stats import permutation_sample, permutation_test_chrom1_lt_chrom2
 np.random.seed(42)
 
 SAMPLE_SIZE = 1_000
@@ -58,37 +58,47 @@ def test_permutation_sample(toy_data):
 
 def test_chrom1_lt_chrom2_large_difference(chrom1_chrom2_large_difference):
     chrom1, chrom2 = chrom1_chrom2_large_difference
-    assert chromosome_permutation_test(chrom1, chrom2, size=100) <= 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) <= 0.05
 
 
 def test_chrom1_lt_chrom2_small_difference(chrom1_chrom2_small_difference):
     chrom1, chrom2 = chrom1_chrom2_small_difference
-    assert chromosome_permutation_test(chrom1, chrom2, size=100) <= 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) <= 0.05
 
 
 def test_chrom1_lt_chrom2_minute_difference(chrom1_chrom2_minute_difference):
     chrom1, chrom2 = chrom1_chrom2_minute_difference
-    assert chromosome_permutation_test(chrom1, chrom2, size=100) > 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) > 0.05
 
 
 def test_chrom1_lt_chrom2_no_difference(chrom1_chrom2_no_difference):
     chrom1, chrom2 = chrom1_chrom2_no_difference
-    assert chromosome_permutation_test(chrom1, chrom2, size=100) > 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) > 0.05
 
 
 def test_chrom1_gt_chrom2_large_difference(chrom1_chrom2_large_difference):
     chrom1, chrom2 = chrom1_chrom2_large_difference
-    assert chromosome_permutation_test(chrom2, chrom1, size=100) > 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom2, chrom1, size=100) > 0.05
 
 
 def test_chrom1_gt_chrom2_small_difference(chrom1_chrom2_small_difference):
     chrom1, chrom2 = chrom1_chrom2_small_difference
-    assert chromosome_permutation_test(chrom2, chrom1, size=100) > 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom2, chrom1, size=100) > 0.05
 
 
 def test_chrom1_gt_chrom2_no_difference(chrom1_chrom2_no_difference):
     chrom1, chrom2 = chrom1_chrom2_no_difference
-    assert chromosome_permutation_test(chrom2, chrom1, size=100) > 0.05
+    assert permutation_test_chrom1_lt_chrom2(chrom2, chrom1, size=100) > 0.05
 
 
+def test_no_difference_div_by_zero(chrom1_chrom2_no_difference):
+    chrom1, chrom2 = chrom1_chrom2_no_difference
+    chrom2[10] = 0
+    assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) > 0.05
+
+
+def test_small_difference_div_by_zero(chrom1_chrom2_small_difference):
+    chrom1, chrom2 = chrom1_chrom2_small_difference
+    chrom2[10] = 0
+    assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) <= 0.05
 

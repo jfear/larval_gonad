@@ -171,46 +171,46 @@ def run(g1, size=100):
     return sum(perm_results <= obs) / len(perm_results)
 
 # %%
-from larval_gonad.stats import chromosome_permutation_test
+from larval_gonad.stats import permutation_test_chrom1_lt_chrom2
 
 # %%
 
 
 # %%
 g1 = grps.get_group('SP')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('ES')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('MS')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('LS')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('EC')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('MC')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('LC')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('PC')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 g1 = grps.get_group('TE')
-chromosome_permutation_test(g1.chrX, g1.chr2L, alternative='less')
+permutation_test_chrom1_lt_chrom2(g1.chrX, g1.chr2L, alternative='less')
 
 # %%
 

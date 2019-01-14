@@ -41,7 +41,20 @@ def permutation_sample(data1: np.ndarray, data2: np.ndarray, seed: Union[int, bo
     return permuted_sample_1, permuted_sample_2
 
 
-def chromosome_permutation_test(chrom1: np.ndarray, chrom2: np.ndarray, size: int = 1_000, ) -> float:
+def _drop_zeros(chrom1, chrom2):
+    """Helper function to remove pairs of indexes where chrom2 is zero.
+
+    If chrom2 contains zeros then we end up with a zero division error. The easiest solution is to drop indices from
+    chrom1 and chrom2 where chrom2 == 0. This function returns the two arrays back where (chrom2 != 0).
+
+    """
+    chrom1 = np.array(chrom1)
+    chrom2 = np.array(chrom2)
+    non_zero_ids = np.where(chrom2 > 0)
+    return chrom1[non_zero_ids], chrom2[non_zero_ids]
+
+
+def permutation_test_chrom1_lt_chrom2(target_chrom: np.ndarray, autosome: np.ndarray, size: int = 1_000, ) -> float:
     """Calculates if the median chromosome ratio is extreme.
 
     Calculates the median chromosomal ratio and compares to a permutation set. A p-value <=0.05 indicates that
@@ -49,9 +62,9 @@ def chromosome_permutation_test(chrom1: np.ndarray, chrom2: np.ndarray, size: in
 
     Parameters
     ----------
-    chrom1 : np.ndarray
+    target_chrom : np.ndarray
         An array-like list or read counts from chromosome 1.
-    chrom2 : np.ndarray
+    autosome : np.ndarray
         An array-like list or read counts from chromosome 2.
     size : int
         The number of permutations to run.
@@ -62,11 +75,13 @@ def chromosome_permutation_test(chrom1: np.ndarray, chrom2: np.ndarray, size: in
         The probability of having a more extreme median ratio.
 
     """
+    target_chrom, autosome = _drop_zeros(target_chrom, autosome)
+
     func = lambda c1, c2: np.median(c1 / c2)
-    observed_median_ratio = func(chrom1, chrom2)
+    observed_median_ratio = func(target_chrom, autosome)
     permutation_results = np.empty(size)
     for i in range(size):
-        permuted_chrom1, permuted_chrom2 = permutation_sample(chrom1, chrom2)
+        permuted_chrom1, permuted_chrom2 = _drop_zeros(*permutation_sample(target_chrom, autosome))
         permutation_results[i] = func(permuted_chrom1, permuted_chrom2)
     p_value = sum(permutation_results <= observed_median_ratio) / len(permutation_results)
     return p_value
