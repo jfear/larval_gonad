@@ -4,8 +4,10 @@ This module houses various functions for helping run different types of statisti
 
 """
 from typing import Tuple, Callable, Union
+from collections import namedtuple
 
 import numpy as np
+import pandas as pd
 import scipy.stats
 
 
@@ -86,3 +88,47 @@ def permutation_test_chrom1_lt_chrom2(target_chrom: np.ndarray, autosome: np.nda
     p_value = sum(permutation_results <= observed_median_ratio) / len(permutation_results)
     return p_value
 
+
+MannWhitneyResult = namedtuple('MannWhitneyResult', 'cell_id flag_X_depleted')
+
+
+def mannwhitneyu_cell_level_x_to_autosome(chromosome: str, umi: str, data: pd.DataFrame, cell_id: str,
+                                          p_value_cutoff: float = 0.05) -> MannWhitneyResult:
+    """Calculates the Mann-Whitney U statsitic comparing median X vs median Autosome expression.
+
+    Take data from a single-cell and compares median X vs median A of expressed genes.
+
+    Parameters
+    ----------
+    chromosome : str
+        The name of the column that contains chromosome labels. Labels must be `X` or `A`.
+    umi : str
+        The name of the column that contains UMI counts.
+    data : pandas.DataFrame
+        Data from a single-cell indexed by gene_id with UMI counts and chromosome annotations.
+    cell_id : str
+        The cell id being analyzed, will be included in the return results.
+    p_value_cutoff : float
+        P-value cutoff to use.
+
+    Returns
+    -------
+    MannWhitneyResult
+        A namedtuple with (cell_id, flag_X_depleted)
+
+    """
+    if data[chromosome].unique().shape[0] == 1:
+        return MannWhitneyResult(cell_id, np.nan)
+
+    x_genes = data.query(f'{chromosome} == "X"')[umi].value
+    a_genes = data.query(f'{chromosome} == "A"')[umi].value
+
+    if x_genes.shape[0] < 100 and a_genes.shape[0] < 100:
+        return MannWhitneyResult(cell_id, np.nan)
+
+    stat, p_value = scipy.stats.mannwhitneyu(x_genes, a_genes, alternative='less')
+
+    if p_value < p_value_cutoff:
+        return MannWhitneyResult(cell_id, True)
+
+    return MannWhitneyResult(cell_id, False)
