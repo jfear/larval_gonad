@@ -173,4 +173,51 @@ _tbl = tbl.tables[1]
 _tbl[_tbl[f'P>|z|'] < 0.05]
 
 # %%
+fig = plt.figure(figsize=(10, 40))
+sm.graphics.plot_partregress_grid(result4, fig=fig);
+
+# %%
+
+
+# %%
+dat = df.query('cluster == "ES"')
+fig, [(ax1, ax2), (ax3, ax4)] = plt.subplots(2, 2, figsize=plt.figaspect(1/2), sharey=True)
+ax1.scatter(dat['x_prop_missing'], dat['flag_depleted'] + np.random.normal(scale=.05, size=dat.shape[0]))
+ax1.set_ylabel('Flag Depleted')
+ax1.set_xlabel('Prop X Missing')
+
+ax2.scatter(dat['a_prop_missing'], dat['flag_depleted'] + np.random.normal(scale=.05, size=dat.shape[0]))
+ax2.set_xlabel('Prop A Missing')
+
+ax3.scatter(dat['x_prop_missing'], dat['a_prop_missing'])
+
+# %%
+g = sns.FacetGrid(df, col='cluster', col_wrap=4, hue='flag_depleted')
+g.map(sns.regplot, 'x_prop_missing', 'a_prop_missing', fit_reg=False, scatter_kws=dict(alpha=.3))
+g.axes[3].legend(title='flag_depleted', loc=[1, 0.5])
+
+# %%
+# TODO: plot the prop depleted by prop of missingness
+
+# %%
+# TODO: variance inflation factors
+
+
+# %%
+df['diff'] = df['x_prop_missing'] - df['a_prop_missing']
+
+# %%
+results5 = smf.logit('flag_depleted ~ diff/cluster', data=df).fit()
+results5.summary2()
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
 
