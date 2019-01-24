@@ -151,7 +151,7 @@ plt.title('T2A Expression')
 ax = plt.gca()
 
 loc = 2
-for i in range(20):
+for i in range(21):
     ax.axhline(loc, color='w', lw=1)
     loc+=2
     
@@ -174,10 +174,19 @@ stock number		gene_symbol	SP	ES	MS	LS	EC	MC	LC	TE	PC	Hub
 ben = pd.read_csv(StringIO(ben_str), sep='\t', usecols=['gene_symbol', 'SP', 'ES', 'MS', 'LS', 'EC', 'MC', 'LC', 'TE', 'PC'], comment='#')
 ben.index = pd.Index(ben.gene_symbol.map(nbconfig.symbol2fbgn).values, name='FBgn')
 ben['gene_symbol'] = [f'{x}-t2a' for x in ben.gene_symbol]
-ben_data = ben.set_index('gene_symbol', append=True)
 
 # %%
-rna_data = zscore_by_cluster.reindex(ben.index).set_index('gene_symbol', append=True).dropna()
+ben
+
+# %%
+rna = zscore_by_cluster.reindex(ben.index).dropna()
+ben = ben.reindex(rna.index).dropna()
+
+# %%
+ben_data = ben.set_index('gene_symbol', append=True)
+rna_data = rna.set_index('gene_symbol', append=True)
+
+# %%
 data = pd.concat([rna_data, ben_data])
 data.index = data.index.droplevel(0)
 
@@ -215,5 +224,6 @@ ax.axvline(7, color='w', lw=1)
 
 
 # %%
+
 
 
