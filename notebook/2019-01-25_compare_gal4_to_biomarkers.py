@@ -42,6 +42,23 @@ nbconfig = Nb.setup_notebook(seurat_dir='/data/fearjm/local_data_store/larval_go
 biomarkers = nbconfig.seurat.get_biomarkers('res.0.6')
 
 # %%
+biomarkers.cluster = biomarkers.cluster.map(nbconfig.short_cluster_annot)
+
+# %%
+cyts_markers = biomarkers.query('cluster == ["EC", "MC", "LC"]').index.tolist()
+
+# %%
+# create a fbgn2symbol where symbol has '-RNA' appended
+fbgn2symbol_RNA = pd.Series([f'{x}-RNA' for x in nbconfig.fbgn2symbol.values()], index=pd.Index(nbconfig.fbgn2symbol.keys(), name='FBgn'), name= 'gene_symbol')
+
+# %%
+# Read in zscores
+zscore_by_cluster = pd.read_parquet('/data/fearjm/local_data_store/larval_gonad/output/scrnaseq-wf/tpm_zscore.parquet')[nbconfig.sel_cluster_order]
+zscore_by_cluster.columns = ['SP',  'ES',  'MS', 'LS',  'EC',  'MC', 'LC',  'TE',  'PC']
+zscore_by_cluster = zscore_by_cluster[['EC', 'MC', 'LC']].copy()
+zscore_by_cluster = zscore_by_cluster.join(fbgn2symbol_RNA)
+
+# %%
 # Read in Gal4
 gal4_str="""
 bloomington_stocks		gene_symbol	SP	ES	MS	LS	EC	MC	LC	TE	PC	Hub
@@ -68,16 +85,28 @@ bloomington_stocks		gene_symbol	SP	ES	MS	LS	EC	MC	LC	TE	PC	Hub
 48881		eya	0	0	0	0	1	1	1	0	0	0
 """
 
-gal4 = pd.read_csv(StringIO(gal4_str), sep='\t', usecols=['gene_symbol', 'SP', 'ES', 'MS', 'LS', 'EC', 'MC', 'LC', 'TE', 'PC'])
+gal4 = pd.read_csv(StringIO(gal4_str), sep='\t', usecols=['gene_symbol', 'EC', 'MC', 'LC'])
 gal4.index = pd.Index(gal4.gene_symbol.map(nbconfig.symbol2fbgn).values, name='FBgn')
+print('Not in markers: {}'.format(gal4[~gal4.index.isin(cyts_markers)].gene_symbol.tolist()))
+gal4 = gal4[gal4.index.isin(cyts_markers)]
+gal4.gene_symbol = [f'{x}_protein' for x in gal4.gene_symbol]
 
 # %%
-dat = biomarkers[biomarkers.index.isin(gal4.index)].sort_values('gene_symbol')
-dat.cluster = dat.cluster.map(nbconfig.short_cluster_annot)
-dat
+gal4_markers = biomarkers[biomarkers.index.isin(gal4.index)].sort_values('gene_symbol')
+gal4_markers
 
 # %%
-gal4[~gal4.index.isin(biomarkers.index)].gene_symbol.tolist()
+rna = zscore_by_cluster.reindex(gal4.index).dropna()
+
+dat = pd.concat([rna.set_index('gene_symbol', append=True), gal4.set_index('gene_symbol', append=True)]).sort_index()
+dat.index = dat.index.droplevel(0)
+
+ax = sns.heatmap(dat, cmap='viridis', vmin=0, vmax=3, cbar=False)
+plt.title('Gal4 Expression')
+loc = 0
+for i in range(4):
+    ax.axhline(loc, color='w', lw=2)
+    loc+=2
 
 # %%
 t2a_str = """
@@ -106,16 +135,28 @@ bloomington_stock_number		gene_symbol	SP	ES	MS	LS	EC	MC	LC	TE	PC	Hub
 		RasGAP1	0	0	0	0	2	2	2	2	0	2
 """
 
-t2a = pd.read_csv(StringIO(t2a_str), sep='\t', usecols=['gene_symbol', 'SP', 'ES', 'MS', 'LS', 'EC', 'MC', 'LC', 'TE', 'PC'])
+t2a = pd.read_csv(StringIO(t2a_str), sep='\t', usecols=['gene_symbol', 'EC', 'MC', 'LC'])
 t2a.index = pd.Index(t2a.gene_symbol.map(nbconfig.symbol2fbgn).values, name='FBgn')
+print('Not in markers: {}'.format(t2a[~t2a.index.isin(cyts_markers)].gene_symbol.tolist()))
+t2a = t2a[t2a.index.isin(cyts_markers)]
+t2a.gene_symbol = [f'{x}_protein' for x in t2a.gene_symbol]
 
 # %%
-dat = biomarkers[biomarkers.index.isin(t2a.index)].sort_values('gene_symbol')
-dat.cluster = dat.cluster.map(nbconfig.short_cluster_annot)
-dat
+t2a_markers = biomarkers[biomarkers.index.isin(t2a.index)].sort_values('gene_symbol')
+t2a_markers
 
 # %%
-t2a[~t2a.index.isin(biomarkers.index)].gene_symbol.tolist()
+rna = zscore_by_cluster.reindex(t2a.index).dropna()
+
+dat = pd.concat([rna.set_index('gene_symbol', append=True), t2a.set_index('gene_symbol', append=True)]).sort_index()
+dat.index = dat.index.droplevel(0)
+
+ax = sns.heatmap(dat, cmap='viridis', vmin=0, vmax=3, cbar=False)
+plt.title('t2a Gal4 Expression')
+loc = 0
+for i in range(10):
+    ax.axhline(loc, color='w', lw=2)
+    loc+=2
 
 # %%
 ben_str = """
@@ -129,13 +170,12 @@ stock number		gene_symbol	SP	ES	MS	LS	EC	MC	LC	TE	PC	Hub
 1660		Pburs	0	0	0	0	0	1	1	0	0	0
 """
 
-ben = pd.read_csv(StringIO(ben_str), sep='\t', usecols=['gene_symbol', 'SP', 'ES', 'MS', 'LS', 'EC', 'MC', 'LC', 'TE', 'PC'], comment='#')
+ben = pd.read_csv(StringIO(ben_str), sep='\t', usecols=['gene_symbol', 'EC', 'MC', 'LC'], comment='#')
 ben.index = pd.Index(ben.gene_symbol.map(nbconfig.symbol2fbgn).values, name='FBgn')
+print('Not in markers: {}'.format(ben[~ben.index.isin(cyts_markers)].gene_symbol.tolist()))
+ben = ben[ben.index.isin(cyts_markers)]
+ben.gene_symbol = [f'{x}_protein' for x in ben.gene_symbol]
 
 # %%
-dat = biomarkers[biomarkers.index.isin(ben.index)].sort_values('gene_symbol')
-dat.cluster = dat.cluster.map(nbconfig.short_cluster_annot)
-dat
-
-# %%
-ben[~ben.index.isin(biomarkers.index)].gene_symbol.tolist()
+ben_markers = biomarkers[biomarkers.index.isin(ben.index)].sort_values('gene_symbol')
+ben_markers
