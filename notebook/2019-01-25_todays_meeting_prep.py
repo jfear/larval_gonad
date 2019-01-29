@@ -221,7 +221,10 @@ prop_missing_by_cell_by_chrom.reset_index(inplace=True)
 dat = prop_missing_by_cell_by_chrom.join(flag_x_lt_a.astype(int), on='cell_id')
 
 # %%
-dat.head()
+g = sns.FacetGrid(dat, col='cluster', col_wrap=4)
+g.map(sns.kdeplot, 'X_missingness', label='X Missingness')
+g.map(sns.kdeplot, 'A_missingness', color='orange', label='A Missingness')
+g.axes[0].legend()
 
 # %%
 results = smf.logit('flag_x_lt_a ~ (X_missingness + A_missingness)/cluster', data=dat).fit()
@@ -325,5 +328,143 @@ prop_missing_by_cell_by_chrom.reset_index(inplace=True)
 dat = prop_missing_by_cell_by_chrom.join(flag_x_lt_a.astype(int), on='cell_id')
 
 # %%
+g = sns.FacetGrid(dat, col='cluster', col_wrap=4)
+g.map(sns.kdeplot, 'X_missingness', label='X Missingness')
+g.map(sns.kdeplot, 'A_missingness', color='orange', label='A Missingness')
+g.axes[0].legend()
+
+# %%
+
+
+# %%
 results = smf.logit('flag_x_lt_a ~ (X_missingness + A_missingness)/cluster', data=dat).fit()
 results.summary2()
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %% [markdown]
+# ### What if we focus on super commonly expressed genes
+
+# %%
+super_common = (nbconfig.seurat.get_raw() > 0).mean(axis=1) >= .5
+super_common = super_common[super_common].index.tolist()
+
+# %%
+df_common = df.query(f'FBgn == {super_common}')
+
+# %%
+cell_ids = []
+flags = []
+for cell_id, dd in df_common.groupby('cell_id'):
+    x_data = dd[dd.chrom == "X"].UMI.values
+    a_data = dd[dd.chrom == "A"].UMI.values
+    _, p_value = mannwhitneyu(x_data, a_data, alternative='less')
+    
+    if p_value <= 0.05:
+        flags.append(True)
+    else:
+        flags.append(False)
+        
+    cell_ids.append(cell_id)
+
+flag_x_lt_a = pd.Series(flags, index=pd.Index(cell_ids, name='cell_id'), name='flag_x_lt_a')
+
+# %%
+flag_x_lt_a_by_cluster = pd.concat([flag_x_lt_a, read_clusters()], axis=1, sort=True)
+flag_x_lt_a_by_cluster['rep'] = flag_x_lt_a_by_cluster.index.str.extract('(?P<rep>rep\d)', expand=False)
+
+# %%
+obs = flag_x_lt_a_by_cluster.groupby('cluster').mean()
+
+# %%
+results = []
+for i in range(10_000):
+    _df = flag_x_lt_a_by_cluster.copy()
+    _df.cluster = _df.cluster.sample(frac=1, replace=False).values
+    perm = _df.groupby('cluster').mean()
+    perm.columns = [f'permutation_{i}']
+    results.append(perm)
+
+perms = pd.concat(results, axis=1).T
+
+# %%
+ax = perms.plot(kind='kde')
+ax.set_xlabel('Proportion of Cells (X < A)')
+ax.set_title('Permuted Null Distributions by Cluster')
+
+# %%
+# Calculate p-value using permutation
+results = []
+for clus, dd in obs.groupby('cluster'):
+    _obs = dd.iloc[0, 0]
+    p_val = (perms[clus] >= _obs).mean()
+    results.append((clus, p_val))
+
+perm_pval = pd.DataFrame(results, columns=['cluster', 'p_value']).set_index('cluster').p_value
+
+# %%
+# calculate bootstrap confidence intervals for plotting
+def bootstrap(dat, n_boot=1000, estimator=np.mean):
+    results = np.empty(n_boot)
+    for i in range(n_boot):
+        results[i] = estimator(dat.sample(n=dat.shape[0], replace=True))
+    return np.percentile(results, [2.5, 97.5])
+
+prop_flag_x_lt_a = flag_x_lt_a_by_cluster.groupby(['cluster', 'rep']).flag_x_lt_a.mean().to_frame().reset_index()
+
+results = []
+for clus, dd in prop_flag_x_lt_a.groupby('cluster'):
+    low, high = bootstrap(dd.flag_x_lt_a)
+    results.append((clus, low, high))
+    
+cluster_bootstrap = pd.DataFrame(results, columns=['cluster', 'low', 'high'])
+cluster_bootstrap_w_pval = cluster_bootstrap.join(perm_pval, on='cluster')
+
+# %%
+fig, ax = plt.subplots(figsize=plt.figaspect(1/2))
+ax.plot(prop_flag_x_lt_a.groupby("cluster").flag_x_lt_a.mean().values, color='k', zorder=-10)
+sns.pointplot(x='cluster', y='flag_x_lt_a', data=prop_flag_x_lt_a, errwidth=2, capsize=.2, palette=nbconfig.colors['clusters'], zorder=10, ax=ax)
+ax.set_ylim(0, 1.1)
+ax.set_ylabel('Prop Cells')
+ax.set_title('Proprotion of Cells with X Depletion')
+
+for i, row in cluster_bootstrap_w_pval.iterrows():
+    if row.p_value <= 0.05:
+        ax.text(i, row.high, '*', ha='center', va='bottom')
+
+# %%
+prop_missing_by_cell_by_chrom = df_common.groupby(['cluster', 'cell_id', 'chrom']).missing.mean().unstack()
+prop_missing_by_cell_by_chrom.columns = [f'{x}_missingness' for x in prop_missing_by_cell_by_chrom.columns]
+prop_missing_by_cell_by_chrom.reset_index(inplace=True)
+
+# %%
+dat = prop_missing_by_cell_by_chrom.join(flag_x_lt_a.astype(int), on='cell_id')
+
+# %%
+g = sns.FacetGrid(dat, col='cluster', col_wrap=4)
+g.map(sns.kdeplot, 'X_missingness', label='X Missingness')
+g.map(sns.kdeplot, 'A_missingness', color='orange', label='A Missingness')
+g.axes[0].legend()
+
+# %%
+results = smf.logit('flag_x_lt_a ~ (X_missingness + A_missingness)/cluster', data=dat).fit()
+results.summary2()
+
+# %%
+
+
+# %%
+

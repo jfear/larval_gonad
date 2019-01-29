@@ -1,0 +1,111 @@
+"""Quick workflow to organize files for the GEO submission of testis scRNA-Seq data."""
+import pandas as pd
+
+
+workdir: '.'
+
+sample_table = pd.read_csv('config/sampletable.tsv', sep='\t')
+sample_names = sample_table['sample'].tolist()
+
+patterns = {
+    'fastq': {
+        'r1': '{sample_dir}/{sample}_S1_L001_R1_001.fastq.gz',
+        'r2': '{sample_dir}/{sample}_S1_L001_R2_001.fastq.gz',
+        'i1': '{sample_dir}/{sample}_S1_L001_I1_001.fastq.gz',
+    },
+    'biomarkers': {
+        'individual': '../output/geo-wf/{sample}.biomarkers.tsv',
+        'combined': '../output/geo-wf/combined.biomarkers.tsv',
+    },
+    'counts': {
+        'individual': {
+            'barcodes': '../output/geo-wf/{sample}.barcodes.tsv',
+            'genes': '../output/geo-wf/{sample}.genes.tsv',
+            'matrix': '../output/geo-wf/{sample}.matrix.mtx',
+        },
+        'combined': '../output/geo-wf/combined.counts.tsv',
+    }
+}
+
+
+rule all:
+    input:
+        expand(patterns['fastq']['r1'], sample=sample_names, sample_dir='../output/geo-wf'),
+        expand(patterns['biomarkers']['individual'], sample=sample_names),
+        expand(patterns['counts']['individual']['barcodes'], sample=sample_names),
+        patterns['biomarkers']['combined'],
+        patterns['counts']['combined'],
+
+
+def _copy_fastq(wildcards):
+    sr = sample_table.query(f'sample == "{wildcards.sample}"')
+    dir_name = sr.orig_filename.values[0]
+    return [
+        f'{dir_name}/{wildcards.sample}_S1_L001_R1_001.fastq.gz',
+        f'{dir_name}/{wildcards.sample}_S1_L001_R2_001.fastq.gz',
+        f'{dir_name}/{wildcards.sample}_S1_L001_I1_001.fastq.gz',
+    ]
+
+
+rule copy_fastq:
+    input: _copy_fastq
+    output:
+        r1 = patterns['fastq']['r1'],
+        r2 = patterns['fastq']['r2'],
+        i1 = patterns['fastq']['i1'],
+    shell: """
+    cp {input[0]} {output.r1} \
+    && cp {input[1]} {output.r2} \
+    && cp {input[2]} {output.i1}
+    """
+
+
+def _copy_individual_biomarkers(wildcards):
+    sr = sample_table.query(f'sample == "{wildcards.sample}"')
+    rep = sr['samplename'].str.extract('.*(\d)').values[0][0]
+    return f'../output/scrnaseq-wf/scrnaseq_rep{rep}_force/biomarkers_res.0.6.tsv'
+
+
+rule copy_individual_biomarkers:
+    input: _copy_individual_biomarkers
+    output: patterns['biomarkers']['individual']
+    shell: """
+    cp {input[0]} {output[0]}
+    """
+
+
+rule copy_combined_biomarkers:
+    input: '../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv'
+    output: patterns['biomarkers']['combined']
+    shell: """
+    cp {input[0]} {output[0]}
+    """
+
+rule copy_combined_counts:
+    input: '../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv'
+    output: patterns['counts']['combined']
+    shell: """
+    cp {input[0]} {output[0]}
+    """
+
+def _copy_individual_counts(wildcards):
+    sr = sample_table.query(f'sample == "{wildcards.sample}"')
+    rep = sr['samplename'].str.extract('.*(\d)').values[0][0]
+    return [
+        f'../output/scrnaseq-wf/scrnaseq_samples/testis{rep}_force/outs/filtered_gene_bc_matrices/dm6.16/barcodes.tsv',
+        f'../output/scrnaseq-wf/scrnaseq_samples/testis{rep}_force/outs/filtered_gene_bc_matrices/dm6.16/genes.tsv',
+        f'../output/scrnaseq-wf/scrnaseq_samples/testis{rep}_force/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx',
+    ]
+
+
+rule copy_individual_counts:
+    input: _copy_individual_counts
+    output:
+        barcodes = patterns['counts']['individual']['barcodes'],
+        genes = patterns['counts']['individual']['genes'],
+        matrix = patterns['counts']['individual']['matrix'],
+    shell: """
+    cp {input[0]} {output.barcodes} \
+    && cp {input[1]} {output.genes} \
+    && cp {input[2]} {output.matrix}
+    """
