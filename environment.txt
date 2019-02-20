@@ -118,7 +118,6 @@ freetype=2.7
 ftputil=3.2
 future=0.16.0
 gat=1.3.5
-gcc=4.8.5
 gettext=0.19.8.1
 gffutils=0.9
 ghostscript=9.18
