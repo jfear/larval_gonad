@@ -1,5 +1,4 @@
 """Creates a mapping of gene symbol to FBgn."""
-
 from pickle import load, dump
 
 fname = snakemake.input[0]
