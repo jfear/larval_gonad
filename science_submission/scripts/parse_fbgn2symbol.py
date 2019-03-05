@@ -5,12 +5,11 @@ from pickle import dump
 
 import pandas as pd
 
-from larval_gonad.config import REFERENCES_DIR, config
-
 oname = snakemake.output[0]
-assembly = config['assembly']
-tag = config['tag']
-annot_fn = Path(REFERENCES_DIR, assembly, tag, 'fb_annotation', f'{assembly}_{tag}.fb_annotation')
+assembly = snakemake.params.assembly
+tag = snakemake.params.tag
+references_dir = snakemake.params.references_dir
+annot_fn = Path(references_dir, assembly, tag, 'fb_annotation', f'{assembly}_{tag}.fb_annotation')
 
 df = pd.read_csv(annot_fn, sep='\t', index_col=1).fillna('nan')
 fbgn2symbol = df['gene_symbol'].to_dict()
