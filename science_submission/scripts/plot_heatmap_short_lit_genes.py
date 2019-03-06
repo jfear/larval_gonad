@@ -7,17 +7,21 @@ import matplotlib
 matplotlib.use('Agg')
 
 from itertools import chain
+from pickle import loads
 import pandas as pd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import linkage, dendrogram
 import seaborn as sns
 
-fname = snakemake.input[0]
+fname = snakemake.input.zscores
+fbgn2symbol = snakemake.input.fbgn2symbol
+
 oname = snakemake.output[0]
+
 annotation = snakemake.params.annotation
 cluster_order = snakemake.params.cluster_order
 cluster_colors = snakemake.params.cluster_colors
+lit_genes = snakemake.params.lit_genes
 cmap = snakemake.params.cmap
 
 
@@ -25,14 +29,14 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/paper_1c.mplstyle')
-    fig = plt.figure(figsize=(4, 8))
-    gs = GridSpec(2, 2, height_ratios=[.1, 1], width_ratios=[1, .02], hspace=0, wspace=0.1)
+    fig = plt.figure(figsize=(4, 4))
+    gs = GridSpec(2, 2, height_ratios=[.2, 1], width_ratios=[1, .02], hspace=0, wspace=0.15)
     ax = fig.add_subplot(gs[:, 0])
     cax = fig.add_subplot(gs[0, 1])
     sns.heatmap(
         df,
         xticklabels=True,
-        yticklabels=False,
+        yticklabels=True,
         vmin=-3,
         vmax=3,
         rasterized=True,
@@ -48,7 +52,7 @@ def main():
     ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom')
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .05)
+    yloc = 0 - (df.shape[0] * .10)
     ax.text(6, yloc, 'Germline', ha='center', fontsize=8, color=cluster_colors[0], va='bottom')
     ax.text(17, yloc, 'Somatic Cyst', ha='center', fontsize=8, color=cluster_colors[4], va='bottom')
     ax.text(24, yloc, 'Somatic Other', ha='center', fontsize=8, color=cluster_colors[8], va='bottom')
@@ -62,11 +66,18 @@ def main():
     for l in lines:
         ax.add_line(l)
 
-    # Clean up Y axis
-    ax.set_ylabel('Genes')
     # Add lines separating cell types
     for i in range(1, 9):
         ax.axvline(i * 3, color='w', ls='--')
+
+    # Clean up Y axis
+    ax.set_ylabel('Genes')
+    plt.setp(ax.get_yticklabels(), fontsize=7, fontstyle='italic', rotation=0, va='center')
+
+    # Add lines separating lit genes
+    for loc in [2, 4, 6, 8]:
+        ax.axhline(loc, color='w', ls='--')
+
 
     # Clean up color bar
     plt.setp(cax.yaxis.label, fontsize=7)
@@ -99,12 +110,11 @@ def get_data():
             .pivot_table(index='FBgn', columns=['cluster', 'rep'], values='tpm_zscore')
     )
 
-    # calculate linkages
-    link = linkage(zscores.values, 'average')
-    tree = dendrogram(link, no_plot=True)
-    leaves = tree['leaves']
+    with open(fbgn2symbol, 'rb') as fh:
+        mapper = loads(fh.read())
 
-    return zscores.iloc[leaves, :]
+    zscores.index = zscores.index.map(mapper)
+    return zscores.reindex(lit_genes)
 
 
 if __name__ == '__main__':
