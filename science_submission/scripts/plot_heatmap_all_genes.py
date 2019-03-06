@@ -39,7 +39,7 @@ def main():
         cmap=cmap,
         ax=ax,
         cbar_ax=cax,
-        cbar_kws=dict(label='Z-Score (TPM)')
+        cbar_kws=dict(label='Z-Score (TPM)', ticks=[-3, 0, 3])
     )
 
     # Clean up X axis
