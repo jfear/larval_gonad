@@ -29,10 +29,10 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/paper_1c.mplstyle')
-    fig = plt.figure(figsize=(4, 4))
-    gs = GridSpec(2, 2, height_ratios=[.2, 1], width_ratios=[1, .02], hspace=0, wspace=0.15)
-    ax = fig.add_subplot(gs[:, 0])
-    cax = fig.add_subplot(gs[0, 1])
+    fig = plt.figure(figsize=(2, 1.8))
+    gs = GridSpec(2, 1, height_ratios=[1, .05], hspace=0.1)
+    ax = fig.add_subplot(gs[0, 0])
+    cax = fig.add_subplot(gs[1, 0])
     sns.heatmap(
         df,
         xticklabels=True,
@@ -43,19 +43,20 @@ def main():
         cmap=cmap,
         ax=ax,
         cbar_ax=cax,
-        cbar_kws=dict(label='Z-Score (TPM)')
+        cbar_kws=dict(label='Z-Score (TPM)', orientation='horizontal', ticks=[-3, 0, 3])
     )
 
     # Clean up X axis
     ax.set_xlabel('')
     ax.xaxis.set_ticks_position('top')
-    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom')
+    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom',
+                       fontsize=5.5)
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .10)
-    ax.text(6, yloc, 'Germline', ha='center', fontsize=8, color=cluster_colors[0], va='bottom')
-    ax.text(17, yloc, 'Somatic Cyst', ha='center', fontsize=8, color=cluster_colors[4], va='bottom')
-    ax.text(24, yloc, 'Somatic Other', ha='center', fontsize=8, color=cluster_colors[8], va='bottom')
+    yloc = 0 - (df.shape[0] * .20)
+    ax.text(6, yloc, 'Germline', ha='center', fontsize=4, color=cluster_colors[0], va='bottom')
+    ax.text(17, yloc, 'Somatic Cyst', ha='center', fontsize=4, color=cluster_colors[4], va='bottom')
+    ax.text(24, yloc, 'Somatic Other', ha='center', fontsize=4, color=cluster_colors[8], va='bottom')
     lines = [
         plt.Line2D([0, 12], [yloc, yloc], color=cluster_colors[0], lw=1.5, clip_on=False),
         plt.Line2D([12, 21], [yloc, yloc], color=cluster_colors[4], lw=1.5, clip_on=False),
@@ -68,20 +69,20 @@ def main():
 
     # Add lines separating cell types
     for i in range(1, 9):
-        ax.axvline(i * 3, color='w', ls='--')
+        ax.axvline(i * 3, color='w', ls='--', lw=.5)
 
     # Clean up Y axis
-    ax.set_ylabel('Genes')
+    ax.set_ylabel('')
     plt.setp(ax.get_yticklabels(), fontsize=7, fontstyle='italic', rotation=0, va='center')
 
     # Add lines separating lit genes
     for loc in [2, 4, 6, 8]:
-        ax.axhline(loc, color='w', ls='--')
+        ax.axhline(loc, color='w', ls='--', lw=.5)
 
 
     # Clean up color bar
-    plt.setp(cax.yaxis.label, fontsize=7)
-    plt.setp(cax.get_yticklabels(), fontsize=7)
+    plt.setp(cax.xaxis.label, fontsize=7)
+    plt.setp(cax.get_xticklabels(), fontsize=6)
 
     fig.savefig(oname, bbox_inches='tight')
 
