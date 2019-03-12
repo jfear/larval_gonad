@@ -25,10 +25,10 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/paper_1c.mplstyle')
-    fig = plt.figure(figsize=(4, 8))
-    gs = GridSpec(2, 2, height_ratios=[.1, 1], width_ratios=[1, .02], hspace=0, wspace=0.1)
-    ax = fig.add_subplot(gs[:, 0])
-    cax = fig.add_subplot(gs[0, 1])
+    fig = plt.figure(figsize=(1.8, 3))
+    gs = GridSpec(2, 1, height_ratios=[1, .02], hspace=0.05)
+    ax = fig.add_subplot(gs[0, 0])
+    cax = fig.add_subplot(gs[1, 0])
     sns.heatmap(
         df,
         xticklabels=True,
@@ -39,19 +39,22 @@ def main():
         cmap=cmap,
         ax=ax,
         cbar_ax=cax,
-        cbar_kws=dict(label='Z-Score (TPM)', ticks=[-3, 0, 3])
+        cbar_kws=dict(label='Z-Score (TPM)', ticks=[-3, 0, 3], orientation='horizontal')
     )
 
     # Clean up X axis
     ax.set_xlabel('')
     ax.xaxis.set_ticks_position('top')
-    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom')
+    ax.xaxis.set_tick_params(pad=0, length=2)
+    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom',
+                       fontsize=5.5)
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .05)
-    ax.text(6, yloc, 'Germline', ha='center', fontsize=8, color=cluster_colors[0], va='bottom')
-    ax.text(17, yloc, 'Somatic Cyst', ha='center', fontsize=8, color=cluster_colors[4], va='bottom')
-    ax.text(24, yloc, 'Somatic Other', ha='center', fontsize=8, color=cluster_colors[8], va='bottom')
+    yloc = 0 - (df.shape[0] * .08)
+    pad = yloc * .1
+    ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
+    ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
+    ax.text(24, yloc + pad, 'Somatic\nOther', ha='center', fontsize=6, color=cluster_colors[8], va='bottom')
     lines = [
         plt.Line2D([0, 12], [yloc, yloc], color=cluster_colors[0], lw=1.5, clip_on=False),
         plt.Line2D([12, 21], [yloc, yloc], color=cluster_colors[4], lw=1.5, clip_on=False),
@@ -66,11 +69,12 @@ def main():
     ax.set_ylabel('Genes')
     # Add lines separating cell types
     for i in range(1, 9):
-        ax.axvline(i * 3, color='w', ls='--')
+        ax.axvline(i * 3, color='w', ls='--', lw=.5)
 
     # Clean up color bar
-    plt.setp(cax.yaxis.label, fontsize=7)
-    plt.setp(cax.get_yticklabels(), fontsize=7)
+    plt.setp(cax.xaxis.label, fontsize=6)
+    plt.setp(cax.get_xticklabels(), fontsize=5)
+    cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(oname, bbox_inches='tight')
 

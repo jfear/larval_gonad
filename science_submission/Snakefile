@@ -159,10 +159,13 @@ rule plot_heatmap_multi_biomarkers:
 #     script: 'scripts/plot_heatmap_ptrap_scores.py'
 
 
-# rule plot_heatmap_bulk_scRNAseq_w_rep:
-#     input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
-#     output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
-#     script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
+rule plot_heatmap_bulk_scRNAseq_w_rep:
+    input:
+        bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
+        scrnaseq='../output/scrnaseq-wf/raw.parquet',
+        lens='../output/gene_ts_lengths.tsv'
+    output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
+    script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
 
 ################################################################################
 # Fig 2

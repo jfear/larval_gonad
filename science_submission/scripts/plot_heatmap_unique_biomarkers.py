@@ -30,7 +30,7 @@ def main():
     df, unique_genes_per_cluster = get_data()
 
     plt.style.use('scripts/paper_1c.mplstyle')
-    fig = plt.figure(figsize=(2, 4))
+    fig = plt.figure(figsize=(1.8, 2.5))
     gs = GridSpec(2, 1, height_ratios=[1, .02], hspace=0.05)
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
@@ -50,14 +50,16 @@ def main():
     # Clean up X axis
     ax.set_xlabel('')
     ax.xaxis.set_ticks_position('top')
+    ax.xaxis.set_tick_params(pad=0, length=2)
     ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom',
                        fontsize=5.5)
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .10)
-    ax.text(6, yloc, 'Germline', ha='center', fontsize=4, color=cluster_colors[0], va='bottom')
-    ax.text(17, yloc, 'Somatic Cyst', ha='center', fontsize=4, color=cluster_colors[4], va='bottom')
-    ax.text(24, yloc, 'Somatic Other', ha='center', fontsize=4, color=cluster_colors[8], va='bottom')
+    yloc = 0 - (df.shape[0] * .08)
+    pad = yloc * .1
+    ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
+    ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
+    ax.text(24, yloc + pad, 'Somatic\nOther', ha='center', fontsize=6, color=cluster_colors[8], va='bottom')
     lines = [
         plt.Line2D([0, 12], [yloc, yloc], color=cluster_colors[0], lw=1.5, clip_on=False),
         plt.Line2D([12, 21], [yloc, yloc], color=cluster_colors[4], lw=1.5, clip_on=False),
@@ -82,12 +84,13 @@ def main():
     # Add additional y annotations
     loc = 0
     for i, cnt in enumerate(unique_genes_per_cluster):
-        ax.text(-.5, loc + (cnt / 2), cluster_order[i], ha='right', va='center', fontsize=7, fontweight='bold')
+        ax.text(-.5, loc + (cnt / 2), cluster_order[i], ha='right', va='center', fontsize=5.5, fontweight='bold')
         loc += cnt
 
     # Clean up color bar
-    plt.setp(cax.xaxis.label, fontsize=7)
-    plt.setp(cax.get_xticklabels(), fontsize=6)
+    plt.setp(cax.xaxis.label, fontsize=6)
+    plt.setp(cax.get_xticklabels(), fontsize=5)
+    cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(oname, bbox_inches='tight')
 
