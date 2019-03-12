@@ -13,12 +13,8 @@ import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import linkage, dendrogram
 import seaborn as sns
 
-from larval_gonad.normalization import tpm
-
-
 bulk = snakemake.input.bulk
 scrnaseq = snakemake.input.scrnaseq
-lengths = snakemake.input.lens
 oname = snakemake.output[0]
 
 
@@ -40,7 +36,7 @@ def main():
         rasterized=True,
         ax=ax,
         annot=True,
-        annot_kws=dict(fontsize=6),
+        annot_kws=dict(fontsize=5, fontweight='bold'),
         cbar_ax=cax,
         cbar_kws=dict(label='Spearman Correlation', orientation='horizontal', ticks=[.75, 1])
     )
@@ -61,6 +57,10 @@ def main():
     ax.axhline(3, color='w', ls='--', lw=.5)
     ax.axvline(3, color='w', ls='--', lw=.5)
 
+    # Add Annotation
+    ax.text(.5, 2.5, 'scRNA-Seq\nTriplicates', rotation=-45, ha='center', va='center', fontsize=6)
+    ax.text(4, 6, 'Bulk RNA-Seq\nQuadruplicates', rotation=-45, ha='center', va='center', fontsize=6)
+
     # Clean up color bar
     plt.setp(cax.xaxis.label, fontsize=6)
     plt.setp(cax.get_xticklabels(), fontsize=5)
@@ -76,40 +76,27 @@ def get_data():
         pd.read_parquet(bulk, columns=tdt)
         .rename_axis('FBgn')
         .rename(columns={
-            'C1_TDT': 'Bulk-rep1',
-            'C2_TDT': 'Bulk-rep2',
-            'C3_TDT': 'Bulk-rep3',
-            'C4_TDT': 'Bulk-rep4',
+            'C1_TDT': 'b1',
+            'C2_TDT': 'b2',
+            'C3_TDT': 'b3',
+            'C4_TDT': 'b4',
         })
     )
 
     # scRNA-seq data
-
     df_sc = (
-        pd.read_parquet(scrnaseq).T
-        .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
-        .groupby('rep')
-        .sum()
-        .T
+        pd.read_parquet(scrnaseq)
+        .pivot_table(index='FBgn', columns='rep', values='TPM')
         .rename(columns={
-            'rep1': 'scRNA-Seq-rep1',
-            'rep2': 'scRNA-Seq-rep2',
-            'rep3': 'scRNA-Seq-rep3',
+            'rep1': 'sc1',
+            'rep2': 'sc2',
+            'rep3': 'sc3',
         })
     )
 
-    lens = (
-        pd.read_csv(lengths, sep='\t')
-        .set_index('FBgn')
-        .gene_ts_length
-        .reindex(df_sc.index)
-    )
-
-    _tpm = tpm(df_sc, lens).dropna()
-
     # Merge
-    dat = _tpm.join(df_bulk, how='inner')
-    _corr = dat.corr(method='spearman')
+    df = df_sc.join(df_bulk, how='inner')
+    _corr = df.corr(method='spearman')
 
     # calculate linkages
     link = linkage(_corr.values, 'average')
