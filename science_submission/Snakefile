@@ -166,6 +166,14 @@ rule plot_heatmap_bulk_scRNAseq_w_rep:
     output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
     script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
 
+rule plot_heatmap_scRNAseq_cluster_corr:
+    input: '../output/scrnaseq-wf/tpm.parquet'
+    output: '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_heatmap_scRNAseq_cluster_corr.py'
+
 ################################################################################
 # Fig 2
 ################################################################################
