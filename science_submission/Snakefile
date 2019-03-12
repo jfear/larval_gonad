@@ -18,11 +18,15 @@ TAG = config['tag']
 
 rule all:
     input:
-         '../output/science_submission/figures/tsne.svg',
-         '../output/science_submission/figures/tsne.svg',
-         '../output/science_submission/figures/heatmap-all-genes.svg',
-         '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg',
-         '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.svg'
+        '../output/science_submission/figures/tsne.svg',
+        '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.svg',
+         '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
+         '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
+         '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
+         '../output/science_submission/figures/stacked-bar-prop-by-rep.svg',
+        '../output/science_submission/figures/heatmap-all-genes.png',
+        '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
+        '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png'
 
 rule fbgn2symbol:
     output: '../output/science_submission/fbgn2symbol.pkl'
@@ -72,6 +76,10 @@ rule gene_locs:
     output: '../output/science_submission/gene_locations.parquet'
     script: 'scripts/gene_locations.py'
 
+rule inkscape_png:
+    input: '{prefix}.svg'
+    output: '{prefix}.png'
+    shell: "flatpak run org.inkscape.Inkscape -d 600 -z {input} -e {output}"
 ################################################################################
 # Fig 1
 ################################################################################
@@ -161,8 +169,8 @@ rule plot_heatmap_multi_biomarkers:
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
     input:
-        bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
-        scrnaseq='../output/scrnaseq-wf/tpm_by_rep.parquet'
+         bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
+         scrnaseq='../output/scrnaseq-wf/tpm_by_rep.parquet'
     output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
     script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
 
