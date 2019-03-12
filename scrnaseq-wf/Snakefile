@@ -1,13 +1,10 @@
 """Testis Single Cell Workflow."""
 import sys
-import os
-from textwrap import dedent
-import yaml
-import tempfile
 import pandas as pd
-from lcdblib.snakemake import helpers, aligners
+
 from lcdblib.utils import utils
-from larval_gonad.normalization import rpkm, cpm, tpm
+
+from larval_gonad.normalization import rpkm, cpm, tpm, zscore
 from larval_gonad.config import config as sconfig
 from larval_gonad.scRNAseq import Seurat
 
@@ -39,9 +36,11 @@ final_targets = utils.flatten((
     '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
     '../output/scrnaseq-wf/raw.parquet',
     '../output/scrnaseq-wf/raw_by_cluster.parquet',
+    '../output/scrnaseq-wf/raw_by_rep.parquet',
     '../output/scrnaseq-wf/cpm.parquet',
     '../output/scrnaseq-wf/rpkm.parquet',
     '../output/scrnaseq-wf/tpm.parquet',
+    '../output/scrnaseq-wf/tpm_by_rep.parquet',
     '../output/scrnaseq-wf/tpm_zscore.parquet',
     '../output/scrnaseq-wf/rpkm_zscore.parquet',
     '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet',
@@ -54,10 +53,7 @@ final_targets = utils.flatten((
 ))
 
 rule targets:
-    """
-    Final targets to create
-    """
-input: final_targets
+    input: final_targets
 
 rule fix_gtf:
     input:
@@ -306,6 +302,24 @@ rule germ_soma_rmarkdown:
         mv scripts/germcell_soma_differential_expression.html {output.html}
     """
 
+rule clusters:
+    input: '../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv'
+    output: '../output/scrnaseq-wf/clusters.parquet'
+    params:
+          resolution=sconfig['resolution']
+    resources:
+             mem_gb=lambda wildcards, attempt: attempt * 8,
+             time_hr=lambda wildcards, attempt: attempt * 1
+    run:
+        (
+            pd.read_csv(input[0], sep='\t', index_col=0)
+                .loc[:, params.resolution]
+                .rename('cluster')
+                .to_frame()
+                .rename_axis('cell_id')
+                .to_parquet(output[0])
+        )
+
 rule raw:
     input: '../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv'
     output: '../output/scrnaseq-wf/raw.parquet'
@@ -313,106 +327,137 @@ rule raw:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        import pandas as pd
+        (
+            pd.read_csv(input[0], sep='\t', index_col=0)
+                .rename_axis('FBgn')
+                .rename_axis('cell_id', axis=1)
+                .to_parquet(output[0])
+        )
 
-        raw = pd.read_csv(input[0], sep='\t', index_col=0)
-        raw.index.name = 'FBgn'
-        raw.to_parquet(output[0])
-
-rule agg_raw_counts:
+rule raw_by_cluster:
     input:
-         cnts='../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
-         clusters='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+         raw=rules.raw.output[0],
+         clusters=rules.clusters.output[0]
     output: '../output/scrnaseq-wf/raw_by_cluster.parquet'
-    params:
-          seurat_dir='../output/scrnaseq-wf/scrnaseq_combine_force',
-          resolution=sconfig['resolution']
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        s = Seurat(params.seurat_dir)
-        clusters = s.get_clusters(resolution=params.resolution)
-        raw = s.get_raw().T.join(clusters).groupby('cluster').sum().T
-        raw.index.name = 'FBgn'
-        raw.reset_index().melt(id_vars='FBgn', value_name='UMI').set_index('FBgn').to_parquet(output[0])
+        (
+            pd.read_parquet(input['raw'])
+                .T
+                .join(pd.read_parquet(input['clusters']))
+                .groupby('cluster')
+                .sum()
+                .T
+                .rename_axis('FBgn')
+                .reset_index()
+                .melt(id_vars='FBgn', value_name='UMI')
+                .set_index('FBgn')
+                .to_parquet(output[0])
+        )
 
-rule agg_raw_counts_w_rep:
+rule raw_by_cluster_w_rep:
     input:
-         cnts='../output/scrnaseq-wf/scrnaseq_combine_force/raw.tsv',
-         clusters='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+         raw=rules.raw.output[0],
+         clusters=rules.clusters.output[0]
     output: '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet'
-    params:
-          seurat_dir='../output/scrnaseq-wf/scrnaseq_combine_force',
-          resolution=sconfig['resolution']
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        s = Seurat(params.seurat_dir)
-        clusters = (
-            s.get_clusters(resolution=params.resolution)
-                .to_frame()
-                .assign(rep=lambda df: df.index.str.extract(r'(?P<rep>rep\d)', expand=False))
+        (
+            pd.read_parquet(input['raw'])
+            .T
+            .join(pd.read_parquet(input['clusters']))
+            .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
+            .groupby(['cluster', 'rep'])
+            .sum()
+            .T
+            .rename_axis('FBgn')
+            .reset_index()
+            .melt(id_vars='FBgn', value_name='UMI')
+            .set_index('FBgn')
+            .to_parquet(output[0])
         )
 
-        raw = s.get_raw().T.join(clusters).groupby(['cluster', 'rep']).sum().T
-        raw.index.name = 'FBgn'
-        raw.reset_index().melt(id_vars='FBgn', value_name='UMI').set_index('FBgn').to_parquet(output[0])
-
-rule agg_norm_counts:
+rule raw_by_rep:
     input:
-         cnts='../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
-         clusters='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
+         raw=rules.raw.output[0]
+    output: '../output/scrnaseq-wf/raw_by_rep.parquet'
+    resources:
+             mem_gb=lambda wildcards, attempt: attempt * 8,
+             time_hr=lambda wildcards, attempt: attempt * 1
+    run:
+        raw = (
+            pd.read_parquet(input['raw'])
+                .T
+                .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
+                .groupby('rep')
+                .sum()
+                .T
+                .reset_index()
+                .melt(id_vars='FBgn', value_name='UMI')
+                .set_index('FBgn')
+                .to_parquet(output[0])
+        )
+
+rule norm_counts_by_cluster:
+    input:
+         norm='../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+         clusters=rules.clusters.output[0]
     output: '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet'
-    params:
-          seurat_dir='../output/scrnaseq-wf/scrnaseq_combine_force',
-          resolution=sconfig['resolution']
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        s = Seurat(params.seurat_dir)
-        clusters = s.get_clusters(resolution=params.resolution)
-        norm = s.get_normalized_read_counts().T.join(clusters).groupby('cluster').sum().T
-        norm.columns = [sconfig['cluster_annot'][x] for x in norm.columns]
-        norm.index.name = 'FBgn'
-        norm.reset_index().melt(id_vars='FBgn', value_name='seurat_normalized').set_index('FBgn').to_parquet(output[0])
-
-rule agg_norm_counts_w_rep:
-    input:
-         cnts='../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
-         clusters='../output/scrnaseq-wf/scrnaseq_combine_force/clusters.tsv',
-    output: '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet'
-    params:
-          seurat_dir='../output/scrnaseq-wf/scrnaseq_combine_force',
-          resolution=sconfig['resolution']
-    resources:
-             mem_gb=lambda wildcards, attempt: attempt * 8,
-             time_hr=lambda wildcards, attempt: attempt * 1
-    run:
-        s = Seurat(params.seurat_dir)
-        clusters = (
-            s.get_clusters(resolution=params.resolution)
-                .to_frame()
-                .assign(rep=lambda df: df.index.str.extract(r'(?P<rep>rep\d)', expand=False))
+        (
+            pd.read_csv(input['norm'], sep='\t', index_col=0)
+            .T
+            .join(pd.read_parquet(input['clusters']))
+            .groupby('cluster')
+            .sum()
+            .T
+            .rename_axis('FBgn')
+            .reset_index()
+            .melt(id_vars='FBgn', value_name='seurat_normalized')
+            .set_index('FBgn')
+            .to_parquet(output[0])
         )
 
-        norm = s.get_normalized_read_counts().T.join(clusters).groupby(['cluster', 'rep']).sum().T
-        norm.index.name = 'FBgn'
-        norm.reset_index().melt(id_vars='FBgn', value_name='seurat_normalized').set_index('FBgn').to_parquet(output[0])
+rule norm_counts_by_cluster_w_rep:
+    input:
+         norm='../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv',
+         clusters=rules.clusters.output[0]
+    output: '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet'
+    resources:
+             mem_gb=lambda wildcards, attempt: attempt * 8,
+             time_hr=lambda wildcards, attempt: attempt * 1
+    run:
+        (
+            pd.read_csv(input['norm'], sep='\t', index_col=0)
+                .T
+                .join(pd.read_parquet(input['clusters']))
+                .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
+                .groupby(['cluster', 'rep'])
+                .sum()
+                .T
+                .rename_axis('FBgn')
+                .reset_index()
+                .melt(id_vars='FBgn', value_name='seurat_normalized')
+                .set_index('FBgn')
+                .to_parquet(output[0])
+        )
 
 rule cpm:
     input:
-         cnts='../output/scrnaseq-wf/raw_by_cluster.parquet',
+         cnts=rules.raw_by_cluster.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/cpm.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import cpm
-
         raw = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -423,15 +468,13 @@ rule cpm:
 
 rule cpm_w_rep:
     input:
-         cnts='../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
+         cnts=rules.raw_by_cluster_w_rep.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/cpm_w_rep.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import cpm
-
         raw = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -442,15 +485,13 @@ rule cpm_w_rep:
 
 rule rpkm:
     input:
-         cnts='../output/scrnaseq-wf/raw_by_cluster.parquet',
+         cnts=rules.raw_by_cluster.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/rpkm.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import rpkm
-
         raw = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -468,15 +509,13 @@ rule rpkm:
 
 rule rpkm_w_rep:
     input:
-         cnts='../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
+         cnts=rules.raw_by_cluster_w_rep.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/rpkm_w_rep.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import rpkm
-
         raw = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -495,15 +534,13 @@ rule rpkm_w_rep:
 
 rule tpm:
     input:
-         cnts='../output/scrnaseq-wf/raw_by_cluster.parquet',
+         cnts=rules.raw_by_cluster.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/tpm.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import tpm
-
         raw = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -519,17 +556,40 @@ rule tpm:
         res = tpm(raw, lens).dropna()
         res.reset_index().melt(id_vars='FBgn', value_name='TPM').set_index('FBgn').to_parquet(output[0])
 
+rule tpm_by_rep:
+    input:
+         cnts=rules.raw_by_rep.output[0],
+         lens='../output/gene_ts_lengths.tsv'
+    output: '../output/scrnaseq-wf/tpm_by_rep.parquet'
+    resources:
+             mem_gb=lambda wildcards, attempt: attempt * 8,
+             time_hr=lambda wildcards, attempt: attempt * 1
+    run:
+        raw = (
+            pd.read_parquet(input.cnts)
+                .reset_index()
+                .pivot_table(index='FBgn', columns='rep', values='UMI', aggfunc='first')
+        )
+
+        lens = (
+            pd.read_csv(input.lens, sep='\t')
+                .set_index('FBgn')
+                .gene_ts_length
+                .reindex(raw.index)
+        )
+
+        res = tpm(raw, lens).dropna()
+        res.reset_index().melt(id_vars='FBgn', value_name='TPM').set_index('FBgn').to_parquet(output[0])
+
 rule tpm_w_rep:
     input:
-         cnts='../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
+         cnts=rules.raw_by_cluster_w_rep.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: '../output/scrnaseq-wf/tpm_w_rep.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import tpm
-
         raw = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -548,14 +608,12 @@ rule tpm_w_rep:
 
 rule tpm_zscore:
     input:
-         cnts='../output/scrnaseq-wf/tpm.parquet'
+         cnts=rules.tpm.output[0]
     output: '../output/scrnaseq-wf/tpm_zscore.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import zscore
-
         tpm = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -566,14 +624,12 @@ rule tpm_zscore:
 
 rule tpm_zscore_w_rep:
     input:
-         cnts='../output/scrnaseq-wf/tpm_w_rep.parquet',
+         cnts=rules.tpm_w_rep.output[0]
     output: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import zscore
-
         tpm = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -584,14 +640,12 @@ rule tpm_zscore_w_rep:
 
 rule rpkm_zscore:
     input:
-         cnts='../output/scrnaseq-wf/rpkm.parquet'
+         cnts=rules.rpkm.output[0]
     output: '../output/scrnaseq-wf/rpkm_zscore.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import zscore
-
         rpkm = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -602,14 +656,12 @@ rule rpkm_zscore:
 
 rule rpkm_zscore_w_rep:
     input:
-         cnts='../output/scrnaseq-wf/rpkm_w_rep.parquet'
+        cnts=rules.rpkm_w_rep.output[0]
     output: '../output/scrnaseq-wf/rpkm_zscore_w_rep.parquet'
     resources:
              mem_gb=lambda wildcards, attempt: attempt * 8,
              time_hr=lambda wildcards, attempt: attempt * 1
     run:
-        from larval_gonad.normalization import zscore
-
         rpkm = (
             pd.read_parquet(input.cnts)
                 .reset_index()
@@ -617,4 +669,3 @@ rule rpkm_zscore_w_rep:
         )
         res = zscore(rpkm).dropna()
         res.reset_index().melt(id_vars='FBgn', value_name='rpkm_zscore').set_index('FBgn').to_parquet(output[0])
-
