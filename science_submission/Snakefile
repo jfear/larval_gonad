@@ -193,6 +193,14 @@ rule plot_stacked_bar_prop_by_rep:
 ################################################################################
 # Fig 2
 ################################################################################
+rule plot_violin_total_umi:
+    input: '../output/scrnaseq-wf/raw.parquet'
+    output: '../output/science_submission/figures/violin-total-umi.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_violin_total_umi.py'
 # rule plot_boxplot_all_genes_by_chrom:
 #     input:
 #          tpm='../output/scrnaseq-wf/tpm.parquet',
