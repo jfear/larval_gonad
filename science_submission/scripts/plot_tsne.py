@@ -21,7 +21,7 @@ cluster_order = snakemake.params.cluster_order
 def main():
     df = get_data()
 
-    plt.style.use('scripts/paper_1c.mplstyle')
+    plt.style.use('scripts/figure_styles.mplstyle')
     fig, ax = plt.subplots(figsize=(2, 2))
 
     ax.scatter(df.tSNE_1, df.tSNE_2, c=df.color, s=3, linewidth=.02, edgecolor='k', rasterized=True)
@@ -35,9 +35,8 @@ def main():
                  ha='center', va='center', fontsize=7, fontweight='bold')
 
     # clean up plot
-    plt.setp(ax, xticks=[], yticks=[], xlabel='', ylabel='', aspect='equal')
-    sns.despine(ax=ax, top=True, bottom=True, left=True, right=True)
-    plt.tight_layout()
+    plt.setp(ax, xticks=[], yticks=[], xlabel='', ylabel='', aspect='equal', xmargin=0, ymargin=0)
+    sns.despine(ax=ax, bottom=True, left=True)
 
     fig.savefig(oname, bbox_inches='tight')
 

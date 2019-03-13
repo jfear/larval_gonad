@@ -20,15 +20,14 @@ cluster_colors = snakemake.params.cluster_colors
 def main():
     df = get_data()
 
-    plt.style.use('scripts/paper_1c.mplstyle')
+    plt.style.use('scripts/figure_styles.mplstyle')
     fig, ax = plt.subplots(figsize=(2, 2))
     df.plot(kind='bar', stacked=True, ax=ax, legend=False, width=.9)
     plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
 
     # Clean up X axis
     ax.set_xlabel('')
-    ax.xaxis.set_tick_params(pad=1, length=2)
-    plt.setp(ax.get_xticklabels(), rotation=0, fontsize=7)
+    plt.setp(ax.get_xticklabels(), rotation=0)
 
     # Add additional x annotations
     yloc = 0 - (df.shape[0] * .025)
@@ -47,9 +46,7 @@ def main():
         ax.add_line(l)
 
     # Clean up Y axis
-    ax.set_ylabel('Proportion of Cells', fontsize=7)
-    ax.yaxis.set_tick_params(pad=0.1, length=2)
-    plt.setp(ax.get_yticklabels(), fontsize=7)
+    ax.set_ylabel('Proportion of Cells')
 
     fig.savefig(oname, bbox_inches='tight')
 

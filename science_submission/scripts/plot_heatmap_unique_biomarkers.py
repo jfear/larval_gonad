@@ -29,9 +29,9 @@ cmap = snakemake.params.cmap
 def main():
     df, unique_genes_per_cluster = get_data()
 
-    plt.style.use('scripts/paper_1c.mplstyle')
+    plt.style.use('scripts/figure_styles.mplstyle')
     fig = plt.figure(figsize=(1.8, 2.5))
-    gs = GridSpec(2, 1, height_ratios=[1, .02], hspace=0.05)
+    gs = GridSpec(2, 1, height_ratios=[1, .02])
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
     sns.heatmap(
@@ -50,9 +50,7 @@ def main():
     # Clean up X axis
     ax.set_xlabel('')
     ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_tick_params(pad=0, length=2)
-    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom',
-                       fontsize=5.5)
+    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom')
 
     # Add additional x annotations
     yloc = 0 - (df.shape[0] * .08)
@@ -84,13 +82,8 @@ def main():
     # Add additional y annotations
     loc = 0
     for i, cnt in enumerate(unique_genes_per_cluster):
-        ax.text(-.5, loc + (cnt / 2), cluster_order[i], ha='right', va='center', fontsize=5.5, fontweight='bold')
+        ax.text(-.5, loc + (cnt / 2), cluster_order[i], ha='right', va='center', fontweight='bold', fontsize=5.5)
         loc += cnt
-
-    # Clean up color bar
-    plt.setp(cax.xaxis.label, fontsize=6)
-    plt.setp(cax.get_xticklabels(), fontsize=5)
-    cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(oname, bbox_inches='tight')
 

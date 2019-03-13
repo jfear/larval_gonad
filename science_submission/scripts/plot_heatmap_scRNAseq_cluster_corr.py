@@ -22,9 +22,9 @@ oname = snakemake.output[0]
 def main():
     df = get_data()
 
-    plt.style.use('scripts/paper_1c.mplstyle')
+    plt.style.use('scripts/figure_styles.mplstyle')
     fig = plt.figure(figsize=(1.8, 1.8))
-    gs = GridSpec(2, 1, height_ratios=[1, .05], hspace=0.1)
+    gs = GridSpec(2, 1, height_ratios=[1, .05])
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
     sns.heatmap(
@@ -45,14 +45,11 @@ def main():
     # Clean up X axis
     ax.set_xlabel('')
     ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_tick_params(pad=0, length=2)
-    plt.setp(ax.get_xticklabels(), fontsize=7, rotation=90)
 
     # Clean up Y axis
     ax.set_ylabel('')
     ax.yaxis.set_ticks_position('right')
-    ax.yaxis.set_tick_params(pad=0, length=2)
-    plt.setp(ax.get_yticklabels(), fontsize=7, rotation=0, ha='left', va='center')
+    plt.setp(ax.get_yticklabels(), rotation=0, ha='left', va='center')
 
     # Add separation lines
     ax.axhline(4, color='w', ls='--', lw=.5)
@@ -62,11 +59,6 @@ def main():
     ax.text(1.2, 2.8, 'Germline', rotation=-45, ha='center', va='center', fontsize=6, color=cluster_colors[0])
     ax.text(5.7, 7.3, 'Soma', rotation=-45, ha='center', va='center', fontsize=6,
             color=cluster_colors[4])
-
-    # Clean up color bar
-    plt.setp(cax.xaxis.label, fontsize=6)
-    plt.setp(cax.get_xticklabels(), fontsize=5)
-    cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(oname, bbox_inches='tight')
 

@@ -28,9 +28,9 @@ cmap = snakemake.params.cmap
 def main():
     df = get_data()
 
-    plt.style.use('scripts/paper_1c.mplstyle')
+    plt.style.use('scripts/figure_styles.mplstyle')
     fig = plt.figure(figsize=(1.8, 1.5))
-    gs = GridSpec(2, 1, height_ratios=[1, .05], hspace=0.1)
+    gs = GridSpec(2, 1, height_ratios=[1, .05])
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
     sns.heatmap(
@@ -49,9 +49,7 @@ def main():
     # Clean up X axis
     ax.set_xlabel('')
     ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_tick_params(pad=0, length=2)
-    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom',
-                       fontsize=5.5)
+    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom')
 
     # Add additional x annotations
     yloc = 0 - (df.shape[0] * .12)
@@ -75,18 +73,11 @@ def main():
 
     # Clean up Y axis
     ax.set_ylabel('')
-    ax.yaxis.set_tick_params(pad=0.1, length=2)
-    plt.setp(ax.get_yticklabels(), fontsize=7, fontstyle='italic', rotation=0, va='center')
+    plt.setp(ax.get_yticklabels(), fontsize=7, fontstyle='italic', rotation=0, va='center', ha='right')
 
     # Add lines separating lit genes
     for loc in [2, 4, 6, 8]:
         ax.axhline(loc, color='w', ls='--', lw=.5)
-
-
-    # Clean up color bar
-    plt.setp(cax.xaxis.label, fontsize=6)
-    plt.setp(cax.get_xticklabels(), fontsize=5)
-    cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(oname, bbox_inches='tight')
 

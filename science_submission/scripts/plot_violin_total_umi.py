@@ -18,28 +18,26 @@ cluster_colors = snakemake.params.cluster_colors
 def main():
     df = get_data()
 
-    plt.style.use('scripts/paper_1c.mplstyle')
+    plt.style.use('scripts/figure_styles.mplstyle')
     fig, ax = plt.subplots(figsize=(2.25, 1))
 
     sns.violinplot('cluster', 'log_UMI', data=df, inner=None, scale='count', order=cluster_order,
                    palette=cluster_colors, linewidth=.5, zorder=0, width=1, ax=ax)
 
-    sns.boxplot('cluster', 'log_UMI', data=df, order=cluster_order, width=.1, linewidth=.5, showfliers=False, ax=ax,
+    sns.boxplot('cluster', 'log_UMI', data=df, order=cluster_order, width=.1, linewidth=.5, ax=ax,
                 zorder=10, boxprops=dict(zorder=10, facecolor='w'), whiskerprops=dict(zorder=10))
 
     ax.set_axisbelow(True)
-    ax.grid(axis='y', linewidth=.5)
-    sns.despine(ax=ax, left=True, bottom=True)
+    ax.grid(axis='y')
+    # sns.despine(ax=ax, left=True, bottom=True)
 
     # Clean up X axis
     ax.set_xlabel('')
-    ax.xaxis.set_tick_params(pad=.8, length=0)
-    ax.xaxis.set_ticks_position('top')
-    plt.setp(ax.get_xticklabels(), rotation=0, fontsize=5.5)
+    plt.setp(ax.get_xticklabels(), rotation=0)
 
     # Add additional x annotations
-    yloc = 6.5
-    pad = yloc * .07
+    yloc = 1
+    pad = yloc * .4
     ax.text(1.5, yloc + pad, 'Germline', ha='center', va='center', fontsize=6, color=cluster_colors[0])
     ax.text(5, yloc + pad, 'Somatic\nCyst', ha='center', va='center', fontsize=6, color=cluster_colors[4])
     ax.text(7.5, yloc + pad, 'Somatic\nOther', ha='center', va='center', fontsize=6, color=cluster_colors[8])
@@ -54,9 +52,7 @@ def main():
         ax.add_line(l)
 
     # Clean up Y axis
-    ax.set_ylabel('Total UMI Per Cell\n(Log10)', fontsize=6)
-    ax.yaxis.set_tick_params(pad=0.2, length=0)
-    plt.setp(ax.get_yticklabels(), fontsize=5)
+    ax.set_ylabel('Total UMI Per Cell\n(Log10)')
 
     fig.savefig(oname, bbox_inches='tight')
 
