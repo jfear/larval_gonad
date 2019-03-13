@@ -26,7 +26,8 @@ rule all:
          '../output/science_submission/figures/stacked-bar-prop-by-rep.svg',
          '../output/science_submission/figures/heatmap-all-genes.png',
          '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
-         '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png'
+         '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png',
+         '../output/science_submission/figures/boxplot-autosome-ratio.svg'
 
 ################################################################################
 # Data Sets
@@ -206,6 +207,20 @@ rule plot_boxplot_autosome_ratio:
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_boxplot_autosome_ratio.py'
 
+rule plot_bubble_y_genes:
+    input:
+         raw='../output/scrnaseq-wf/raw.parquet',
+         clusters='../output/scrnaseq-wf/clusters.parquet',
+         fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+         fbgn2symbol=rules.fbgn2symbol.output[0]
+    output: '../output/science_submission/figures/bubble-y-genes.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters'],
+          cmap=config['colors']['heatmap']
+    script: 'scripts/plot_bubble_y_genes.py'
+
 ################################################################################
 # Tables
 ################################################################################
@@ -230,7 +245,7 @@ rule plot_boxplot_autosome_ratio:
 rule svg_png:
     input: '{fig}.svg'
     output: '{fig}.png'
-    shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
+    shell: "flatpak run org.inkscape.Inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
 
 rule svg_pdf:
     input: '{fig}.svg'
