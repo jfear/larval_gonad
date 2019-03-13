@@ -1,0 +1,98 @@
+import os
+from pathlib import Path
+
+import pandas as pd
+
+from larval_gonad.config import read_config
+
+workdir: '.'
+configfile: '../config/common.yaml'
+config['colors'] = read_config('../config/colors.yaml')
+
+REFERENCES_DIR = os.environ.get('REFERENCES_DIR', config.get('REFERENCES_DIR', ''))
+ASSEMBLY = config['assembly']
+TAG = config['tag']
+AUTOSOMES = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
+
+rule targets:
+    input:
+         '../output/x-to-a-wf/raw_by_chrom.parquet',
+         '../output/x-to-a-wf/expressed_genes_by_chrom.parquet'
+
+rule fbgn2chrom:
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf').as_posix()
+    output: '../output/x-to-a-wf/fbgn2chrom.parquet'
+    script: 'scripts/parse_fbgn2chrom.py'
+
+rule num_genes_by_chrom:
+    input:
+         raw='../output/scrnaseq-wf/raw.parquet',
+         chrom=rules.fbgn2chrom.output[0]
+    output: '../output/x-to-a-wf/num_genes_by_chrom.pkl'
+    run:
+        (
+            pd.read_parquet(input['chrom'])
+                .reindex(pd.read_parquet(input['raw']).index)
+                .dropna()
+                .groupby('chrom')
+                .size()
+                .to_pickle(output[0])
+        )
+
+rule raw_by_chrom:
+    input:
+         raw='../output/scrnaseq-wf/raw.parquet',
+         chrom=rules.fbgn2chrom.output[0]
+    output: '../output/x-to-a-wf/raw_by_chrom.parquet'
+    run:
+        (
+            pd.read_parquet(input['raw'])
+                .join(pd.read_parquet(input['chrom']))
+                .groupby('chrom').sum()
+                .T
+                .to_parquet(output[0])
+        )
+
+rule expressed_genes_by_chrom:
+    input:
+         raw='../output/scrnaseq-wf/raw.parquet',
+         chrom=rules.fbgn2chrom.output[0]
+    output: '../output/x-to-a-wf/expressed_genes_by_chrom.parquet'
+    run:
+        (
+            pd.read_parquet(input['raw'])
+                .pipe(lambda df: df > 0)
+                .join(pd.read_parquet(input['chrom']))
+                .groupby('chrom').sum()
+                .T
+                .to_parquet(output[0])
+        )
+
+rule autosome_ratios_by_cell:
+    input:
+         raw=rules.raw_by_chrom.output[0],
+         num_genes=rules.num_genes_by_chrom.output[0],
+         cluster='../output/scrnaseq-wf/clusters.parquet'
+    output: '../output/x-to-a-wf/autosome_ratios_by_cell.parquet'
+    run:
+        num_genes = pd.read_pickle(input['num_genes'])
+        num_genes['autosome'] = num_genes[AUTOSOMES].sum()
+
+        # Calculate the X / A ratio after scaling by the number of genes
+        (
+            pd.read_parquet(input['raw'])
+                .assign(autosome=lambda df: df[AUTOSOMES].sum(axis=1))
+                .div(num_genes / 1e3, axis='columns')
+                .assign(x_to_a_ratio=lambda df: df.chrX / df.autosome)
+                .assign(fourth_to_a_ratio=lambda df: df.chr4 / df.autosome)
+                .assign(y_to_a_ratio=lambda df: df.chrY / df.autosome)
+                .loc[:, ['x_to_a_ratio', 'fourth_to_a_ratio', 'y_to_a_ratio']]
+                .join(pd.read_parquet(input['cluster']))
+                .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
+                .to_parquet(output[0])
+        )
+
+rule permutation_test_autosome_ratios:
+    input: rules.autosome_ratios_by_cell.output[0]
+    output: '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
+    script: 'scripts/permutation_test_autosome_ratios.py'
