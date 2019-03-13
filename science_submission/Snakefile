@@ -18,16 +18,19 @@ TAG = config['tag']
 
 rule all:
     input:
-        '../output/science_submission/figures/tsne.svg',
-        '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.svg',
+         '../output/science_submission/figures/tsne.svg',
+         '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.svg',
          '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
          '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
          '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
          '../output/science_submission/figures/stacked-bar-prop-by-rep.svg',
-        '../output/science_submission/figures/heatmap-all-genes.png',
-        '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
-        '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png'
+         '../output/science_submission/figures/heatmap-all-genes.png',
+         '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
+         '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png'
 
+################################################################################
+# Data Sets
+################################################################################
 rule fbgn2symbol:
     output: '../output/science_submission/fbgn2symbol.pkl'
     params:
@@ -40,11 +43,6 @@ rule symbol2fbgn:
     input: rules.fbgn2symbol.output[0]
     output: '../output/science_submission/symbol2fbgn.pkl'
     script: 'scripts/convert_fbgn2symbol_to_symbol2fbgn.py'
-
-rule fbgn2chrom:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf').as_posix()
-    output: '../output/science_submission/fbgn2chrom.parquet'
-    script: 'scripts/parse_fbgn2chrom.py'
 
 rule clusters:
     input: Path(config['seurat_dir'], 'clusters.tsv').as_posix()
@@ -64,25 +62,20 @@ rule tsne:
         df.index.name = 'cell_id'
         df.to_parquet(output[0])
 
-# rule ptrap_scores:
-#     output: '../output/science_submission/ptrap_scores.parquet'
-#     script: 'scripts/ptrap-scores.py'
-#
-
-
 rule gene_locs:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
     params: chrom_order=config['chrom_order']
     output: '../output/science_submission/gene_locations.parquet'
     script: 'scripts/gene_locations.py'
 
-rule inkscape_png:
-    input: '{prefix}.svg'
-    output: '{prefix}.png'
-    shell: "flatpak run org.inkscape.Inkscape -d 600 -z {input} -e {output}"
+rule ptrap_scores:
+    output: '../output/science_submission/ptrap_scores.parquet'
+    script: 'scripts/ptrap-scores.py'
+
 ################################################################################
 # Fig 1
 ################################################################################
+
 rule plot_tsne:
     input:
          clusters=rules.clusters.output[0],
@@ -155,17 +148,15 @@ rule plot_heatmap_multi_biomarkers:
           cmap=config['colors']['heatmap']
     script: 'scripts/plot_heatmap_multi_biomarkers.py'
 
-# rule plot_heatmap_ptrap_genes_w_rep:
-#     input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
-#     output: '../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg'
-#     script: 'scripts/plot_heatmap_ptrap_genes_w_rep.py'
+rule plot_heatmap_ptrap_genes_w_rep:
+    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
+    output: '../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg'
+    script: 'scripts/plot_heatmap_ptrap_genes_w_rep.py'
 
-
-# rule plot_heatmap_ptrap_scores:
-#     input: rules.ptrap_scores.output[0]
-#     output: '../output/science_submission/figures/heatmap-ptrap-scores.svg'
-#     script: 'scripts/plot_heatmap_ptrap_scores.py'
-
+rule plot_heatmap_ptrap_scores:
+    input: rules.ptrap_scores.output[0]
+    output: '../output/science_submission/figures/heatmap-ptrap-scores.svg'
+    script: 'scripts/plot_heatmap_ptrap_scores.py'
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
     input:
@@ -190,9 +181,11 @@ rule plot_stacked_bar_prop_by_rep:
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_stacked_bar_prop_by_rep.py'
+
 ################################################################################
 # Fig 2
 ################################################################################
+
 rule plot_violin_total_umi:
     input: '../output/scrnaseq-wf/raw.parquet'
     output: '../output/science_submission/figures/violin-total-umi.svg'
@@ -352,5 +345,19 @@ rule plot_violin_total_umi:
 #          zscore='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
 #     output: '../output/science_submission/tables/scRNASeq_cluster_deg.xlsx'
 #     script: 'scripts/table_scRNASeq_cluster_deg.py'
+
+################################################################################
+# Helpers
+################################################################################
+
+rule svg_png:
+    input: '{fig}.svg'
+    output: '{fig}.png'
+    shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
+
+rule svg_pdf:
+    input: '{fig}.svg'
+    output: '{fig}.pdf'
+    shell: "inkscape {input[0]} --export-pdf={output[0]}"
 
 # vim: set ft=snakemake.python
