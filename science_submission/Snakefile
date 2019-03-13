@@ -194,140 +194,17 @@ rule plot_violin_total_umi:
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_violin_total_umi.py'
-# rule plot_boxplot_all_genes_by_chrom:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/boxplot-all-genes-by-chrom.svg'
-#     script: 'scripts/plot_boxplot_all_genes_by_chrom.py'
-#
-# rule plot_boxplot_common_genes_by_chrom_gonia_late:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/boxplot-common-genes-by-chrom-gonia-late.svg'
-#     script: 'scripts/plot_boxplot_common_genes_by_chrom_gonia_late.py'
-#
-# rule plot_boxplot_common_genes_by_chrom:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/boxplot-common-genes-by-chrom.svg'
-#     script: 'scripts/plot_boxplot_common_genes_by_chrom.py'
-#
-# rule plot_boxplot_germ_common_genes_by_chrom:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/boxplot-germ-common-genes-by-chrom.svg'
-#     script: 'scripts/plot_boxplot_germ_common_genes_by_chrom.py'
-#
-# rule plot_boxplot_upregulated_genes_by_chrom:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/boxplot-upregulated-genes-by-chrom.svg'
-#     script: 'scripts/plot_boxplot_upregulated_genes_by_chrom.py'
-#
-# rule plot_manhatten:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          locs=rules.gene_locs.output[0],
-#     output: '../output/science_submission/figures/manhatten.svg'
-#     script: 'scripts/plot_manhatten.py'
-#
-# rule plot_genome_view:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          db=rules.gene_locs.output[0],
-#     output: '../output/science_submission/figures/genome_view.svg'
-#     script: 'scripts/plot_genome_view.py'
-#
-# rule plot_genome_view_log:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          db=rules.gene_locs.output[0],
-#     output: '../output/science_submission/figures/genome_view_log.svg'
-#     script: 'scripts/plot_genome_view_log.py'
-#
-# rule plot_upset:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/upset.svg'
-#     script: 'scripts/plot_upset.py'
-#
-# rule plot_stacked_bar_prop_by_chrom:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/stacked-bar-prop-by-chrom.svg'
-#     script: 'scripts/plot_stacked_bar_prop_by_chrom.py'
-#
-# rule plot_heatmap_X_genes:
-#     input:
-#          zscore='../output/scrnaseq-wf/tpm_zscore.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/heatmap-X-genes.svg'
-#     script: 'scripts/plot_heatmap_X_genes.py'
-#
-# rule plot_heatmap_Y_genes:
-#     input:
-#          zscore='../output/scrnaseq-wf/tpm_zscore.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#          fbgn2sybol=rules.fbgn2symbol.output[0],
-#     output: '../output/science_submission/figures/heatmap-Y-genes.svg'
-#     script: 'scripts/plot_heatmap_Y_genes.py'
-#
-# rule plot_barchart_x2a_ratio:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/barchart-x2a-ratio.svg'
-#     script: 'scripts/plot_barchart_x2a_ratio.py'
-#
-# rule plot_barchart_deg:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm.parquet',
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#     output: '../output/science_submission/figures/barchart-deg.svg'
-#     script: 'scripts/plot_barchart_deg.py'
-#
-# rule plot_heatmap_X_genes_pseudotime:
-#     input:
-#          raw=rules.raw_germ_subset.output[0],
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#          gene_lengths='../output/gene_ts_lengths.tsv',
-#     output: '../output/science_submission/figures/heatmap-X-genes-pseudotime.svg'
-#     script: 'scripts/plot_heatmap_X_genes_pseudotime.py'
-#
-# rule plot_heatmap_Y_genes_pseudotime:
-#     input:
-#          raw=rules.raw_germ_subset.output[0],
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#          fbgn2sybol=rules.fbgn2symbol.output[0],
-#          gene_lengths='../output/gene_ts_lengths.tsv',
-#     output: '../output/science_submission/figures/heatmap-Y-genes-pseudotime.svg'
-#     script: 'scripts/plot_heatmap_Y_genes_pseudotime.py'
-#
-# rule plot_scatter_x2a_pseudotime:
-#     input:
-#          raw=rules.raw_germ_subset.output[0],
-#          fbgn2chrom=rules.fbgn2chrom.output[0],
-#          pstime=rules.pseudotime.output[0],
-#     output: '../output/science_submission/figures/scatter-X2A-pseudotime.svg'
-#     script: 'scripts/plot_scatter_x2a_pseudotime.py'
-#
-#
-# rule svg_png:
-#     input: '{fig}.svg'
-#     output: '{fig}.png'
-#     shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
-#
-# rule svg_pdf:
-#     input: '{fig}.svg'
-#     output: '{fig}.pdf'
-#     shell: "inkscape {input[0]} --export-pdf={output[0]}"
+
+rule plot_boxplot_autosome_ratio:
+    input:
+        ratios='../output/x-to-a-wf/autosome_ratios_by_cell.parquet',
+        pvals='../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
+    output: '../output/science_submission/figures/boxplot-autosome-ratio.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_boxplot_autosome_ratio.py'
 
 ################################################################################
 # Tables

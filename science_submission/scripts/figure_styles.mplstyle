@@ -1,0 +1,54 @@
+ps.fonttype: 42
+pdf.fonttype: 42
+svg.fonttype: none
+
+figure.dpi: 800
+figure.frameon: False
+figure.subplot.hspace: 0.1
+figure.subplot.wspace: 0.1
+figure.titlesize: 10.0
+
+savefig.frameon: False
+savefig.pad_inches: 0
+
+font.size: 10
+font.family: sans-serif
+font.sans-serif: Helvetica, Arial, DejaVu Sans, sans-serif
+
+axes.labelsize: 6.0
+axes.labelpad: 2.0
+axes.titlesize: 8.0
+axes.titlepad: 2.0
+axes.linewidth: 0.5
+axes.grid.axis: y
+axes.spines.top: False
+axes.spines.right: False
+
+legend.fontsize: 6.0
+
+grid.linewidth: 0.5
+
+lines.linewidth: 1.5
+lines.markeredgewidth: 0.0
+lines.markersize: 6
+
+patch.linewidth: 0.5
+
+xtick.major.pad: 1
+xtick.major.width: 0.5
+xtick.major.size: 2
+xtick.labelsize: 5.0
+
+ytick.major.pad: 1
+ytick.major.width: 0.5
+ytick.major.size: 2
+ytick.labelsize: 5.0
+
+
+boxplot.boxprops.linewidth: 10.01
+boxplot.meanprops.linewidth: 10.01
+boxplot.medianprops.linewidth: 10.01
+boxplot.capprops.linewidth: 10.01
+boxplot.whiskerprops.linewidth: 10.01
+boxplot.showfliers: False
+boxplot.notch: True
