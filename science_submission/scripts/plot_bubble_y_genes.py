@@ -23,10 +23,7 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig = plt.figure(figsize=(2.25, 3))
-    gs = GridSpec(3, 2, height_ratios=[1, .05, 1], width_ratios=[1, .3])
-    ax = fig.add_subplot(gs[:, 0])
-    cax = fig.add_subplot(gs[1, 1])
+    fig, ax = plt.subplots(1, 1, figsize=(2, 5))
 
     # Get X, Y coordinates using category codes.
     xvals = df.cluster.cat.codes
@@ -43,7 +40,7 @@ def main():
     ax.margins(0.02)
 
     # Add color bar and legend
-    plt.colorbar(sc, cax=cax, orientation='horizontal', ticks=[1, 500, 1000], label='Total Number of Reads')
+    plt.colorbar(sc, orientation='horizontal', ticks=[1, 500, 1000], label='Total Number of Reads', fraction=.05)
 
     for sizes in [5, 10, 50]:
         plt.scatter([], [], c='k', alpha=0.3, s=sizes, label=f'{sizes:,.0f} %')
@@ -110,10 +107,9 @@ def get_data():
     df = df.reset_index()
 
     # Make gene_symbol a ordered category for easier plotting
-    # NOTE: I am removing Su(Ste)* genes because they have low expression and there are too many genes to plot.
-    df.gene_symbol = pd.Categorical(df.gene_symbol, ordered=True, categories=reversed(sorted(
-        [x for x in df.gene_symbol.unique() if not x.startswith('Su(Ste)')], key=lambda x: x.lower()
-    )))
+    df.gene_symbol = pd.Categorical(df.gene_symbol, ordered=True, categories=reversed(
+        sorted(df.gene_symbol.unique(), key=lambda x: x.lower())
+    ))
 
     return df.dropna()
 
