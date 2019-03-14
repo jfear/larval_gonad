@@ -27,7 +27,8 @@ rule all:
          '../output/science_submission/figures/heatmap-all-genes.png',
          '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
          '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png',
-         '../output/science_submission/figures/boxplot-autosome-ratio.svg'
+         '../output/science_submission/figures/boxplot-autosome-ratio.svg',
+         '../output/science_submission/figures/bubble-y-genes.png'
 
 ################################################################################
 # Data Sets
@@ -206,6 +207,18 @@ rule plot_boxplot_autosome_ratio:
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_boxplot_autosome_ratio.py'
+
+rule plot_pointplot_y_genes:
+    input:
+         tpm='../output/scrnaseq-wf/tpm_w_rep.parquet',
+         clusters='../output/scrnaseq-wf/clusters.parquet',
+         fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+    output: '../output/science_submission/figures/pointplot-y-genes.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters'],
+    script: 'scripts/plot_pointplot_y_genes.py'
 
 rule plot_bubble_y_genes:
     input:
