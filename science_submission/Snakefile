@@ -28,7 +28,8 @@ rule all:
          '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
          '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png',
          '../output/science_submission/figures/boxplot-autosome-ratio.svg',
-         '../output/science_submission/figures/bubble-y-genes.png'
+         '../output/science_submission/figures/bubble-y-genes.png',
+         '../output/science_submission/figures/bubble-msl-genes.png'
 
 ################################################################################
 # Data Sets
@@ -233,6 +234,20 @@ rule plot_bubble_y_genes:
           cluster_colors=config['colors']['clusters'],
           cmap=config['colors']['heatmap']
     script: 'scripts/plot_bubble_y_genes.py'
+
+rule plot_bubble_msl_genes:
+    input:
+         raw='../output/scrnaseq-wf/raw.parquet',
+         clusters='../output/scrnaseq-wf/clusters.parquet',
+         fbgn2symbol=rules.fbgn2symbol.output[0]
+    output: '../output/science_submission/figures/bubble-msl-genes.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters'],
+          cmap=config['colors']['heatmap'],
+          msl_genes=config['msl_genes']
+    script: 'scripts/plot_bubble_msl_genes.py'
 
 ################################################################################
 # Tables
