@@ -36,25 +36,25 @@ def wrapper_for(path):
 # ----------------------------------------------------------------------------
 
 rule targets:
-    input: (
-            c.targets['bam'] +
-            c.targets['agg_featurecounts'] +
-            c.targets['tpm_featurecounts'] +
-            utils.flatten(c.targets['fastqc']) +
-            utils.flatten(c.targets['libsizes']) +
-            [c.targets['fastq_screen']] +
-            [c.targets['libsizes_table']] +
-            [c.targets['rrna_percentages_table']] +
-            [c.targets['multiqc']] +
-            utils.flatten(c.targets['featurecounts']) +
-            utils.flatten(c.targets['featurecounts_intergenic']) +
-            utils.flatten(c.targets['rrna']) +
-            utils.flatten(c.targets['markduplicates']) +
-            utils.flatten(c.targets['salmon']) +
-            utils.flatten(c.targets['rseqc']) +
-            utils.flatten(c.targets['collectrnaseqmetrics']) +
-            utils.flatten(c.targets['bigwig'])
-    )
+    input:
+        c.targets['bam'] +
+        c.targets['agg_featurecounts'] +
+        c.targets['tpm_featurecounts'] +
+        utils.flatten(c.targets['fastqc']) +
+        utils.flatten(c.targets['libsizes']) +
+        [c.targets['fastq_screen']] +
+        [c.targets['libsizes_table']] +
+        [c.targets['rrna_percentages_table']] +
+        [c.targets['multiqc']] +
+        utils.flatten(c.targets['featurecounts']) +
+        utils.flatten(c.targets['featurecounts_intergenic']) +
+        utils.flatten(c.targets['rrna']) +
+        utils.flatten(c.targets['markduplicates']) +
+        utils.flatten(c.targets['salmon']) +
+        utils.flatten(c.targets['rseqc']) +
+        utils.flatten(c.targets['collectrnaseqmetrics']) +
+        utils.flatten(c.targets['bigwig'])
+
 
 if 'orig_filename' in c.sampletable.columns:
     """Symlinks files over from original filename"""
@@ -191,7 +191,7 @@ rule featurecounts:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     conda: "config/conda.yaml"
-    shell:(
+    shell:
         'featureCounts '
         '-T {threads} '
         '-a {input.annotation} '
@@ -199,7 +199,6 @@ rule featurecounts:
         '-o {output.counts} '
         '{input.bam} '
         '&> {log}'
-    )
 
 rule rrna_libsizes_table:
     input:
@@ -212,48 +211,45 @@ rule rrna_libsizes_table:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     run:
+        def rrna_sample(f):
+            return helpers.extract_wildcards(c.patterns['rrna']['libsize'], f)['sample']
 
-    def rrna_sample(f):
-        return helpers.extract_wildcards(c.patterns['rrna']['libsize'], f)['sample']
+        def sample(f):
+            return helpers.extract_wildcards(c.patterns['libsizes']['cutadapt'], f)['sample']
 
-
-    def sample(f):
-        return helpers.extract_wildcards(c.patterns['libsizes']['cutadapt'], f)['sample']
-
-
-    def million(f):
-        return float(open(f).read()) / 1e6
+        def million(f):
+            return float(open(f).read()) / 1e6
 
 
-    rrna = sorted(input.rrna, key=rrna_sample)
-    fastq = sorted(input.fastq, key=sample)
-    samples = list(map(rrna_sample, rrna))
-    rrna_m = list(map(million, rrna))
-    fastq_m = list(map(million, fastq))
+        rrna = sorted(input.rrna, key=rrna_sample)
+        fastq = sorted(input.fastq, key=sample)
+        samples = list(map(rrna_sample, rrna))
+        rrna_m = list(map(million, rrna))
+        fastq_m = list(map(million, fastq))
 
-    df = pd.DataFrame(dict(
-        sample=samples,
-        million_reads_rRNA=rrna_m,
-        million_reads_fastq=fastq_m,
-    ))
-    df = df.set_index('sample')
-    df['rRNA_percentage'] = df.million_reads_rRNA / df.million_reads_fastq * 100
+        df = pd.DataFrame(dict(
+            sample=samples,
+            million_reads_rRNA=rrna_m,
+            million_reads_fastq=fastq_m,
+        ))
+        df = df.set_index('sample')
+        df['rRNA_percentage'] = df.million_reads_rRNA / df.million_reads_fastq * 100
 
-    df[['million_reads_fastq', 'million_reads_rRNA', 'rRNA_percentage']].to_csv(output.tsv, sep='\t')
-    y = {
-        'id': 'rrna_percentages_table',
-        'section_name': 'rRNA content',
-        'description': 'Amount of reads mapping to rRNA sequence',
-        'plot_type': 'table',
-        'pconfig': {
-            'id': 'rrna_percentages_table_table',
-            'title': 'rRNA content table',
-            'min': 0
-        },
-        'data': yaml.load(df.transpose().to_json()),
-    }
-    with open(output.json, 'w') as fout:
-        yaml.dump(y, fout, default_flow_style=False)
+        df[['million_reads_fastq', 'million_reads_rRNA', 'rRNA_percentage']].to_csv(output.tsv, sep='\t')
+        y = {
+            'id': 'rrna_percentages_table',
+            'section_name': 'rRNA content',
+            'description': 'Amount of reads mapping to rRNA sequence',
+            'plot_type': 'table',
+            'pconfig': {
+                'id': 'rrna_percentages_table_table',
+                'title': 'rRNA content table',
+                'min': 0
+            },
+            'data': yaml.load(df.transpose().to_json()),
+        }
+        with open(output.json, 'w') as fout:
+            yaml.dump(y, fout, default_flow_style=False)
 
 rule libsizes_table:
     input: utils.flatten(c.targets['libsizes'])
@@ -335,7 +331,7 @@ rule multiqc:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     conda: "config/conda.yaml"
-    shell:(
+    shell:
         'LC_ALL=en_US.UTF.8 LC_LANG=en_US.UTF-8 '
         'multiqc '
         '--quiet '
@@ -345,7 +341,6 @@ rule multiqc:
         '--config config/multiqc_config.yaml '
         '{params.analysis_directory} '
         '&> {log} '
-    )
 
 rule markduplicates:
     input: bam = rules.hisat2.output
@@ -358,7 +353,7 @@ rule markduplicates:
         mem_gb = lambda wildcards, attempt: attempt * 12,
         time_hr = lambda wildcards, attempt: attempt * 4
     conda: "config/conda.yaml"
-    shell:(
+    shell:
         'picard '
         '{params.java_args} '
         'MarkDuplicates '
@@ -366,7 +361,6 @@ rule markduplicates:
         'OUTPUT={output.bam} '
         'METRICS_FILE={output.metrics} '
         '&> {log}'
-    )
 
 rule collectrnaseqmetrics:
     input:
@@ -381,7 +375,7 @@ rule collectrnaseqmetrics:
         mem_gb = lambda wildcards, attempt: attempt * 12,
         time_hr = lambda wildcards, attempt: attempt * 4
     conda: "config/conda.yaml"
-    shell: (
+    shell:
         'picard '
         '{params.java_args} '
         'CollectRnaSeqMetrics '
@@ -390,7 +384,6 @@ rule collectrnaseqmetrics:
         'INPUT={input.bam} '
         'OUTPUT={output.metrics} '
         '&> {log}'
-    )
 
 rule dupRadar:
     input:
@@ -425,7 +418,7 @@ rule salmon:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 4
     conda: "config/conda.yaml"
-    shell: (
+    shell:
         'salmon quant '
         '--index {params.index_dir} '
         '--output {params.outdir} '
@@ -433,7 +426,6 @@ rule salmon:
         '--libType=A '
         '-r {input.fastq} '
         '&> {log}'
-    )
 
 rule rseqc_bam_stat:
     input: bam = c.patterns['bam']
@@ -454,7 +446,7 @@ rule bigwig_neg:
         mem_gb = lambda wildcards, attempt: attempt * 8,
         time_hr = lambda wildcards, attempt: attempt * 2
     conda: "config/conda.yaml"
-    shell: (
+    shell:
         'bamCoverage '
         '--bam {input.bam} '
         '-o {output} '
@@ -465,7 +457,6 @@ rule bigwig_neg:
         '--filterRNAstrand forward '
         '--normalizeUsing RPKM '
         '&> {log}'
-    )
 
 rule bigwig_pos:
     input:
@@ -478,7 +469,7 @@ rule bigwig_pos:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     conda: "config/conda.yaml"
-    shell: (
+    shell:
         'bamCoverage '
         '--bam {input.bam} '
         '-o {output} '
@@ -489,7 +480,6 @@ rule bigwig_pos:
         '--filterRNAstrand reverse '
         '--normalizeUsing RPKM '
         '&> {log}'
-    )
 
 rule rnaseq_rmarkdown:
     input:
@@ -501,10 +491,9 @@ rule rnaseq_rmarkdown:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     conda: "config/conda.yaml"
-    shell:(
+    shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
-    )
 
 rule intergenic:
     input:
@@ -558,14 +547,13 @@ rule featurecounts_intergenic:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     conda: "config/conda.yaml"
-    shell: (
+    shell:
         'featureCounts '
         '-T {threads} '
         '-a {input.annotation} '
         '-o {output.counts} '
         '{input.bam} '
         '&> {log}'
-    )
 
 rule gene_counts_agg:
     input: c.targets['featurecounts']
