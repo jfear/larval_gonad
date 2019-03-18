@@ -62,8 +62,8 @@ if 'orig_filename' in c.sampletable.columns:
         input: lambda wc: c.sampletable.set_index(c.sampletable.columns[0])['orig_filename'].to_dict()[wc.sample]
         output: c.patterns['fastq']
         resources:
-                 mem_gb=lambda wildcards, attempt: attempt * 1,
-                 time_hr=lambda wildcards, attempt: attempt * 1
+             mem_gb=lambda wildcards, attempt: attempt * 1,
+             time_hr=lambda wildcards, attempt: attempt * 1
         run:
             utils.make_relative_symlink(input[0], output[0])
 
@@ -79,9 +79,8 @@ rule cutadapt:
     log: c.patterns['cutadapt'] + '.log'
     params: extra='-a file:../lcdb-wf/include/adapters.fa -q 20 --minimum-length=25'
     resources:
-             mem_gb=lambda wildcards, attempt: attempt * 1,
-             time_hr=lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
+        mem_gb=lambda wildcards, attempt: attempt * 1,
+        time_hr=lambda wildcards, attempt: attempt * 2
     wrapper: wrapper_for('cutadapt')
 
 rule fastqc:
@@ -92,7 +91,6 @@ rule fastqc:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     wrapper: wrapper_for('fastqc')
 
 rule hisat2_splice_site:
@@ -101,7 +99,6 @@ rule hisat2_splice_site:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 1
-    conda: "config/conda.yaml"
     shell: "hisat2_extract_splice_sites.py {input.gtf} > {output}"
 
 rule hisat2:
@@ -118,7 +115,6 @@ rule hisat2:
         mem_gb = lambda wildcards, attempt: attempt * 8,
         time_hr = lambda wildcards, attempt: attempt * 4
     threads: 6
-    conda: "config/conda.yaml"
     wrapper: wrapper_for('hisat2/align')
 
 rule rRNA:
@@ -132,7 +128,6 @@ rule rRNA:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     threads: 6
-    conda: "config/conda.yaml"
     wrapper: wrapper_for('bowtie2/align')
 
 rule fastq_count:
@@ -149,7 +144,6 @@ rule bam_count:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell: 'samtools view -c {input} > {output}'
 
 rule bam_index:
@@ -158,7 +152,6 @@ rule bam_index:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell: 'samtools index {input} {output}'
 
 rule fastq_screen:
@@ -178,7 +171,6 @@ rule fastq_screen:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 8,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     wrapper: wrapper_for('fastq_screen')
 
 rule featurecounts:
@@ -190,7 +182,6 @@ rule featurecounts:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell:
         'featureCounts '
         '-T {threads} '
@@ -330,7 +321,6 @@ rule multiqc:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell:
         'LC_ALL=en_US.UTF.8 LC_LANG=en_US.UTF-8 '
         'multiqc '
@@ -352,7 +342,6 @@ rule markduplicates:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 12,
         time_hr = lambda wildcards, attempt: attempt * 4
-    conda: "config/conda.yaml"
     shell:
         'picard '
         '{params.java_args} '
@@ -374,7 +363,6 @@ rule collectrnaseqmetrics:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 12,
         time_hr = lambda wildcards, attempt: attempt * 4
-    conda: "config/conda.yaml"
     shell:
         'picard '
         '{params.java_args} '
@@ -402,7 +390,6 @@ rule dupRadar:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     wrapper: wrapper_for('dupradar')
 
 rule salmon:
@@ -417,7 +404,6 @@ rule salmon:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 4
-    conda: "config/conda.yaml"
     shell:
         'salmon quant '
         '--index {params.index_dir} '
@@ -445,7 +431,6 @@ rule bigwig_neg:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 8,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell:
         'bamCoverage '
         '--bam {input.bam} '
@@ -468,7 +453,6 @@ rule bigwig_pos:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell:
         'bamCoverage '
         '--bam {input.bam} '
@@ -490,7 +474,6 @@ rule rnaseq_rmarkdown:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell:
         'Rscript -e '
         '''"rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')"'''
@@ -546,7 +529,6 @@ rule featurecounts_intergenic:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    conda: "config/conda.yaml"
     shell:
         'featureCounts '
         '-T {threads} '
@@ -558,6 +540,9 @@ rule featurecounts_intergenic:
 rule gene_counts_agg:
     input: c.targets['featurecounts']
     output: c.targets['agg_featurecounts']
+    resources:
+             mem_gb = lambda wildcards, attempt: attempt * 1,
+             time_hr = lambda wildcards, attempt: attempt * 2
     run:
         dfs = []
         for f in input:
@@ -576,6 +561,9 @@ rule tpm:
          cnts=rules.gene_counts_agg.output[0],
          lens='../output/gene_ts_lengths.tsv'
     output: c.targets['tpm_featurecounts']
+    resources:
+             mem_gb = lambda wildcards, attempt: attempt * 1,
+             time_hr = lambda wildcards, attempt: attempt * 2
     run:
         from larval_gonad.normalization import tpm
 
