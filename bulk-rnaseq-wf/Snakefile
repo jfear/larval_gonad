@@ -81,7 +81,7 @@ rule cutadapt:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 1,
         time_hr=lambda wildcards, attempt: attempt * 2
-    wrapper: wrapper_for('cutadapt')
+    script: '../lcdb-wf/wrappers/wrappers/cutadapt/wrapper.py'
 
 rule fastqc:
     input: '{sample_dir}/{sample}/{sample}{suffix}'
@@ -91,7 +91,7 @@ rule fastqc:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
-    wrapper: wrapper_for('fastqc')
+    script: '../lcdb-wf/wrappers/wrappers/fastqc/wrapper.py'
 
 rule hisat2_splice_site:
     input: gtf = c.refdict[c.assembly][config['gtf']['tag']]['gtf']
@@ -115,7 +115,7 @@ rule hisat2:
         mem_gb = lambda wildcards, attempt: attempt * 8,
         time_hr = lambda wildcards, attempt: attempt * 4
     threads: 6
-    wrapper: wrapper_for('hisat2/align')
+    script: '../lcdb-wf/wrappers/wrappers/hisat2/align/wrapper.py'
 
 rule rRNA:
     input:
@@ -128,7 +128,7 @@ rule rRNA:
         mem_gb = lambda wildcards, attempt: attempt * 1,
         time_hr = lambda wildcards, attempt: attempt * 2
     threads: 6
-    wrapper: wrapper_for('bowtie2/align')
+    script: '../lcdb-wf/wrappers/wrappers/bowtie2/align/wrapper.py'
 
 rule fastq_count:
     input: fastq = '{sample_dir}/{sample}/{sample}{suffix}.fastq.gz'
@@ -171,7 +171,7 @@ rule fastq_screen:
     resources:
         mem_gb = lambda wildcards, attempt: attempt * 8,
         time_hr = lambda wildcards, attempt: attempt * 2
-    wrapper: wrapper_for('fastq_screen')
+    script: '../lcdb-wf/wrappers/wrappers/fastq_screen/wrapper.py'
 
 rule featurecounts:
     input:
@@ -372,25 +372,6 @@ rule collectrnaseqmetrics:
         'INPUT={input.bam} '
         'OUTPUT={output.metrics} '
         '&> {log}'
-
-rule dupRadar:
-    input:
-        bam = rules.markduplicates.output.bam,
-        annotation = c.refdict[c.assembly][config['gtf']['tag']]['gtf'],
-    output:
-        density_scatter = c.patterns['dupradar']['density_scatter'],
-        expression_histogram = c.patterns['dupradar']['expression_histogram'],
-        expression_boxplot = c.patterns['dupradar']['expression_boxplot'],
-        expression_barplot = c.patterns['dupradar']['expression_barplot'],
-        multimapping_histogram = c.patterns['dupradar']['multimapping_histogram'],
-        dataframe = c.patterns['dupradar']['dataframe'],
-        model = c.patterns['dupradar']['model'],
-        curve = c.patterns['dupradar']['curve']
-    log: '{sample_dir}/{sample}/dupradar/dupradar.log'
-    resources:
-        mem_gb = lambda wildcards, attempt: attempt * 1,
-        time_hr = lambda wildcards, attempt: attempt * 2
-    wrapper: wrapper_for('dupradar')
 
 rule salmon:
     input:
