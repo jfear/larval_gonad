@@ -19,7 +19,6 @@ from lib.patterns_targets import RNASeqConfig
 #  before running this on real data.
 # ----------------------------------------------------------------------------
 configfile: 'config/config.yaml'
-include: '../lcdb-wf/workflows/references/Snakefile'
 
 shell.prefix('set -euo pipefail; export TMPDIR={};'.format(common.tempdir_for_biowulf()))
 shell.executable('/bin/bash')
