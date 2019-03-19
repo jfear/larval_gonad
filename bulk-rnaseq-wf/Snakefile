@@ -22,6 +22,7 @@ configfile: 'config/config.yaml'
 
 shell.prefix('set -euo pipefail; export TMPDIR={};'.format(common.tempdir_for_biowulf()))
 shell.executable('/bin/bash')
+refdict, conversion_kwargs = common.references_dict(config)
 
 c = RNASeqConfig(config, 'config/rnaseq_patterns.yaml')
 
