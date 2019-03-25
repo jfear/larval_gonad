@@ -18,18 +18,22 @@ TAG = config['tag']
 
 rule all:
     input:
-         '../output/science_submission/figures/tsne.svg',
-         '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.svg',
-         '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
-         '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
-         '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
-         '../output/science_submission/figures/stacked-bar-prop-by-rep.svg',
-         '../output/science_submission/figures/heatmap-all-genes.png',
-         '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
-         '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png',
-         '../output/science_submission/figures/boxplot-autosome-ratio.svg',
-         '../output/science_submission/figures/bubble-y-genes.png',
-         '../output/science_submission/figures/bubble-msl-genes.png'
+        '../output/science_submission/intron_less_genes.pkl',
+        '../output/science_submission/non_coding_genes.pkl',
+        '../output/science_submission/figures/tsne.png',
+        '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.png',
+        '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.png',
+        '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.png',
+        '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.png',
+        '../output/science_submission/figures/stacked-bar-prop-by-rep.png',
+        '../output/science_submission/figures/heatmap-all-genes.png',
+        '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
+        '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png',
+        '../output/science_submission/figures/boxplot-autosome-ratio.png',
+        '../output/science_submission/figures/bubble-y-genes.png',
+        '../output/science_submission/figures/bubble-msl-genes.png',
+        '../output/science_submission/figures/violin-total-umi.png',
+        '../output/science_submission/figures/pointplot-y-genes.png'
 
 ################################################################################
 # Data Sets
@@ -46,6 +50,16 @@ rule symbol2fbgn:
     input: rules.fbgn2symbol.output[0]
     output: '../output/science_submission/symbol2fbgn.pkl'
     script: 'scripts/convert_fbgn2symbol_to_symbol2fbgn.py'
+
+rule intron_less_genes:
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
+    output: '../output/science_submission/intron_less_genes.pkl'
+    script: 'scripts/intron_less_genes.py'
+
+rule non_coding_genes:
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
+    output: '../output/science_submission/non_coding_genes.pkl'
+    script: 'scripts/non_coding_genes.py'
 
 rule clusters:
     input: Path(config['seurat_dir'], 'clusters.tsv').as_posix()

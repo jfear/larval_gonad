@@ -1,0 +1,9 @@
+__default__:
+  gres: "lscratch:20"
+  partition: 'norm'
+
+fastq_screen:
+  gres: "lscratch:200"
+
+hisat2:
+  gres: "lscratch:100"
