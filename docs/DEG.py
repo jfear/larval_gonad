@@ -54,6 +54,11 @@ with open('../science_submission/config.yaml') as fh:
     config.update(load(fh.read()))
 
 # %%
+# Get list of gene expressed in the experiment
+with open('../output/science_submission/background_fbgns.pkl', 'rb') as fh:
+    bg = pickle.load(fh)
+
+# %%
 fbgn2symbol = pd.read_pickle('../output/science_submission/fbgn2symbol.pkl')
 fbgn2chrom = pd.read_parquet('../output/x-to-a-wf/fbgn2chrom.parquet')
 
@@ -123,88 +128,6 @@ def run_chisq(df):
     return make_big_table(obs, expected, resid, adj_resid, cell_chisqs, cell_qvals, cell_flags)
 
 # %% [markdown]
-# ## Are high expressed genes in the M1° cluster depleted on the X?
-
-# %% [markdown]
-# There is no association between the number of genes in different expression bins and the chromosome they belong to after correcting for the number of genes on each chromosome (p = 0.4536). 
-
-# %%
-# Genes expressed on the X
-m1_expression = (
-    pd.read_parquet('../output/scrnaseq-wf/raw_by_cluster.parquet')
-    .assign(cluster = lambda df: pd.Categorical(df.cluster.map(config['short_cluster_annot']), ordered=True, categories=config['short_cluster_order']))
-    .pivot_table(index='FBgn', columns='cluster', values='UMI')
-    .loc[:, 'M1º']
-)
-
-m1_bins = pd.cut(m1_expression, [-np.inf, 0, 10, 50, 100, 1000, np.inf], labels=['x = 0', 'x < 10', '10 ≤ x < 50', '50 ≤ x < 100', '100 ≤ x < 1,000', '1,000 ≤ x']).rename('bins')
-
-# %%
-df = pd.concat([m1_bins, fbgn2chrom], join='inner', axis=1).groupby(['bins', 'chrom']).size().unstack().fillna(0)[config['chrom_order'][:5]]
-display(df)
-scaled = df.div(num_genes / 1e3, axis='columns').dropna(axis=1)[config['chrom_order'][:5]]
-
-# %%
-run_chisq(scaled)
-
-# %% [markdown]
-# ## Male-biased expression (TCP vs OCP)
-
-# %% [markdown]
-# Genes with adjusted p-value <= 0.01 and greater than a 2-fold change (i.e., |log2FC| > 1). Roughly 60% of the transcriptome is differentially expressed, with nearly 40% of genes showing male-biased expression.
-
-# %%
-bulk_sig = (
-    pd.read_csv('../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv', sep='\t', index_col=0)
-    .dropna()
-    .assign(testis_bias = lambda df: (df.log2FoldChange >= 1) & (df.padj <= 0.01))
-    .assign(ovary_bias = lambda df: (df.log2FoldChange <= -1) & (df.padj <= 0.01))
-)
-
-bulk_sig.loc[bulk_sig.testis_bias, 'bias'] = 'testis'
-bulk_sig.loc[bulk_sig.ovary_bias, 'bias'] = 'ovary'
-bulk_sig.bias = bulk_sig.bias.fillna('None')
-
-MALE_BIAS = bulk_sig[bulk_sig.testis_bias].index
-
-# %%
-fig, ax = plt.subplots(figsize=(20, 10))
-defaults = dict(alpha=.5, s=6)
-bulk_sig[~bulk_sig.testis_bias & ~bulk_sig.ovary_bias].plot('baseMean', 'log2FoldChange', kind='scatter', color='gray', ax=ax, zorder=0, **defaults)
-ax.text(.1, 6, f'No-Bias = {(~bulk_sig.ovary_bias & ~bulk_sig.testis_bias).sum():,} ({(~bulk_sig.ovary_bias & ~bulk_sig.testis_bias).mean() * 100:.0f}%)', color='gray', fontsize=18)
-bulk_sig[bulk_sig.testis_bias].plot('baseMean', 'log2FoldChange', kind='scatter', ax=ax, zorder=10, **defaults)
-ax.text(.5, 10, f'Testis-Bias = {bulk_sig.testis_bias.sum():,} ({bulk_sig.testis_bias.mean() * 100:.0f}%)', color='C0', fontsize=18)
-bulk_sig[bulk_sig.ovary_bias].plot('baseMean', 'log2FoldChange', kind='scatter', ax=ax, color='r', zorder=10, **defaults)
-ax.text(.5, -10, f'Ovary-Bias = {bulk_sig.ovary_bias.sum():,} ({bulk_sig.ovary_bias.mean() * 100:.0f}%)', color='r', fontsize=18)
-ax.set_xscale('log')
-sns.despine(ax=ax)
-ax.axhline(0, color='k', lw=3, ls='-.');
-
-# %% [markdown]
-# Genes with male-baised expression are depleted on the X and 4th.
-
-# %%
-df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
-df = (df.div(df.sum(axis=1), axis='rows') * 100)
-
-fig, ax = plt.subplots(figsize=(2, 4))
-df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax)
-ax.set_xticklabels([
-    l.get_text().replace('chr', '')
-    for l in ax.get_xticklabels()
-], rotation=0, fontsize=10);
-
-ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
-ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
-ax.margins(0)
-sns.despine(ax=ax, left=True)
-ax.set_ylabel('% Genes')
-
-# %%
-df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-run_chisq(df)
-
-# %% [markdown]
 # ## Are cluster biomarkers depleted on of X-linked and 4th-linked genes and enriched for Y-linked genes in the germline?
 
 # %% [markdown]
@@ -241,6 +164,14 @@ run_chisq(df)
 # %%
 # Ylinked bio-marker genes
 biomarkers.join(fbgn2chrom).query('chrom == "chrY"')
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Are genes coming on during germline development depleted from the X and 4th?
@@ -355,6 +286,132 @@ df = (
     .loc[:, ['chrX', 'chr4', 'autosomes']]
 )
 df
+
+# %% [markdown]
+# ## Are high expressed genes in the M1° cluster depleted on the X?
+
+# %% [markdown]
+# There is no association between the number of genes in different expression bins and the chromosome they belong to after correcting for the number of genes on each chromosome (p = 0.4536). 
+
+# %%
+# Genes expressed on the X
+m1_expression = (
+    pd.read_parquet('../output/scrnaseq-wf/raw_by_cluster.parquet')
+    .assign(cluster = lambda df: pd.Categorical(df.cluster.map(config['short_cluster_annot']), ordered=True, categories=config['short_cluster_order']))
+    .pivot_table(index='FBgn', columns='cluster', values='UMI')
+    .loc[:, 'M1º']
+)
+
+m1_bins = pd.cut(m1_expression, [-np.inf, 0, 10, 50, 100, 1000, np.inf], labels=['x = 0', 'x < 10', '10 ≤ x < 50', '50 ≤ x < 100', '100 ≤ x < 1,000', '1,000 ≤ x']).rename('bins')
+
+# %%
+df = pd.concat([m1_bins, fbgn2chrom], join='inner', axis=1).groupby(['bins', 'chrom']).size().unstack().fillna(0)[config['chrom_order'][:5]]
+display(df)
+scaled = df.div(num_genes / 1e3, axis='columns').dropna(axis=1)[config['chrom_order'][:5]]
+
+# %%
+run_chisq(scaled)
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %% [markdown] {"toc-hr-collapsed": true}
+# ## Male-biased expression (TCP vs OCP)
+
+# %% [markdown]
+# Genes with adjusted p-value <= 0.01 and greater than a 2-fold change (i.e., |log2FC| > 1). Roughly 60% of the transcriptome is differentially expressed, with nearly 40% of genes showing male-biased expression.
+
+# %%
+bulk_sig = (
+    pd.read_csv('../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv', sep='\t', index_col=0)
+    .dropna()
+    .assign(testis_bias = lambda df: (df.log2FoldChange >= 1) & (df.padj <= 0.01))
+    .assign(ovary_bias = lambda df: (df.log2FoldChange <= -1) & (df.padj <= 0.01))
+)
+
+bulk_sig.loc[bulk_sig.testis_bias, 'bias'] = 'testis'
+bulk_sig.loc[bulk_sig.ovary_bias, 'bias'] = 'ovary'
+bulk_sig.bias = bulk_sig.bias.fillna('None')
+
+MALE_BIAS = bulk_sig[bulk_sig.testis_bias].index
+
+# %%
+fig, ax = plt.subplots(figsize=(20, 10))
+defaults = dict(alpha=.5, s=6)
+bulk_sig[~bulk_sig.testis_bias & ~bulk_sig.ovary_bias].plot('baseMean', 'log2FoldChange', kind='scatter', color='gray', ax=ax, zorder=0, **defaults)
+ax.text(.1, 6, f'No-Bias = {(~bulk_sig.ovary_bias & ~bulk_sig.testis_bias).sum():,} ({(~bulk_sig.ovary_bias & ~bulk_sig.testis_bias).mean() * 100:.0f}%)', color='gray', fontsize=18)
+bulk_sig[bulk_sig.testis_bias].plot('baseMean', 'log2FoldChange', kind='scatter', ax=ax, zorder=10, **defaults)
+ax.text(.5, 10, f'Testis-Bias = {bulk_sig.testis_bias.sum():,} ({bulk_sig.testis_bias.mean() * 100:.0f}%)', color='C0', fontsize=18)
+bulk_sig[bulk_sig.ovary_bias].plot('baseMean', 'log2FoldChange', kind='scatter', ax=ax, color='r', zorder=10, **defaults)
+ax.text(.5, -10, f'Ovary-Bias = {bulk_sig.ovary_bias.sum():,} ({bulk_sig.ovary_bias.mean() * 100:.0f}%)', color='r', fontsize=18)
+ax.set_xscale('log')
+sns.despine(ax=ax)
+ax.axhline(0, color='k', lw=3, ls='-.');
+
+# %% [markdown]
+# Genes with male-baised expression are depleted on the X and 4th.
+
+# %%
+df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
+df = (df.div(df.sum(axis=1), axis='rows') * 100)
+
+fig, ax = plt.subplots(figsize=(2, 4))
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax)
+ax.set_xticklabels([
+    l.get_text().replace('chr', '')
+    for l in ax.get_xticklabels()
+], rotation=0, fontsize=10);
+
+ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+ax.margins(0)
+sns.despine(ax=ax, left=True)
+ax.set_ylabel('% Genes')
+
+# %%
+df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+run_chisq(df)
 
 # %% [markdown]
 # ### Are X-linked genes that come on during germline development male-biased?
@@ -483,7 +540,7 @@ rna
 
 # %%
 
-# %% [markdown]
+# %% [markdown] {"toc-hr-collapsed": true}
 # ## M1° Gene Expression
 
 # %%
@@ -576,29 +633,6 @@ run_chisq(background.query('chrom == "chrX"').groupby('m1_coming_on').intron_les
 # %%
 # Only 25 of X-linked escapers are non-coding
 run_chisq(background.query('chrom == "chrX"').groupby('m1_coming_on').non_coding.value_counts().unstack())
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-with open('/home/fearjm/Downloads/FlyBase_IDs.txt') as fh:
-    tes = fh.read().strip().split('\n')
-
-# %%
-background['transposable_element'] = False
-background.loc[background.index.isin(tes), 'transposable_element'] = True
-
-# %%
-pd.crosstab(background.m1_coming_on, background.transposable_element)
-
-# %%
-
-# %%
 
 # %%
 
