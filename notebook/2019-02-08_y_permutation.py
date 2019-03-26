@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -5,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 0.8.6
+#       jupytext_version: 1.0.0
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -134,10 +135,16 @@ median_ratios = ratios_by_cell.groupby('cluster').median().reindex(nbconfig.shor
 
 # %%
 pd.concat([
-    (median_ratios.loc['SP'] / median_ratios.loc['ES']).rename('SP/ES'), 
-    (median_ratios.loc['SP'] / median_ratios.loc['MS']).rename('SP/MS'),
-    (median_ratios.loc['SP'] / median_ratios.loc['LS']).rename('SP/LS')
+    (median_ratios.loc['SP'] / median_ratios.loc['E1º']).rename('SP/E1º'), 
+    (median_ratios.loc['SP'] / median_ratios.loc['M1º']).rename('SP/M1º'),
+    (median_ratios.loc['SP'] / median_ratios.loc['L1º']).rename('SP/L1º')
 ], axis=1, sort=True)
+
+# %%
+(1 / median_ratios.loc[['E1º', 'M1º', 'L1º'], 'ratio_x']).mean()
+
+# %%
+(1 / median_ratios.loc[['E1º', 'M1º', 'L1º'], 'ratio_4']).mean()
 
 # %%
 1 / median_ratios

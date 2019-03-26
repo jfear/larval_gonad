@@ -20,6 +20,7 @@ rule all:
     input:
         '../output/science_submission/intron_less_genes.pkl',
         '../output/science_submission/non_coding_genes.pkl',
+        '../output/science_submission/background_fbgns.pkl',
         '../output/science_submission/figures/tsne.png',
         '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.png',
         '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.png',
@@ -33,7 +34,8 @@ rule all:
         '../output/science_submission/figures/bubble-y-genes.png',
         '../output/science_submission/figures/bubble-msl-genes.png',
         '../output/science_submission/figures/violin-total-umi.png',
-        '../output/science_submission/figures/pointplot-y-genes.png'
+        '../output/science_submission/figures/pointplot-y-genes.png',
+        '../output/science_submission/figures/barplot_germline_deg.png'
 
 ################################################################################
 # Data Sets
@@ -79,6 +81,16 @@ rule tsne:
         df.index.name = 'cell_id'
         df.to_parquet(output[0])
 
+rule background:
+    input: '../output/scrnaseq-wf/raw.parquet'
+    output: '../output/science_submission/background_fbgns.pkl'
+    run:
+        import pandas as pd
+        import pickle
+        fbgns = pd.read_parquet(input[0]).index.tolist()
+        with open(output[0], 'wb') as fh:
+            pickle.dump(fbgns, fh)
+
 rule gene_locs:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
     params: chrom_order=config['chrom_order']
@@ -93,6 +105,15 @@ rule ptrap_scores:
 # Fig 1
 ################################################################################
 
+# (B) Correlation with bulk RNA-Seq
+rule plot_heatmap_bulk_scRNAseq_w_rep:
+    input:
+         bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
+         scrnaseq='../output/scrnaseq-wf/tpm_by_rep.parquet'
+    output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
+    script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
+
+# (D) tSNE of scRNA-Seq
 rule plot_tsne:
     input:
          clusters=rules.clusters.output[0],
@@ -103,6 +124,7 @@ rule plot_tsne:
     output: '../output/science_submission/figures/tsne.svg'
     script: 'scripts/plot_tsne.py'
 
+# (E) Heatmap of literature genes
 rule plot_heatmap_short_lit_genes:
     input:
          zscores='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
@@ -115,6 +137,17 @@ rule plot_heatmap_short_lit_genes:
           lit_genes=config['lit_genes_short'],
           cmap=config['colors']['heatmap']
     script: 'scripts/plot_heatmap_short_lit_genes.py'
+
+# Supplemental Figures
+rule plot_heatmap_all_genes:
+    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
+    output: '../output/science_submission/figures/heatmap-all-genes.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters'],
+          cmap=config['colors']['heatmap']
+    script: 'scripts/plot_heatmap_all_genes.py'
 
 rule plot_heatmap_unique_biomarkers:
     input:
@@ -129,12 +162,18 @@ rule plot_heatmap_unique_biomarkers:
           cmap=config['colors']['heatmap']
     script: 'scripts/plot_heatmap_unique_biomarkers.py'
 
-rule plot_heatmap_bulk_scRNAseq_w_rep:
+rule plot_heatmap_multi_biomarkers:
     input:
-         bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
-         scrnaseq='../output/scrnaseq-wf/tpm_by_rep.parquet'
-    output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
-    script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
+         zscores='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
+         fbgn2symbol=rules.fbgn2symbol.output[0],
+         biomarkers='../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_{res}.tsv'.format(res=config['resolution'])
+    output: '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters'],
+          cmap=config['colors']['heatmap']
+    script: 'scripts/plot_heatmap_multi_biomarkers.py'
 
 rule plot_heatmap_scRNAseq_cluster_corr:
     input: '../output/scrnaseq-wf/tpm.parquet'
@@ -143,26 +182,6 @@ rule plot_heatmap_scRNAseq_cluster_corr:
           annotation=config['short_cluster_annot'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_heatmap_scRNAseq_cluster_corr.py'
-
-rule plot_stacked_bar_prop_by_rep:
-    input: '../output/scrnaseq-wf/clusters.parquet'
-    output: '../output/science_submission/figures/stacked-bar-prop-by-rep.svg'
-    params:
-          annotation=config['short_cluster_annot'],
-          cluster_order=config['short_cluster_order'],
-          cluster_colors=config['colors']['clusters']
-    script: 'scripts/plot_stacked_bar_prop_by_rep.py'
-
-# Supplemental Plots
-rule plot_heatmap_all_genes:
-    input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
-    output: '../output/science_submission/figures/heatmap-all-genes.svg'
-    params:
-          annotation=config['short_cluster_annot'],
-          cluster_order=config['short_cluster_order'],
-          cluster_colors=config['colors']['clusters'],
-          cmap=config['colors']['heatmap']
-    script: 'scripts/plot_heatmap_all_genes.py'
 
 rule plot_heatmap_all_lit_genes:
     input:
@@ -177,18 +196,14 @@ rule plot_heatmap_all_lit_genes:
           cmap=config['colors']['heatmap']
     script: 'scripts/plot_heatmap_all_lit_genes.py'
 
-rule plot_heatmap_multi_biomarkers:
-    input:
-         zscores='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
-         fbgn2symbol=rules.fbgn2symbol.output[0],
-         biomarkers='../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_{res}.tsv'.format(res=config['resolution'])
-    output: '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg'
+rule plot_stacked_bar_prop_by_rep:
+    input: '../output/scrnaseq-wf/clusters.parquet'
+    output: '../output/science_submission/figures/stacked-bar-prop-by-rep.svg'
     params:
           annotation=config['short_cluster_annot'],
           cluster_order=config['short_cluster_order'],
-          cluster_colors=config['colors']['clusters'],
-          cmap=config['colors']['heatmap']
-    script: 'scripts/plot_heatmap_multi_biomarkers.py'
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_stacked_bar_prop_by_rep.py'
 
 rule plot_heatmap_ptrap_genes_w_rep:
     input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
@@ -204,6 +219,7 @@ rule plot_heatmap_ptrap_scores:
 # Fig 2
 ################################################################################
 
+# (A) Distribution of total UMI by cluster
 rule plot_violin_total_umi:
     input: '../output/scrnaseq-wf/raw.parquet'
     output: '../output/science_submission/figures/violin-total-umi.svg'
@@ -213,6 +229,7 @@ rule plot_violin_total_umi:
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_violin_total_umi.py'
 
+# (B, C) Distribution of X:A and 4:A ratios by cluster
 rule plot_boxplot_autosome_ratio:
     input:
         ratios='../output/x-to-a-wf/autosome_ratios_by_cell.parquet',
@@ -224,6 +241,7 @@ rule plot_boxplot_autosome_ratio:
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_boxplot_autosome_ratio.py'
 
+# (D) Normalized Y expression by cluster
 rule plot_pointplot_y_genes:
     input:
          tpm='../output/scrnaseq-wf/tpm_w_rep.parquet',
@@ -236,7 +254,7 @@ rule plot_pointplot_y_genes:
           cluster_colors=config['colors']['clusters'],
     script: 'scripts/plot_pointplot_y_genes.py'
 
-# Supplemental plots
+# Supplemental Figures
 rule plot_bubble_y_genes:
     input:
          raw='../output/scrnaseq-wf/raw.parquet',
@@ -266,8 +284,41 @@ rule plot_bubble_msl_genes:
     script: 'scripts/plot_bubble_msl_genes.py'
 
 ################################################################################
+# Fig 3
+################################################################################
+
+# Not plots needed
+
+################################################################################
+# Fig 4
+################################################################################
+# (A) DEG among germline
+rule plot_barplot_germline_deg:
+    input:
+        gonia='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
+        early='../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv',
+        mid='../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv',
+        late='../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv',
+        fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+        background=rules.background.output[0]
+    output: '../output/science_submission/figures/barplot_germline_deg.svg'
+    script: 'scripts/plot_barplot_germline_deg.py'
+
+# (B) GO analysis SP vs M1°
+
+# (C) Enrichment test ??
+
+# (D) TCP vs OCP DEG
+
+# (E) X depleted male-biased expression
+
+# Supplemental Figures
+
+################################################################################
 # Tables
 ################################################################################
+
+
 # rule differential_expression_tables:
 #     input:
 #          biomarkers='../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv',
