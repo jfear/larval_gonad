@@ -23,7 +23,7 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig, ax = plt.subplots(1, 1, figsize=(2, 5))
+    fig, ax = plt.subplots(1, 1, figsize=(2, 5.5))
 
     # Get X, Y coordinates using category codes.
     xvals = df.cluster.cat.codes
@@ -33,14 +33,16 @@ def main():
     ylabels = df.gene_symbol.cat.categories
 
     # Main plot
-    sc = ax.scatter(xvals, yvals, c=df['sum'], s=df['prop_cells'] * 100, vmin=1, vmax=1000)
-    ax.set_axisbelow(True)
-    ax.grid(axis='y')
+    sc = ax.scatter(xvals, yvals, cmap='Purples_r', c=df['sum'], s=df['prop_cells'] * 100, vmin=1, vmax=1000,
+                    edgecolor='k', lw=.1)
+    # ax.set_axisbelow(True)
+    # ax.grid(axis='y')
     sns.despine(ax=ax, left=True, bottom=True)
     ax.margins(0.02)
 
     # Add color bar and legend
-    plt.colorbar(sc, orientation='horizontal', ticks=[1, 500, 1000], label='Total Number of Reads', fraction=.05)
+    plt.colorbar(sc, orientation='horizontal', ticks=[1, 500, 1000], label='Total Number of Reads', fraction=.05,
+                 pad=.12)
 
     for sizes in [5, 10, 50]:
         plt.scatter([], [], c='k', alpha=0.3, s=sizes, label=f'{sizes:,.0f} %')
@@ -54,7 +56,7 @@ def main():
     ax.set_xticklabels(xlabels)
 
     # Add additional x annotations
-    yloc = -6
+    yloc = -6.5
     pad = yloc * .4
     ax.text(1.5, yloc - pad, 'Germline', ha='center', va='center', fontsize=6, color=cluster_colors[0])
     ax.text(5, yloc - pad, 'Somatic\nCyst', ha='center', va='center', fontsize=6, color=cluster_colors[4])
