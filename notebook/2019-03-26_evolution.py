@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.0.0
+#       jupytext_version: 0.8.6
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -177,6 +177,8 @@ df = (
 )
 
 # %%
+df.head(100)
+
 
 # %%
 df
@@ -192,41 +194,55 @@ out_order = [
     'moved_a_to_x',
     'biomakrer_cluster',
     'bias_gonia_vs_mid_child',
-    'bias_gonia_vs_mid_parent'
+    'bias_gonia_vs_mid_parent',
     'SP_child',
     'M1_child',
     'SP_parent',
-    'M1_parent',
+    'M1_parent'
 ]
 
-df.reindex(columns=out_order).reset_index().rename({'FBgn': 'child_FBgn'}, axis=1).fillna('nan').to_csv('../output/notebook/2019-03-26_movement_data.csv', index=None)
+df.reindex(columns=out_order).reset_index().rename({'FBgn': 'child_FBgn'}, axis=1).fillna('nan').to_csv('../output/notebook/2019-03-30_movement_data.csv', index=None)
 
 # %%
 print('\n'.join(out_order))
 
 # %%
 
-# %%
-
-# %%
-
-# %%
 
 
 # %%
 
 
-# %%
-
 
 # %%
 
-
-# %%
 
 
 # %%
 
 
+
 # %%
+
+
+
+# %%
+
+
+
+# %%
+
+
+
+# %%
+
+
+
+# %%
+
+
+
+# %%
+
+
 
