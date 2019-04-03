@@ -18,7 +18,7 @@ library('dplyr')
 
 ```{r, get.gene.annot}
 # create a dataframe with FBgn to gene symbol
-genes <- read.table('/data/LCDB/lcdb-references/dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation',
+genes <- read.table(file.path(Sys.getenv('REFERENCES_DIR'), 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'),
 		    sep='\t',
 		    stringsAsFactors=F,
 		    header=T,
@@ -34,7 +34,6 @@ genes <- subset(genes, select=-primary_FBgn)
 # Load data from seurat object.
 load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
-
 dds <- importCDS(sobj)
 ```
 
@@ -55,7 +54,7 @@ I am assuming the following annotations:
 
 ```{r get.germ}
 # Pull out only the germ cells based on res.0.6
-germ <- row.names(subset(pData(dds), res.0.6 %in% c(0, 2, 3, 6, 11)))
+germ <- row.names(subset(pData(dds), res.0.6 %in% c(0, 1, 2, 3, 4, 5, 6, 7, 8)))
 dds_germ <- dds[, germ]
 ```
 
@@ -89,6 +88,9 @@ expressed_genes <- row.names(subset(fData(dds_germ), num_cells_expressed >= 10))
 diff_test_res <- differentialGeneTest(dds_germ[expressed_genes,], fullModelFormulaStr = "~res.0.6")
 ordering_genes = row.names(subset(diff_test_res, qval < 0.01))
 dds_order = setOrderingFilter(dds_germ, ordering_genes)
+```
+
+```{r}
 plot_ordering_genes(dds_order)
 ```
 
@@ -96,10 +98,11 @@ plot_ordering_genes(dds_order)
 dds_order <- reduceDimension(dds_order, max_components = 2, method = 'DDRTree')
 dds_order <- orderCells(dds_order)
 ```
-```{r plot.trajectory}
-png('../output/pseudotime-wf/rough_trajectory.png', width = 1600, height = 1600, res = 150)
-plot_cell_trajectory(dds_order, color_by = 'res.0.6')
-dev.off()
+
+```{r plot.trajectory, fig.width=20}
+#png('../output/pseudotime-wf/rough_trajectory.png', width = 1600, height = 1600, res = 150)
+plot_cell_trajectory(dds_order, color_by = 'res.0.6') + scale_color_brewer(palette="Paired")
+#dev.off()
 ```
 
 ```{r output}
