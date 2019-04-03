@@ -62,7 +62,7 @@ with open('../output/science_submission/background_fbgns.pkl', 'rb') as fh:
 
 # %%
 fbgn2symbol = pd.read_pickle('../output/science_submission/fbgn2symbol.pkl')
-fbgn2chrom = pd.read_parquet('../output/x-to-a-wf/fbgn2chrom.parquet')
+fbgn2chrom = pd.read_parquet('../output/x-to-a-wf/fbgn2chrom.parquet').reindex(bg)
 
 # %%
 num_genes = fbgn2chrom.groupby('chrom').size().rename('num_genes')
@@ -75,9 +75,6 @@ clusters = (
     .assign(cluster = lambda df: pd.Categorical(df.cluster.map(config['short_cluster_annot']), ordered=True, categories=config['short_cluster_order']))
     .dropna()
 )
-
-# %% [markdown]
-# ## Helper Functions
 
 # %% [markdown]
 # ## Are cluster biomarkers depleted on of X-linked and 4th-linked genes and enriched for Y-linked genes in the germline?
@@ -117,36 +114,25 @@ run_chisq(df)
 # Ylinked bio-marker genes
 biomarkers.join(fbgn2chrom).query('chrom == "chrY"')
 
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Are genes coming on during germline development depleted from the X and 4th?
 
 # %% [markdown]
-# There are multiple comparisons we can look at, they all show the same general trend. I think the best comparison to focus on is Gonia vs Mid. There is a marginal depletion of M1°-biased genes on the X and 4th. Again the 4th is hard to interpret because one of the cell counts is = 5. 
+# ### Gonia vs Cytes
 
 # %% [markdown]
-# ### Gonia vs Early
+# * Gonia-biased genes are enriched on the X and 4th
+# * Cyte-biased genes are depleted on the X and 4th
 
 # %%
 df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv', sep='\t', index_col=0)
+    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv', sep='\t', index_col=0)
     .rename_axis('FBgn')
     .join(fbgn2chrom)
     .assign(SP_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
-    .assign(**{'E1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
-    .assign(no_difference = lambda df: ~df.SP_biased & ~df['E1°_biased'])
-    .groupby('chrom')[['SP_biased', 'E1°_biased']].sum()
+    .assign(cyte_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0))
+    .assign(no_difference = lambda df: ~df.SP_biased & ~df.cyte_biased)
+    .groupby('chrom')[['SP_biased', 'cyte_biased']].sum()
     .T
     .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
     .loc[:, ['chrX', 'chr4', 'autosomes']]
@@ -155,6 +141,10 @@ run_chisq(df)
 
 # %% [markdown]
 # ### Gonia vs Mid
+
+# %% [markdown]
+# * Gonia-biased genes are enriched on the X and 4th
+# * M1-biased genes are depleted on the X and 4th
 
 # %%
 df = (
@@ -175,78 +165,6 @@ run_chisq(df)
 df.sum(axis=1)
 
 # %% [markdown]
-# ### Gonia vs Late
-
-# %%
-df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv', sep='\t', index_col=0)
-    .rename_axis('FBgn')
-    .join(fbgn2chrom)
-    .assign(SP_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
-    .assign(**{'L1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
-    .assign(no_difference = lambda df: ~df.SP_biased & ~df['L1°_biased'])
-    .groupby('chrom')[['SP_biased', 'L1°_biased']].sum()
-    .T
-    .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .loc[:, ['chrX', 'chr4', 'autosomes']]
-)
-run_chisq(df)
-
-# %% [markdown]
-# ### Gonia vs Cytes
-
-# %%
-df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv', sep='\t', index_col=0)
-    .rename_axis('FBgn')
-    .join(fbgn2chrom)
-    .assign(SP_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
-    .assign(cyte_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0))
-    .assign(no_difference = lambda df: ~df.SP_biased & ~df.cyte_biased)
-    .groupby('chrom')[['SP_biased', 'cyte_biased']].sum()
-    .T
-    .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .loc[:, ['chrX', 'chr4', 'autosomes']]
-)
-run_chisq(df)
-
-# %% [markdown]
-# ### Early vs Mid
-
-# %%
-df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv', sep='\t', index_col=0)
-    .rename_axis('FBgn')
-    .join(fbgn2chrom)
-    .assign(**{'E1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0)})
-    .assign(**{'M1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
-    .assign(no_difference = lambda df: ~df['E1°_biased'] & ~df['M1°_biased'])
-    .groupby('chrom')[['E1°_biased', 'M1°_biased']].sum()
-    .T
-    .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .loc[:, ['chrX', 'chr4', 'autosomes']]
-)
-run_chisq(df)
-
-# %% [markdown]
-# ### Mid vs Late
-
-# %%
-df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv', sep='\t', index_col=0)
-    .rename_axis('FBgn')
-    .join(fbgn2chrom)
-    .assign(**{'M1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0)})
-    .assign(**{'L1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
-    .assign(no_difference = lambda df: ~df['M1°_biased'] & ~df['L1°_biased'])
-    .groupby('chrom')[['M1°_biased', 'L1°_biased']].sum()
-    .T
-    .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .loc[:, ['chrX', 'chr4', 'autosomes']]
-)
-df
-
-# %% [markdown]
 # ## Are high expressed genes in the M1° cluster depleted on the X?
 
 # %% [markdown]
@@ -262,86 +180,18 @@ m1_expression = (
 )
 
 m1_bins = pd.cut(m1_expression, [-np.inf, 0, 10, 50, 100, 1000, np.inf], labels=['x = 0', 'x < 10', '10 ≤ x < 50', '50 ≤ x < 100', '100 ≤ x < 1,000', '1,000 ≤ x']).rename('bins')
-
-# %%
 df = pd.concat([m1_bins, fbgn2chrom], join='inner', axis=1).groupby(['bins', 'chrom']).size().unstack().fillna(0)[config['chrom_order'][:5]]
-display(df)
 scaled = df.div(num_genes / 1e3, axis='columns').dropna(axis=1)[config['chrom_order'][:5]]
-
-# %%
 run_chisq(scaled)
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
-
-# %%
-
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Male-biased expression (TCP vs OCP)
 
 # %% [markdown]
 # Genes with adjusted p-value <= 0.01 and greater than a 2-fold change (i.e., |log2FC| > 1). Roughly 60% of the transcriptome is differentially expressed, with nearly 40% of genes showing male-biased expression.
+
+# %% [markdown]
+# Genes with male-baised expression are depleted on the X and 4th.
 
 # %%
 bulk_sig = (
@@ -358,20 +208,8 @@ bulk_sig.bias = bulk_sig.bias.fillna('None')
 MALE_BIAS = bulk_sig[bulk_sig.testis_bias].index
 
 # %%
-fig, ax = plt.subplots(figsize=(20, 10))
-defaults = dict(alpha=.5, s=6)
-bulk_sig[~bulk_sig.testis_bias & ~bulk_sig.ovary_bias].plot('baseMean', 'log2FoldChange', kind='scatter', color='gray', ax=ax, zorder=0, **defaults)
-ax.text(.1, 6, f'No-Bias = {(~bulk_sig.ovary_bias & ~bulk_sig.testis_bias).sum():,} ({(~bulk_sig.ovary_bias & ~bulk_sig.testis_bias).mean() * 100:.0f}%)', color='gray', fontsize=18)
-bulk_sig[bulk_sig.testis_bias].plot('baseMean', 'log2FoldChange', kind='scatter', ax=ax, zorder=10, **defaults)
-ax.text(.5, 10, f'Testis-Bias = {bulk_sig.testis_bias.sum():,} ({bulk_sig.testis_bias.mean() * 100:.0f}%)', color='C0', fontsize=18)
-bulk_sig[bulk_sig.ovary_bias].plot('baseMean', 'log2FoldChange', kind='scatter', ax=ax, color='r', zorder=10, **defaults)
-ax.text(.5, -10, f'Ovary-Bias = {bulk_sig.ovary_bias.sum():,} ({bulk_sig.ovary_bias.mean() * 100:.0f}%)', color='r', fontsize=18)
-ax.set_xscale('log')
-sns.despine(ax=ax)
-ax.axhline(0, color='k', lw=3, ls='-.');
-
-# %% [markdown]
-# Genes with male-baised expression are depleted on the X and 4th.
+df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+run_chisq(df)
 
 # %%
 df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
@@ -390,10 +228,6 @@ ax.margins(0)
 sns.despine(ax=ax, left=True)
 ax.set_ylabel('% Genes')
 
-# %%
-df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-run_chisq(df)
-
 # %% [markdown]
 # ### Are X-linked genes that come on during germline development male-biased?
 
@@ -409,16 +243,11 @@ df = (
     .assign(**{'M1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
     .assign(no_difference = lambda df: ~df.SP_biased & ~df['M1°_biased'])
     .assign(male_biased = False)
-)
+    .assign(chrom = lambda df: df.chrom.replace({'chr2L': 'A', 'chr2R': 'A', 'chr3L': 'A', 'chr3R': 'A', 'chrX': 'X'}))
+) 
 
 # %%
-df.loc[df.index.isin(MALE_BIAS), 'male_biased'] = True
-
-# %%
-run_chisq(df.groupby('male_biased')[['SP_biased', 'M1°_biased']].sum())
-
-# %%
-df = df.groupby(['male_biased', 'chrom'])[['SP_biased', 'M1°_biased']].sum().loc[(slice(None), ['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']), :]
+df = df.groupby(['male_biased', 'chrom'])[['SP_biased', 'M1°_biased']].sum().loc[(slice(None), ['X', 'A', 'chr4']), :]
 df = df.loc[(True, slice(None)), :]
 df.index = df.index.droplevel('male_biased')
 run_chisq(df.T)
@@ -618,6 +447,9 @@ run_chisq(background.query('chrom == "chrX"').groupby('m1_coming_on').intron_les
 # %%
 # Only 25 of X-linked escapers are non-coding
 run_chisq(background.query('chrom == "chrX"').groupby('m1_coming_on').non_coding.value_counts().unstack())
+
+# %%
+
 
 # %%
 
