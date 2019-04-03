@@ -31,7 +31,7 @@ rule num_genes_by_chrom:
          raw='../output/scrnaseq-wf/raw.parquet',
          chrom=rules.fbgn2chrom.output[0]
     output: '../output/x-to-a-wf/num_genes_by_chrom.pkl'
-    run
+    run:
         (
             pd.read_parquet(input['chrom'])
                 .reindex(pd.read_parquet(input['raw']).index)

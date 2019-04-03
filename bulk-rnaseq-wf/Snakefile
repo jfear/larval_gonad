@@ -52,7 +52,8 @@ rule targets:
         utils.flatten(c.targets['markduplicates']) +
         utils.flatten(c.targets['salmon']) +
         utils.flatten(c.targets['collectrnaseqmetrics']) +
-        utils.flatten(c.targets['bigwig'])
+        utils.flatten(c.targets['bigwig']) +
+        utils.flatten(c.targets['downstream'])
 
 
 if 'orig_filename' in c.sampletable.columns:

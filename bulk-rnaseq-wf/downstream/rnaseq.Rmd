@@ -113,7 +113,7 @@ write.table(res.lfc, '../../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv'
 
 ## Testis dissociated w papain vs Ovary dissociated w papain
 *NOTE* F9_TDP had a really large size factor. 
-```{r results2, cache=TRUE}
+```{r results3, cache=TRUE}
 res <- results(dds, contrast = c('group', 'TDP', 'ODP'), alpha=.01)
 res.lfc <- lfcShrink(dds, contrast = c('group', 'TDP', 'ODP'), res = res)
 plotMA(res.lfc)
