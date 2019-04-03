@@ -37,8 +37,9 @@ rule all:
         '../output/science_submission/figures/pointplot-y-genes.png',
         '../output/science_submission/figures/barplot_germline_deg.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_BP.png',
-         '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
-         '../output/science_submission/figures/bubble_germline_deg_GO_CC.png'
+        '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
+        '../output/science_submission/figures/bubble_germline_deg_GO_CC.png',
+        '../output/science_submission/figures/tsne_comparison.png'
 
 ################################################################################
 # Data Sets
@@ -296,6 +297,17 @@ rule plot_bubble_msl_genes:
 # Fig 4
 ################################################################################
 # (A) DEG among germline
+rule plot_tsne_comparison:
+    input:
+         clusters=rules.clusters.output[0],
+         tsne=rules.tsne.output[0],
+    params:
+          colors=config['colors']['clusters'],
+          cluster_order=config['short_cluster_order'],
+          annotation=config['short_cluster_annot']
+    output: '../output/science_submission/figures/tsne_comparison.svg'
+    script: 'scripts/plot_tsne_comparison.py'
+
 rule plot_barplot_germline_deg:
     input:
         gonia='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
