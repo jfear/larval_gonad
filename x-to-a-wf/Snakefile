@@ -17,7 +17,9 @@ AUTOSOMES = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
 rule targets:
     input:
          '../output/x-to-a-wf/raw_by_chrom.parquet',
-         '../output/x-to-a-wf/expressed_genes_by_chrom.parquet'
+         '../output/x-to-a-wf/expressed_genes_by_chrom.parquet',
+         '../output/x-to-a-wf/autosome_ratios_by_cell.parquet',
+         '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
 
 rule fbgn2chrom:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf').as_posix()
@@ -29,7 +31,7 @@ rule num_genes_by_chrom:
          raw='../output/scrnaseq-wf/raw.parquet',
          chrom=rules.fbgn2chrom.output[0]
     output: '../output/x-to-a-wf/num_genes_by_chrom.pkl'
-    run:
+    run
         (
             pd.read_parquet(input['chrom'])
                 .reindex(pd.read_parquet(input['raw']).index)
