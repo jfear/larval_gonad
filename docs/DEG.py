@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.0.0
+#       jupytext_version: 0.8.6
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -119,11 +119,15 @@ biomarkers.join(fbgn2chrom).query('chrom == "chrY"')
 
 # %%
 
-# %%
 
 # %%
 
+
 # %%
+
+
+# %%
+
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Are genes coming on during germline development depleted from the X and 4th?
@@ -269,47 +273,69 @@ run_chisq(scaled)
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
+
 # %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
+
+# %%
+
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Male-biased expression (TCP vs OCP)
@@ -493,7 +519,9 @@ rna
 
 # %%
 
+
 # %%
+
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## M1° Gene Expression
@@ -538,6 +566,7 @@ run_chisq(_df)
 
 # %%
 
+
 # %%
 pct_cells_expressed = (
     pd.read_parquet('../output/scrnaseq-wf/raw.parquet')
@@ -560,6 +589,7 @@ ax = sns.barplot('cluster', 'num_expressed', data=(pct_cells_expressed >= 10).su
 ax.set_ylabel('Number of Genes\nExpressed in >= 10% Cells')
 
 # %%
+
 
 # %%
 m1_coming_on = (
@@ -591,12 +621,18 @@ run_chisq(background.query('chrom == "chrX"').groupby('m1_coming_on').non_coding
 
 # %%
 
-# %%
 
 # %%
 
-# %%
 
 # %%
 
+
 # %%
+
+
+# %%
+
+
+# %%
+

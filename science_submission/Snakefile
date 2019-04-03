@@ -387,7 +387,7 @@ rule plot_bubble_germline_deg_GO_CC:
 rule svg_png:
     input: '{fig}.svg'
     output: '{fig}.png'
-    shell: "flatpak run org.inkscape.Inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
+    shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
 
 rule svg_pdf:
     input: '{fig}.svg'
