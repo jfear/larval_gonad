@@ -39,7 +39,9 @@ rule all:
         '../output/science_submission/figures/bubble_germline_deg_GO_BP.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_CC.png',
-        '../output/science_submission/figures/tsne_comparison.png'
+        '../output/science_submission/figures/tsne_comparison.png',
+        '../output/science_submission/figures/barplot_bulk_deg_gonia_x.png',
+        '../output/science_submission/figures/barplot_bulk_deg_cyte_x.png'
 
 ################################################################################
 # Data Sets
@@ -327,15 +329,6 @@ rule plot_bubble_germline_deg_GO_BP:
     output: '../output/science_submission/figures/bubble_germline_deg_GO_BP.svg'
     script: 'scripts/plot_bubble_germline_deg_GO_BP.py'
 
-# (C) Enrichment test ??
-
-# (D) TCP vs OCP DEG
-rule plot_scatter_bulk_deg:
-    input:
-         deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv'
-    output: '../output/science_submission/figures/scatter_bulk_deg.svg'
-    script: 'scripts/plot_scatter_bulk_deg.py'
-
 # (E) X depleted male-biased expression
 rule plot_barplot_bulk_deg_x:
     input:
@@ -344,6 +337,21 @@ rule plot_barplot_bulk_deg_x:
     output: '../output/science_submission/figures/barplot_bulk_deg_x.svg'
     script: 'scripts/plot_barplot_bulk_deg_x.py'
 
+rule plot_barplot_bulk_deg_gonia_x:
+    input:
+         bulk_deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
+         sc_deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
+         fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
+    output: '../output/science_submission/figures/barplot_bulk_deg_gonia_x.svg'
+    script: 'scripts/plot_barplot_bulk_deg_gonia_x.py'
+
+rule plot_barplot_bulk_deg_cyte_x:
+    input:
+         bulk_deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
+         sc_deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
+         fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
+    output: '../output/science_submission/figures/barplot_bulk_deg_cyte_x.svg'
+    script: 'scripts/plot_barplot_bulk_deg_cyte_x.py'
 
 # Supplemental Figures
 rule plot_bubble_germline_deg_GO_MF:
@@ -360,6 +368,11 @@ rule plot_bubble_germline_deg_GO_CC:
     output: '../output/science_submission/figures/bubble_germline_deg_GO_CC.svg'
     script: 'scripts/plot_bubble_germline_deg_GO_CC.py'
 
+rule plot_scatter_bulk_deg:
+    input:
+         deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv'
+    output: '../output/science_submission/figures/scatter_bulk_deg.svg'
+    script: 'scripts/plot_scatter_bulk_deg.py'
 
 ################################################################################
 # Tables
