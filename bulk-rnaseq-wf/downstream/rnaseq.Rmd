@@ -54,7 +54,7 @@ knitr::kable(colData[, colnames(colData)[!colnames(colData) %in% exclude.for.pri
 # Load gene-level counts
 dds <- DESeqDataSetFromFeatureCounts(
     sampleTable=colData,
-    directory='/home/fearjm/Projects/larval_gonad/bulk-rnaseq-wf/downstream',
+    directory='.',
     design=~group)
 
 dds <- dds[!grepl('ERCC-', rownames(dds)),]
