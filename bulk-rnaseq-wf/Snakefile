@@ -448,7 +448,7 @@ rule rnaseq_rmarkdown:
         time_hr = lambda wildcards, attempt: attempt * 2
     shell: """
             Rscript -e "rmarkdown::render('{input.rmd}', 'knitrBootstrap::bootstrap_document')" && \
-            mv downstream/rnaseq.html.html {output[0]}
+            mv downstream/rnaseq.html {output[0]}
         """
 
 rule intergenic:
