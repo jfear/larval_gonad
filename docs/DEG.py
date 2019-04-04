@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 0.8.6
+#       jupytext_version: 1.0.0
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -77,9 +77,11 @@ clusters = (
 )
 
 # %% [markdown]
-# ## Are cluster biomarkers depleted on of X-linked and 4th-linked genes and enriched for Y-linked genes in the germline?
+# ## Biomarkers
 
 # %% [markdown]
+# ### Are cluster biomarkers depleted on of X-linked and 4th-linked genes and enriched for Y-linked genes in the germline?
+#
 # Yes, genes assigned as a biomarker for the germline clusters showed a tendency to be depleted on the X and 4th. However, only M1° and L1° showed a significant X depletion. For E1°, M1°, and L1° the 4th cell counts were <= 5 which will mess with the chi^2 results. 
 
 # %%
@@ -114,13 +116,15 @@ run_chisq(df)
 # Ylinked bio-marker genes
 biomarkers.join(fbgn2chrom).query('chrom == "chrY"')
 
+# %% [markdown]
+# ## Pairwise Germline DEG
+
 # %% [markdown] {"toc-hr-collapsed": true}
-# ## Are genes coming on during germline development depleted from the X and 4th?
+# ### Are genes coming on during germline development depleted from the X and 4th?
 
 # %% [markdown]
-# ### Gonia vs Cytes
-
-# %% [markdown]
+# #### Gonia vs Cytes
+#
 # * Gonia-biased genes are enriched on the X and 4th
 # * Cyte-biased genes are depleted on the X and 4th
 
@@ -137,12 +141,12 @@ df = (
     .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
     .loc[:, ['chrX', 'chr4', 'autosomes']]
 )
+print("Fisher's exact test: chrX: {}, chr4: {}".format(fisher_exact(df[['chrX', 'autosomes']])[1], fisher_exact(df[['chr4', 'autosomes']])[1]))
 run_chisq(df)
 
 # %% [markdown]
-# ### Gonia vs Mid
-
-# %% [markdown]
+# #### Gonia vs Mid
+#
 # * Gonia-biased genes are enriched on the X and 4th
 # * M1-biased genes are depleted on the X and 4th
 
@@ -159,38 +163,17 @@ df = (
     .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
     .loc[:, ['chrX', 'chr4', 'autosomes']]
 )
+print("Fisher's exact test: chrX: {}, chr4: {}".format(fisher_exact(df[['chrX', 'autosomes']])[1], fisher_exact(df[['chr4', 'autosomes']])[1]))
 run_chisq(df)
 
 # %%
 df.sum(axis=1)
 
 # %% [markdown]
-# ## Are high expressed genes in the M1° cluster depleted on the X?
-
-# %% [markdown]
-# There is no association between the number of genes in different expression bins and the chromosome they belong to after correcting for the number of genes on each chromosome (p = 0.4536). 
-
-# %%
-# Genes expressed on the X
-m1_expression = (
-    pd.read_parquet('../output/scrnaseq-wf/raw_by_cluster.parquet')
-    .assign(cluster = lambda df: pd.Categorical(df.cluster.map(config['short_cluster_annot']), ordered=True, categories=config['short_cluster_order']))
-    .pivot_table(index='FBgn', columns='cluster', values='UMI')
-    .loc[:, 'M1º']
-)
-
-m1_bins = pd.cut(m1_expression, [-np.inf, 0, 10, 50, 100, 1000, np.inf], labels=['x = 0', 'x < 10', '10 ≤ x < 50', '50 ≤ x < 100', '100 ≤ x < 1,000', '1,000 ≤ x']).rename('bins')
-df = pd.concat([m1_bins, fbgn2chrom], join='inner', axis=1).groupby(['bins', 'chrom']).size().unstack().fillna(0)[config['chrom_order'][:5]]
-scaled = df.div(num_genes / 1e3, axis='columns').dropna(axis=1)[config['chrom_order'][:5]]
-run_chisq(scaled)
-
-# %% [markdown] {"toc-hr-collapsed": true}
 # ## Male-biased expression (TCP vs OCP)
-
-# %% [markdown]
+#
 # Genes with adjusted p-value <= 0.01 and greater than a 2-fold change (i.e., |log2FC| > 1). Roughly 60% of the transcriptome is differentially expressed, with nearly 40% of genes showing male-biased expression.
-
-# %% [markdown]
+#
 # Genes with male-baised expression are depleted on the X and 4th.
 
 # %%
@@ -229,28 +212,68 @@ sns.despine(ax=ax, left=True)
 ax.set_ylabel('% Genes')
 
 # %% [markdown]
-# ### Are X-linked genes that come on during germline development male-biased?
+# ### Gonia Biased Male expression
+
+# %%
+SP_BIASED = (
+    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv', sep='\t', index_col=0)
+    .query('p_val_adj <= 0.01 & avg_logFC > 0')
+    .index.tolist()
+)
+
+# %%
+df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+run_chisq(df)
+
+# %%
+df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
+df = (df.div(df.sum(axis=1), axis='rows') * 100)
+
+# %%
+fig, ax = plt.subplots(figsize=(2, 4))
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax)
+ax.set_xticklabels([
+    l.get_text().replace('chr', '')
+    for l in ax.get_xticklabels()
+], rotation=0, fontsize=10);
+
+#ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+#ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+ax.margins(0)
+sns.despine(ax=ax, left=True)
+ax.set_ylabel('% Genes')
 
 # %% [markdown]
-# Yes, the majority of genes coming on during germline development show male-biased expression in the bulk RNA-Seq.
+# ### Cyte Biased Male expression
 
 # %%
-df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv', sep='\t', index_col=0)
-    .rename_axis('FBgn')
-    .join(fbgn2chrom)
-    .assign(SP_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
-    .assign(**{'M1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
-    .assign(no_difference = lambda df: ~df.SP_biased & ~df['M1°_biased'])
-    .assign(male_biased = False)
-    .assign(chrom = lambda df: df.chrom.replace({'chr2L': 'A', 'chr2R': 'A', 'chr3L': 'A', 'chr3R': 'A', 'chrX': 'X'}))
-) 
+CYTE_BIASED = (
+    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv', sep='\t', index_col=0)
+    .query('p_val_adj <= 0.01 & avg_logFC < 0')
+    .index.tolist()
+)
 
 # %%
-df = df.groupby(['male_biased', 'chrom'])[['SP_biased', 'M1°_biased']].sum().loc[(slice(None), ['X', 'A', 'chr4']), :]
-df = df.loc[(True, slice(None)), :]
-df.index = df.index.droplevel('male_biased')
-run_chisq(df.T)
+df = bulk_sig.reindex(CYTE_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+run_chisq(df)
+
+# %%
+df = bulk_sig.reindex(CYTE_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
+df = (df.div(df.sum(axis=1), axis='rows') * 100)
+
+# %%
+fig, ax = plt.subplots(figsize=(2, 4))
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax)
+ax.set_xticklabels([
+    l.get_text().replace('chr', '')
+    for l in ax.get_xticklabels()
+], rotation=0, fontsize=10);
+
+#ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+#ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+ax.margins(0)
+sns.despine(ax=ax, left=True)
+ax.set_ylabel('% Genes')
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Do male-biased genes show movement?
@@ -309,9 +332,6 @@ movement = (
 )
 
 # %%
-movement.head()
-
-# %%
 dna = (
     movement.query('gene_type == ["D", "Dl"]')
 )
@@ -344,10 +364,63 @@ stat, pval = fisher_exact(ct, alternative='two-sided')
 print(f"Fisher's exact p-value: {pval:0.4f}")
 
 # %%
-rna
+
+
+# %%
+movement.head()
+
+# %%
+m1_fbgns = (
+    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv', sep='\t', index_col=0)
+    .query('p_val_adj <= 0.01 & avg_logFC < 0')
+    .index.tolist()
+)
+
+# %%
+pd.read_parquet('../output/scrnaseq-wf/cpm.parquet').pipe(lambda x: x[x.index.isin(['FBgn0283741'])])
 
 # %%
 
+# %%
+
+# %%
+one = pd.read_csv('../output/gene_ts_lengths.tsv', sep='\t', index_col=0).rename(columns={'gene_ts_length': 'one'})
+two = pd.read_csv('../output/gene_ts_lengths2.tsv', sep='\t', index_col=0).rename(columns={'gene_ts_length': 'two'})
+
+# %%
+df = one.merge(two, on='FBgn', how='outer')
+
+# %%
+df[df.isna().any(axis=1)]
+
+# %%
+]
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %%
 
@@ -468,3 +541,25 @@ run_chisq(background.query('chrom == "chrX"').groupby('m1_coming_on').non_coding
 
 # %%
 
+
+# %% [markdown]
+# ## scRNA-Seq Expression
+
+# %% [markdown]
+# ### Are high expressed genes in the M1° cluster depleted on the X?
+#
+# There is no association between the number of genes in different expression bins and the chromosome they belong to after correcting for the number of genes on each chromosome (p = 0.4536). 
+
+# %%
+# Genes expressed on the X
+m1_expression = (
+    pd.read_parquet('../output/scrnaseq-wf/raw_by_cluster.parquet')
+    .assign(cluster = lambda df: pd.Categorical(df.cluster.map(config['short_cluster_annot']), ordered=True, categories=config['short_cluster_order']))
+    .pivot_table(index='FBgn', columns='cluster', values='UMI')
+    .loc[:, 'M1º']
+)
+
+m1_bins = pd.cut(m1_expression, [-np.inf, 0, 10, 50, 100, 1000, np.inf], labels=['x = 0', 'x < 10', '10 ≤ x < 50', '50 ≤ x < 100', '100 ≤ x < 1,000', '1,000 ≤ x']).rename('bins')
+df = pd.concat([m1_bins, fbgn2chrom], join='inner', axis=1).groupby(['bins', 'chrom']).size().unstack().fillna(0)[config['chrom_order'][:5]]
+scaled = df.div(num_genes / 1e3, axis='columns').dropna(axis=1)[config['chrom_order'][:5]]
+run_chisq(scaled)
