@@ -28,7 +28,7 @@ featurecounts.strandedness <- 's2' # minus-strand reads correspond to sense-stra
 colData$featurecounts.path <- sapply(
     colData$samplename,
     function (x) file.path(
-        '..', '..', 'output', 'bulk-rnaseq-wf', 'rnaseq_samples', x,
+        '..', '..', 'output', 'bulk2-rnaseq-wf', 'rnaseq_samples', x,
         paste0(x, '.cutadapt.bam.featurecounts', '.txt')
         )
     )
@@ -54,7 +54,7 @@ knitr::kable(colData[, colnames(colData)[!colnames(colData) %in% exclude.for.pri
 # Load gene-level counts
 dds <- DESeqDataSetFromFeatureCounts(
     sampleTable=colData,
-    directory='/home/fearjm/Projects/larval_gonad/bulk-rnaseq-wf/downstream',
+    directory='.',
     design=~group)
 
 dds <- dds[!grepl('ERCC-', rownames(dds)),]
@@ -86,19 +86,6 @@ knitr::kable(sf)
 dds <- DESeq(dds, betaPrior=FALSE)
 ```
 
-## Testis w Fat vs Ovary w Fat
-```{r results, cache=TRUE}
-res <- results(dds, contrast = c('group', 'TF', 'OF'), alpha=.01)
-res.lfc <- lfcShrink(dds, contrast = c('group', 'TF', 'OF'), res = res)
-plotMA(res.lfc)
-summary(res.lfc)
-
-res.lfc$FBgn <- rownames(res)
-res.lfc <- res.lfc[,c('FBgn', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pvalue', 'padj')]
-write.table(res.lfc, '../../output/bulk-rnaseq-wf/deseq2_results_tf_vs_of.tsv', sep='\t', row.names = FALSE, quote=FALSE)
-```
-
-
 ## Testis cleaned w papain vs Ovary cleaned w papain
 ```{r results2, cache=TRUE}
 res <- results(dds, contrast = c('group', 'TCP', 'OCP'), alpha=.01)
@@ -108,20 +95,7 @@ summary(res.lfc)
 
 res.lfc$FBgn <- rownames(res)
 res.lfc <- res.lfc[,c('FBgn', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pvalue', 'padj')]
-write.table(res.lfc, '../../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv', sep='\t', row.names = FALSE, quote=FALSE)
-```
-
-## Testis dissociated w papain vs Ovary dissociated w papain
-*NOTE* F9_TDP had a really large size factor. 
-```{r results2, cache=TRUE}
-res <- results(dds, contrast = c('group', 'TDP', 'ODP'), alpha=.01)
-res.lfc <- lfcShrink(dds, contrast = c('group', 'TDP', 'ODP'), res = res)
-plotMA(res.lfc)
-summary(res.lfc)
-
-res.lfc$FBgn <- rownames(res)
-res.lfc <- res.lfc[,c('FBgn', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pvalue', 'padj')]
-write.table(res.lfc, '../../output/bulk-rnaseq-wf/deseq2_results_tdp_vs_odp.tsv', sep='\t', row.names = FALSE, quote=FALSE)
+write.table(res.lfc, '../../output/bulk2-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv', sep='\t', row.names = FALSE, quote=FALSE)
 ```
 
 # Session info

@@ -60,4 +60,4 @@ bigwig:
    neg: '{sample_dir}/{sample}/{sample}.cutadapt.bam.neg.bigwig'
 
 downstream:
-   rnaseq: '../output/bulk-rnaseq-wf/downstream/rnaseq.html'
+   rnaseq: '../output/bulk-rnaseq-wf/rnaseq.html'
