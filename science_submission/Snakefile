@@ -225,17 +225,7 @@ rule plot_heatmap_ptrap_scores:
 # Fig 2
 ################################################################################
 
-# (A) Distribution of total UMI by cluster
-rule plot_violin_total_umi:
-    input: '../output/scrnaseq-wf/raw.parquet'
-    output: '../output/science_submission/figures/violin-total-umi.svg'
-    params:
-          annotation=config['short_cluster_annot'],
-          cluster_order=config['short_cluster_order'],
-          cluster_colors=config['colors']['clusters']
-    script: 'scripts/plot_violin_total_umi.py'
-
-# (B, C) Distribution of X:A and 4:A ratios by cluster
+# (A, B) Distribution of X:A and 4:A ratios by cluster
 rule plot_boxplot_autosome_ratio:
     input:
         ratios='../output/x-to-a-wf/autosome_ratios_by_cell.parquet',
@@ -261,6 +251,15 @@ rule plot_boxplot_y_genes:
     script: 'scripts/plot_boxplot_y_genes.py'
 
 # Supplemental Figures
+rule plot_violin_total_umi:
+    input: '../output/scrnaseq-wf/raw.parquet'
+    output: '../output/science_submission/figures/violin-total-umi.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_violin_total_umi.py'
+
 rule plot_bubble_y_genes:
     input:
          raw='../output/scrnaseq-wf/raw.parquet',
