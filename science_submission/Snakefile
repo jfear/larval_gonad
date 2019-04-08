@@ -34,7 +34,7 @@ rule all:
         '../output/science_submission/figures/bubble-y-genes.png',
         '../output/science_submission/figures/bubble-msl-genes.png',
         '../output/science_submission/figures/violin-total-umi.png',
-        '../output/science_submission/figures/pointplot-y-genes.png',
+        '../output/science_submission/figures/boxplot-y-genes.png',
         '../output/science_submission/figures/barplot_germline_deg.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_BP.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
@@ -248,17 +248,17 @@ rule plot_boxplot_autosome_ratio:
     script: 'scripts/plot_boxplot_autosome_ratio.py'
 
 # (D) Normalized Y expression by cluster
-rule plot_pointplot_y_genes:
+rule plot_boxplot_y_genes:
     input:
          tpm='../output/scrnaseq-wf/tpm_w_rep.parquet',
          clusters='../output/scrnaseq-wf/clusters.parquet',
          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
-    output: '../output/science_submission/figures/pointplot-y-genes.svg'
+    output: '../output/science_submission/figures/boxplot-y-genes.svg'
     params:
           annotation=config['short_cluster_annot'],
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters'],
-    script: 'scripts/plot_pointplot_y_genes.py'
+    script: 'scripts/plot_boxplot_y_genes.py'
 
 # Supplemental Figures
 rule plot_bubble_y_genes:
