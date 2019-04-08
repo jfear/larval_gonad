@@ -198,3 +198,13 @@ msl_genes:
   - FBgn0019660 # rox2
   - FBgn0019661 # rox1
 
+legend_names:
+ - 'spermatogonia (SP)'
+ - 'early 1° spermatocytes (E1°)'
+ - 'middle 1° spermatocytes (M1°)'
+ - 'late 1° spermatocytes (L1°)'
+ - 'early cyst cells (EC)'
+ - 'middle cyst cells (MC)'
+ - 'late cyst cells (LC)'
+ - 'terminal epithelium (TE)'
+ - 'pigment cells (PC)'
