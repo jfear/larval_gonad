@@ -23,10 +23,18 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig, axes = plt.subplots(1, 4, figsize=(2, 6))
+    fig, axes = plt.subplots(1, 5, figsize=(2, 6))
 
     for i, clus in enumerate(cluster_order[:4]):
-        plot_tsne(df, clus, colors[i], axes[i])
+        plot_tsne(df, f'cluster == "{clus}"', clus, colors[i], axes[i])
+
+    for i, clus in enumerate(cluster_order[1:4]):
+        if i == 0:
+            opts = dict(bg=True)
+        else:
+            opts = dict(bg=False)
+
+        plot_tsne(df, f'cluster == "{clus}"', "Cytes", colors[i+1], axes[-1], **opts)
 
     fig.savefig(oname, bbox_inches='tight')
 
@@ -39,11 +47,12 @@ def get_data():
     )
 
 
-def plot_tsne(df, title, color, ax):
-    defaults = dict(edgecolor='k', lw=.02, s=3, rasterized=True)
+def plot_tsne(df, query, title, color, ax, bg=True):
+    defaults = dict(edgecolor='k', lw=.02, s=.8, rasterized=True)
 
-    _df = df.query(f'cluster == "{title}"')
-    ax.scatter(df.tSNE_1, df.tSNE_2, c='lightgray', alpha=.1, **defaults)
+    _df = df.query(query)
+    if bg:
+        ax.scatter(df.tSNE_1, df.tSNE_2, c='lightgray', alpha=.1, **defaults)
     ax.scatter(_df.tSNE_1, _df.tSNE_2, c=color, **defaults)
     sns.despine(ax=ax, left=True, bottom=True)
     plt.setp(ax, xticks=[], yticks=[], xlabel='', ylabel='', aspect='equal', xmargin=0, ymargin=0)
