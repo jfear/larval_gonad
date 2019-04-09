@@ -22,7 +22,7 @@ rule all:
         '../output/science_submission/non_coding_genes.pkl',
         '../output/science_submission/background_fbgns.pkl',
         '../output/science_submission/figures/tsne.png',
-        '../output/science_submission/figures/cluster-legend.svg',
+        '../output/science_submission/figures/cluster-legend.png',
         '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.png',
         '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.png',
         '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.png',
@@ -37,10 +37,13 @@ rule all:
         '../output/science_submission/figures/violin-total-umi.png',
         '../output/science_submission/figures/boxplot-y-genes.png',
         '../output/science_submission/figures/barplot_germline_deg.png',
+        '../output/science_submission/figures/scatter_bulk_deg.png',
+        '../output/science_submission/figures/barplot_bulk_deg_x.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_BP.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_CC.png',
         '../output/science_submission/figures/tsne_comparison.png',
+        '../output/science_submission/figures/boxplot-y-genes.png',
         '../output/science_submission/figures/barplot_bulk_deg_gonia_x.png',
         '../output/science_submission/figures/barplot_bulk_deg_cyte_x.png'
 
