@@ -17,7 +17,6 @@ background = snakemake.input.background
 
 oname = snakemake.output[0]
 
-
 AUTOSOMES = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
 COLORS = ['#e50000', '#ffffff', '#ffffff', '#ffffff', '#ffffff', '#e50000']
 GERMLINE = ['SP', 'E1°', 'M1°', 'L1°']
@@ -25,32 +24,35 @@ QUERY_MAPPER = {
     'SP': {
         'fname': gonia,
         'query': 'p_val_adj <= 0.01 & avg_logFC > 0',
-        'title': 'SP vs\nE1° M1° L1°'
+        'title': 'SP vs\nE1° M1° L1°',
+        'yaxis': 'Proportion\nGonia-Baised'
     },
     'E1°': {
         'fname': early,
         'query': 'p_val_adj <= 0.01 & avg_logFC < 0',
-         'title': 'SP vs E1°'
+        'title': 'SP vs E1°',
+        'yaxis': 'Proportion\nE1°-Baised'
     },
     'M1°': {
         'fname': mid,
         'query': 'p_val_adj <= 0.01 & avg_logFC < 0',
-        'title': 'E1° vs M1°'
+        'title': 'E1° vs M1°',
+        'yaxis': 'Proportion\nM1°-Baised'
     },
     'L1°': {
         'fname': late,
         'query': 'p_val_adj <= 0.01 & avg_logFC < 0',
-         'title': 'M1° vs L1°'
+        'title': 'M1° vs L1°',
+        'yaxis': 'Proportion\nL1°-Baised'
     }
 }
-
 
 
 def main():
     chroms = get_chroms()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig, axes = plt.subplots(1, 4, figsize=(4, 1), sharey=True)
+    fig, axes = plt.subplots(4, 1, figsize=(1, 4), sharex=True, sharey=True, gridspec_kw=dict(hspace=.18))
 
     for name, ax in zip(GERMLINE, axes):
         significant_fbgns = get_significant_fbgns(name)
@@ -68,13 +70,10 @@ def main():
             ax.text(5, proportion_genes_significant['chr4'], '*', ha='center', va='center')
 
         # Add title
-        ax.text(0.5, 1, QUERY_MAPPER[name]['title'], transform=ax.transAxes, ha='center', va='top', fontsize=6)
+        ax.text(0.5, .8, QUERY_MAPPER[name]['title'], transform=ax.transAxes, ha='center', va='top', fontsize=6)
         # Clean up axes
-        if name == 'SP':
-            sns.despine(ax=ax)
-            ax.set_ylim(0, .25)
-        else:
-            sns.despine(ax=ax, left=True)
+        sns.despine(ax=ax)
+        ax.set_ylim(0, .25)
 
         ax.set_xticklabels([
             l.get_text().replace('chr', '')
@@ -82,9 +81,7 @@ def main():
         ], rotation=0)
 
         ax.set_xlabel('')
-        ax.set_ylabel('Proportion\nBiased Genes')
-
-
+        ax.set_ylabel(QUERY_MAPPER[name]['yaxis'])
 
     fig.savefig(oname, bbox_inches='tight')
 
@@ -99,9 +96,9 @@ def get_chroms():
 def get_significant_fbgns(name):
     return (
         pd.read_csv(QUERY_MAPPER[name]['fname'], sep='\t', index_col=0)
-        .rename_axis('FBgn')
-        .query(QUERY_MAPPER[name]['query'])
-        .index.tolist()
+            .rename_axis('FBgn')
+            .query(QUERY_MAPPER[name]['query'])
+            .index.tolist()
     )
 
 
@@ -112,13 +109,12 @@ def make_crosstab(fbgns, chroms):
 
     return (
         _chroms
-        .groupby('biased').chrom.value_counts()
-        .unstack()
-        .assign(autosome = lambda df: df[AUTOSOMES].sum(axis=1))
-        .fillna(0)
+            .groupby('biased').chrom.value_counts()
+            .unstack()
+            .assign(autosome=lambda df: df[AUTOSOMES].sum(axis=1))
+            .fillna(0)
     )
 
 
 if __name__ == '__main__':
     main()
-
