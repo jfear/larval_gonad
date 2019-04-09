@@ -77,46 +77,6 @@ clusters = (
 )
 
 # %% [markdown]
-# ## Biomarkers
-
-# %% [markdown]
-# ### Are cluster biomarkers depleted on of X-linked and 4th-linked genes and enriched for Y-linked genes in the germline?
-#
-# Yes, genes assigned as a biomarker for the germline clusters showed a tendency to be depleted on the X and 4th. However, only M1° and L1° showed a significant X depletion. For E1°, M1°, and L1° the 4th cell counts were <= 5 which will mess with the chi^2 results. 
-
-# %%
-# Get biomarkers
-resolution = config['resolution']
-biomarkers = (
-    pd.read_csv(f'../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_{resolution}.tsv', sep='\t', index_col=0)
-    .rename_axis('FBgn')
-    .query('p_val_adj <= 0.05')
-    .assign(cluster = lambda df: pd.Categorical(df.cluster.map(config['short_cluster_annot']), ordered=True, categories=config['short_cluster_order']))
-    .dropna()
-)
-
-# %%
-# Number of biomarker genes by cluster and chromosome
-df = (
-    biomarkers.join(fbgn2chrom)
-    .groupby(['cluster', 'chrom']).size()
-    .unstack().fillna(0).drop('chrM', axis=1)
-    .assign(autosome=lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .drop(['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chrY'], axis=1)
-    .reset_index()
-    .assign(cluster = lambda df: df.cluster.astype(str))
-    .set_index('cluster')
-    .T
-    .assign(soma = lambda df: df[['EC', 'MC', 'LC', 'TE', 'PC']].sum(axis=1))
-    .drop(['EC', 'MC', 'LC', 'TE', 'PC'], axis=1)
-)
-run_chisq(df)
-
-# %%
-# Ylinked bio-marker genes
-biomarkers.join(fbgn2chrom).query('chrom == "chrY"')
-
-# %% [markdown]
 # ## Pairwise Germline DEG
 
 # %% [markdown] {"toc-hr-collapsed": true}
