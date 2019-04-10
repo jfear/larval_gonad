@@ -62,7 +62,7 @@ with open('../output/science_submission/background_fbgns.pkl', 'rb') as fh:
 
 # %%
 fbgn2symbol = pd.read_pickle('../output/science_submission/fbgn2symbol.pkl')
-fbgn2chrom = pd.read_parquet('../output/x-to-a-wf/fbgn2chrom.parquet').reindex(bg)
+fbgn2chrom = pd.read_parquet('../output/x-to-a-wf/fbgn2chrom.parquet')
 
 # %%
 num_genes = fbgn2chrom.groupby('chrom').size().rename('num_genes')
@@ -151,22 +151,23 @@ bulk_sig.bias = bulk_sig.bias.fillna('None')
 MALE_BIAS = bulk_sig[bulk_sig.testis_bias].index
 
 # %%
-df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+df = bulk_sig.join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
 run_chisq(df)
 
 # %%
-df = bulk_sig.join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
+df = bulk_sig.join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack()
 df = (df.div(df.sum(axis=1), axis='rows') * 100)
 
-fig, ax = plt.subplots(figsize=(2, 4))
+# %%
+fig, ax = plt.subplots(figsize=plt.figaspect(2))
 df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax)
 ax.set_xticklabels([
     l.get_text().replace('chr', '')
     for l in ax.get_xticklabels()
-], rotation=0, fontsize=10);
+], rotation=0);
 
-ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
-ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=24, fontweight='bold')
+ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=24, fontweight='bold')
 ax.margins(0)
 sns.despine(ax=ax, left=True)
 ax.set_ylabel('% Genes')
@@ -182,11 +183,11 @@ SP_BIASED = (
 )
 
 # %%
-df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
 run_chisq(df)
 
 # %%
-df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
+df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack()
 df = (df.div(df.sum(axis=1), axis='rows') * 100)
 
 # %%
@@ -202,6 +203,45 @@ ax.set_xticklabels([
 ax.margins(0)
 sns.despine(ax=ax, left=True)
 ax.set_ylabel('% Genes')
+
+# %%
+fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw=dict(hspace=0.1), sharex=True, figsize=plt.figaspect(2))
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax1)
+ax1.set_ylim(89, 100)
+ax1.xaxis.set_visible(False)
+sns.despine(ax=ax1, bottom=True, left=True)
+
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax2)
+ax2.set_ylim(0, 9)
+sns.despine(ax=ax2, left=True)
+
+ax2.set_xticklabels([
+    l.get_text().replace('chr', '')
+    for l in ax2.get_xticklabels()
+], rotation=0);
+
+#ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+#ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+fig.text(0, 0.5, '% Genes', rotation=90, va='center', ha='right')
+
+d = 0.015
+kwargs = dict(transform=ax1.transAxes, clip_on=False, color='k')
+ax1.plot((d, -d), (d, -d), **kwargs)
+
+kwargs.update(transform=ax2.transAxes)
+ax1.plot((d, -d), (1+d, 1-d), **kwargs)
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %% [markdown]
 # ### Cyte Biased Male expression
@@ -214,11 +254,11 @@ CYTE_BIASED = (
 )
 
 # %%
-df = bulk_sig.reindex(CYTE_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+df = bulk_sig.reindex(CYTE_BIASED).join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
 run_chisq(df)
 
 # %%
-df = bulk_sig.reindex(CYTE_BIASED).join(fbgn2chrom).groupby('chrom').bias.value_counts().unstack()
+df = bulk_sig.reindex(CYTE_BIASED).join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack()
 df = (df.div(df.sum(axis=1), axis='rows') * 100)
 
 # %%
@@ -234,6 +274,33 @@ ax.set_xticklabels([
 ax.margins(0)
 sns.despine(ax=ax, left=True)
 ax.set_ylabel('% Genes')
+
+# %%
+fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw=dict(hspace=0.1), sharex=True, figsize=plt.figaspect(2))
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax1)
+ax1.set_ylim(84, 100)
+ax1.xaxis.set_visible(False)
+sns.despine(ax=ax1, bottom=True, left=True)
+
+df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']].plot(kind='bar', stacked=True, legend=False, width=.9, color=['C0', 'gray', 'r'], ax=ax2)
+ax2.set_ylim(0, 24)
+sns.despine(ax=ax2, left=True)
+
+ax2.set_xticklabels([
+    l.get_text().replace('chr', '')
+    for l in ax2.get_xticklabels()
+], rotation=0);
+
+#ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+#ax.text(5, df.loc['chr4', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
+fig.text(0, 0.5, '% Genes', rotation=90, va='center', ha='right')
+
+d = 0.015
+kwargs = dict(transform=ax1.transAxes, clip_on=False, color='k')
+ax1.plot((d, -d), (d, -d), **kwargs)
+
+kwargs.update(transform=ax2.transAxes)
+ax1.plot((d, -d), (1+d, 1-d), **kwargs)
 
 # %% [markdown] {"toc-hr-collapsed": true}
 # ## Do male-biased genes show movement?
@@ -285,11 +352,30 @@ movement.loc[(movement.parent_chrom == "chrX") & movement.child_chrom.isin(autos
 movement.loc[movement.parent_chrom.isin(autosomes) & (movement.parent_chrom != movement.child_chrom), 'movement'] = 'A -> '
 movement.movement = pd.Categorical(movement.movement, ordered=True, categories=['X -> A', 'A -> '])
 
-movement = (
-    movement
-    .merge(bulk_sig.testis_bias.rename('child_testis_bias').to_frame(), left_on='child_FBgn', right_on='FBgn')
-    .merge(bulk_sig.testis_bias.rename('parent_testis_bias').to_frame(), left_on='parent_FBgn', right_on='FBgn')
-)
+# %%
+movement
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %%
 dna = (
