@@ -53,11 +53,13 @@ def main():
     ax2.set_xticklabels([
         l.get_text().replace('chr', '')
         for l in ax2.get_xticklabels()
-    ], rotation=0, fontsize=8)
+    ], rotation=0, fontsize=7)
     ax2.margins(0)
 
     # Add ylabel to span the two axis
     fig.text(0, 0.5, '% Genes', rotation=90, va='center', ha='right', fontsize=plt.rcParams['axes.labelsize'])
+    ax1.set_title("Cyte-bias")
+
     fig.savefig(oname, bbox_inches='tight')
 
 

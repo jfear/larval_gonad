@@ -27,7 +27,7 @@ def main():
     ax.set_xticklabels([
         l.get_text().replace('chr', '')
         for l in ax.get_xticklabels()
-    ], rotation=0, fontsize=8)
+    ], rotation=0, fontsize=7)
 
     if pvals.loc[('testis', 'flag_sig'), 'chrX'] == 1:
         ax.text(0, df.loc['chrX', 'testis'] - 1, '*', color='w', ha='center', va='top', fontsize=12, fontweight='bold')
@@ -38,6 +38,7 @@ def main():
     ax.margins(0)
     sns.despine(ax=ax, left=True)
     ax.set_ylabel('% Genes')
+    ax.set_title("Bulk")
 
     fig.savefig(oname, bbox_inches='tight')
 
