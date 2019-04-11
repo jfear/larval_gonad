@@ -45,7 +45,7 @@ def main():
 def get_plot_data(chroms):
     bulk_sig = get_bulk_sig()
 
-    df = bulk_sig.join(chroms).groupby('chrom').bias.value_counts().unstack()
+    df = bulk_sig.join(chroms, how='outer').fillna("None").groupby('chrom').bias.value_counts().unstack()
     df = df.div(df.sum(axis=1), axis='rows') * 100
     return df.loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4'], ['testis', 'None', 'ovary']]
 
