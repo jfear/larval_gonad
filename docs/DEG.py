@@ -13,7 +13,7 @@
 #     name: conda-env-larval_gonad-py
 # ---
 
-# %% [markdown]
+# %% [markdown] {"toc-hr-collapsed": false}
 # # Differential Expression
 
 # %%
@@ -76,7 +76,10 @@ clusters = (
     .dropna()
 )
 
-# %% [markdown]
+# %%
+autosomes = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
+
+# %% [markdown] {"toc-hr-collapsed": true}
 # ## Genes up regulated in primary spermatocytes are depleted from the X and 4th
 
 # %% [markdown] {"toc-hr-collapsed": true}
@@ -133,7 +136,7 @@ res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
 
 # %%
 
-# %% [markdown]
+# %% [markdown] {"toc-hr-collapsed": true}
 # ## Demasculinization of the X chromosome
 #
 # Previous studies have shown that testis biased genes are depleted from the X chromosome. These studies used microarray and bulk RNA-Seq from adult testis.
@@ -255,7 +258,7 @@ res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
 # %%
 
 # %% [markdown] {"toc-hr-collapsed": true}
-# ## Do male-biased genes show movement?
+# ## Gene Movement
 
 # %% [markdown]
 # https://genome.cshlp.org/content/19/5/897.long
@@ -273,9 +276,8 @@ assembly = config['assembly']
 tag = config['tag']
 pth = Path(os.environ['REFERENCES_DIR'], f'{assembly}/{tag}/fb_annotation/{assembly}_{tag}.fb_annotation')
 
-# Create an FBgn 
+# Create a FBgn sanitizer using secondary IDs
 mapper = {}
-
 for record in pd.read_csv(pth, sep='\t').to_records():
     mapper[record.primary_FBgn] = record.primary_FBgn
     
@@ -286,9 +288,6 @@ for record in pd.read_csv(pth, sep='\t').to_records():
         pass
 
 # %%
-autosomes = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
-
-# %%
 movement = (
     pd.read_excel('../data/external/maria/dm6_ver78_genetype.new.xlsx')
     .query('gene_type == ["D", "R", "Dl", "Rl"] and m_type == "M"')
@@ -297,6 +296,12 @@ movement = (
     .assign(child_FBgn = lambda df: df.child_id.map(mapper))
     .assign(parent_FBgn = lambda df: df.parent_id.map(mapper))
     .drop(['child_id', 'parent_id', 'note', 'm_type'], axis=1)
+    .assign(child_testis=lambda df: df.child_FBgn.isin(MALE_BIAS))
+    .assign(parent_testis=lambda df: df.parent_FBgn.isin(MALE_BIAS))
+    .assign(parent_gonia=lambda df: df.parent_FBgn.isin(SP_BIASED))
+    .assign(child_gonia=lambda df: df.child_FBgn.isin(SP_BIASED))
+    .assign(parent_cyte=lambda df: df.parent_FBgn.isin(CYTE_BIASED))
+    .assign(child_cyte=lambda df: df.child_FBgn.isin(CYTE_BIASED))
     .dropna()
 ) 
 
@@ -304,8 +309,416 @@ movement.loc[(movement.parent_chrom == "chrX") & movement.child_chrom.isin(autos
 movement.loc[movement.parent_chrom.isin(autosomes) & (movement.parent_chrom != movement.child_chrom), 'movement'] = 'A -> '
 movement.movement = pd.Categorical(movement.movement, ordered=True, categories=['X -> A', 'A -> '])
 
+movement.loc[(movement.parent_chrom == "chrX") & movement.child_chrom.isin(autosomes), 'movement2'] = 'X -> A'
+movement.loc[movement.parent_chrom.isin(autosomes) & (movement.child_chrom == "chrX"), 'movement2'] = 'A -> X'
+movement.loc[movement.parent_chrom.isin(autosomes) & movement.child_chrom.isin(autosomes), 'movement2'] = 'A -> A'
+movement.movement2 = pd.Categorical(movement.movement2, ordered=True, categories=['X -> A', 'A -> X', 'A -> A'])
+
 # %%
-movement
+# Summary counts to get an idea of sample size
+pd.concat([
+    movement.query('gene_type == ["D", "Dl"]').movement.value_counts().rename("DNA Movement"),
+    movement.query('gene_type == ["R", "Rl"]').movement.value_counts().rename("RNA Movement"),
+    movement.movement.value_counts().rename("Total"),
+], axis=1)
+
+# %%
+# Summary counts to get an idea of sample size
+pd.concat([
+    movement.query('gene_type == ["D", "Dl"]').movement2.value_counts().rename("DNA Movement"),
+    movement.query('gene_type == ["R", "Rl"]').movement2.value_counts().rename("RNA Movement"),
+    movement.movement2.value_counts().rename("Total"),
+], axis=1)
+
+# %% [markdown]
+# ### New genes and their parents do not appear to be enriched for testis-biased expression.
+#
+# #### Hypothesis
+#
+# MSCI is thought to be caused evolutionary forces and should lead to driving genes important to spermatogenesis off of the X. Here we would expect an enrichment of male-biased genes that moved from the X to an autosome. New genes can arise by both DNA and RNA based methods.
+#
+# According to [Vibranovski et al 2009](https://paperpile.com/app/p/538fb8a8-11ad-0848-97fe-b837749f3249) parental genes from DNA-based and RNA-based relocations were enriched for 
+#
+# #### Method
+#
+# Using either DNR or RNA derrived new genes I performed a fishers exact test for an association of gene movement (X -> A or A ->) for a gene being male biased.
+#
+# #### Results
+#
+# There is no significant association between testis-biased expression and gene movement.
+
+# %%
+# DNA based relocations
+ctp = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement').parent_testis.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement').child_testis.value_counts()
+    .unstack()
+)
+
+print('DNA based relocations')
+print('Fisher Parent: ', fisher_exact(ctp)[1])
+print('Fisher Child: ', fisher_exact(ctc)[1])
+pd.concat([ctp, ctc], axis=1)
+
+# %%
+# DNA based relocations
+ctp = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement2').parent_testis.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement2').child_testis.value_counts()
+    .unstack()
+)
+
+print('DNA based relocations')
+resp = run_chisq(ctp)
+resc = run_chisq(ctc)
+pd.concat([
+    resp.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :],
+    resc.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+], axis=1)
+
+# %%
+# RNA based relocations
+ctp = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement').parent_testis.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement').child_testis.value_counts()
+    .unstack()
+)
+
+print('RNA based relocations')
+print('Fisher Parent: ', fisher_exact(ctp)[1])
+print('Fisher Child: ', fisher_exact(ctc)[1])
+
+pd.concat([ctp, ctc], axis=1)
+
+# %%
+# RNA based relocations
+ctp = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement2').parent_testis.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement2').child_testis.value_counts()
+    .unstack()
+)
+
+print('RNA based relocations')
+resp = run_chisq(ctp)
+resc = run_chisq(ctc)
+pd.concat([
+    resp.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :],
+    resc.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+], axis=1)
+
+# %%
+
+# %% [markdown]
+# ### New genes are enriched in the spermatogonia.
+#
+# #### Hypothesis
+#
+# I would expect an enrichment of new genes in spermatogonia.
+#
+#
+# #### Method
+#
+# Using either DNR or RNA derrived new genes I performed a fishers exact test for an association of gene movement (X -> A or A ->) for a gene being SP-biased.
+#
+# #### Results
+#
+# There is an enrichment of child genes whose parents were on the X. This is true for both DNA based and RNA based new genes.
+
+# %%
+# DNA based relocations
+ctp = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement').parent_gonia.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement').child_gonia.value_counts()
+    .unstack()
+)
+
+print('DNA based relocations')
+print('Fisher Parent: ', fisher_exact(ctp)[1])
+print('Fisher Child: ', fisher_exact(ctc)[1])
+pd.concat([ctp, ctc], axis=1)
+
+# %%
+# DNA based relocations
+ctp = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement2').parent_gonia.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement2').child_gonia.value_counts()
+    .unstack()
+)
+
+print('DNA based relocations')
+resp = run_chisq(ctp)
+resc = run_chisq(ctc)
+pd.concat([
+    resp.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :],
+    resc.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+], axis=1)
+
+# %%
+# RNA based relocations
+ctp = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement').parent_gonia.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement').child_gonia.value_counts()
+    .unstack()
+    .fillna(0)
+)
+
+print('RNA based relocations')
+print('Fisher Parent: ', fisher_exact(ctp)[1])
+print('Fisher Child: ', fisher_exact(ctc)[1])
+pd.concat([ctp, ctc], axis=1)
+
+# %%
+# RNA based relocations
+ctp = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement2').parent_gonia.value_counts()
+    .unstack()
+    .fillna(0)
+)
+
+ctc = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement2').child_gonia.value_counts()
+    .unstack()
+    .fillna(0)
+)
+
+print('RNA based relocations')
+resp = run_chisq(ctp)
+resc = run_chisq(ctc)
+pd.concat([
+    resp.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :],
+    resc.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+], axis=1)
+
+# %%
+
+# %% [markdown]
+# ### New genes are not enriched in spermatocytes.
+#
+# #### Hypothesis
+#
+# I would expect an enrichment of new genes in primary spermatocytes.
+#
+# #### Method
+#
+# Using either DNR or RNA derrived new genes I performed a fishers exact test for an association of gene movement (X -> A or A ->) for a gene being Cyte-biased.
+#
+# #### Results
+#
+# There is no enrichment.
+
+# %%
+# DNA based relocations
+ctp = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement').parent_cyte.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement').child_cyte.value_counts()
+    .unstack()
+)
+
+print('DNA based relocations')
+print('Fisher Parent: ', fisher_exact(ctp)[1])
+print('Fisher Child: ', fisher_exact(ctc)[1])
+pd.concat([ctp, ctc], axis=1)
+
+# %%
+# DNA based relocations
+ctp = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement2').parent_cyte.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["D", "Dl"]')
+    .groupby('movement2').child_cyte.value_counts()
+    .unstack()
+)
+
+print('DNA based relocations')
+resp = run_chisq(ctp)
+resc = run_chisq(ctc)
+pd.concat([
+    resp.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :],
+    resc.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+], axis=1)
+
+# %%
+# RNA based relocations
+ctp = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement').parent_cyte.value_counts()
+    .unstack()
+)
+
+ctc = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement').child_cyte.value_counts()
+    .unstack()
+    .fillna(0)
+)
+
+print('RNA based relocations')
+print('Fisher Parent: ', fisher_exact(ctp)[1])
+print('Fisher Child: ', fisher_exact(ctc)[1])
+pd.concat([ctp, ctc], axis=1)
+
+# %%
+# RNA based relocations
+ctp = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement2').parent_cyte.value_counts()
+    .unstack()
+    .fillna(0)
+)
+
+ctc = (
+    movement.query('gene_type == ["R", "Rl"]')
+    .groupby('movement2').child_cyte.value_counts()
+    .unstack()
+    .fillna(0)
+)
+
+print('RNA based relocations')
+resp = run_chisq(ctp)
+resc = run_chisq(ctc)
+pd.concat([
+    resp.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :],
+    resc.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+], axis=1)
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+norm = pd.read_csv('../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv', sep='\t', index_col=0)
+
+# %%
+norm.head()
+
+# %%
+movement_pairs = movement[['parent_FBgn', 'child_FBgn']].values
+
+# %%
+results = []
+for cell_id, dd in norm.T.iterrows():
+    for parent, child in movement_pairs:
+        results.append([cell_id, parent, child, dd.get(parent, 0.0) - dd.get(child, 0.0)])
+
+# %%
+diffs = (
+    pd.DataFrame(results, columns=['cell_id', 'parent_FBgn', 'child_FBgn', 'pmc']).set_index('cell_id')
+    .join(clusters)#.query('cluster == ["SP", "E1º", "M1º", "L1º"]')
+    .reset_index()
+    .merge(movement[['parent_FBgn', 'movement2']], on='parent_FBgn')
+)
+
+# %%
+df = diffs.query('cell_id == "rep1_AAAGTAGTCCGCATAA"')
+
+# %%
+sns.boxplot('movement2', 'pmc', data=df.query('pmc != 0'))
+
+# %%
+
+# %%
+fig, ax = plt.subplots(figsize=(20, 10))
+sns.boxplot('movement2', 'pmc', hue='cluster', data=diffs.query('pmc != 0'), ax=ax)
+ax.axhline(0, ls='--', color='k', lw=3)
+plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %%
 
