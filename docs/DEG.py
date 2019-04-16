@@ -702,6 +702,77 @@ plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
 
 # %%
 
+fig, ax = plt.subplots(figsize=(20, 10))
+sns.boxplot('movement2', 'pmc', hue='cluster', data=diffs.query('pmc != 0').groupby(['cell_id', 'cluster', 'movement2']).pmc.median().reset_index(), ax=ax)
+ax.axhline(0, ls='--', color='k', lw=3)
+plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %% [markdown]
+# ### Repeat what Maria did.
+
+# %%
+maria = (
+    pd.read_csv('../output/notebook/2019-03-30_movement_data.csv', index_col=0)
+    .assign(movement=lambda df: pd.Categorical(
+        df[['moved_x_to_a', 'moved_a_to_x', 'moved_a_to_a']].idxmax(axis=1), 
+        ordered=True,
+        categories=['moved_x_to_a', 'moved_a_to_a', 'moved_a_to_x']
+    ))
+    .fillna({
+        'biomarker_cluster': "None",
+        'bias_gonia_vs_mid_child': "None",
+        'bias_gonia_vs_mid_parent': "None",
+    })
+)
+
+# %%
+fig = plt.figure(figsize=(10, 10))
+ax = sns.boxplot('movement', 'M1_child', data=maria)
+ax.set_ylim(None, 1000)
+
+# %%
+mannwhitneyu(
+    maria.query('movement == "moved_x_to_a"').M1_child,
+    maria.query('movement == "moved_a_to_a"').M1_child,
+)
+
+# %%
+maria.movement.value_counts().sort_index().to_frame()
+
+# %%
+maria.groupby('gene_type').movement.value_counts().T.sort_index().to_frame()
+
+# %%
+
+# %%
+maria.groupby('movement').bias_gonia_vs_mid_child.value_counts().to_frame()
+
+# %%
+
+# %%
+maria.groupby(['movement', 'gene_type']).bias_gonia_vs_mid_child.value_counts().to_frame().unstack().sort_index(level=1)
+
+# %%
+
+# %%
+maria.groupby(['movement', 'bias_gonia_vs_mid_child', 'bias_gonia_vs_mid_parent']).size().to_frame().unstack(level=0)
+
+# %%
+
+# %%
+
+# %%
+
 # %%
 
 # %%
@@ -711,6 +782,130 @@ plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
 # %%
 
 # %%
+
+# %%
+
+# %%
+
+# %%
+movement = (
+    pd.read_excel('../data/external/maria/dm6_ver78_genetype.new.xlsx')
+    .query('gene_type == ["D", "R", "Dl", "Rl"] and m_type == "M"')
+    .assign(child_chrom = lambda df: df.note.str.extract('(chr.*?)-'))
+    .assign(parent_chrom = lambda df: df.note.str.extract('-(chr.*?)[:;]'))
+    .assign(FBgn = lambda df: df.child_id.map(mapper))
+    .set_index("FBgn")
+    .drop(['child_id', 'parent_id', 'note', 'm_type'], axis=1)
+    .dropna()
+) 
+
+movement.loc[(movement.parent_chrom == "chrX") & movement.child_chrom.isin(autosomes), 'movement'] = 'X -> A'
+movement.loc[movement.parent_chrom.isin(autosomes) & (movement.child_chrom == "chrX"), 'movement'] = 'A -> X'
+movement.loc[movement.parent_chrom.isin(autosomes) & movement.child_chrom.isin(autosomes), 'movement'] = 'A -> A'
+movement.movement = pd.Categorical(movement.movement, ordered=True, categories=['X -> A', 'A -> X', 'A -> A'])
+
+# %%
+m1_tpm = (
+    pd.read_parquet('../output/scrnaseq-wf/tpm.parquet')
+    .assign(cluster=lambda df: df.cluster.map(config['short_cluster_annot']))
+    .query('cluster == "M1º"')
+)
+
+# %%
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20, 20))
+dat = movement.join(m1_tpm).assign(log_TPM=lambda df: np.log10(df.TPM + 1))
+sns.boxplot('movement', 'TPM', data=dat, ax=ax1, showfliers=True)
+sns.boxplot('movement', 'log_TPM', data=dat, ax=ax2, showfliers=False)
+ax1.set_ylim(None, 1010)
+
+# %%
+dat.groupby('movement').TPM.median()
+
+# %%
+dat.groupby('movement').TPM.size()
+
+# %%
+dat.query('TPM > 0').groupby('movement').TPM.size()
+
+# %%
+from scipy.stats import mannwhitneyu
+
+# %%
+mannwhitneyu(dat.query('movement == "X -> A"').TPM, dat.query('movement == "A -> A"').TPM)
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+movement = (
+    pd.read_excel('../data/external/maria/dm6_ver78_genetype.new.xlsx')
+    .query('gene_type == ["D", "R", "Dl", "Rl"] and m_type == "M"')
+    .assign(child_chrom = lambda df: df.note.str.extract('(chr.*?)-'))
+    .assign(parent_chrom = lambda df: df.note.str.extract('-(chr.*?)[:;]'))
+    .assign(FBgn = lambda df: df.child_id.map(mapper))
+    .set_index("FBgn")
+    .drop(['child_id', 'parent_id', 'note', 'm_type'], axis=1)
+    .dropna()
+) 
+
+movement.loc[(movement.parent_chrom == "chrX") & movement.child_chrom.isin(autosomes), 'movement'] = 'X -> A'
+movement.loc[movement.parent_chrom.isin(autosomes) & (movement.child_chrom == "chrX"), 'movement'] = 'A -> X'
+movement.loc[movement.parent_chrom.isin(autosomes) & movement.child_chrom.isin(autosomes), 'movement'] = 'A -> A'
+movement.movement = pd.Categorical(movement.movement, ordered=True, categories=['X -> A', 'A -> X', 'A -> A'])
+
+# %%
+movement.head()
+
+# %%
+norm = (
+    pd.read_csv('../output/scrnaseq-wf/scrnaseq_combine_force/normalized_read_counts.tsv', sep='\t', index_col=0)
+    .rename_axis('FBgn')
+    .join(movement, how='inner')
+    .reset_index()
+    .drop(['parent_chrom', 'child_chrom'], axis=1)
+    .melt(id_vars=['FBgn', 'movement', 'gene_type'], var_name='cell_id', value_name='norm')
+    .set_index('FBgn')
+    .assign(rep=lambda df: df.cell_id.str.extract('(rep\d)', expand=False))
+    .join(clusters, on='cell_id')
+)
+
+# %%
+fig = plt.figure(figsize=(20, 10))
+ax = sns.boxplot('movement', 'norm', hue='cluster', data=norm.query('norm > 0'), order=['X -> A', 'A -> A'])
+plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
+ax.set_axisbelow(True)
+ax.grid(axis='y')
 
 # %%
 
