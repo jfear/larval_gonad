@@ -27,7 +27,7 @@ import pickle
 from IPython.display import display, HTML, Markdown
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2_contingency, norm, fisher_exact
+from scipy.stats import chi2_contingency, norm, fisher_exact, mannwhitneyu
 from scipy.stats.contingency import margins
 from statsmodels.stats.multitest import multipletests
 
@@ -722,7 +722,7 @@ plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
 
 # %%
 maria = (
-    pd.read_csv('../output/notebook/2019-03-30_movement_data.csv', index_col=0)
+    pd.read_csv('../output/notebook/2019-04-16_movement_data.csv', index_col=0)
     .assign(movement=lambda df: pd.Categorical(
         df[['moved_x_to_a', 'moved_a_to_x', 'moved_a_to_a']].idxmax(axis=1), 
         ordered=True,
@@ -734,38 +734,89 @@ maria = (
         'bias_gonia_vs_mid_parent': "None",
     })
 )
+maria.head(20)
+
+# %%
+(maria.SP_child.isnull() & ~maria.M1_parent.isnull()).any()
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+# 3.2 Total
+maria.movement.value_counts().sort_index().to_frame() # Match
+
+# %%
+# 3.2
+maria.groupby('gene_type').movement.value_counts().T.sort_index().to_frame().sort_index(level=[0, 1], ) # match
+
+# %%
+# 4
+maria.groupby('movement').bias_gonia_vs_mid_child.value_counts().to_frame().unstack(level=0) # Don't match
+
+# %%
+# 4.1
+maria.groupby(['movement', 'gene_type']).bias_gonia_vs_mid_child.value_counts().to_frame().unstack(level=1).sort_index(level=[0, 1]) # Don't match
+
+# %%
+# 5
+maria.groupby(['movement', 'bias_gonia_vs_mid_child', 'bias_gonia_vs_mid_parent']).size().to_frame().unstack(level=0) # Don't match
 
 # %%
 fig = plt.figure(figsize=(10, 10))
-ax = sns.boxplot('movement', 'M1_child', data=maria)
-ax.set_ylim(None, 1000)
+ax = sns.boxplot('movement', 'M1_child', data=maria, color='w')
+plt.setp(ax.artists, edgecolor='k', facecolor='w', lw=2)
+plt.setp(ax.lines, color='k', lw=2)
+ax.set_ylim(None, 1000);
 
 # %%
-mannwhitneyu(
-    maria.query('movement == "moved_x_to_a"').M1_child,
-    maria.query('movement == "moved_a_to_a"').M1_child,
-)
-
-# %%
-maria.movement.value_counts().sort_index().to_frame()
-
-# %%
-maria.groupby('gene_type').movement.value_counts().T.sort_index().to_frame()
+mannwhitneyu(maria.query('movement == "moved_x_to_a"').M1_child.dropna(), maria.query('movement == "moved_a_to_a"').M1_child.dropna(), alternative="two-sided")
 
 # %%
 
 # %%
-maria.groupby('movement').bias_gonia_vs_mid_child.value_counts().to_frame()
+fig = plt.figure(figsize=(10, 10))
+ax = sns.boxplot('movement', 'M1_parent', data=maria, color='w')
+plt.setp(ax.artists, edgecolor='k', facecolor='w', lw=2)
+plt.setp(ax.lines, color='k', lw=2)
+ax.set_ylim(None, 1000);
+
+# %%
+mannwhitneyu(maria.query('movement == "moved_x_to_a"').M1_parent.dropna(), maria.query('movement == "moved_a_to_a"').M1_parent.dropna(), alternative="two-sided")
 
 # %%
 
 # %%
-maria.groupby(['movement', 'gene_type']).bias_gonia_vs_mid_child.value_counts().to_frame().unstack().sort_index(level=1)
 
 # %%
 
 # %%
-maria.groupby(['movement', 'bias_gonia_vs_mid_child', 'bias_gonia_vs_mid_parent']).size().to_frame().unstack(level=0)
+maria.head(20)
+
+# %%
+dat = (maria.groupby('movement').bias_gonia_vs_mid_child.value_counts().div( maria.groupby('movement').size()) * 100).rename('prop').to_frame().reset_index()
+
+# %%
+fig = plt.figure(figsize=(10, 10))
+sns.barplot('movement', 'prop', hue='bias_gonia_vs_mid_child', data=dat)
+
+# %%
+fisher_exact(dat.query('movement == ["moved_x_to_a", "moved_a_to_a"] and bias_gonia_vs_mid_child == ["M1", "SP"]').set_index(['movement', 'bias_gonia_vs_mid_child']).unstack())
+
+# %%
+
+# %%
 
 # %%
 
@@ -906,6 +957,26 @@ ax = sns.boxplot('movement', 'norm', hue='cluster', data=norm.query('norm > 0'),
 plt.legend(loc='upper left', bbox_to_anchor=[1, 1])
 ax.set_axisbelow(True)
 ax.grid(axis='y')
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %%
 
