@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.0.0
+#       jupytext_version: 1.0.3
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -732,46 +732,16 @@ maria = (
         'biomarker_cluster': "None",
         'bias_gonia_vs_mid_child': "None",
         'bias_gonia_vs_mid_parent': "None",
+        'SP_child': 0,
+        'M1_child': 0,
+        'SP_parent': 0,
+        'M1_parent': 0
     })
+    .assign(log_M1_child=lambda df: np.log(df.M1_child + 1))
 )
-maria.head(20)
 
 # %%
-(maria.SP_child.isnull() & ~maria.M1_parent.isnull()).any()
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-
-# %%
-# 3.2 Total
-maria.movement.value_counts().sort_index().to_frame() # Match
-
-# %%
-# 3.2
-maria.groupby('gene_type').movement.value_counts().T.sort_index().to_frame().sort_index(level=[0, 1], ) # match
-
-# %%
-# 4
-maria.groupby('movement').bias_gonia_vs_mid_child.value_counts().to_frame().unstack(level=0) # Don't match
-
-# %%
-# 4.1
-maria.groupby(['movement', 'gene_type']).bias_gonia_vs_mid_child.value_counts().to_frame().unstack(level=1).sort_index(level=[0, 1]) # Don't match
-
-# %%
-# 5
-maria.groupby(['movement', 'bias_gonia_vs_mid_child', 'bias_gonia_vs_mid_parent']).size().to_frame().unstack(level=0) # Don't match
+maria.groupby('movement').M1_child.size()
 
 # %%
 fig = plt.figure(figsize=(10, 10))
@@ -779,6 +749,26 @@ ax = sns.boxplot('movement', 'M1_child', data=maria, color='w')
 plt.setp(ax.artists, edgecolor='k', facecolor='w', lw=2)
 plt.setp(ax.lines, color='k', lw=2)
 ax.set_ylim(None, 1000);
+
+# %%
+fig = plt.figure(figsize=(10, 10))
+ax = sns.boxplot('movement', 'log_M1_child', data=maria, color='w')
+plt.setp(ax.artists, edgecolor='k', facecolor='w', lw=2)
+plt.setp(ax.lines, color='k', lw=2)
+#ax.set_ylim(None, 1000);
+ax.set_title('NA droped')
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %%
 mannwhitneyu(maria.query('movement == "moved_x_to_a"').M1_child.dropna(), maria.query('movement == "moved_a_to_a"').M1_child.dropna(), alternative="two-sided")
@@ -812,9 +802,10 @@ fig = plt.figure(figsize=(10, 10))
 sns.barplot('movement', 'prop', hue='bias_gonia_vs_mid_child', data=dat)
 
 # %%
-fisher_exact(dat.query('movement == ["moved_x_to_a", "moved_a_to_a"] and bias_gonia_vs_mid_child == ["M1", "SP"]').set_index(['movement', 'bias_gonia_vs_mid_child']).unstack())
+fisher_exact(dat.query('movement == ["moved_x_to_a", "moved_a_to_a"] and bias_gonia_vs_mid_child == ["M1", "None"]').set_index(['movement', 'bias_gonia_vs_mid_child']).unstack(), alternative='two-sided')
 
 # %%
+dat.query('movement == ["moved_x_to_a", "moved_a_to_a"] and bias_gonia_vs_mid_child == ["M1", "None"]').set_index(['movement', 'bias_gonia_vs_mid_child']).unstack()
 
 # %%
 
