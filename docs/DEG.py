@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.0.3
+#       jupytext_version: 1.0.0
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -36,6 +36,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.stats import run_chisq
+from larval_gonad.plotting import format_pval
 
 # %%
 sns.set_context('poster')
@@ -80,59 +81,109 @@ clusters = (
 autosomes = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
 
 # %% [markdown] {"toc-hr-collapsed": true}
-# ## Genes up regulated in primary spermatocytes are depleted from the X and 4th
-
-# %% [markdown] {"toc-hr-collapsed": true}
-# ### Hypothesis
-#
-# If MSCI is TRUE, then we would expect that genes important for spermiogenesis will be depleted from the X.
-#
-# ### Method
-#
-# Using differential expression between spermatogonia and either all primary spermatocytes or M1° primary spermatocytes and look for chromosomal distributions for genes up regulated in spermatocytes.
-
-# %% [markdown]
-# #### Gonia vs All Primary Spermatocytes
-# **TRUE: Cyte-biased genes are depleted on the X and 4th**
+# ## Genes up regulated in Gonia (vs Cytes) are enriched from the X and 4th
 
 # %%
 df = (
     pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv', sep='\t', index_col=0)
     .rename_axis('FBgn')
     .join(fbgn2chrom)
-    .assign(SP_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
-    .assign(cyte_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0))
-    .assign(no_difference = lambda df: ~df.SP_biased & ~df.cyte_biased)
-    .groupby('chrom')[['SP_biased', 'cyte_biased']].sum()
-    .T
-    .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .loc[:, ['chrX', 'chr4', 'autosomes']]
+    .assign(biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
+    .loc[:, ['chrom', 'biased']]
+    .replace({
+        'chrX': 'X',
+        'chr2L': 'A',
+        'chr2R': 'A',
+        'chr3L': 'A',
+        'chr3R': 'A',
+        'chr4': '4',
+    })
 )
-print("Fisher's exact test: chrX: {}, chr4: {}".format(fisher_exact(df[['chrX', 'autosomes']])[1], fisher_exact(df[['chr4', 'autosomes']])[1]))
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
 
-# %% [markdown]
-# #### Gonia vs M1° Primary spermatocytes
-#
-# **TRUE: Cyte-biased genes are depleted on the X and 4th**
+ct = df.groupby('chrom').biased.value_counts().unstack().loc[['X', 'A', '4']].T
+
+_, pvalx = fisher_exact(ct[['X', 'A']], alternative='two-sided')
+_, pval4 = fisher_exact(ct[['4', 'A']], alternative='two-sided')
+
+dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
+ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
+format_pval(ax, 0, dat['X'], pvalx)
+format_pval(ax, 2, dat['4'], pval4)
+ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
+ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
+sns.despine(ax=ax);
+
+# %% [markdown] {"toc-hr-collapsed": true}
+# ## Genes up downregulated in E1° (vs SP) are depleted from the X and 4th
 
 # %%
 df = (
-    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv', sep='\t', index_col=0)
+    pd.read_csv('../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv', sep='\t', index_col=0)
     .rename_axis('FBgn')
     .join(fbgn2chrom)
-    .assign(SP_biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC > 0))
-    .assign(**{'M1°_biased': lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0)})
-    .assign(no_difference = lambda df: ~df.SP_biased & ~df['M1°_biased'])
-    .groupby('chrom')[['SP_biased', 'M1°_biased']].sum()
-    .T
-    .assign(autosomes = lambda df: df[['chr2L', 'chr2R', 'chr3L', 'chr3R']].sum(axis=1))
-    .loc[:, ['chrX', 'chr4', 'autosomes']]
+    .assign(biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0))
+    .loc[:, ['chrom', 'biased']]
+    .replace({
+        'chrX': 'X',
+        'chr2L': 'A',
+        'chr2R': 'A',
+        'chr3L': 'A',
+        'chr3R': 'A',
+        'chr4': '4',
+    })
 )
-print("Fisher's exact test: chrX: {}, chr4: {}".format(fisher_exact(df[['chrX', 'autosomes']])[1], fisher_exact(df[['chr4', 'autosomes']])[1]))
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+
+ct = df.groupby('chrom').biased.value_counts().unstack().loc[['X', 'A', '4']].T
+
+_, pvalx = fisher_exact(ct[['X', 'A']], alternative='two-sided')
+_, pval4 = fisher_exact(ct[['4', 'A']], alternative='two-sided')
+
+dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
+ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
+format_pval(ax, 0, dat['X'], pvalx)
+format_pval(ax, 2, dat['4'], pval4)
+    
+ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
+ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
+sns.despine(ax=ax);
+
+# %% [markdown] {"toc-hr-collapsed": true}
+# ## Genes up downregulated in M1° (vs E1°) are depleted from the X and abscent from the 4th
+
+# %%
+df = (
+    pd.read_csv('../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv', sep='\t', index_col=0)
+    .rename_axis('FBgn')
+    .join(fbgn2chrom)
+    .assign(biased = lambda df: (df.p_val_adj <= 0.01) & (df.avg_logFC < 0))
+    .loc[:, ['chrom', 'biased']]
+    .replace({
+        'chrX': 'X',
+        'chr2L': 'A',
+        'chr2R': 'A',
+        'chr3L': 'A',
+        'chr3R': 'A',
+        'chr4': '4',
+    })
+)
+
+ct = df.groupby('chrom').biased.value_counts().unstack().loc[['X', 'A', '4']].T.fillna(0)
+ct
+
+_, pvalx = fisher_exact(ct[['X', 'A']], alternative='two-sided')
+_, pval4 = fisher_exact(ct[['4', 'A']], alternative='two-sided')
+
+dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
+ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
+if pvalx <= 0.05:
+    ax.text(0, dat['X'], '*')
+    
+if pval4 <= 0.05:
+    ax.text(2, dat['4'], '*')
+    
+ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
+ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
+sns.despine(ax=ax);
 
 # %%
 

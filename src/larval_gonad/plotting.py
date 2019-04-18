@@ -155,3 +155,12 @@ def dechr(ax, axis=0):
             labels.append(label.get_text().replace('chr', ''))
         ax.set_yticklabels(labels)
 
+
+def format_pval(ax, x, y, pval):
+    if pval <= 0.001:
+        ax.text(x, y, '***', ha='center')
+    elif pval <= 0.01:
+        ax.text(x, y, '**', ha='center')
+    elif pval <= 0.05:
+        ax.text(x, y, '*', ha='center')
+    return ax
