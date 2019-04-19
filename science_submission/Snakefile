@@ -340,12 +340,12 @@ rule plot_bubble_germline_deg_GO_BP:
     script: 'scripts/plot_bubble_germline_deg_GO_BP.py'
 
 # (E) X depleted male-biased expression
-rule plot_barplot_bulk_deg_x:
+rule plot_barplot_bulk_demasculinization:
     input:
          deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
-    output: '../output/science_submission/figures/barplot_bulk_deg_x.svg'
-    script: 'scripts/plot_barplot_bulk_deg_x.py'
+    output: '../output/science_submission/figures/barplot_bulk_demasculinization.svg'
+    script: 'scripts/plot_barplot_bulk_demasculinization.py'
 
 rule plot_barplot_bulk_deg_gonia_x:
     input:
