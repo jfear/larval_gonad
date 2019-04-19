@@ -38,14 +38,14 @@ rule all:
         '../output/science_submission/figures/boxplot-y-genes.png',
         '../output/science_submission/figures/barplot_germline_deg.png',
         '../output/science_submission/figures/scatter_bulk_deg.png',
-        '../output/science_submission/figures/barplot_bulk_deg_x.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_BP.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_CC.png',
         '../output/science_submission/figures/tsne_comparison.png',
         '../output/science_submission/figures/boxplot-y-genes.png',
-        '../output/science_submission/figures/barplot_bulk_deg_gonia_x.png',
-        '../output/science_submission/figures/barplot_bulk_deg_cyte_x.png'
+        '../output/science_submission/figures/barplot_bulk_demasculinization.png',
+        '../output/science_submission/figures/barplot_sp_demasculinization.png',
+        '../output/science_submission/figures/barplot_m1_demasculinization.png'
 
 ################################################################################
 # Data Sets
