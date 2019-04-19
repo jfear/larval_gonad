@@ -358,7 +358,7 @@ rule plot_barplot_gonia_demasculinization:
 rule plot_barplot_cyte_demasculinization:
     input:
          bulk_deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
-         sc_deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
+         sc_deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
     output: '../output/science_submission/figures/barplot_cyte_demasculinization.svg'
     script: 'scripts/plot_barplot_cyte_demasculinization.py'
