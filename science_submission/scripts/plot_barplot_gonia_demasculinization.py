@@ -36,14 +36,12 @@ def main():
     format_pval(ax2, 0, df.loc['chrX', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chrX'], **kwargs)
     format_pval(ax2, 5, df.loc['chr4', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chr4'], **kwargs)
 
-
     # Add axis breaks
     d = 0.015
     kwargs = dict(transform=ax1.transAxes, clip_on=False, color='k', lw=1)
     ax1.plot((d, -d), (d, - d), **kwargs)
     kwargs.update(transform=ax2.transAxes)
     ax2.plot((d, -d), (1 + d, 1 - d), **kwargs)
-
 
     # Clean up axes
     ax1.set(ylim=(.91, 1))
