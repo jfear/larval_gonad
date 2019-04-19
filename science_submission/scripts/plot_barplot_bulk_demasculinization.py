@@ -24,13 +24,13 @@ def main():
     fig, ax = plt.subplots(figsize=(1, 2))
 
     # Plot proportion
-    df.plot(kind='bar', stacked=True, width=.9, color=['k', 'darkgray', 'w'], edgecolor='k', lw=.3, ax=ax)
+    df.plot(kind='bar', stacked=True, width=.9, color=['w', 'darkgray', 'k'], edgecolor='k', lw=.3, ax=ax)
     ax.set_xticklabels([l.get_text().replace('chr', '') for l in ax.get_xticklabels()], rotation=0, fontsize=7)
     plt.legend(['Testis-Biased', 'Not Biased', 'Ovary-Biased'], loc='upper left', bbox_to_anchor=[1, 1], frameon=False)
 
     # Add * for significance.
     pvals = get_pvals(chroms)
-    kwargs = dict(va='top', fontsize=7, fontweight='bold', color='w')
+    kwargs = dict(va='top', fontsize=7, color='k')
     format_pval(ax, 0, df.loc['chrX', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chrX'], **kwargs)
     format_pval(ax, 5, df.loc['chr4', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chr4'], **kwargs)
 
