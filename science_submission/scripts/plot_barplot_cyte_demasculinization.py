@@ -56,7 +56,7 @@ def main():
 
     # Add ylabel to span the two axis
     fig.text(-0.05, 0.5, 'Proportion of Genes', rotation=90, va='center', ha='right', fontsize=plt.rcParams['axes.labelsize'])
-    ax1.set_title("Cyte-bias")
+    ax1.set_title("M1°-Biased")
 
     fig.savefig(oname, bbox_inches='tight')
 
