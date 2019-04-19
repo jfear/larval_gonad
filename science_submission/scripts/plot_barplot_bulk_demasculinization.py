@@ -24,7 +24,7 @@ def main():
     fig, ax = plt.subplots(figsize=(1, 2))
 
     # Plot proportion
-    df.plot(kind='bar', stacked=True, width=.9, color=['k', 'darkgray', 'w'], edgecolor='k', lw=.5, ax=ax)
+    df.plot(kind='bar', stacked=True, width=.9, color=['k', 'darkgray', 'w'], edgecolor='k', lw=.3, ax=ax)
     ax.set_xticklabels([l.get_text().replace('chr', '') for l in ax.get_xticklabels()], rotation=0, fontsize=7)
     plt.legend(['Testis-Biased', 'Not Biased', 'Ovary-Biased'], loc='upper left', bbox_to_anchor=[1, 1], frameon=False)
 
