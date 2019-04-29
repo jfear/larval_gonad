@@ -103,17 +103,17 @@ lit_genes_short:
  - 'bam'
  # Early spermatocytes
  - 'aly'
- - 'nht'
+ - 'can'
  # Later spermatocytes and spermatids
  - 'dj'
- - 'ocn'
+ - 'Mst87F'
  # Enriched in CySC lineage
  - 'tj'
  - 'eya'
  # Terminal epithelia
- - 'nord'
+ - 'N'
  # Pigment cells
- - 'bw'
+ - 'Sox100B'
 
 protein_trap_genes:
   - 'ADD1'
