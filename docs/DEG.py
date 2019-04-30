@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.0.0
+#       jupytext_version: 1.0.3
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -256,6 +256,7 @@ bulk_sig.bias = bulk_sig.bias.fillna('None')
 MALE_BIAS = bulk_sig[bulk_sig.testis_bias].index
 
 # %%
+<<<<<<< HEAD
 title = 'Bulk'
 ct = bulk_sig.groupby('chrom').bias.value_counts().unstack().loc[['X', '2L', '2R', '3L', '3R', '4']].T
 res = run_chisq(ct)
@@ -276,6 +277,16 @@ plt.legend(['Testis Biased', 'Non-Biased', 'Ovary Biased'], loc='upper left', bb
 
 # %%
 dat
+=======
+df = bulk_sig.join(fbgn2chrom, how='left').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+res = run_chisq(df)
+res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+
+# %%
+df = bulk_sig.join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+res = run_chisq(df)
+res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+>>>>>>> 793cb92f7873d9395f5935b1250878a243e8c9f5
 
 # %% [markdown]
 # ### SP testis-biased genes do not show evidence of X or 4th demasculinization.
@@ -288,9 +299,21 @@ BIASED = (
     .index.tolist()
 )
 
+<<<<<<< HEAD
 _bulk_sig = bulk_sig.copy()
 _bulk_sig.loc[~_bulk_sig.index.isin(BIASED), 'bias'] = 'None'
 ct = _bulk_sig.groupby('chrom').bias.value_counts().unstack().loc[['X', '2L', '2R', '3L', '3R', '4']].T.fillna(0)
+=======
+# %%
+df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom, how='left').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+res = run_chisq(df)
+res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+
+# %%
+df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+res = run_chisq(df)
+res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+>>>>>>> 793cb92f7873d9395f5935b1250878a243e8c9f5
 
 res = run_chisq(ct)
 display(res.reindex(['ovary', 'None', 'testis'], level=0).loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :])
@@ -319,9 +342,34 @@ BIASED = (
     .index.tolist()
 )
 
+<<<<<<< HEAD
 _bulk_sig = bulk_sig.copy()
 _bulk_sig.loc[~_bulk_sig.index.isin(BIASED), 'bias'] = 'None'
 ct = _bulk_sig.groupby('chrom').bias.value_counts().unstack().loc[['X', '2L', '2R', '3L', '3R', '4']].T.fillna(0)
+=======
+# %%
+df = (
+    bulk_sig.reindex(CYTE_BIASED)
+    .join(fbgn2chrom, how='left').fillna('None')
+    .assign(bias=lambda x: x.bias.replace({'ovary': "None"}))
+    .groupby('chrom').bias.value_counts()
+    .unstack()
+    .loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+)
+
+res = run_chisq(df)
+res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
+
+# %%
+df = (
+    bulk_sig.reindex(CYTE_BIASED)
+    .join(fbgn2chrom, how='outer').fillna('None')
+    .assign(bias=lambda x: x.bias.replace({'ovary': "None"}))
+    .groupby('chrom').bias.value_counts()
+    .unstack()
+    .loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
+)
+>>>>>>> 793cb92f7873d9395f5935b1250878a243e8c9f5
 
 res = run_chisq(ct)
 display(res.reindex(['ovary', 'None', 'testis'], level=0).loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :])
