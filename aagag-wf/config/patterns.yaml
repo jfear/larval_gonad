@@ -1,0 +1,2 @@
+bam: '../output/scrnaseq-wf/scrnaseq_samples/{sample}_force/outs/possorted_genome_bam.bam'
+aagag: '../output/aagag-wf/{sample}.tsv'
