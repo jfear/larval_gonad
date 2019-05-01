@@ -20,10 +20,11 @@ workdir: '.'
 with open('config/patterns.yaml') as fh:
     patterns = load(fh.read())
 
-print(patterns)
 
 rule targets:
-    input: expand(patterns['aagag'], sample=['testis1', 'testis2', 'testis3'])
+    input:
+        expand(patterns['aagag'], sample=['testis1', 'testis2', 'testis3']),
+        expand(patterns['aagag_trans'], sample=['BM5', 'BM21', 'stock'])
 
 
 rule pull_aagag:
@@ -32,4 +33,8 @@ rule pull_aagag:
     script: 'scripts/pull_aagag.py'
 
 
+rule pull_aagag_translocations:
+    input: patterns['bam_trans']
+    output: patterns['aagag_trans']
+    script: 'scripts/pull_aagag.py'
 
