@@ -30,7 +30,7 @@ def main():
     df, unique_genes_per_cluster = get_data()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig = plt.figure(figsize=(1.8, 2.5))
+    fig = plt.figure(figsize=(3, 4))
     gs = GridSpec(2, 1, height_ratios=[1, .02])
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
@@ -58,11 +58,13 @@ def main():
     ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
     ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
     ax.text(24, yloc + pad, 'Somatic\nOther', ha='center', fontsize=6, color=cluster_colors[8], va='bottom')
+    ax.text(31, yloc + pad, 'Unknown', ha='center', fontsize=6, color=cluster_colors[-1], va='bottom')
     lines = [
         plt.Line2D([0, 12], [yloc, yloc], color=cluster_colors[0], lw=1.5, clip_on=False),
         plt.Line2D([12, 21], [yloc, yloc], color=cluster_colors[4], lw=1.5, clip_on=False),
         plt.Line2D([21, 24], [yloc, yloc], color=cluster_colors[7], lw=1.5, clip_on=False),
         plt.Line2D([24, 27], [yloc, yloc], color=cluster_colors[8], lw=1.5, clip_on=False),
+        plt.Line2D([27, 35], [yloc, yloc], color=cluster_colors[-1], lw=1.5, clip_on=False),
     ]
 
     for l in lines:
@@ -82,7 +84,12 @@ def main():
     # Add additional y annotations
     loc = 0
     for i, cnt in enumerate(unique_genes_per_cluster):
+        if i == 10:
+            x = 38
+        else:
+            x = 35
         ax.text(-.5, loc + (cnt / 2), cluster_order[i], ha='right', va='center', fontweight='bold', fontsize=5.5)
+        ax.text(x, loc + (cnt / 2), f'n={cnt}', ha='left', va='center', fontweight='bold', fontsize=5.5)
         loc += cnt
 
     fig.savefig(oname, bbox_inches='tight')

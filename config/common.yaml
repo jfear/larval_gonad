@@ -38,9 +38,9 @@ short_cluster_annot:
   6: 'SP'
   7: 'TE'
   8: 'PC'
-  9: 'UNK'
-  10: 'UNK'
-  11: 'UNK'
+  9: 'U1'
+  10: 'U2'
+  11: 'U3'
 cluster_order:
   - 'Spermatogonia'
   - 'Early 1º Spermatocytes'
@@ -64,6 +64,9 @@ short_cluster_order:
   - 'LC'
   - 'TE'
   - 'PC'
+  - 'U1'
+  - 'U2'
+  - 'U3'
 sel_cluster_order:
   - 'Spermatogonia'
   - 'Early 1º Spermatocytes'
