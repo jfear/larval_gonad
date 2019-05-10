@@ -191,10 +191,10 @@ protein_trap_genes:
 msl_genes:
  # Dosage compensation genes from FlyBase MSL complex
   - FBgn0002774 # mle
-  - FBgn0002775 # msl-3
-  - FBgn0005616 # msl-2
-  - FBgn0005617 # msl-1
   - FBgn0014340 # mof
+  - FBgn0005617 # msl-1
+  - FBgn0005616 # msl-2
+  - FBgn0002775 # msl-3
   - FBgn0019660 # rox2
   - FBgn0019661 # rox1
 

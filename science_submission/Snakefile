@@ -299,6 +299,19 @@ rule plot_bubble_msl_genes:
           msl_genes=config['msl_genes']
     script: 'scripts/plot_bubble_msl_genes.py'
 
+rule plot_heatmap_msl_genes:
+    input:
+         zscores='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
+         fbgn2symbol=rules.fbgn2symbol.output[0]
+    output: '../output/science_submission/figures/heatmap-msl-genes.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters'],
+          msl_genes=config['msl_genes'],
+          cmap=config['colors']['heatmap']
+    script: 'scripts/plot_heatmap_msl_genes.py'
+
 ################################################################################
 # Fig 3
 ################################################################################
