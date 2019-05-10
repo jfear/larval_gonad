@@ -179,12 +179,24 @@ def make_big_table(obs, expected, resid, adj_resid, cell_chisqs, cell_qvals, cel
     return _df.set_index('type', append=True).sort_index().round(4)
 
 
-def run_chisq(df):
+def run_chisq(df, **kwargs):
+    """ A helper function to run post hoc tests on chi^2.
+
+    Parameters
+    ----------
+    df: a cross tabulation table
+    kwargs: kwargs passed to statsmodels.stats.multitest.multipletests
+
+    Returns
+    -------
+    pandas.DataFrame with chi-square and post-hoc tests.
+
+    """
     obs = df.copy()
     stat, pval, degrees, expected = chi2_contingency(obs)
     print(f'𝛘^2: {stat:,.4f}, p-value: {pval:,.4f}, df: {degrees:,}')
     resid = obs - expected
     adj_resid = adjusted_residuals(df, expected)
     cell_chisqs = resid ** 2 / expected
-    cell_flags, cell_qvals, _, _ = multipletests(norm.pdf(adj_resid).flatten(), method='fdr_bh')
+    cell_flags, cell_qvals, _, _ = multipletests(norm.pdf(adj_resid).flatten(), method='fdr_bh', **kwargs)
     return make_big_table(obs, expected, resid, adj_resid, cell_chisqs, cell_qvals, cell_flags)

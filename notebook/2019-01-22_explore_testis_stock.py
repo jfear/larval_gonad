@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 0.8.6
+#       jupytext_version: 1.0.3
 #   kernelspec:
 #     display_name: Python [conda env:larval_gonad]
 #     language: python
@@ -52,7 +52,7 @@ sns.lmplot('tSNE_1', 'tSNE_2', data=df, hue='res.0.6', fit_reg=False, scatter_kw
 plt.title('Testis Stock tSNE');
 
 # %%
-lit_genes = read_config('../science_submission/config.yaml', 'lit_genes')
+lit_genes = read_config('../science_submission/config.yaml', 'lit_genes_long')
 lit_fbgns = [nb.symbol2fbgn[g] for g in lit_genes]
 
 # %%
