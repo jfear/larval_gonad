@@ -54,7 +54,7 @@ def main():
                        fontsize=5.5)
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .10)
+    yloc = 0 - (df.shape[0] * .05)
     pad = yloc * .1
     ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
     ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
@@ -72,7 +72,7 @@ def main():
         ax.add_line(l)
 
     # Add lines separating cell types
-    for i in range(1, 9):
+    for i in range(1, 12):
         ax.axvline(i * 3, color='w', ls='--', lw=.5)
 
     # Clean up Y axis

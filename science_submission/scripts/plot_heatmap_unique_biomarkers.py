@@ -53,7 +53,7 @@ def main():
     ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in cluster_order])), ha='center', va='bottom')
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .08)
+    yloc = 0 - (df.shape[0] * .05)
     pad = yloc * .1
     ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
     ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
@@ -71,7 +71,7 @@ def main():
         ax.add_line(l)
 
     # Add lines separating cell types
-    for i in range(1, 9):
+    for i in range(1, 12):
         ax.axvline(i * 3, color='w', ls='--', lw=.5)
 
     # Clean up Y axis
@@ -124,7 +124,7 @@ def get_data():
         pd.read_csv(biomarkers, sep='\t', usecols=['primary_FBgn', 'cluster'], index_col=0)
         .cluster
         .map(annotation)
-        .pipe(lambda x: x[x != "UNK"])
+        # .pipe(lambda x: x[x != "UNK"])
         .astype('category')
         .cat.as_ordered()
         .cat.reorder_categories(cluster_order)

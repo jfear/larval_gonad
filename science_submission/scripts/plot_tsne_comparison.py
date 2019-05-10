@@ -43,7 +43,7 @@ def get_data():
     return (
         pd.read_parquet(tsne)
         .join(pd.read_parquet(clusters))
-        .assign(color=lambda df: pd.Categorical(df.cluster, ordered=True, categories=cluster_order + ['UNK', ]))
+        .assign(color=lambda df: pd.Categorical(df.cluster, ordered=True, categories=cluster_order))
     )
 
 

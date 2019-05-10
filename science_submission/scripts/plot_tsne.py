@@ -22,14 +22,14 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig, ax = plt.subplots(figsize=(2, 2))
+    fig, ax = plt.subplots(figsize=(4, 4))
 
     ax.scatter(df.tSNE_1, df.tSNE_2, c=df.color, s=3, linewidth=.02, edgecolor='k', rasterized=True)
 
     # Add text for cluster names
     for clus, row in df.groupby('cluster').agg({'tSNE_1': 'mean', 'tSNE_2': 'mean'}).iterrows():
-        if clus == 'UNK':
-            continue
+        # if clus == 'UNK':
+        #     continue
         plt.text(row.tSNE_1, row.tSNE_2, clus,
                  bbox=dict(facecolor=(1, 1, 1, .8), edgecolor='none', pad=.2),
                  ha='center', va='center', fontsize=7, fontweight='bold')
@@ -42,7 +42,7 @@ def main():
 
 
 def get_data():
-    cmap = dict(zip(cluster_order + ['UNK', 'UNK', 'UNK'], colors))
+    cmap = dict(zip(cluster_order, colors))
 
     return (
         pd.read_parquet(tsne)

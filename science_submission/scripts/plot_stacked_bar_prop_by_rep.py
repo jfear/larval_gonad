@@ -55,7 +55,7 @@ def get_data():
     return (
         pd.read_parquet(fname)
         .assign(cluster=lambda df: df.cluster.map(annotation))
-        .query('cluster != "UNK"')
+        # .query('cluster != "UNK"')
         .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
         .groupby(['cluster', 'rep'])
         .size()

@@ -23,7 +23,7 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig = plt.figure(figsize=(1.8, 1.8))
+    fig = plt.figure(figsize=(3, 3))
     gs = GridSpec(2, 1, height_ratios=[1, .05])
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
@@ -69,7 +69,7 @@ def get_data():
         pd.read_parquet(tpm)
         .pivot_table(index='FBgn', columns='cluster', values='TPM')
         .rename(columns=annotation)
-        .drop(columns='UNK')
+        # .drop(columns='UNK')
     )
 
     _corr = df.corr(method='spearman')

@@ -25,7 +25,7 @@ def main():
     df = get_data()
 
     plt.style.use('scripts/paper_1c.mplstyle')
-    fig = plt.figure(figsize=(1.8, 3))
+    fig = plt.figure(figsize=(3, 4))
     gs = GridSpec(2, 1, height_ratios=[1, .02], hspace=0.05)
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
@@ -50,16 +50,18 @@ def main():
                        fontsize=5.5)
 
     # Add additional x annotations
-    yloc = 0 - (df.shape[0] * .08)
+    yloc = 0 - (df.shape[0] * .05)
     pad = yloc * .1
     ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
     ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
     ax.text(24, yloc + pad, 'Somatic\nOther', ha='center', fontsize=6, color=cluster_colors[8], va='bottom')
+    ax.text(31, yloc + pad, 'Unknown', ha='center', fontsize=6, color=cluster_colors[-1], va='bottom')
     lines = [
         plt.Line2D([0, 12], [yloc, yloc], color=cluster_colors[0], lw=1.5, clip_on=False),
         plt.Line2D([12, 21], [yloc, yloc], color=cluster_colors[4], lw=1.5, clip_on=False),
         plt.Line2D([21, 24], [yloc, yloc], color=cluster_colors[7], lw=1.5, clip_on=False),
         plt.Line2D([24, 27], [yloc, yloc], color=cluster_colors[8], lw=1.5, clip_on=False),
+        plt.Line2D([27, 35], [yloc, yloc], color=cluster_colors[-1], lw=1.5, clip_on=False),
     ]
 
     for l in lines:
@@ -68,7 +70,7 @@ def main():
     # Clean up Y axis
     ax.set_ylabel('Genes')
     # Add lines separating cell types
-    for i in range(1, 9):
+    for i in range(1, 12):
         ax.axvline(i * 3, color='w', ls='--', lw=.5)
 
     # Clean up color bar
@@ -82,25 +84,25 @@ def main():
 def get_data():
     zscores = (
         pd.read_parquet(fname)
-            .reset_index()
-            .assign(
+        .reset_index()
+        .assign(
             cluster=lambda df: (
                 df.cluster.map(annotation)
-                    .pipe(lambda x: x[x != 'UNK'])
-                    .astype('category')
-                    .cat.as_ordered()
-                    .cat.reorder_categories(cluster_order)
+                # .pipe(lambda x: x[x != 'UNK'])
+                .astype('category')
+                .cat.as_ordered()
+                .cat.reorder_categories(cluster_order)
             )
         )
-            .assign(
+        .assign(
             rep=lambda df: (
                 df.rep.astype('category')
-                    .cat.as_ordered()
-                    .cat.reorder_categories(['rep1', 'rep2', 'rep3'])
+                .cat.as_ordered()
+                .cat.reorder_categories(['rep1', 'rep2', 'rep3'])
             )
         )
-            .sort_values(by=['cluster', 'rep'])
-            .pivot_table(index='FBgn', columns=['cluster', 'rep'], values='tpm_zscore')
+        .sort_values(by=['cluster', 'rep'])
+        .pivot_table(index='FBgn', columns=['cluster', 'rep'], values='tpm_zscore')
     )
 
     # calculate linkages
