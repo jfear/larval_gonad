@@ -29,7 +29,7 @@ def main():
     df, multi_genes_per_cluster = get_data()
 
     plt.style.use('scripts/paper_1c.mplstyle')
-    fig = plt.figure(figsize=(1.8, 2.5))
+    fig = plt.figure(figsize=(3, 4))
     gs = GridSpec(2, 1, height_ratios=[1, .02], hspace=0.05)
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
@@ -59,11 +59,13 @@ def main():
     ax.text(6, yloc + pad, 'Germline', ha='center', fontsize=6, color=cluster_colors[0], va='bottom')
     ax.text(17, yloc + pad, 'Somatic\nCyst', ha='center', fontsize=6, color=cluster_colors[4], va='bottom')
     ax.text(24, yloc + pad, 'Somatic\nOther', ha='center', fontsize=6, color=cluster_colors[8], va='bottom')
+    ax.text(31, yloc + pad, 'Unknown', ha='center', fontsize=6, color=cluster_colors[-1], va='bottom')
     lines = [
         plt.Line2D([0, 12], [yloc, yloc], color=cluster_colors[0], lw=1.5, clip_on=False),
         plt.Line2D([12, 21], [yloc, yloc], color=cluster_colors[4], lw=1.5, clip_on=False),
         plt.Line2D([21, 24], [yloc, yloc], color=cluster_colors[7], lw=1.5, clip_on=False),
         plt.Line2D([24, 27], [yloc, yloc], color=cluster_colors[8], lw=1.5, clip_on=False),
+        plt.Line2D([27, 35], [yloc, yloc], color=cluster_colors[-1], lw=1.5, clip_on=False),
     ]
 
     for l in lines:
@@ -107,10 +109,10 @@ def get_data():
         .assign(
             cluster=lambda df: (
                 df.cluster.map(annotation)
-                    .pipe(lambda x: x[x != 'UNK'])
-                    .astype('category')
-                    .cat.as_ordered()
-                    .cat.reorder_categories(cluster_order)
+                # .pipe(lambda x: x[x != 'UNK'])
+                .astype('category')
+                .cat.as_ordered()
+                .cat.reorder_categories(cluster_order)
             )
         )
         .assign(
@@ -129,7 +131,7 @@ def get_data():
         pd.read_csv(biomarkers, sep='\t', usecols=['primary_FBgn', 'cluster'], index_col=0)
         .cluster
         .map(annotation)
-        .pipe(lambda x: x[x != "UNK"])
+        # .pipe(lambda x: x[x != "UNK"])
         .astype('category')
         .cat.as_ordered()
         .cat.reorder_categories(cluster_order)
@@ -141,8 +143,8 @@ def get_data():
     multi_fbgns = _biomarkers.groupby('FBgn').size().pipe(lambda x: x[x > 1]).index
     df = (
         _biomarkers.query(f'FBgn == {multi_fbgns.tolist()}')
-            .groupby('FBgn')
-            .apply(lambda df: '|'.join(df.cluster.sort_values().values))
+        .groupby('FBgn')
+        .apply(lambda df: '|'.join(df.cluster.sort_values().values))
     )
 
     germ_combos = ['|'.join(x) for x in chain(
@@ -162,6 +164,7 @@ def get_data():
     flags[df.isin(germ_combos)] = 'G'
     flags[df.isin(soma_combos)] = 'S'
     flags = flags.astype('category').cat.as_ordered().cat.reorder_categories(['G', 'GS', 'S'])
+    import ipdb; ipdb.set_trace()
 
     fbgns = flags.sort_values().index
     zscores = zscores.reindex(fbgns).dropna()

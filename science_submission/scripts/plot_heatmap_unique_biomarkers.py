@@ -98,25 +98,25 @@ def main():
 def get_data():
     zscores = (
         pd.read_parquet(fname)
-            .reset_index()
-            .assign(
+        .reset_index()
+        .assign(
             cluster=lambda df: (
                 df.cluster.map(annotation)
-                    .pipe(lambda x: x[x != 'UNK'])
-                    .astype('category')
-                    .cat.as_ordered()
-                    .cat.reorder_categories(cluster_order)
+                # .pipe(lambda x: x[x != 'UNK'])
+                .astype('category')
+                .cat.as_ordered()
+                .cat.reorder_categories(cluster_order)
             )
         )
-            .assign(
+        .assign(
             rep=lambda df: (
                 df.rep.astype('category')
-                    .cat.as_ordered()
-                    .cat.reorder_categories(['rep1', 'rep2', 'rep3'])
+                .cat.as_ordered()
+                .cat.reorder_categories(['rep1', 'rep2', 'rep3'])
             )
         )
-            .sort_values(by=['cluster', 'rep'])
-            .pivot_table(index='FBgn', columns=['cluster', 'rep'], values='tpm_zscore')
+        .sort_values(by=['cluster', 'rep'])
+        .pivot_table(index='FBgn', columns=['cluster', 'rep'], values='tpm_zscore')
     )
 
     # Get biomarkers by cluster
