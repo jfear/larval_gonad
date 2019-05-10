@@ -31,7 +31,7 @@ def plot_heatmap_ptrap_scores(axMain, axLabel=None, label_size=5, **kwargs):
     leaves = tree['leaves']
 
     # plot
-    defaults = dict(yticklabels=True, xticklabels=False, vmin=0, vmax=8, rasterized=True, cmap='inferno',
+    defaults = dict(yticklabels=True, xticklabels=False, vmin=0, vmax=8, rasterized=False, cmap='inferno',
                     cbar_kws=dict(label='Arbitrary Score'))
 
     defaults.update(kwargs)

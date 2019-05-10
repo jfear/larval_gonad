@@ -33,7 +33,7 @@ def main():
         vmin=0.75,
         vmax=1,
         square=True,
-        rasterized=True,
+        rasterized=False,
         ax=ax,
         annot=True,
         annot_kws=dict(fontsize=5, fontweight='bold'),

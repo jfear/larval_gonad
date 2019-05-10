@@ -50,14 +50,14 @@ def plot_heatmap_ptrap_genes_w_rep(gsMain, label_size=5, expression_heatmap_kws=
     zscores = zscores.reindex(ptrap_genes)
 
     # plot
-    defaults = dict(yticklabels=False, xticklabels=False, vmin=-3, vmax=3, rasterized=True,
+    defaults = dict(yticklabels=False, xticklabels=False, vmin=-3, vmax=3, rasterized=False,
                     cmap=config['colors']['heatmap'], cbar_kws=dict(label='Normalized Read Counts (Z-score)'))
 
     if isinstance(expression_heatmap_kws, dict):
         defaults.update(expression_heatmap_kws)
 
     # make set set of defaults for protein scores plot
-    defaults2 = dict(yticklabels=False, xticklabels=False, vmin=0, vmax=8, rasterized=True,
+    defaults2 = dict(yticklabels=False, xticklabels=False, vmin=0, vmax=8, rasterized=False,
                      cmap='inferno', cbar_kws=dict(label='Arbitrary Score'))
 
     if isinstance(ptrap_heatmap_kws, dict):

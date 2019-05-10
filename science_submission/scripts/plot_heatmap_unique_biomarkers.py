@@ -40,7 +40,7 @@ def main():
         yticklabels=False,
         vmin=-3,
         vmax=3,
-        rasterized=True,
+        rasterized=False,
         cmap=cmap,
         ax=ax,
         cbar_ax=cax,
