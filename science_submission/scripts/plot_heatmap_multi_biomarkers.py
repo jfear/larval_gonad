@@ -164,7 +164,6 @@ def get_data():
     flags[df.isin(germ_combos)] = 'G'
     flags[df.isin(soma_combos)] = 'S'
     flags = flags.astype('category').cat.as_ordered().cat.reorder_categories(['G', 'GS', 'S'])
-    import ipdb; ipdb.set_trace()
 
     fbgns = flags.sort_values().index
     zscores = zscores.reindex(fbgns).dropna()
