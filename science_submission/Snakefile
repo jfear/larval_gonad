@@ -35,6 +35,7 @@ rule all:
         '../output/science_submission/figures/heatmap-y-genes.png',
         '../output/science_submission/figures/heatmap-msl-genes.png',
         '../output/science_submission/figures/boxplot-total-umi.png',
+        '../output/science_submission/figures/boxplot-expression-diversity.png',
         '../output/science_submission/figures/boxplot-y-genes.png',
         '../output/science_submission/figures/barplot_germline_deg.png',
         '../output/science_submission/figures/scatter_bulk_deg.png',
@@ -42,7 +43,6 @@ rule all:
         '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
         '../output/science_submission/figures/bubble_germline_deg_GO_CC.png',
         '../output/science_submission/figures/tsne_comparison.png',
-        '../output/science_submission/figures/boxplot-y-genes.png',
         '../output/science_submission/figures/barplot_bulk_demasculinization.png',
         '../output/science_submission/figures/barplot_sp_demasculinization.png',
         '../output/science_submission/figures/barplot_m1_demasculinization.png'
@@ -89,6 +89,16 @@ rule tsne:
 
         df = pd.read_csv(input[0], sep='\t', index_col=0)
         df.index.name = 'cell_id'
+        df.to_parquet(output[0])
+
+rule seurat_norm:
+    input: Path(config['seurat_dir'], 'normalized_read_counts.tsv').as_posix()
+    output: '../output/science_submission/normalized_read_counts.parquet'
+    run:
+        import pandas as pd
+
+        df = pd.read_csv(input[0], sep='\t', index_col=0)
+        df.index.name = 'FBgn'
         df.to_parquet(output[0])
 
 rule background:
@@ -279,6 +289,18 @@ rule plot_boxplot_total_umi:
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_boxplot_total_umi.py'
+
+rule plot_boxplot_expression_diversity:
+    input:
+        # raw='../output/scrnaseq-wf/raw.parquet',
+        norm=rules.seurat_norm.output[0],
+        clusters=rules.clusters.output[0]
+    output: '../output/science_submission/figures/boxplot-expression-diversity.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_boxplot_expression_diversity.py'
 
 rule plot_bubble_y_genes:
     input:
