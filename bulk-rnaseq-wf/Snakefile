@@ -558,7 +558,7 @@ rule male_biased_expression:
         male_bias = (
             pd.read_csv(input[0], sep='\t', index_col=0)
             .rename_axis('FBgn')
-            .query('padj <= 0.001 & log2FoldChange > 0')
+            .query('padj <= 0.01 & log2FoldChange >= 1')
             .index.tolist()
         )
         with open(output[0], 'w') as fh:
