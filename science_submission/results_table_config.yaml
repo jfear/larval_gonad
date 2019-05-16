@@ -1,174 +1,294 @@
 # Expression Counts tables
 Raw Counts:
-  description: 'Raw counts summed to the cell type by replicate level.'
-  fname: '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    Cluster ID: 'See above for description of cell type names.'
-    Replicate ID: 'Which biological replicate the cells came from.'
-  rows: 'genes'
+  description: |
+    This is the raw UMI count table arranged (FBgn x (Cell Type, Replicate ID)). Counts are directly output by cell ranger.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
+
+    **Values:** Raw UMI count.
+  file_name: '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet'
+  function: 'counts_table'
 
 Seurat Normalized Counts:
-  description: 'Seurat normalized counts summed to the cell type by replicate level.'
-  fname: '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    Cluster ID: 'See above for description of cell type names.'
-    Replicate ID: 'Which biological replicate the cells came from.'
-  rows: 'genes'
+  description: |
+    This is the normalized UMI count table arranged (FBgn x (Cell Type, Replicate ID)). Normalized counts were exported
+    from Seurat.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
+
+    **Values:** Seurat Normalized UMI count.
+  file_name: '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet'
+  function: 'counts_table'
 
 RPKM Normalized Counts:
-  description: 'RPKM normalized counts summed to the cell type by replicate level.'
-  fname: '../output/scrnaseq-wf/rpkm_by_rep.parquet'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    Cluster ID: 'See above for description of cell type names.'
-    Replicate ID: 'Which biological replicate the cells came from.'
-  rows: 'genes'
+  description: |
+    RPKM normalized UMI counts table arranged (FBgn x (Cell Type, Replicate ID)). RPKM stands for Reads Per Kilobase of
+    Gene Model per Million Mapped Reads (see Mortazavi et al. 2008). We calculated RPKM using raw UMI read counts and the
+    entire gene length.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
+
+    **Values:** RPKM Normalized UMI count.
+  file_name: '../output/scrnaseq-wf/rpkm_w_rep.parquet'
+  function: 'counts_table'
 
 TPM Normalized Counts:
-  description: 'TPM normalized counts summed to the cell type by replicate level.'
-  fname: '../output/scrnaseq-wf/tpm_by_rep.parquet'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    Cluster ID: 'See above for description of cell type names.'
-    Replicate ID: 'Which biological replicate the cells came from.'
-  rows: 'genes'
+  description: |
+    TPM normalized UMI counts table arranged (FBgn x (Cell Type, Replicate ID)). TPM stands for Transcripts Per Million.
+    It is similar to RPKM but with a different order of operations. We calculated TPM using raw UMI read counts and the
+    entire gene length.
 
-TPM Zscores:
-  description: 'Z-scores calculated using TPM normalized counts summed to the cell type by replicate level.'
-  fname: '../output/scrnaseq-wf/tpm_zscore_by_rep.parquet'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    Cluster ID: 'See above for description of cell type names.'
-    Replicate ID: 'Which biological replicate the cells came from.'
-  rows: 'genes'
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
 
-# Seurat output
-Biomarker List:
-  description: 'The cell type biomarker list generated by Seurat. This list is based on differential up regulation when comparing each cluster to all other cells.'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    Cluster ID: 'See above for description of cell type names.'
-    avg_logFC: 'The average log fold change'
-    p_val: 'P-value for the comparison.'
-    p_val_adj: 'FDR adjusted p-value'
-    pct.1: 'The percent of cells with this gene in this cell type.'
-    pct.2: 'The percent of cells with this gene in all other cells not in this cell type.'
-  rows: 'genes'
+    **Column Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
+
+    **Values:** TPM Normalized UMI count.
+  file_name: '../output/scrnaseq-wf/tpm_w_rep.parquet'
+  function: 'counts_table'
+
+TPM Z-Scores:
+  description: |
+    Z-score table arranged (FBgn x (Cell Type, Replicate ID)). We calculated row-wise Z-scores using TPM normalized UMI
+    counts.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
+
+    **Values:** Z-score
+  file_name: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet'
+  function: 'counts_table'
+
+
+Seurat Biomarker List:
+  description: |
+    The Seurat Biomarker table arranged (FBgn x (Cell Type, variable name)). For scRNA-Seq analysis we used Seurat. We
+    first clustered cells from all three replicates using Canonical Correlation Analysis (CCA). We identified a list of
+    marker genes by performing differential expression of each cluster vs all cells not in the cluster. Genes that were
+    upregulated in a given cluster in relation to all other cells were considered biomarkers for that cell type.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **avg_logFC:** The average log fold change (Seurat).
+        **p_val:** P-value for the comparison (Seurat).
+        **p_val_adj:** FDR adjusted p-value (Seurat).
+        **pct.1:** The percent of cells with this gene in this cell type (Seurat).
+        **pct.2:** The percent of cells with this gene in all other cells not in this cell type (Seurat).
+
+    **Values:** varied
+  file_name: '../output/science_submission/biomarkers.parquet'
+  function: 'biomarkers'
 
 tSNE:
-  description: 'Coordinates for plotting the tSNE. This is output by Seurat.'
-  index:
-    cell_id: 'The individual cell id, prefixed with the replicate id.'
-  columns:
-    tSNE_1: 'The tSNE coordinate on the first axis.'
-    tSNE_2: 'The tSNE coordinate on the second axis.'
-  rows: 'individual cells'
+  description: |
+    t-Distributed Stochastic Neighbor Embedding (tSNE) coordinates (cell_id x (tSNE_1, tSNE_2)). tSNE is a popular 2D
+    projection of cells to get a visual representation of single cell experiment. tSNE tries to keep cells that are close
+    together in high dimensional space together in low dimensional space. We used Seurat to generate tSNE coordinates for
+    each cell.
 
-# More Differential Expression
-SP vs Spermatocytes:
-  description: 'Seurat output for comparing SP vs all spermatocyte clusters.'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    avg_logFC: 'The average log fold change'
-    p_val: 'P-value for the comparison.'
-    p_val_adj: 'FDR adjusted p-value'
-    pct.1: 'The percent of cells with this gene in this cell type.'
-    pct.2: 'The percent of cells with this gene in all other cells not in this cell type.'
-  rows: 'genes'
+    **Row Index:**
+        **Cell ID:** A unique cell identifier based on the 10x Genomics cell specific barcode and Replicate ID.
+
+    **Column Index:**
+        **tSNE_1:** Coordinates on the X-axis of the tSNE plot (Suerat).
+        **tSNE_2:** Coordinates on the Y-axis of the tSNE plot (Suerat).
+
+    **Values:** X, Y coordinates on tSNE graph.
+  file_name: '../output/science_submission/tsne.parquet'
+  function: 'tsne'
+
+
+SP vs Primary Spermatocytes:
+  description: |
+    Differential gene expression results table arranged (FBgn x variable name). We used Seurat to calculate
+    differential gene expression between the SP cluster and the merge of the primary spermatocyte clusters (E1°, M1°, L1°).
+    Genes with a postive avg_logFC are show SP-biased gene expression, while genes with a negative avg_logFC show primary
+    spermatocyte biased gene expression.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **avg_logFC:** The average log fold change (Seurat).
+        **p_val:** P-value for the comparison (Seurat).
+        **p_val_adj:** FDR adjusted p-value (Seurat).
+        **pct.1:** The percent of cells with this gene in this cell type (Seurat).
+        **pct.2:** The percent of cells with this gene in all other cells not in this cell type (Seurat).
+
+    **Values:** varied
+  file_name: '../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv'
+  function: 'deg_res'
 
 SP vs E1°:
-  description: 'Seurat output for comparing SP vs E1°.'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    avg_logFC: 'The average log fold change'
-    p_val: 'P-value for the comparison.'
-    p_val_adj: 'FDR adjusted p-value'
-    pct.1: 'The percent of cells with this gene in this cell type.'
-    pct.2: 'The percent of cells with this gene in all other cells not in this cell type.'
-  rows: 'genes'
+  description: |
+    Differential gene expression results table arranged (FBgn x variable name). We used Seurat to calculate
+    differential gene expression between the SP cluster and the E1° cluster. Genes with a postive avg_logFC are show
+    SP-biased gene expression, while genes with a negative avg_logFC show E1°-biased gene expression.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **avg_logFC:** The average log fold change (Seurat).
+        **p_val:** P-value for the comparison (Seurat).
+        **p_val_adj:** FDR adjusted p-value (Seurat).
+        **pct.1:** The percent of cells with this gene in this cell type (Seurat).
+        **pct.2:** The percent of cells with this gene in all other cells not in this cell type (Seurat).
+
+    **Values:** varied
+  file_name: '../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv'
+  function: 'deg_res'
 
 E1° vs M1°:
-  description: 'Seurat output for comparing E1° vs M1°.'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    avg_logFC: 'The average log fold change'
-    p_val: 'P-value for the comparison.'
-    p_val_adj: 'FDR adjusted p-value'
-    pct.1: 'The percent of cells with this gene in this cell type.'
-    pct.2: 'The percent of cells with this gene in all other cells not in this cell type.'
-  rows: 'genes'
+  description: |
+    Differential gene expression results table arranged (FBgn x variable name). We used Seurat to calculate
+    differential gene expression between the E1° cluster and the M1° cluster. Genes with a postive avg_logFC are show
+    E1°-biased gene expression, while genes with a negative avg_logFC show M1°-biased gene expression.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **avg_logFC:** The average log fold change (Seurat).
+        **p_val:** P-value for the comparison (Seurat).
+        **p_val_adj:** FDR adjusted p-value (Seurat).
+        **pct.1:** The percent of cells with this gene in this cell type (Seurat).
+        **pct.2:** The percent of cells with this gene in all other cells not in this cell type (Seurat).
+
+    **Values:** varied
+  file_name: '../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv'
+  function: 'deg_res'
 
 M1° vs L1°:
-  description: 'Seurat output for comparing M1° vs L1°.'
-  index:
-    FBgn: 'FlyBase gene ID'
-    gene_symbol: 'FlyBase Gene Symbol'
-    chrom: 'Chromosome Arm'
-  columns:
-    avg_logFC: 'The average log fold change'
-    p_val: 'P-value for the comparison.'
-    p_val_adj: 'FDR adjusted p-value'
-    pct.1: 'The percent of cells with this gene in this cell type.'
-    pct.2: 'The percent of cells with this gene in all other cells not in this cell type.'
-  rows: 'genes'
+  description: |
+    Differential gene expression results table arranged (FBgn x variable name). We used Seurat to calculate
+    differential gene expression between the M1° cluster and the L1° cluster. Genes with a postive avg_logFC are show
+    M1°-biased gene expression, while genes with a negative avg_logFC show L1°-biased gene expression.
 
-# Autosome Result
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **avg_logFC:** The average log fold change (Seurat).
+        **p_val:** P-value for the comparison (Seurat).
+        **p_val_adj:** FDR adjusted p-value (Seurat).
+        **pct.1:** The percent of cells with this gene in this cell type (Seurat).
+        **pct.2:** The percent of cells with this gene in all other cells not in this cell type (Seurat).
+
+    **Values:** varied
+  file_name: '../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv'
+  function: 'deg_res'
+
+
+#TODO Finish the description
 Autosome Ratio Data:
-  description: 'Data for looking at X and 4th to autosome ratios.'
-  index:
-    cell_id: 'The individual cell id, prefixed with the replicate id.'
-    Cluster ID: 'See above for description of cell type names.'
-    Replicate ID: 'Which biological replicate the cells came from.'
-  columns:
-    chrX: 'Total expression on X.'
-    chr2L: 'Total expression on 2L.'
-    chr2R: 'Total expression on 2R.'
-    chr3L: 'Total expression on 3L.'
-    chr3R: 'Total expression on 3R.'
-    chr4: 'Total expression on 4.'
-    chrY: 'Total expression on Y.'
-    x_to_a_ratio: 'The ratio of X / (2L + 2R + 3L + 3R)'
-    fourth_to_a_ratio: 'The ratio of 4 / (2L + 2R + 3L + 3R)'
-    y_to_a_ratio: 'The ratio of Y / (2L + 2R + 3L + 3R)'
-  rows: 'individual cells'
+  description: |
+    This is the per cell autosomal ratios table arranged (Cell ID x variable name). Ratios were calculated on a per
+    cell basis using the XXX
 
-Autosome Ratio Results:
-  description: 'Results from running a permutation test looking at X and 4th to autosome ratios.'
-  index:
-    Cluster ID: 'See above for description of cell type names.'
-  columns:
-    pval_x: 'P-value for X / (2L + 2R + 3L + 3R) permutation test.'
-    pval_4: 'P-value for 4 / (2L + 2R + 3L + 3R) permutation test.'
-    pval_y: 'P-value for Y / (2L + 2R + 3L + 3R) permutation test.'
-  rows: 'Germline Clusters'
+    **Row Index:**
+        **Cell ID:** A unique cell identifier based on the 10x Genomics cell specific barcode and Replicate ID.
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
 
+    **Column Index:**
+        **chrX:** Total expression on X.
+        **chr2L:** Total expression on 2L.
+        **chr2R:** Total expression on 2R.
+        **chr3L:** Total expression on 3L.
+        **chr3R:** Total expression on 3R.
+        **chr4:** Total expression on 4.
+        **chrY:** Total expression on Y.
+        **x_to_a_ratio:** The ratio of X / (2L + 2R + 3L + 3R)
+        **fourth_to_a_ratio:** The ratio of 4 / (2L + 2R + 3L + 3R)
+        **y_to_a_ratio:** The ratio of Y / (2L + 2R + 3L + 3R)
 
+    **Values:** varied
+  file_name:
+    - '../output/x-to-a-wf/expressed_genes_by_chrom.parquet'
+    - '../output/x-to-a-wf/autosome_ratios_by_cell.parquet'
+  function: 'autosome_ratios'
+
+#TODO Finish the description
+Autosome Ratio Permutation Test:
+  description: |
+    Permutation p-value table arranged (Cell Type x variable name). We calculated p-values using a permutation test
+    framework. XXXX
+
+    **Row Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+
+    **Column Index:**
+        **pval_x:** P-value for X / (2L + 2R + 3L + 3R) permutation test.
+        **pval_4:** P-value for 4 / (2L + 2R + 3L + 3R) permutation test.
+        **pval_y:** P-value for Y / (2L + 2R + 3L + 3R) permutation test.
+
+    **Values:** varied
+  file_name: '../output/x-to-a-wf/permuted_autosome_ratio_pvalue.parquet'
+  function: 'autosome_permutation'

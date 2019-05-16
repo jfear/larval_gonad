@@ -15,6 +15,7 @@ config['colors'] = read_config('../config/colors.yaml')
 REFERENCES_DIR = os.environ.get('REFERENCES_DIR', config.get('REFERENCES_DIR', ''))
 ASSEMBLY = config['assembly']
 TAG = config['tag']
+RESOLUTION = config['resolution']
 
 rule all:
     input:
@@ -99,6 +100,18 @@ rule seurat_norm:
 
         df = pd.read_csv(input[0], sep='\t', index_col=0)
         df.index.name = 'FBgn'
+        df.to_parquet(output[0])
+
+rule biomarkers:
+    input: f'../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_{RESOLUTION}.tsv'
+    output: '../output/science_submission/biomarkers.parquet'
+    run:
+        import pandas as pd
+
+        df = (
+            pd.read_csv(input[0], sep='\t', index_col=0)
+            .rename_axis('FBgn')
+        )
         df.to_parquet(output[0])
 
 rule background:
@@ -459,6 +472,20 @@ rule plot_scatter_bulk_deg:
 #          zscore='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
 #     output: '../output/science_submission/tables/scRNASeq_cluster_deg.xlsx'
 #     script: 'scripts/table_scRNASeq_cluster_deg.py'
+
+rule results_table:
+    input:
+        config_name='results_table_config.yaml',
+        fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+        fbgn2symbol=rules.fbgn2symbol.output[0],
+        biomarkers=rules.biomarkers.output[0]
+    params:
+        annotation=config['short_cluster_annot'],
+        cluster_order=config['short_cluster_order'],
+        legend_names=config['legend_names']
+    output: '../output/results_table.xlsx'
+    script: 'scripts/results_table.py'
+
 
 ################################################################################
 # Helpers
