@@ -285,6 +285,17 @@ rule plot_boxplot_y_genes:
     script: 'scripts/plot_boxplot_y_genes.py'
 
 # Supplemental Figures
+rule plot_barplot_replicate_representation:
+    input:
+         dat='../output/scrnaseq-wf/number_of_cells_per_cluster.parquet',
+         clusters=rules.clusters.output[0]
+    output: '../output/science_submission/figures/barplot-replicate-representation.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_barplot_replicate_representation.py'
+
 rule plot_violin_total_umi:
     input: '../output/scrnaseq-wf/raw.parquet'
     output: '../output/science_submission/figures/violin-total-umi.svg'
