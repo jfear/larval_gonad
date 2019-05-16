@@ -40,6 +40,7 @@ rule all:
         '../output/science_submission/figures/boxplot-y-genes.svg',
         '../output/science_submission/figures/barplot-replicate-representation.svg',
         '../output/science_submission/figures/barplot_germline_deg.svg',
+        '../output/science_submission/figures/barplot-cell-per-cluster.svg',
         '../output/science_submission/figures/barplot_bulk_demasculinization.svg',
         '../output/science_submission/figures/barplot_sp_demasculinization.svg',
         '../output/science_submission/figures/barplot_m1_demasculinization.svg',
@@ -288,6 +289,17 @@ rule plot_barplot_replicate_representation:
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_barplot_replicate_representation.py'
+
+rule plot_barplot_cell_per_cluster:
+    input:
+         dat='../output/scrnaseq-wf/number_of_cells_per_cluster.parquet',
+         clusters=rules.clusters.output[0]
+    output: '../output/science_submission/figures/barplot-cell-per-cluster.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_barplot_cell_per_cluster.py'
 
 rule plot_violin_total_umi:
     input: '../output/scrnaseq-wf/raw.parquet'
