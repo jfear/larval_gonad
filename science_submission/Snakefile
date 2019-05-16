@@ -22,31 +22,33 @@ rule all:
         '../output/science_submission/intron_less_genes.pkl',
         '../output/science_submission/non_coding_genes.pkl',
         '../output/science_submission/background_fbgns.pkl',
-        '../output/science_submission/figures/tsne.png',
-        '../output/science_submission/figures/cluster-legend.png',
-        '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.png',
-        '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.png',
-        '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.png',
-        '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.png',
-        '../output/science_submission/figures/stacked-bar-prop-by-rep.png',
-        '../output/science_submission/figures/heatmap-all-genes.png',
-        '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.png',
-        '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.png',
-        '../output/science_submission/figures/boxplot-autosome-ratio.png',
-        '../output/science_submission/figures/heatmap-y-genes.png',
-        '../output/science_submission/figures/heatmap-msl-genes.png',
-        '../output/science_submission/figures/boxplot-total-umi.png',
-        '../output/science_submission/figures/boxplot-expression-diversity.png',
-        '../output/science_submission/figures/boxplot-y-genes.png',
-        '../output/science_submission/figures/barplot_germline_deg.png',
-        '../output/science_submission/figures/scatter_bulk_deg.png',
-        '../output/science_submission/figures/bubble_germline_deg_GO_BP.png',
-        '../output/science_submission/figures/bubble_germline_deg_GO_MF.png',
-        '../output/science_submission/figures/bubble_germline_deg_GO_CC.png',
-        '../output/science_submission/figures/tsne_comparison.png',
-        '../output/science_submission/figures/barplot_bulk_demasculinization.png',
-        '../output/science_submission/figures/barplot_sp_demasculinization.png',
-        '../output/science_submission/figures/barplot_m1_demasculinization.png'
+        '../output/science_submission/figures/tsne.svg',
+        '../output/science_submission/figures/cluster-legend.svg',
+        '../output/science_submission/figures/heatmap-short-lit-genes-w-rep.svg',
+        '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
+        '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
+        '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
+        '../output/science_submission/figures/heatmap-all-genes.svg',
+        '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg',
+        '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg',
+        '../output/science_submission/figures/heatmap-y-genes.svg',
+        '../output/science_submission/figures/heatmap-msl-genes.svg',
+         '../output/science_submission/figures/boxplot-autosome-ratio.svg',
+        '../output/science_submission/figures/boxplot-total-umi.svg',
+        '../output/science_submission/figures/boxplot-expression-diversity.svg',
+        '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg',
+        '../output/science_submission/figures/boxplot-y-genes.svg',
+        '../output/science_submission/figures/barplot-replicate-representation.svg',
+        '../output/science_submission/figures/barplot_germline_deg.svg',
+        '../output/science_submission/figures/barplot_bulk_demasculinization.svg',
+        '../output/science_submission/figures/barplot_sp_demasculinization.svg',
+        '../output/science_submission/figures/barplot_m1_demasculinization.svg',
+        '../output/science_submission/figures/scatter_bulk_deg.svg',
+        '../output/science_submission/figures/bubble_germline_deg_GO_BP.svg',
+        '../output/science_submission/figures/bubble_germline_deg_GO_MF.svg',
+        '../output/science_submission/figures/bubble_germline_deg_GO_CC.svg',
+        '../output/science_submission/figures/tsne_comparison.svg',
+        '../output/science_submission/results_table.xlsx'
 
 ################################################################################
 # Data Sets
@@ -236,15 +238,6 @@ rule plot_heatmap_all_lit_genes:
           cmap=config['colors']['heatmap']
     script: 'scripts/plot_heatmap_all_lit_genes.py'
 
-rule plot_stacked_bar_prop_by_rep:
-    input: '../output/scrnaseq-wf/clusters.parquet'
-    output: '../output/science_submission/figures/stacked-bar-prop-by-rep.svg'
-    params:
-          annotation=config['short_cluster_annot'],
-          cluster_order=config['short_cluster_order'],
-          cluster_colors=config['colors']['clusters']
-    script: 'scripts/plot_stacked_bar_prop_by_rep.py'
-
 rule plot_heatmap_ptrap_genes_w_rep:
     input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
     output: '../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg'
@@ -316,7 +309,6 @@ rule plot_boxplot_total_umi:
 
 rule plot_boxplot_expression_diversity:
     input:
-        # raw='../output/scrnaseq-wf/raw.parquet',
         norm=rules.seurat_norm.output[0],
         clusters=rules.clusters.output[0]
     output: '../output/science_submission/figures/boxplot-expression-diversity.svg'
@@ -325,6 +317,18 @@ rule plot_boxplot_expression_diversity:
           cluster_order=config['short_cluster_order'],
           cluster_colors=config['colors']['clusters']
     script: 'scripts/plot_boxplot_expression_diversity.py'
+
+rule plot_boxplot_male_biased_expression_diversity:
+    input:
+         norm=rules.seurat_norm.output[0],
+         male_bias='../output/bulk-rnaseq-wf/deseq2_tcp_male_biased_expressed_genes.txt',
+         clusters=rules.clusters.output[0]
+    output: '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg'
+    params:
+          annotation=config['short_cluster_annot'],
+          cluster_order=config['short_cluster_order'],
+          cluster_colors=config['colors']['clusters']
+    script: 'scripts/plot_boxplot_male_biased_expression_diversity.py'
 
 rule plot_bubble_y_genes:
     input:
@@ -494,7 +498,7 @@ rule results_table:
         annotation=config['short_cluster_annot'],
         cluster_order=config['short_cluster_order'],
         legend_names=config['legend_names']
-    output: '../output/results_table.xlsx'
+    output: '../output/science_submission/results_table.xlsx'
     script: 'scripts/results_table.py'
 
 
