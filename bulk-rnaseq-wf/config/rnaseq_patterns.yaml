@@ -61,3 +61,7 @@ bigwig:
 
 downstream:
    rnaseq: '../output/bulk-rnaseq-wf/rnaseq.html'
+   tcp_table: '../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv'
+   tdp_table: '../output/bulk-rnaseq-wf/deseq2_results_tdp_vs_odp.tsv'
+
+male-bias: '../output/bulk-rnaseq-wf/deseq2_tcp_male_biased_expressed_genes.txt'

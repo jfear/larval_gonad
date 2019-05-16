@@ -53,7 +53,8 @@ rule targets:
         utils.flatten(c.targets['salmon']) +
         utils.flatten(c.targets['collectrnaseqmetrics']) +
         utils.flatten(c.targets['bigwig']) +
-        utils.flatten(c.targets['downstream'])
+        utils.flatten(c.targets['downstream']) +
+        utils.flatten(c.targets['male-bias'])
 
 
 if 'orig_filename' in c.sampletable.columns:
@@ -546,6 +547,22 @@ rule tpm:
 
         res = tpm(raw, lens).dropna()
         res.to_parquet(output[0])
+
+rule male_biased_expression:
+    input: c.targets['downstream']['tcp_table']
+    output: c.targets['male-bias']
+    resources:
+        mem_gb = lambda wildcards, attempt: attempt * 1,
+        time_hr = lambda wildcards, attempt: attempt * 1
+    run:
+        male_bias = (
+            pd.read_csv(input[0], sep='\t', index_col=0)
+            .rename_axis('FBgn')
+            .query('padj <= 0.001 & log2FoldChange > 0')
+            .index.tolist()
+        )
+        with open(output[0], 'w') as fh:
+            fh.write('\n'.join(male_bias))
 
 # vim: ft=snakemake.python
 # vim: foldmethod=indent
