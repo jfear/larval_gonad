@@ -34,6 +34,8 @@ final_targets = utils.flatten((
     '../output/scrnaseq-wf/germcell_deg/germcell_differential_expression.html',
     '../output/scrnaseq-wf/germcell_soma_deg/germcell_soma_differential_expression.html',
     '../output/scrnaseq-wf/seurat_norm_by_cluster.parquet',
+    '../output/scrnaseq-wf/number_of_cells_per_cluster.parquet',
+    '../output/scrnaseq-wf/replicate_bias.parquet',
     '../output/scrnaseq-wf/raw.parquet',
     '../output/scrnaseq-wf/raw_by_cluster.parquet',
     '../output/scrnaseq-wf/raw_by_rep.parquet',
@@ -313,11 +315,27 @@ rule clusters:
     run:
         (
             pd.read_csv(input[0], sep='\t', index_col=0)
-                .loc[:, params.resolution]
-                .rename('cluster')
-                .to_frame()
-                .rename_axis('cell_id')
-                .to_parquet(output[0])
+            .loc[:, params.resolution]
+            .rename('cluster')
+            .to_frame()
+            .rename_axis('cell_id')
+            .to_parquet(output[0])
+        )
+
+rule number_cells_per_cluster:
+    input: rules.clusters.output[0]
+    output: '../output/scrnaseq-wf/number_of_cells_per_cluster.parquet'
+    resources:
+         mem_gb=lambda wildcards, attempt: attempt * 1,
+         time_hr=lambda wildcards, attempt: attempt * 1
+    run:
+        (
+            pd.read_parquet(input[0])
+            .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
+            .groupby(['cluster', 'rep']).size()
+            .rename('number_of_cells')
+            .to_frame()
+            .to_parquet(output[0])
         )
 
 rule raw:
@@ -329,9 +347,9 @@ rule raw:
     run:
         (
             pd.read_csv(input[0], sep='\t', index_col=0)
-                .rename_axis('FBgn')
-                .rename_axis('cell_id', axis=1)
-                .to_parquet(output[0])
+            .rename_axis('FBgn')
+            .rename_axis('cell_id', axis=1)
+            .to_parquet(output[0])
         )
 
 rule raw_by_cluster:
@@ -345,16 +363,16 @@ rule raw_by_cluster:
     run:
         (
             pd.read_parquet(input['raw'])
-                .T
-                .join(pd.read_parquet(input['clusters']))
-                .groupby('cluster')
-                .sum()
-                .T
-                .rename_axis('FBgn')
-                .reset_index()
-                .melt(id_vars='FBgn', value_name='UMI')
-                .set_index('FBgn')
-                .to_parquet(output[0])
+            .T
+            .join(pd.read_parquet(input['clusters']))
+            .groupby('cluster')
+            .sum()
+            .T
+            .rename_axis('FBgn')
+            .reset_index()
+            .melt(id_vars='FBgn', value_name='UMI')
+            .set_index('FBgn')
+            .to_parquet(output[0])
         )
 
 rule raw_by_cluster_w_rep:
@@ -401,6 +419,16 @@ rule raw_by_rep:
                 .set_index('FBgn')
                 .to_parquet(output[0])
         )
+
+rule replicate_bias:
+    input:
+         num_cells=rules.number_cells_per_cluster.output[0]
+    output: '../output/scrnaseq-wf/replicate_bias.parquet'
+    resources:
+             mem_gb=lambda wildcards, attempt: attempt * 1,
+             time_hr=lambda wildcards, attempt: attempt * 1
+    script: 'scripts/replicate_bias.py'
+
 
 rule norm_counts_by_cluster:
     input:

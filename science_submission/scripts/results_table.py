@@ -36,7 +36,8 @@ def main():
 
     # Write out Cell Type IDs
     readme.write(0, 0, 'Cell Type', header)
-    readme.write(0, 1, '\n'.join(legend_names))
+    description = 'Cell type labels determined using landmark genes\n\n' + '\n'.join(legend_names)
+    readme.write(0, 1, description)
 
     # Write out other table descriptions from results_table_config.yaml
     row = 1
@@ -44,7 +45,7 @@ def main():
         # Write README information
         readme.write(row, 0, block_name, header)
         readme.write_rich_string(row, 1, *format_block(block['description'], cell_format, bold))
-        readme.set_row(row, len(block['description'].split('\n')) * 12)
+        readme.set_row(row, len(block['description'].split('\n')) * 14)
         row += 1
 
         # Write data as a worksheet
@@ -55,7 +56,7 @@ def main():
             # Format indexed columns so they look nicer
             _sheet = workbook.get_worksheet_by_name(block_name)
             for i, idx in enumerate(df.index.names):
-                max_len = df.index.get_level_values(idx).str.len().max()
+                max_len = max(pd.Index(df.index.get_level_values(idx).tolist()).str.len().max(), len(block_name))
                 _sheet.set_column(i, i, width=max_len + 1)
 
     writer.close()
@@ -78,6 +79,17 @@ def format_block(block_text, default, bold):
     return fmt
 
 
+def rep_bias(file_name):
+    return (
+        pd.read_parquet(file_name)
+        .reset_index()
+        .assign(cluster=lambda df: pd.Categorical(df.cluster.map(cluster_annot), ordered=True, categories=cluster_order))
+        .assign(rep=lambda df: pd.Categorical(df.rep, ordered=True, categories=['rep1', 'rep2', 'rep3']))
+        .set_index(['cluster', 'rep'])
+        .sort_index()
+    )
+
+
 def counts_table(file_name):
     w_rep = (
         pd.read_parquet(file_name)
@@ -96,7 +108,7 @@ def counts_table(file_name):
 
 
 def biomarkers(file_name):
-    return (
+    _df = (
         pd.read_parquet(file_name)
         .assign(gene_symbol=lambda df: df.index.map(fbgn2symbol))
         .assign(chrom=lambda df: df.index.map(fbgn2chrom.iloc[:, 0].to_dict()))
@@ -108,6 +120,8 @@ def biomarkers(file_name):
         .unstack().unstack()
         .sort_index(level=0)
     )
+    _df.columns = _df.columns.droplevel(0)
+    return _df
 
 
 def tsne(file_name):
@@ -117,10 +131,10 @@ def tsne(file_name):
 def deg_res(file_name):
     return (
         pd.read_csv(file_name, sep='\t', index_col=0)
-            .rename_axis('FBgn')
-            .join(fbgn2chrom)
-            .set_index(['gene_symbol', 'chrom'], append=True)
-            .sort_index(level=0)
+        .rename_axis('FBgn')
+        .join(fbgn2chrom)
+        .set_index(['gene_symbol', 'chrom'], append=True)
+        .sort_index(level=0)
     )
 
 
@@ -146,6 +160,16 @@ def autosome_permutation(file_name):
         .assign(cluster=lambda df: pd.Categorical(df.cluster.map(cluster_annot), ordered=True, categories=cluster_order))
         .set_index('cluster')
         .sort_index()
+    )
+
+
+def deseq2_res(file_name):
+    return (
+        pd.read_csv(file_name, sep='\t', index_col=0)
+        .rename_axis('FBgn')
+        .assign(gene_symbol=lambda df: df.index.map(fbgn2symbol))
+        .assign(chrom=lambda df: df.index.map(fbgn2chrom.iloc[:, 0].to_dict()))
+        .set_index(['gene_symbol', 'chrom'], append=True)
     )
 
 

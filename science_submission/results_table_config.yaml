@@ -1,4 +1,26 @@
-# Expression Counts tables
+Replicate Counts:
+  description: |
+    This is the raw UMI count table arranged (FBgn x (Cell Type, Replicate ID)). Counts are directly output by cell ranger.
+
+    **Row Index:**
+        **Cell Type:** Cell type ID.
+              These IDs were generated in this project and are based on expression profiles of landmark genes from the
+              literature.
+        **Replicate ID:** Biological replicate ID.
+              This table contains data from three independent biological replicates.
+
+    **Column Index:**
+        **number_of_cells:** Total number of cells in this cell type from this replicate.
+        **flag_sig_bias:**
+              **0:** Replicates are equally represented in this Cell Type.
+              **1:** Cells from this replicate are overrepressented in this Cell Type
+              **-1:** Cells from this replicate are underrepressented in this Cell Type
+
+    **Values:** varied
+  file_name: '../output/scrnaseq-wf/replicate_bias.parquet'
+  function: 'rep_bias'
+
+
 Raw Counts:
   description: |
     This is the raw UMI count table arranged (FBgn x (Cell Type, Replicate ID)). Counts are directly output by cell ranger.
@@ -18,6 +40,7 @@ Raw Counts:
     **Values:** Raw UMI count.
   file_name: '../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet'
   function: 'counts_table'
+
 
 Seurat Normalized Counts:
   description: |
@@ -39,6 +62,7 @@ Seurat Normalized Counts:
     **Values:** Seurat Normalized UMI count.
   file_name: '../output/scrnaseq-wf/seurat_norm_by_cluster_w_rep.parquet'
   function: 'counts_table'
+
 
 RPKM Normalized Counts:
   description: |
@@ -62,6 +86,7 @@ RPKM Normalized Counts:
   file_name: '../output/scrnaseq-wf/rpkm_w_rep.parquet'
   function: 'counts_table'
 
+
 TPM Normalized Counts:
   description: |
     TPM normalized UMI counts table arranged (FBgn x (Cell Type, Replicate ID)). TPM stands for Transcripts Per Million.
@@ -83,6 +108,7 @@ TPM Normalized Counts:
     **Values:** TPM Normalized UMI count.
   file_name: '../output/scrnaseq-wf/tpm_w_rep.parquet'
   function: 'counts_table'
+
 
 TPM Z-Scores:
   description: |
@@ -132,6 +158,7 @@ Seurat Biomarker List:
   file_name: '../output/science_submission/biomarkers.parquet'
   function: 'biomarkers'
 
+
 tSNE:
   description: |
     t-Distributed Stochastic Neighbor Embedding (tSNE) coordinates (cell_id x (tSNE_1, tSNE_2)). tSNE is a popular 2D
@@ -174,6 +201,7 @@ SP vs Primary Spermatocytes:
   file_name: '../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv'
   function: 'deg_res'
 
+
 SP vs E1°:
   description: |
     Differential gene expression results table arranged (FBgn x variable name). We used Seurat to calculate
@@ -196,6 +224,7 @@ SP vs E1°:
   file_name: '../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv'
   function: 'deg_res'
 
+
 E1° vs M1°:
   description: |
     Differential gene expression results table arranged (FBgn x variable name). We used Seurat to calculate
@@ -217,6 +246,7 @@ E1° vs M1°:
     **Values:** varied
   file_name: '../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv'
   function: 'deg_res'
+
 
 M1° vs L1°:
   description: |
@@ -241,11 +271,11 @@ M1° vs L1°:
   function: 'deg_res'
 
 
-#TODO Finish the description
 Autosome Ratio Data:
   description: |
-    This is the per cell autosomal ratios table arranged (Cell ID x variable name). Ratios were calculated on a per
-    cell basis using the XXX
+    This is the per cell autosomal ratios table arranged (Cell ID x variable name). Ratios between (X, Y, 4) / autosome
+    were calculated for each cell. Raw chromosome counts (sum of gene level counts) were first normalized by the number
+    of genes per chromosome.
 
     **Row Index:**
         **Cell ID:** A unique cell identifier based on the 10x Genomics cell specific barcode and Replicate ID.
@@ -273,11 +303,13 @@ Autosome Ratio Data:
     - '../output/x-to-a-wf/autosome_ratios_by_cell.parquet'
   function: 'autosome_ratios'
 
-#TODO Finish the description
+
 Autosome Ratio Permutation Test:
   description: |
     Permutation p-value table arranged (Cell Type x variable name). We calculated p-values using a permutation test
-    framework. XXXX
+    framework. For permutation test we permuted cluster types 10,000 times maintaining equal proportions. The p-value is
+    calculated as 1 minus the proportion of permuted samples that were more extreme than the observed value using the
+    Mann-Whitney U test.
 
     **Row Index:**
         **Cell Type:** Cell type ID.
@@ -290,5 +322,30 @@ Autosome Ratio Permutation Test:
         **pval_y:** P-value for Y / (2L + 2R + 3L + 3R) permutation test.
 
     **Values:** varied
-  file_name: '../output/x-to-a-wf/permuted_autosome_ratio_pvalue.parquet'
+  file_name: '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
   function: 'autosome_permutation'
+
+
+Bulk DeSeq2 (Testis vs Ovary):
+  description: |
+    Bulk RNA-Seq differential gene expression results table arranged (FBgn x variable name). We generated libraries for
+    larval testis and larval ovary samples (4 biological replicates) prepared similarly to scRNA-Seq data. We compared
+    testis expression vs ovary expression.
+
+    **Row Index:**
+        **FBgn:** FlyBase gene ID
+        **gene_symbol:** FlyBase gene symbol
+        **chrom:** Chromosome arm
+
+    **Column Index:**
+        **baseMean:** Mean normalized counts of all samples (DESeq2).
+        **log2FoldChange:** The average log fold change (DESeq2). Positive logFC values indicate testis-biased gene
+            expression and negative logFC values indicate ovary-biased gene expression.
+        **lfcSE:** Standard Error for the log2FoldChange (DESeq2).
+        **stat:** The Wald test statistic (DESeq2).
+        **pvalue:** two-tailed p-value (DESeq2).
+        **padj:** The ajusted p-value after multiple testing correction using FDR (DESeq2).
+
+    **Values:** varied
+  file_name: '../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv'
+  function: 'deseq2_res'
