@@ -35,8 +35,8 @@ genes <- subset(genes, select=-primary_FBgn)
 load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
 sobj <- object
 dds <- importCDS(sobj)
+dds <- updateCDS(dds)
 ```
-
 I am assuming the following annotations:
 
 * 0: 'Late 1º Spermatocytes (0)'
@@ -51,6 +51,76 @@ I am assuming the following annotations:
 * 9: 'Unknown (9)'
 * 10: 'Unknown (10)'
 * 11: 'Unknown (11)'
+
+```{r}
+lvls = c(
+  '0' = 'L1',
+  '1' = 'MC',
+  '2' = 'M1',
+  '3' = 'E1',
+  '4' = 'LC',
+  '5' = 'EC',
+  '6' = 'SP',
+  '7' = 'TE',
+  '8' = 'PC',
+  '9' = 'U1',
+  '10' = 'U2',
+  '11' = 'U3'
+)
+
+pData(dds)$cell_type <- plyr::revalue(as.character(pData(dds)$res.0.6), lvls)
+
+cell_type_color <- c(
+  "SP" = "#b11218",
+  "E1" = "#e32f27",
+  "M1" = "#fb6b4b",
+  "L1" = "#fdd4c2",
+  "EC" = "#105ba4",
+  "MC" = "#3787c0",
+  "LC" = "#6caed6",
+  "TE" = "#6a3d9a",
+  "PC" = "#b15928",
+  "U1" = "#d1d1d1",
+  "U2" = "#d1d1d1",
+  "U3" = "#000000"
+)
+
+```
+
+
+```{r}
+DelayedArray:::set_verbose_block_processing(TRUE)
+options(DelayedArray.auto.block.size = 1000e6)
+
+dds <- estimateSizeFactors(dds)
+dds <- estimateDispersions(dds)
+```
+
+```{r}
+dds <- preprocessCDS(dds, num_dim = 20)
+dds <- reduceDimension(dds, reduction_method = 'UMAP')
+```
+
+```{r}
+dds <- partitionCells(dds)
+```
+
+```{r}
+dds <- learnGraph(dds, RGE_method = 'SimplePPT')
+```
+
+```{r fig.width=10}
+plot_cell_trajectory(dds, color_by = "cell_type") + scale_color_manual(values = cell_type_color)
+```
+
+
+```{r}
+
+```
+
+
+
+
 
 ```{r get.germ}
 # Pull out only the germ cells based on res.0.6
