@@ -62,7 +62,6 @@ def main():
     ax2.set_ylabel('4:A')
     ax2.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
-
     # Add p-value indicators
     whiskers = whisker_locations(df)
     df_pvals = get_pvals()
@@ -81,12 +80,10 @@ def main():
 
 
 def get_data():
-    return (
-        pd.read_parquet(fname)
-            .query('cluster != [9, 10, 11]')
-            .assign(
-            cluster=lambda df: pd.Categorical(df.cluster.map(annotation), ordered=True, categories=cluster_order))
-    )
+    return (pd.read_parquet(fname)
+            .assign(cluster=lambda df: pd.Categorical(df.cluster.map(annotation),
+                                                      ordered=True, categories=cluster_order)))
+
 
 def pval_to_string(pval):
     if pval <= 0.001:
@@ -98,10 +95,10 @@ def pval_to_string(pval):
     else:
         return ''
 
+
 def whisker_locations(df):
     """Calculate the upper whisker location for plotting astrix."""
-    return (
-        df.groupby('cluster').quantile([.25, .75])
+    return (df.groupby('cluster').quantile([.25, .75])
             .rename_axis(['cluster', 'quantile'])
             .reset_index()
             .melt(id_vars=['cluster', 'quantile'], var_name='ratio', value_name='value')
@@ -109,17 +106,15 @@ def whisker_locations(df):
             .assign(iqr=lambda df: df[0.75] - df[0.25])
             .assign(upper=lambda df: df[0.75] + (1.5 * df['iqr']))
             .upper.unstack()
-    )
+            )
 
 
 def get_pvals():
     """P-values from permutation test."""
-    return (
-        pd.read_parquet(pvals)
-            .reindex(range(9))
+    return (pd.read_parquet(pvals)
             .rename(index=annotation)
             .reindex(cluster_order)
-    )
+            )
 
 
 if __name__ == '__main__':
