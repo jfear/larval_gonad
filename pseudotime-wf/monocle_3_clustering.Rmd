@@ -1,0 +1,110 @@
+---
+title: "Monocle 3 Clustering"
+author: "Justin M Fear"
+date: "5/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r }
+library(monocle)
+library(dplyr)
+library(gridExtra)
+```
+
+```{r load.seurat.obj}
+load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
+sobj = object
+cds <- importCDS(sobj)
+cds <- updateCDS(cds)
+rm(sobj)
+rm(object)
+```
+
+```{r gene.annot}
+genes <- read.table(file.path(Sys.getenv('REFERENCES_DIR'), 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'),
+		    sep='\t',
+		    stringsAsFactors=F,
+		    header=TRUE,
+		    quote=NULL
+		    )
+row.names(genes) <- genes$primary_FBgn
+genes <- genes[, 'gene_symbol', drop = FALSE]
+```
+
+```{r}
+# Pass TRUE if you want to see progress output on some of Monocle 3's operations
+DelayedArray:::set_verbose_block_processing(TRUE)
+
+# Passing a higher value will make some computations faster but use more memory. Adjust with caution!
+options(DelayedArray.block.size=1000e6)
+
+cds <- estimateSizeFactors(cds)
+cds <- estimateDispersions(cds)
+```
+
+```{r}
+cds <- preprocessCDS(cds)
+cds <- reduceDimension(cds, reduction_method = 'UMAP')
+cds <- partitionCells(cds)
+```
+
+
+```{r}
+cds <- clusterCells(cds, method = 'louvain', res = 1e-4)
+print(unique(pData(cds)$Cluster))
+```
+
+```{r}
+lvls = c(
+  '0' = 'L1',
+  '1' = 'MC',
+  '2' = 'M1',
+  '3' = 'E1',
+  '4' = 'LC',
+  '5' = 'EC',
+  '6' = 'SP',
+  '7' = 'TE',
+  '8' = 'PC',
+  '9' = 'U1',
+  '10' = 'U2',
+  '11' = 'U3'
+)
+
+pData(cds)$seurat <- plyr::revalue(as.character(pData(cds)$res.0.6), lvls)
+
+cell_type_color <- c(
+  "SP" = "#b11218",
+  "E1" = "#e32f27",
+  "M1" = "#fb6b4b",
+  "L1" = "#fdd4c2",
+  "EC" = "#105ba4",
+  "MC" = "#3787c0",
+  "LC" = "#6caed6",
+  "TE" = "#6a3d9a",
+  "PC" = "#b15928",
+  "U1" = "#d1d1d1",
+  "U2" = "#d1d1d1",
+  "U3" = "#000000"
+)
+```
+
+```{r fig.width=15}
+p1 <- plot_cell_clusters(cds, color_by = 'Cluster', show_group_id = T)
+p2 <- plot_cell_clusters(cds, color_by = 'seurat', show_group_id = T)
+p3 <- plot_cell_clusters(cds, color_by = 'rep', show_group_id = T)
+grid.arrange(p1, p2, p3, nrow=1)
+```
+
+```{r}
+df <- pData(cds)[, 'Cluster', drop = F] %>% tibble::rownames_to_column('cell_id')
+write.table(df, file = '../output/pseudotime-wf/monocle_clusters.tsv', sep = '\t', quote = FALSE, row.names = FALSE)
+```
+
+
+
+
