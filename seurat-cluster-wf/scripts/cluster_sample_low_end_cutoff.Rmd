@@ -1,0 +1,178 @@
+---
+title: Seurat Low End Cutoff
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
+```
+
+```{r set_globals_snakemake, eval=TRUE}
+SAMPLE <- snakemake@wildcards[['sample']]
+DATA_DIR <- dirname(snakemake@input[["data"]])
+FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
+OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
+REP <- snakemake@params[['rep']]
+params <- c(0.4, 0.6, 1)
+```
+
+```{r set_globals_testing, eval=FALSE}
+SAMPLE <- 'testis1'
+#DATA_DIR <- dirname('../cellranger-wf/testis1/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx')
+DATA_DIR <- dirname('/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis1/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx')
+FBGN2CHROM <- '../../output/fbgn2chrom.tsv'
+OUTDIR <- dirname('../output/seurat-cluster-wf/testis1/cluster_sample_low_end_cutoff.html')
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
+REP <-'rep1'
+params <- c(0.4, 0.6, 1)
+```
+
+## `r SAMPLE`
+
+```{r load_libraries, include=FALSE, eval=TRUE}
+options(repr.plot.width=10, repr.plot.height=10)
+source('../../lib/seurat.R')
+library(Seurat)
+library(dplyr)
+library(Matrix)
+library(data.table)
+```
+
+```{r import_annotations}
+fbgn2chrom <- read.table(FBGN2CHROM, header=T)
+fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
+
+# Get list of mitochondiral genes
+mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
+print(length(mito))
+```
+
+### Load 10X Data
+
+```{r load_10x_data}
+tenX.data <- Read10X(data.dir = DATA_DIR)
+colnames(tenX.data) <- paste(REP, colnames(tenX.data), sep = "_")
+sobj <- CreateSeuratObject(
+    raw.data = tenX.data,
+    min.cells = 3,
+    min.genes = 200,
+    project = 'GroupCluster',
+    display.progress = FALSE
+)
+sobj@meta.data$rep <- REP
+remove(tenX.data)
+```
+
+```{r plot_gene_and_umi, fig.width = 8}
+VlnPlot(
+    object = sobj,
+    features.plot = c("nGene", "nUMI"),
+    nCol = 2
+)
+```
+
+```{r filter_cells}
+sobj <- FilterCells(
+    object = sobj,
+    subset.names = "nGene",
+    low.thresholds = 200
+)
+```
+
+### Normalization and Dimension Reduction
+
+```{r normalize}
+sobj <- NormalizeData(
+    object = sobj,
+    normalization.method = "LogNormalize",
+    scale.factor = 1e4,
+    display.progress = FALSE
+)
+```
+
+```{r find_variable_genes}
+sobj <- FindVariableGenes(
+    object = sobj,
+    do.plot = TRUE,
+    display.progress = FALSE
+)
+```
+
+```{r scale_data_by_umi}
+sobj <- ScaleData(
+    object = sobj,
+    vars.to.regress = "nUMI",
+    display.progress = FALSE
+)
+```
+
+```{r dim_reduce}
+sobj <- RunPCA(
+    object = sobj, 
+    pc.genes = sobj@var.genes, 
+    do.print = FALSE 
+)
+
+# Project other genes onto the PCA components
+sobj <- ProjectPCA(object = sobj, do.print = FALSE)
+```
+
+```{r plot_pca, fig.width=8}
+p1 <- PCAPlot(object = sobj, dim.1 = 1, dim.2 = 2, do.return = T)
+p2 <- PCAPlot(object = sobj, dim.1 = 1, dim.2 = 3, do.return = T)
+p3 <- PCAPlot(object = sobj, dim.1 = 2, dim.2 = 3, do.return = T)
+plot_grid(p1, p2, p3)
+PCElbowPlot(object = sobj)
+```
+
+### Clustering 
+
+```{r find_clusters}
+sobj <- FindClusters(
+    object = sobj, 
+    reduction.type = "pca", 
+    resolution = .6, 
+    dims.use = 1:8, 
+    save.SNN = FALSE, 
+    print.output = FALSE
+)
+```
+
+```{r run_tsne}
+sobj <- RunTSNE(sobj, reduction.use = "pca", dims.use = 1:8, do.fast = TRUE)
+```
+
+```{r plot_tsne_results, fig.width=8}
+p1 <- TSNEPlot(sobj, do.return = T, pt.size = 0.5, group.by = "rep")
+p2 <- TSNEPlot(sobj, do.label = T, do.return = T, pt.size = 0.5)
+p <- plot_grid(p1, p2)
+
+title <- ggdraw() + draw_label("res 0.6", fontface='bold')
+plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
+```
+
+
+### Save Results
+
+```{r dump_seurat}
+dump_seurat(object = sobj, dir = OUTDIR)
+```
+
+### Differential Expression
+
+```{r save.biomarkers}
+for (i in params){
+  name <- paste0('res.', i)
+  sobj <- SetAllIdent(sobj, id = name)
+  
+  # Get markers ignoring replicate.
+  fname <- paste0('biomarkers_', name, '.tsv')
+  markers <- FindAllMarkers(object = sobj, only.pos = TRUE, print.bar = FALSE)
+  markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+  save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+}
+```
