@@ -1,0 +1,93 @@
+# These genes have been described in the literature. For more details see:
+# https://docs.google.com/spreadsheets/d/1A5ilJROL4HUeQOXwJlWuiTjbE1EsJhiWxKUC5lleM4k/edit?usp=sharing
+
+gonia:  # GSC, spermatogonia, early spermatocytes
+  - FBgn0001981   # esg
+  - FBgn0020493   # Dad
+  - FBgn0283442   # vas
+  - FBgn0031091   # Phf7
+  - FBgn0039044   # p53
+  - FBgn0002962   # nos
+  - FBgn0004581   # bgcn
+  - FBgn0000158   # bam
+  - FBgn0052364   # tut
+  - FBgn0010258   # Rbp4
+  - FBgn0034435   # fest
+  - FBgn0005672   # spi
+  - FBgn0002932   # neur
+  - FBgn0250816   # AGO3
+  - FBgn0250843   # Prosalpha6
+  - FBgn0051361   # dpr17
+
+spermatocytes:   # Later spermatocytes and spermatids
+  - FBgn0000146   # Aub
+  - FBgn0039124   # tbrd-1
+  - FBgn0031715   # tomb
+  - FBgn0041103   # nht
+  - FBgn0014342   # mia
+  - FBgn0002842   # sa
+  - FBgn0031623   # Taf12L (rye)
+  - FBgn0011569   # can
+  - FBgn0004372   # aly
+  - FBgn0011596   # fzo
+  - FBgn0019828   # dj
+  - FBgn0011206   # bol
+  - FBgn0041102   # ocn
+  - FBgn0039071   # bb8
+  - FBgn0033476   # oys (oysgedart)
+  - FBgn0037751   # topi
+  - FBgn0002862   # Mst87F
+  - FBgn0000404   # CycA
+  - FBgn0000405   # CycB
+  - FBgn0030313   # CG11697
+  - FBgn0032473   # CG5204 (kmg)
+  - FBgn0034739   # CG3927
+  - FBgn0038089   # d-cup
+
+cysc:  # Enriched in CySC lineage
+  - FBgn0004606   # Zfh1
+  - FBgn0003984   # vn
+  - FBgn0001257   # ImpL2
+  - FBgn0010453   # Wnt4
+  - FBgn0004108   # nrt
+  - FBgn0001090   # bnb
+  - FBgn0011591   # fng
+  - FBgn0002543   # robo2
+  - FBgn0000546   # EcR
+  - FBgn0024234   # gbb
+  - FBgn0032451   # spict
+  - FBgn0243512   # puc
+  - FBgn0003366   # sev
+  - FBgn0000964   # tj
+  - FBgn0034408   # sano
+  - FBgn0000320   # eya
+  - FBgn0014163   # fax
+  - FBgn0015399   # kek1
+  - FBgn0003460   # so
+  - FBgn0004872   # piwi
+  - FBgn0003964   # usp
+  - FBgn0283451   # Br
+  - FBgn0051158   # Efa6
+  - FBgn0243486   # rdo
+  - FBgn0083963   # Nlg3
+  - FBgn0038180   # Cht5
+
+te:  # Terminal epithelia
+  - FBgn0050418   # nord
+  - FBgn0000015   # Abd-B
+  - FBgn0004647   # N
+  - FBgn0000014   # abd-A
+  - FBgn0000395   # cv-2
+  - FBgn0264953   # Piezo
+
+pigment:  # Pigment cells
+  - FBgn0024288   # Sox100B
+  - FBgn0000576   # ems
+
+hub:
+  - FBgn0004956   # upd1
+  - FBgn0004644   # hh
+  - FBgn0264089   # slit
+  - FBgn0041184   # Socs36E
+  - FBgn0262169   # magu
+  - FBgn0000636   # Fas3
