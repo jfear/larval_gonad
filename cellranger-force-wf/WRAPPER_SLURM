@@ -1,16 +1,1 @@
-#!/bin/bash
-#SBATCH --job-name="seq_larval"
-#SBATCH --partition="norm"
-#SBATCH --time=72:00:00
-#SBATCH --cpus-per-task=2
-
-# Make required folders
-if [[ ! -e slurm_logs ]]; then mkdir -p slurm_logs; fi
-
-# run pipeline
-(source activate larval_gonad;
-    time snakemake \
-    --profile ../config/slurm \
-    --jobname "s.{rulename}.{jobid}.sh" \
-    --cluster-config config/clusterconfig.yaml \
-    ) > "Snakefile.log" 2>&1
+../bin/WRAPPER_SLURM
