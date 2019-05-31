@@ -21,6 +21,7 @@ output
 rnaseq_cache
 rnaseq_files
 references
+lcdb-references
 _build
 .*
 *logs

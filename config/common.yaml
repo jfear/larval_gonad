@@ -4,7 +4,7 @@ project: Larval Gonad
 git: https://github.com/jfear/larval_gonad
 #references_dir: <path to references> defaults to environmental variable
 assembly: dmel
-tag: r6-16
+tag: r6-24
 fliersprops:
   alpha: .1
 formats:
