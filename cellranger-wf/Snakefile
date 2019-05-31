@@ -25,7 +25,7 @@ rule targets:
 rule fix_gtf:
     input:
          gtf = f'../lcdb-references/{assembly}/{tag}/gtf/{assembly}_{tag}.gtf'
-    output: 
+    output:
         f'../references/{assembly}-all-{tag}.modFix.gtf'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 1,
@@ -59,7 +59,7 @@ rule cellranger_mkref:
             --fasta={input.fasta} \
             --genes={input.gtf} \
             --nthreads={threads} \
-            --memgb={resources.mem_gb} 
+            --memgb={resources.mem_gb}
     """
 
 
@@ -67,8 +67,11 @@ rule cellranger_mkref:
 rule cellranger:
     input:
          ref=rules.cellranger_mkref.output.star,
-    output: 
+    output:
         '{outdir}/{sample}/outs/possorted_genome_bam.bam'
+    params:
+        refdir = Path(f'../references/{assembly}{tag}').absolute().as_posix(),
+        outdir = config['outdir']
     threads: 16
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 25,
@@ -76,14 +79,14 @@ rule cellranger:
     run:
         record = sample_table.loc[wildcards.sample, :]
         sample = record['sample']
-        fname = record['orig_filename']
+        fname = Path(record['orig_filename']).absolute().as_posix()
         cmd = (
-            f'cd ../ && '
+            f'cd {params.outdir} && '
             f'rm -rf {wildcards.sample} &&'
             f'$HOME/opt/cellranger-2.1.1/cellranger count '
             f'--id={wildcards.sample} '
-            f'--transcriptome=../../../references/dm6.16 '
-            f'--fastqs=../../{fname} '
+            f'--transcriptome={params.refdir} '
+            f'--fastqs={fname} '
             f'--sample={sample} '
             f'--localcores={threads} '
             f'--localmem={resources.mem_gb} '
