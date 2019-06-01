@@ -102,4 +102,4 @@ rule counts_by_chromosome:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 25,
         time_hr=lambda wildcards, attempt: attempt * 4
-    script: 'scripts/parse_bam.py'
+    script: '../scripts/parse_bam.py'
