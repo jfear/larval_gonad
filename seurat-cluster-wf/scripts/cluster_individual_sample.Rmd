@@ -1,5 +1,5 @@
 ---
-title: Seurat 
+title: Seurat Cluster Individual Sample
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
