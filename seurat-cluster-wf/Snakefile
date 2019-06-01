@@ -10,7 +10,7 @@ tag = common_config['tag']
 
 rule targets:
     input: 
-        expand('../output/seurat-cluster-wf/{sample}/cluster_sample_low_end_cutoff.html', sample=['testis1'])
+        expand('../output/seurat-cluster-wf/{sample}/seurat_gene_cutoff_200.html', sample=['testis1'])
 
 
 localrules: fbgn2chrom
@@ -22,20 +22,92 @@ rule fbgn2chrom:
         '../bin/fbgn2chrom.py'
 
 
-rule cluster_sample:
+rule cluster_sample_low_end_cutoff:
     input:
         rmd = 'scripts/cluster_sample_low_end_cutoff.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/{sample}/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx'
 #        data = f'../cellranger-wf/testis1/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
     output: 
-        '../output/seurat-cluster-wf/{sample}/cluster_sample_low_end_cutoff.html'
+        '../output/seurat-cluster-wf/{sample}/seurat_gene_cutoff_200.html',
     params:
-        rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', '')
+        rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
+        gene_low = 200,
+        gene_high = 'None',
+        umi_low = 'None',
+        umi_high = 'None'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 8
     script: 'scripts/cluster_sample_low_end_cutoff.Rmd'
+
+rule dummy_cluster_sample_low_end_cutoff:
+    input: rules.cluster_sample_low_end_cutoff.output
+    output: 
+        '../seurat-cluster-wf/{sample}/seurat.Robj',
+        '../seurat-cluster-wf/{sample}/metadata.tsv',
+        '../seurat-cluster-wf/{sample}/raw.tsv',
+        '../seurat-cluster-wf/{sample}/normalized_read_counts.tsv',
+        '../seurat-cluster-wf/{sample}/dispersion.tsv',
+        '../seurat-cluster-wf/{sample}/var_genes.txt',
+        '../seurat-cluster-wf/{sample}/scaled.tsv',
+        '../seurat-cluster-wf/{sample}/principal_components_cell.tsv',
+        '../seurat-cluster-wf/{sample}/principal_components_gene.tsv',
+        '../seurat-cluster-wf/{sample}/principal_components_stdev.tsv',
+        '../seurat-cluster-wf/{sample}/cca_cell.tsv',
+        '../seurat-cluster-wf/{sample}/cca_gene.tsv',
+        '../seurat-cluster-wf/{sample}/cca_gene_full.tsv',
+        '../seurat-cluster-wf/{sample}/cca_aligned_cell.tsv',
+        '../seurat-cluster-wf/{sample}/clusters.tsv',
+        '../seurat-cluster-wf/{sample}/tsne.tsv'
+    run:
+        for fname in output:
+            Path(fname).touch()
+
+
+rule cluster_sample_high_end_cutoff:
+    input:
+        rmd = 'scripts/cluster_sample_low_end_cutoff.Rmd',
+        fbgn2chrom = rules.fbgn2chrom.output[0],
+        data = '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/{sample}/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx'
+#        data = f'../cellranger-wf/testis1/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
+    output: 
+        '../output/seurat-cluster-wf/{sample}_high/seurat_gene_cutoff_200_umi_cutoff_1e5.html', 
+    params:
+        rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
+        gene_low = 200,
+        gene_high = 'None',
+        umi_low = 'None',
+        umi_high = 1e5
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 8
+    script: 'scripts/cluster_sample_low_end_cutoff.Rmd'
+
+
+rule dummy_cluster_sample_high_end_cutoff:
+    input: rules.cluster_sample_high_end_cutoff.output
+    output: 
+        '../seurat-cluster-wf/{sample}_high/seurat.Robj',
+        '../seurat-cluster-wf/{sample}_high/metadata.tsv',
+        '../seurat-cluster-wf/{sample}_high/raw.tsv',
+        '../seurat-cluster-wf/{sample}_high/normalized_read_counts.tsv',
+        '../seurat-cluster-wf/{sample}_high/dispersion.tsv',
+        '../seurat-cluster-wf/{sample}_high/var_genes.txt',
+        '../seurat-cluster-wf/{sample}_high/scaled.tsv',
+        '../seurat-cluster-wf/{sample}_high/principal_components_cell.tsv',
+        '../seurat-cluster-wf/{sample}_high/principal_components_gene.tsv',
+        '../seurat-cluster-wf/{sample}_high/principal_components_stdev.tsv',
+        '../seurat-cluster-wf/{sample}_high/cca_cell.tsv',
+        '../seurat-cluster-wf/{sample}_high/cca_gene.tsv',
+        '../seurat-cluster-wf/{sample}_high/cca_gene_full.tsv',
+        '../seurat-cluster-wf/{sample}_high/cca_aligned_cell.tsv',
+        '../seurat-cluster-wf/{sample}_high/clusters.tsv',
+        '../seurat-cluster-wf/{sample}_high/tsne.tsv'
+    run:
+        for fname in output:
+            Path(fname).touch()
+
 
 
 # """Run and render the RMarkdown file that performs differential expression"""
@@ -54,31 +126,3 @@ rule cluster_sample:
 #         mv scripts/scrnaseq_combine_force.html {output.html}
 #     """
 
-
-# rule dump_seurat_object:
-#     input: '{prefix}/seurat.sobj'
-#     output:
-#         '{prefix}/metadata.tsv',
-#         '{prefix}/raw.tsv',
-#         '{prefix}/normalized_read_counts.tsv',
-#         '{prefix}/dispersion.tsv',
-#         '{prefix}/var_genes.txt',
-#         '{prefix}/scaled.tsv',
-#         '{prefix}/principal_components_cell.tsv',
-#         '{prefix}/principal_components_gene.tsv',
-#         '{prefix}/principal_components_stdev.tsv',
-#         '{prefix}/cca_cell.tsv',
-#         '{prefix}/cca_gene.tsv',
-#         '{prefix}/cca_gene_full.tsv',
-#         '{prefix}/cca_aligned_cell.tsv',
-#         '{prefix}/clusters.tsv',
-#         '{prefix}/tsne.tsv'
-#     resources:
-#         mem_gb=lambda wildcards, attempt: attempt * 16,
-#         time_hr=lambda wildcards, attempt: attempt * 8
-#     script:
-#         #TODO add script to dump sobj parts
-#         ''
-
-
-#     # TODO germ cell comparison

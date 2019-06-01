@@ -1,5 +1,5 @@
 ---
-title: Seurat Low End Cutoff
+title: Seurat 
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
@@ -10,36 +10,76 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FA
                       fig.ext='png')
 ```
 
-```{r set_globals_snakemake, eval=TRUE}
+```{r set_globals_snakemake, include=FALSE, eval=TRUE}
 SAMPLE <- snakemake@wildcards[['sample']]
 DATA_DIR <- dirname(snakemake@input[["data"]])
 FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
 OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
-REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
 REP <- snakemake@params[['rep']]
-params <- c(0.4, 0.6, 1)
+
+GENE_LOW <- snakemake@params[['gene_low']]
+if (GENE_LOW == 'None'){
+  GENE_LOW = -Inf
+} else {
+  GENE_LOW = as.numeric(GENE_LOW)
+}
+
+GENE_HIGH <- snakemake@params[['gene_high']]
+if (GENE_HIGH == 'None'){
+  GENE_HIGH = Inf
+} else {
+  GENE_HIGH = as.numeric(GENE_HIGH)
+}
+
+UMI_LOW <- snakemake@params[['umi_low']]
+if (UMI_LOW == 'None'){
+  UMI_LOW = -Inf
+} else {
+  UMI_LOW = as.numeric(UMI_LOW)
+}
+
+UMI_HIGH <- snakemake@params[['umi_high']]
+if (UMI_HIGH == 'None'){
+  UMI_HIGH = Inf
+} else {
+  UMI_HIGH = as.numeric(UMI_HIGH)
+}
 ```
 
-```{r set_globals_testing, eval=FALSE}
+```{r set_globals_testing, include=FALSE, eval=FALSE}
 SAMPLE <- 'testis1'
 #DATA_DIR <- dirname('../cellranger-wf/testis1/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx')
 DATA_DIR <- dirname('/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis1/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx')
 FBGN2CHROM <- '../../output/fbgn2chrom.tsv'
 OUTDIR <- dirname('../output/seurat-cluster-wf/testis1/cluster_sample_low_end_cutoff.html')
-REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
 REP <-'rep1'
-params <- c(0.4, 0.6, 1)
+
+GENE_LOW <- 200
+GENE_HIGH <- Inf
+
+UMI_LOW <- -Inf
+UMI_HIGH <- Inf
+```
+
+```{r set_other_globas}
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
+PARAMS <- c(0.4, 0.6, 1)
 ```
 
 ## `r SAMPLE`
+Gene Low End Cutoff: `r GENE_LOW`
+Gene High End Cutoff: `r GENE_HIGH`
+UMI Low End Cutoff: `r UMI_LOW`
+UMI High End Cutoff: `r UMI_HIGH`
 
-```{r load_libraries, include=FALSE, eval=TRUE}
+```{r load_libraries, include=FALSE}
 options(repr.plot.width=10, repr.plot.height=10)
 source('../../lib/seurat.R')
 library(Seurat)
 library(dplyr)
 library(Matrix)
 library(data.table)
+library(yaml)
 ```
 
 ```{r import_annotations}
@@ -76,10 +116,20 @@ VlnPlot(
 ```
 
 ```{r filter_cells}
+# Filter based on the number of genes
 sobj <- FilterCells(
     object = sobj,
     subset.names = "nGene",
-    low.thresholds = 200
+    low.thresholds = GENE_LOW,
+    high.thresholds = GENE_HIGH
+)
+
+# Filter based on the total UMI
+sobj <- FilterCells(
+    object = sobj,
+    subset.names = "nUMI",
+    low.thresholds = UMI_LOW,
+    high.thresholds = UMI_HIGH
 )
 ```
 
@@ -135,7 +185,7 @@ PCElbowPlot(object = sobj)
 sobj <- FindClusters(
     object = sobj, 
     reduction.type = "pca", 
-    resolution = .6, 
+    resolution = PARAMS, 
     dims.use = 1:8, 
     save.SNN = FALSE, 
     print.output = FALSE
@@ -147,14 +197,60 @@ sobj <- RunTSNE(sobj, reduction.use = "pca", dims.use = 1:8, do.fast = TRUE)
 ```
 
 ```{r plot_tsne_results, fig.width=8}
-p1 <- TSNEPlot(sobj, do.return = T, pt.size = 0.5, group.by = "rep")
-p2 <- TSNEPlot(sobj, do.label = T, do.return = T, pt.size = 0.5)
-p <- plot_grid(p1, p2)
-
-title <- ggdraw() + draw_label("res 0.6", fontface='bold')
-plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1)) # rel_heights values control title margins
+for (i in PARAMS){
+  name <- paste0('res.', i)
+  sobj <- SetAllIdent(sobj, id = name)
+  
+  p1 <- TSNEPlot(sobj, do.return = T, pt.size = 0.5, group.by = "rep")
+  p2 <- TSNEPlot(sobj, do.label = T, do.return = T, pt.size = 0.5)
+  p <- plot_grid(p1, p2)
+  
+  title <- ggdraw() + draw_label(name, fontface='bold')
+  print(plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1))) # rel_heights values control title margins
+}
 ```
 
+
+### Look at marker genes
+```{r load_lit_genes}
+lit_genes = yaml.load_file('../../config/literature_genes.yaml')
+```
+
+#### Spermatogonia
+```{r plot_heatmap_gonia, fig.width=20, fig.height=20}
+VlnPlot(object = sobj, features.plot = lit_genes[['gonia']], use.raw = TRUE, y.log = TRUE)
+FeaturePlot(sobj, lit_genes[['gonia']], reduction.use = 'tsne', cols.use = c('gray', 'purple'))
+```
+
+#### Spermatocytes
+```{r plot_heatmap_spermatocytes, fig.width=20, fig.height=20}
+VlnPlot(object = sobj, features.plot = lit_genes[['spermatocytes']], use.raw = TRUE, y.log = TRUE)
+FeaturePlot(sobj, lit_genes[['spermatocytes']], reduction.use = 'tsne', cols.use = c('gray', 'purple'))
+```
+
+#### CySC
+```{r plot_heatmap_cysc, fig.width=20, fig.height=20}
+VlnPlot(object = sobj, features.plot = lit_genes[['cysc']], use.raw = TRUE, y.log = TRUE)
+FeaturePlot(sobj, lit_genes[['cysc']], reduction.use = 'tsne', cols.use = c('gray', 'purple'))
+```
+
+#### TE
+```{r plot_heatmap_te, fig.width=20, fig.height=20}
+VlnPlot(object = sobj, features.plot = lit_genes[['te']], use.raw = TRUE, y.log = TRUE)
+FeaturePlot(sobj, lit_genes[['te']], reduction.use = 'tsne', cols.use = c('gray', 'purple'))
+```
+
+#### PC
+```{r plot_heatmap_pc, fig.width=20}
+VlnPlot(object = sobj, features.plot = lit_genes[['pigment']], use.raw = TRUE, y.log = TRUE)
+FeaturePlot(sobj, lit_genes[['pigment']], reduction.use = 'tsne', cols.use = c('gray', 'purple'))
+```
+
+#### hub
+```{r plot_heatmap_hub, fig.width=20, fig.height=20}
+VlnPlot(object = sobj, features.plot = lit_genes[['hub']], use.raw = TRUE, y.log = TRUE)
+FeaturePlot(sobj, lit_genes[['hub']], reduction.use = 'tsne', cols.use = c('gray', 'purple'))
+```
 
 ### Save Results
 
@@ -165,7 +261,7 @@ dump_seurat(object = sobj, dir = OUTDIR)
 ### Differential Expression
 
 ```{r save.biomarkers}
-for (i in params){
+for (i in PARAMS){
   name <- paste0('res.', i)
   sobj <- SetAllIdent(sobj, id = name)
   
