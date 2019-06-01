@@ -1,0 +1,1 @@
+data_pattern: '../cellranger-wf/{sample}/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
