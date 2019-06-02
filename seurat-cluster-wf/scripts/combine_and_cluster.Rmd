@@ -10,12 +10,15 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FA
                       fig.ext='png')
 ```
 
-```{r set_globals_snakemake, include=FALSE, eval=TRUE}
-SAMPLE <- snakemake@wildcards[['sample']]
-DATA_DIR <- dirname(snakemake@input[["data"]])
+```{r set_globals_snakemake, include=FALSE, eval=FALSE}
+get_dir_names <- function(l){
+  return(file.path('../', dirname(l)))
+}
+
+DATA <- lapply(snakemake@input[["data"]], get_dir_names)
 FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
 OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
-REP <- snakemake@params[['rep']]
+SAMPLES <- snakemake@params[['samples']]
 
 GENE_LOW <- snakemake@params[['gene_low']]
 if (GENE_LOW == 'None'){
@@ -46,13 +49,15 @@ if (UMI_HIGH == 'None'){
 }
 ```
 
-```{r set_globals_testing, include=FALSE, eval=FALSE}
-SAMPLE <- 'testis1'
-#DATA_DIR <- dirname('../cellranger-wf/testis1/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx')
-DATA_DIR <- dirname('/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis1/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx')
+```{r set_globals_testing, include=FALSE, eval=TRUE}
+DATA <- c(
+  '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis1/outs/filtered_gene_bc_matrices/dm6.16',
+  '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis2/outs/filtered_gene_bc_matrices/dm6.16',
+  '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis3/outs/filtered_gene_bc_matrices/dm6.16'
+)
 FBGN2CHROM <- '../../output/fbgn2chrom.tsv'
-OUTDIR <- dirname('../output/seurat-cluster-wf/testis1/cluster_sample_low_end_cutoff.html')
-REP <-'rep1'
+OUTDIR <- '../../output/seurat-cluster-wf/combined'
+SAMPLES <- c('testis1', 'testis2', 'testis2')
 
 GENE_LOW <- 200
 GENE_HIGH <- Inf
@@ -148,34 +153,22 @@ load.data <- function(fname, name) {
 ```
 
 ```{r load_10x_data}
-#TODO put these into a list
-tesits1 <- load.data('./', 'testis1')
-tesits2 <- load.data('./', 'testis2')
-tesits3 <- load.data('./', 'testis3')
+sobjs <- mapply(load.data, DATA, SAMPLES, SIMPLIFY = TRUE)
 ```
 
 ## Find Shared Highly Variable Genes Among Replicates
 ```{r find_variable_genes}
-# TODO convert to a loop over the list
-print('Combining Data')
-# Create list of genes to use
-g.1 <- r1@var.genes
-print(paste0('variable genes rep 1: ', length(g.1)))
-# n = 576
+find_var_genes <- function(sobj){
+  var_genes <- sobj@var.genes
+  print(paste0('variable genes rep 1: ', length(var_genes)))
+  return(var_genes)
+}
 
-g.2 <- r2@var.genes
-print(paste0('variable genes rep 2: ', length(g.2)))
-# n = 494
+variable_genes <- lapply(sobjs, find_var_genes)
 
-g.3 <- r3@var.genes
-print(paste0('variable genes rep 3: ', length(g.3)))
-# n = 330
-
-genes.use <- intersect(intersect(g.1, g.2), g.3)
-print(paste0('variable genes intersection: ', length(genes.use)))
-# n = 108
-
-#TODO make the variable gene numbers as part of the document.
+#TODO see if this works
+gene_use <- Reduce(intersect, variable_genes)
+print(paste0('variable genes intersection: ', length(genes_use)))
 ```
 
 ## Combined Replicates
