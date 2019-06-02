@@ -10,32 +10,32 @@ assembly = common_config['assembly']
 tag = common_config['tag']
 
 configfile: 'config/config.yaml'
-data_pattern = config['data_pattern']['cellranger_force']\
-    .replace('{assembly}', assembly)\
-    .replace('{tag}', tag)
 
 sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
 SAMPLES = sample_table.index.values
 
-localrules: fbgn2chrom
+localrules: fbgn2chrom, unzip_cellranger3
 
 rule targets:
     input: 
         expand(
-            '../output/seurat-cluster-wf/{cutoffs}/{sample}/seurat_individual.html', 
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
+            cellranger=['cellranger-force-wf', 'cellranger3-wf'],
             cutoffs=[
                 'gl-200_gh-None_ul-None_uh-None',
-                'gl-200_gh-None_ul-None_uh-1e5',
+                # 'gl-200_gh-None_ul-None_uh-1e5',
             ],
             sample=SAMPLES
         ),
-        # expand(
-        #     '../output/seurat-cluster-wf/{cutoffs}/combined/seurat_combined.html', 
-        #     cutoffs=[
-        #         'gl-200_gh-None_ul-None_uh-None',
-        #         'gl-200_gh-None_ul-None_uh-1e5',
-        #     ]
-        # ),
+        expand(
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
+            cellranger=['cellranger-force-wf', 'cellranger3-wf'],
+            cutoffs=[
+                'gl-200_gh-None_ul-None_uh-None',
+                # 'gl-200_gh-None_ul-None_uh-1e5',
+            ]
+        ),
+
 
 rule fbgn2chrom:
     output: 
@@ -43,13 +43,36 @@ rule fbgn2chrom:
     script: 
         '../bin/fbgn2chrom.py'
 
+
+rule unzip_cellranger3:
+    input: 
+        barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv') + '.gz',
+        features = config['data_pattern']['cellranger3-wf'] .replace('matrix.mtx', 'features.tsv') + '.gz',
+        matrix = config['data_pattern']['cellranger3-wf'] + '.gz'
+    output: 
+        barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv'),
+        features = config['data_pattern']['cellranger3-wf'] .replace('matrix.mtx', 'features.tsv'),
+        matrix = config['data_pattern']['cellranger3-wf']
+    shell:"""
+        gunzip -c {input.barcodes} > {output.barcodes} && \
+        gunzip -c {input.features} > {output.features} && \
+        gunzip -c {input.matrix} > {output.matrix}
+    """
+
+
+def _seurat_individual_sample(wildcards):
+    return expand(
+        config['data_pattern'][wildcards.cellranger], assembly=assembly, tag=tag, sample=wildcards.sample
+    )
+
+
 rule seurat_individual_sample:
     input:
         rmd = 'scripts/cluster_individual_sample.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
-        data = data_pattern
+        data = _seurat_individual_sample
     output: 
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/seurat_individual.html', 
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
     params:
         rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
         gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
@@ -85,7 +108,9 @@ rule dummy_seurat_individual_sample:
             Path(fname).touch()
 
 def _combine_and_cluster(wildcards):
-    return expand(data_pattern, sample=SAMPLES)
+    return expand(
+        config['data_pattern'][wildcards.cellranger], assembly=assembly, tag=tag, sample=SAMPLES
+    )
 
 rule combine_and_cluster:
     input:
@@ -93,7 +118,7 @@ rule combine_and_cluster:
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = _combine_and_cluster
     output: 
-        '../output/seurat-cluster-wf/{cutoffs}/combined/seurat_combined.html', 
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
     params:
         samples = SAMPLES[:-1],
         gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],

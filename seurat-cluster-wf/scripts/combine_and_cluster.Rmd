@@ -12,7 +12,7 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FA
 
 ```{r set_globals_snakemake, include=FALSE, eval=FALSE}
 get_dir_names <- function(l){
-  return(file.path('../', dirname(l)))
+    return(file.path('../', dirname(l)))
 }
 
 DATA <- lapply(snakemake@input[["data"]], get_dir_names)
@@ -22,42 +22,42 @@ SAMPLES <- snakemake@params[['samples']]
 
 GENE_LOW <- snakemake@params[['gene_low']]
 if (GENE_LOW == 'None'){
-  GENE_LOW = -Inf
+    GENE_LOW = -Inf
 } else {
-  GENE_LOW = as.numeric(GENE_LOW)
+    GENE_LOW = as.numeric(GENE_LOW)
 }
 
 GENE_HIGH <- snakemake@params[['gene_high']]
 if (GENE_HIGH == 'None'){
-  GENE_HIGH = Inf
+    GENE_HIGH = Inf
 } else {
-  GENE_HIGH = as.numeric(GENE_HIGH)
+    GENE_HIGH = as.numeric(GENE_HIGH)
 }
 
 UMI_LOW <- snakemake@params[['umi_low']]
 if (UMI_LOW == 'None'){
-  UMI_LOW = -Inf
+    UMI_LOW = -Inf
 } else {
-  UMI_LOW = as.numeric(UMI_LOW)
+    UMI_LOW = as.numeric(UMI_LOW)
 }
 
 UMI_HIGH <- snakemake@params[['umi_high']]
 if (UMI_HIGH == 'None'){
-  UMI_HIGH = Inf
+    UMI_HIGH = Inf
 } else {
-  UMI_HIGH = as.numeric(UMI_HIGH)
+    UMI_HIGH = as.numeric(UMI_HIGH)
 }
 ```
 
 ```{r set_globals_testing, include=FALSE, eval=TRUE}
 DATA <- c(
-  '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis1/outs/filtered_gene_bc_matrices/dm6.16',
-  '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis2/outs/filtered_gene_bc_matrices/dm6.16',
-  '/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis3/outs/filtered_gene_bc_matrices/dm6.16'
+    '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24',
+    '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis2/outs/filtered_gene_bc_matrices/dmelr6-24',
+    '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis3/outs/filtered_gene_bc_matrices/dmelr6-24'
 )
 FBGN2CHROM <- '../../output/fbgn2chrom.tsv'
 OUTDIR <- '../../output/seurat-cluster-wf/combined'
-SAMPLES <- c('testis1', 'testis2', 'testis2')
+SAMPLES <- c('testis1', 'testis2', 'testis3')
 
 GENE_LOW <- 200
 GENE_HIGH <- Inf
@@ -71,7 +71,7 @@ REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
 PARAMS <- c(0.4, 0.6, 1)
 ```
 
-## `r SAMPLE`
+## Combined
 Gene Low End Cutoff: `r GENE_LOW`
 Gene High End Cutoff: `r GENE_HIGH`
 UMI Low End Cutoff: `r UMI_LOW`
@@ -99,56 +99,56 @@ print(length(mito))
 ### Load 10X Data
 ```{r load_data_function, include=FALSE}
 load.data <- function(fname, name) {
-  print(paste0('Running: ', name))
+    print(paste0('Running: ', name))
 
-  tenX.data <- Read10X(data.dir = fname)
-  colnames(tenX.data) <- paste(name, colnames(tenX.data), sep = "_")
+    tenX.data <- Read10X(data.dir = fname)
+    colnames(tenX.data) <- paste(name, colnames(tenX.data), sep = "_")
 
-  sobj <- CreateSeuratObject(
-      raw.data = tenX.data,
-      min.cells = 3,
-      min.genes = 200,
-      project = 'GroupCluster',
-      display.progress = FALSE
-  )
-  sobj@meta.data$rep <- name
-  remove(tenX.data)
+    sobj <- CreateSeuratObject(
+        raw.data = tenX.data,
+        min.cells = 3,
+        min.genes = 200,
+        project = 'GroupCluster',
+        display.progress = FALSE
+    )
+    sobj@meta.data$rep <- name
+    remove(tenX.data)
 
-  # Filter based on the number of genes
-  sobj <- FilterCells(
-      object = sobj,
-      subset.names = "nGene",
-      low.thresholds = GENE_LOW,
-      high.thresholds = GENE_HIGH
-  )
+    # Filter based on the number of genes
+    sobj <- FilterCells(
+        object = sobj,
+        subset.names = "nGene",
+        low.thresholds = GENE_LOW,
+        high.thresholds = GENE_HIGH
+    )
 
-  # Filter based on the total UMI
-  sobj <- FilterCells(
-      object = sobj,
-      subset.names = "nUMI",
-      low.thresholds = UMI_LOW,
-      high.thresholds = UMI_HIGH
-  )
+    # Filter based on the total UMI
+    sobj <- FilterCells(
+        object = sobj,
+        subset.names = "nUMI",
+        low.thresholds = UMI_LOW,
+        high.thresholds = UMI_HIGH
+    )
 
-  sobj <- NormalizeData(
-      object = sobj,
-      normalization.method = "LogNormalize",
-      scale.factor = 1e4,
-      display.progress = FALSE
-  )
+    sobj <- NormalizeData(
+        object = sobj,
+        normalization.method = "LogNormalize",
+        scale.factor = 1e4,
+        display.progress = FALSE
+    )
 
-  sobj <- ScaleData(
-      object = sobj,
-      vars.to.regress = "nUMI",
-      display.progress = FALSE
-  )
+    sobj <- ScaleData(
+        object = sobj,
+        vars.to.regress = "nUMI",
+        display.progress = FALSE
+    )
 
-  sobj <- FindVariableGenes(
-      object = sobj,
-      do.plot = TRUE,
-      display.progress = FALSE
-  )
-  return(sobj)
+    sobj <- FindVariableGenes(
+        object = sobj,
+        do.plot = TRUE,
+        display.progress = FALSE
+    )
+    return(sobj)
 }
 ```
 
@@ -159,72 +159,74 @@ sobjs <- mapply(load.data, DATA, SAMPLES, SIMPLIFY = TRUE)
 ## Find Shared Highly Variable Genes Among Replicates
 ```{r find_variable_genes}
 find_var_genes <- function(sobj){
-  var_genes <- sobj@var.genes
-  print(paste0('variable genes rep 1: ', length(var_genes)))
-  return(var_genes)
+    var_genes <- sobj@var.genes
+    return(var_genes)
 }
 
 variable_genes <- lapply(sobjs, find_var_genes)
 
 #TODO see if this works
-gene_use <- Reduce(intersect, variable_genes)
-print(paste0('variable genes intersection: ', length(genes_use)))
+genes_use <- Reduce(intersect, variable_genes)
 ```
 
-## Combined Replicates
+Variable Genes Rep 1: `r length(variable_genes[[1]])`
+Variable Genes Rep 2: `r length(variable_genes[[2]])`
+Variable Genes Rep 3: `r length(variable_genes[[3]])`
+Variable All Three Replicates: `r length(genes_use)`
+
+## Combine Replicates
 ```{r combine_replicates_w_cca}
 combined <- RunMultiCCA(
-  #TODO update this
-  list(r1, r2, r3),
-  genes.use = genes.use,
-  num.cc = 30
+    sobjs,
+    genes.use = genes_use,
+    num.cc = 30
 )
 ```
 
 ```{r calculate_biocor_matrix, cache=TRUE}
 biocor.mat <- MetageneBicorPlot(
-  object = combined,
-  grouping.var = "rep",
-  dims.eval = 1:30,
-  display.progress = FALSE,
-  return.mat = TRUE
+    object = combined,
+    grouping.var = "rep",
+    dims.eval = 1:30,
+    display.progress = FALSE,
+    return.mat = TRUE
 )
 ```
+
 ```{r plot_biocor, fig.width=8}
 MetageneBicorPlot(
-  object = combined,
-  bicor.data = biocor.mat,
-  grouping.var = "rep",
-  dims.eval = 1:30,
-  display.progress = FALSE,
+    object = combined,
+    bicor.data = biocor.mat,
+    grouping.var = "rep",
+    dims.eval = 1:30,
+    display.progress = FALSE
 )
 ```
 
 ```{r plot_cca_dim, fig.width=8}
 p1 <- DimPlot(object=combined, reduction.use='cca', group.by='rep', pt.size=0.5, do.return=TRUE)
-p2 <- VlnPlot(object=combined, features.plot='CC1', group.by='rep', do.return=TRUE)
+p2 <- VlnPlot(object=combined, features.plot='CC1', group.by='rep', do.return=TRUE, point.size.use = .1)
 plot_grid(p1, p2)
 ```
 
-## Aligned Replicates
+## Align Replicates
 ```{r align_data_w_cca, cache=TRUE}
 print('Aligning Data')
 combined <- AlignSubspace(
-        combined,
-        reduction.type = "cca",
-        grouping.var = "rep",
-        dims.align = 1:25
-        )
+    combined,
+    reduction.type = "cca",
+    grouping.var = "rep",
+    dims.align = 1:25
+)
 ```
 
 ```{r plot_aligned_cca_dim, fig.width=8}
-p1 <- VlnPlot(object=combined, features.plot='ACC1', group.by='rep', do.return=TRUE)
-p2 <- VlnPlot(object=combined, features.plot='ACC2', group.by='rep', do.return=TRUE)
+p1 <- VlnPlot(object=combined, features.plot='ACC1', group.by='rep', do.return=TRUE, point.size.use = .1)
+p2 <- VlnPlot(object=combined, features.plot='ACC2', group.by='rep', do.return=TRUE, point.size.use = .1)
 plot_grid(p1, p2)
 ```
 
-### Clustering 
-
+## Cluster
 ```{r find_clusters, cache=TRUE}
 combined <- FindClusters(
     object = combined, 
@@ -238,24 +240,24 @@ combined <- FindClusters(
 
 ```{r run_tsne, cache=TRUE}
 combined <- RunTSNE(
-  object = combined, 
-  reduction.use = "cca.aligned", 
-  dims.use = 1:25, 
-  do.fast = TRUE
+    object = combined, 
+    reduction.use = "cca.aligned", 
+    dims.use = 1:25, 
+    do.fast = TRUE
 )
 ```
 
 ```{r plot_tsne_results, fig.width=8}
 for (i in PARAMS){
-  name <- paste0('res.', i)
-  sobj <- SetAllIdent(combined, id = name)
+    name <- paste0('res.', i)
+    combined <- SetAllIdent(combined, id = name)
   
-  p1 <- TSNEPlot(combined, do.return = T, pt.size = 0.5, group.by = "rep")
-  p2 <- TSNEPlot(combined, do.label = T, do.return = T, pt.size = 0.5)
-  p <- plot_grid(p1, p2)
+    p1 <- TSNEPlot(combined, do.return = T, pt.size = 0.5, group.by = "rep")
+    p2 <- TSNEPlot(combined, do.label = T, do.return = T, pt.size = 0.5)
+    p <- plot_grid(p1, p2)
   
-  title <- ggdraw() + draw_label(name, fontface='bold')
-  print(plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1))) # rel_heights values control title margins
+    title <- ggdraw() + draw_label(name, fontface='bold')
+    print(plot_grid(title, p, ncol=1, rel_heights=c(0.1, 1))) # rel_heights values control title margins
 }
 ```
 
@@ -309,13 +311,13 @@ dump_seurat(object = combined, dir = OUTDIR)
 
 ```{r save.biomarkers}
 for (i in PARAMS){
-  name <- paste0('res.', i)
-  combined <- SetAllIdent(combined, id = name)
+    name <- paste0('res.', i)
+    combined <- SetAllIdent(combined, id = name)
   
-  # Get markers ignoring replicate.
-  fname <- paste0('biomarkers_', name, '.tsv')
-  markers <- FindAllMarkers(object = combined, only.pos = TRUE, print.bar = FALSE)
-  markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
-  save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
+    # Get markers ignoring replicate.
+    fname <- paste0('biomarkers_', name, '.tsv')
+    markers <- FindAllMarkers(object = combined, only.pos = TRUE, print.bar = FALSE)
+    markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
+    save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
 }
 ```
