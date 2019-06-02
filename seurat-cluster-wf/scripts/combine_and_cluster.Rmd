@@ -10,7 +10,7 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FA
                       fig.ext='png')
 ```
 
-```{r set_globals_snakemake, include=FALSE, eval=FALSE}
+```{r set_globals_snakemake, include=FALSE, eval=TRUE}
 get_dir_names <- function(l){
     return(file.path('../', dirname(l)))
 }
@@ -49,7 +49,7 @@ if (UMI_HIGH == 'None'){
 }
 ```
 
-```{r set_globals_testing, include=FALSE, eval=TRUE}
+```{r set_globals_testing, include=FALSE, eval=FALSE}
 DATA <- c(
     '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24',
     '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis2/outs/filtered_gene_bc_matrices/dmelr6-24',
