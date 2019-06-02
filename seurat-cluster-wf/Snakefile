@@ -84,6 +84,7 @@ rule seurat_individual_sample:
         time_hr=lambda wildcards, attempt: attempt * 8
     script: 'scripts/cluster_individual_sample.Rmd'
 
+
 rule dummy_seurat_individual_sample:
     input: rules.seurat_individual_sample.output
     output: 
@@ -107,10 +108,12 @@ rule dummy_seurat_individual_sample:
         for fname in output:
             Path(fname).touch()
 
+
 def _combine_and_cluster(wildcards):
     return expand(
-        config['data_pattern'][wildcards.cellranger], assembly=assembly, tag=tag, sample=SAMPLES
+        config['data_pattern'][wildcards.cellranger], assembly=assembly, tag=tag, sample=SAMPLES[:-1]
     )
+
 
 rule combine_and_cluster:
     input:
@@ -129,6 +132,7 @@ rule combine_and_cluster:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 8
     script: 'scripts/combine_and_cluster.Rmd'
+
 
 rule dummy_combined_and_cluster:
     input: rules.combine_and_cluster.output
