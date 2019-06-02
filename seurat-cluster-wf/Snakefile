@@ -47,11 +47,11 @@ rule fbgn2chrom:
 rule unzip_cellranger3:
     input: 
         barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv') + '.gz',
-        features = config['data_pattern']['cellranger3-wf'] .replace('matrix.mtx', 'features.tsv') + '.gz',
+        features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'features.tsv') + '.gz',
         matrix = config['data_pattern']['cellranger3-wf'] + '.gz'
     output: 
         barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv'),
-        features = config['data_pattern']['cellranger3-wf'] .replace('matrix.mtx', 'features.tsv'),
+        features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'genes.tsv'),
         matrix = config['data_pattern']['cellranger3-wf']
     shell:"""
         gunzip -c {input.barcodes} > {output.barcodes} && \
