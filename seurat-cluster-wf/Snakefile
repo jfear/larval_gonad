@@ -23,7 +23,7 @@ rule targets:
             cellranger=['cellranger-force-wf', 'cellranger3-wf'],
             cutoffs=[
                 'gl-200_gh-None_ul-None_uh-None',
-                # 'gl-200_gh-None_ul-None_uh-1e5',
+                'gl-200_gh-None_ul-None_uh-1e5',
             ],
             sample=SAMPLES
         ),
@@ -32,7 +32,7 @@ rule targets:
             cellranger=['cellranger-force-wf', 'cellranger3-wf'],
             cutoffs=[
                 'gl-200_gh-None_ul-None_uh-None',
-                # 'gl-200_gh-None_ul-None_uh-1e5',
+                'gl-200_gh-None_ul-None_uh-1e5',
             ]
         ),
 
