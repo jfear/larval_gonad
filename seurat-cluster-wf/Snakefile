@@ -10,12 +10,12 @@ assembly = common_config['assembly']
 tag = common_config['tag']
 
 configfile: 'config/config.yaml'
-data_pattern = config['data_pattern']\
+data_pattern = config['data_pattern']['cellranger_force']\
     .replace('{assembly}', assembly)\
     .replace('{tag}', tag)
 
-sample_table <- pd.read_csv('config/sampletable.tsv', sep='\t', index_col=0)
-SAMPLES = sample_table['sample'].values
+sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
+SAMPLES = sample_table.index.values
 
 localrules: fbgn2chrom
 
@@ -27,16 +27,15 @@ rule targets:
                 'gl-200_gh-None_ul-None_uh-None',
                 'gl-200_gh-None_ul-None_uh-1e5',
             ],
-            #TODO update to sample=SAMPLES
-            sample=['testis1']
+            sample=SAMPLES
         ),
-        expand(
-            '../output/seurat-cluster-wf/{cutoffs}/combined/seurat_combined.html', 
-            cutoffs=[
-                'gl-200_gh-None_ul-None_uh-None',
-                'gl-200_gh-None_ul-None_uh-1e5',
-            ]
-        ),
+        # expand(
+        #     '../output/seurat-cluster-wf/{cutoffs}/combined/seurat_combined.html', 
+        #     cutoffs=[
+        #         'gl-200_gh-None_ul-None_uh-None',
+        #         'gl-200_gh-None_ul-None_uh-1e5',
+        #     ]
+        # ),
 
 rule fbgn2chrom:
     output: 
@@ -53,10 +52,10 @@ rule seurat_individual_sample:
         '../output/seurat-cluster-wf/{cutoffs}/{sample}/seurat_individual.html', 
     params:
         rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
-        gene_low = lambda wildcards: re.find('.*gl-(.*?)_.*', wildcareds.cutoffs),
-        gene_high = lambda wildcards: re.find('.*gh-(.*?)_.*', wildcareds.cutoffs),
-        umi_low = lambda wildcards: re.find('.*ul-(.*?)_.*', wildcareds.cutoffs),
-        umi_high = lambda wildcards: re.find('.*uh-(.*?)_.*', wildcareds.cutoffs)
+        gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
+        gene_high = lambda wildcards: re.findall('.*gh-(.*?)_.*', wildcards.cutoffs)[0],
+        umi_low = lambda wildcards: re.findall('.*ul-(.*?)_.*', wildcards.cutoffs)[0],
+        umi_high = lambda wildcards: re.findall('.*uh-(.*)', wildcards.cutoffs)[0]
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 8
@@ -90,24 +89,24 @@ def _combine_and_cluster(wildcards):
 
 rule combine_and_cluster:
     input:
-        rmd = 'scripts/cluster_sample_low_end_cutoff.Rmd',
+        rmd = 'scripts/combine_and_cluster.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = _combine_and_cluster
     output: 
-        '../output/seurat-cluster-wf/combined/seurat_gene_cutoff_200.html', 
+        '../output/seurat-cluster-wf/{cutoffs}/combined/seurat_combined.html', 
     params:
-        rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
-        gene_low = 200,
-        gene_high = 'None',
-        umi_low = 'None',
-        umi_high = 'None'
+        samples = SAMPLES[:-1],
+        gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
+        gene_high = lambda wildcards: re.findall('.*gh-(.*?)_.*', wildcards.cutoffs)[0],
+        umi_low = lambda wildcards: re.findall('.*ul-(.*?)_.*', wildcards.cutoffs)[0],
+        umi_high = lambda wildcards: re.findall('.*uh-(.*)', wildcards.cutoffs)[0]
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 8
     script: 'scripts/combine_and_cluster.Rmd'
 
 rule dummy_combined_and_cluster:
-    input: rules.cluster_sample_low_end_cutoff.output
+    input: rules.combine_and_cluster.output
     output: 
         '../output/seurat-cluster-wf/{cutoffs}/{sample}/seurat.Robj',
         '../output/seurat-cluster-wf/{cutoffs}/{sample}/metadata.tsv',

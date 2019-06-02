@@ -1,1 +1,4 @@
-data_pattern: '../cellranger-wf/{sample}/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
+data_pattern: 
+  cellranger: '../output/cellranger-wf/{sample}/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
+  cellranger_force: '../output/cellranger-force-wf/{sample}/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
+  cellranger3: '../output/cellranger3-wf/{sample}/outs/filtered_feature_bc_matrices/{assembly}{tag}/matrix.mtx'

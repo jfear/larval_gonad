@@ -12,7 +12,7 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FA
 
 ```{r set_globals_snakemake, include=FALSE, eval=TRUE}
 SAMPLE <- snakemake@wildcards[['sample']]
-DATA_DIR <- dirname(snakemake@input[["data"]])
+DATA_DIR <- file.path('../', dirname(snakemake@input[["data"]]))
 FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
 OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
 REP <- snakemake@params[['rep']]
