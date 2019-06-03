@@ -14,27 +14,34 @@ configfile: 'config/config.yaml'
 sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
 SAMPLES = sample_table.index.values.tolist()
 
-localrules: fbgn2chrom, unzip_cellranger3
+localrules: fbgn2chrom, unzip_cellranger3, table_to_feather
 
 rule targets:
     input: 
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
-            cellranger=['cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf'],
-            cutoffs=[
-                'gl-200_gh-None_ul-None_uh-None',
-                'gl-200_gh-None_ul-None_uh-1e5',
-            ],
+            cellranger=config['cellranger'],
+            cutoffs=config['cutoffs'],
             sample=SAMPLES
         ),
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
-            cellranger=['cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf'],
-            cutoffs=[
-                'gl-200_gh-None_ul-None_uh-None',
-                'gl-200_gh-None_ul-None_uh-1e5',
-            ]
+            cellranger=config['cellranger'],
+            cutoffs=config['cutoffs'],
         ),
+        expand(
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/{filetype}.feather', 
+            cellranger=config['cellranger'],
+            cutoffs=config['cutoffs'],
+            sample=SAMPLES + ['combined',],
+            filetype=[
+                'metadata', 'raw', 'normalized_read_counts', 'dispersion',
+                'scaled', 'principal_components_cell',
+                'principal_components_gene', 'principal_components_stdev',
+                'cca_cell', 'cca_gene', 'cca_gene_full', 'cca_aligned_cell',
+                'clusters', 'tsne',
+            ]
+        )
 
 
 rule fbgn2chrom:
@@ -88,22 +95,18 @@ rule seurat_individual_sample:
 rule dummy_seurat_individual_sample:
     input: rules.seurat_individual_sample.output
     output: 
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/seurat.Robj',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/metadata.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/raw.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/normalized_read_counts.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/dispersion.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/var_genes.txt',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/scaled.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/principal_components_cell.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/principal_components_gene.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/principal_components_stdev.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_cell.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_gene.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_gene_full.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_aligned_cell.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/clusters.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/tsne.tsv'
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat.Robj',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/metadata.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/raw.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/normalized_read_counts.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/dispersion.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/var_genes.txt',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/scaled.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_cell.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_gene.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv'
     run:
         for fname in output:
             Path(fname).touch()
@@ -137,22 +140,30 @@ rule combine_and_cluster:
 rule dummy_combined_and_cluster:
     input: rules.combine_and_cluster.output
     output: 
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/seurat.Robj',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/metadata.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/raw.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/normalized_read_counts.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/dispersion.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/var_genes.txt',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/scaled.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/principal_components_cell.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/principal_components_gene.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/principal_components_stdev.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_cell.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_gene.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_gene_full.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/cca_aligned_cell.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/clusters.tsv',
-        '../output/seurat-cluster-wf/{cutoffs}/{sample}/tsne.tsv'
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat.Robj',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/metadata.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/raw.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/normalized_read_counts.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/dispersion.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/var_genes.txt',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/scaled.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/principal_components_cell.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/principal_components_gene.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/principal_components_stdev.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/clusters.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/tsne.tsv'
     run:
         for fname in output:
             Path(fname).touch()
+
+
+rule table_to_feather:
+    input: '{prefix}.tsv'
+    output: '{prefix}.feather'
+    params:
+        lambda wildcards: config['seurat_file_types'][Path(wildcards.prefix).stem]
+    run:
+        (pd.read_csv(input[0], sep='\t', index_col=0)
+        .rename_axis(params[0])
+        .reset_index()
+        .to_feather(output[0]))
