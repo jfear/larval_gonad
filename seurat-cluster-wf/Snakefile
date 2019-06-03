@@ -20,7 +20,7 @@ rule targets:
     input: 
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
-            cellranger=['cellranger-force-wf', 'cellranger3-wf'],
+            cellranger=['cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf'],
             cutoffs=[
                 'gl-200_gh-None_ul-None_uh-None',
                 'gl-200_gh-None_ul-None_uh-1e5',
@@ -29,7 +29,7 @@ rule targets:
         ),
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
-            cellranger=['cellranger-force-wf', 'cellranger3-wf'],
+            cellranger=['cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf'],
             cutoffs=[
                 'gl-200_gh-None_ul-None_uh-None',
                 'gl-200_gh-None_ul-None_uh-1e5',
