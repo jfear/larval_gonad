@@ -12,7 +12,7 @@ tag = common_config['tag']
 configfile: 'config/config.yaml'
 
 sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
-SAMPLES = sample_table.index.values
+SAMPLES = sample_table.index.values.tolist()
 
 localrules: fbgn2chrom, unzip_cellranger3
 
