@@ -148,7 +148,10 @@ rule seurat_dummy:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv'
-    script: 'scripts/findmarkers.R'
+    run:
+        for fname in output:
+            print(fname)
+            Path(fname).touch()
 
 
 rule seurat_biomarkers:
