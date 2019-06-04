@@ -14,8 +14,7 @@ configfile: 'config/config.yaml'
 sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
 SAMPLES = sample_table.index.values.tolist()
 
-localrules: fbgn2chrom, unzip_cellranger3
-ruleorder: combine_and_cluster > seurat_individual_sample
+localrules: fbgn2chrom, unzip_cellranger3, seurat_dummy
 
 rule targets:
     input:
