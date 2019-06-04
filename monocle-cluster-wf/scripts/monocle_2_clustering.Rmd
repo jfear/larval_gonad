@@ -1,10 +1,79 @@
 ---
 title: "Monocle 2 Clustering"
 author: "Justin M Fear"
-date: `r Sys.Date()`
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE,
+                      fig.ext='png')
 ```
+
+```{r set_globals_snakemake, include=FALSE, eval=FALSE}
+SAMPLE <- snakemake@wildcards[['sample']]
+DATA_DIR <- file.path('../', dirname(snakemake@input[["data"]]))
+FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
+OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
+REP <- snakemake@params[['rep']]
+RESOLUTIONS <- snakemake@params[['resolutions']]
+GENE_LOW <- snakemake@params[['gene_low']]
+if (GENE_LOW == 'None'){
+  GENE_LOW = -Inf
+} else {
+  GENE_LOW = as.numeric(GENE_LOW)
+}
+GENE_HIGH <- snakemake@params[['gene_high']]
+if (GENE_HIGH == 'None'){
+  GENE_HIGH = Inf
+} else {
+  GENE_HIGH = as.numeric(GENE_HIGH)
+}
+UMI_LOW <- snakemake@params[['umi_low']]
+if (UMI_LOW == 'None'){
+  UMI_LOW = -Inf
+} else {
+  UMI_LOW = as.numeric(UMI_LOW)
+}
+UMI_HIGH <- snakemake@params[['umi_high']]
+if (UMI_HIGH == 'None'){
+  UMI_HIGH = Inf
+} else {
+  UMI_HIGH = as.numeric(UMI_HIGH)
+}
+```
+
+```{r debug include=FALSE, eval=FALSE}
+
+```
+
+```{r set_other_globas}
+REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
+```
+
+## `r SAMPLE`
+* Gene Low End Cutoff: `r GENE_LOW`
+* Gene High End Cutoff: `r GENE_HIGH`
+* UMI Low End Cutoff: `r UMI_LOW`
+* UMI High End Cutoff: `r UMI_HIGH`
+
+```{r load_libraries, include=FALSE}
+options(repr.plot.width=10, repr.plot.height=10)
+library('monocle')
+library('dplyr')
+library('gridExtra')
+```
+
+```{r}
+#read.table(file.path(REFERENCES_DIR, 'dmel/r6-24/fb_annotation/dmel_r6-24.fb_annotation'),  sep='\t',  stringsAsFactors = FALSE,  header = TRUE)
+genes <- read.table('/data/LCDB/lcdb-references/dmel/r6-24/fb_annotation/dmel_r6-24.fb_annotation',
+		    sep='\t',
+		    stringsAsFactors=F,
+		    header=T,
+		    quote=NULL,
+		    fill=TRUE,
+		    colClasses=c("character", "NULL", "character", rep("NULL", 6))
+		    )
+```
+
