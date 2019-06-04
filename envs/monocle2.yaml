@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials=3.6.0
+  - bioconductor-monocle=2.10.0

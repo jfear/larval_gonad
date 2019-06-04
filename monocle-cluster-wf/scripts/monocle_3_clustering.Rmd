@@ -1,0 +1,184 @@
+---
+title: "Monocle 3 Clustering"
+author: "Justin M Fear"
+date: "5/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r install.monocle3.alpha}
+devtools::install_github("cole-trapnell-lab/DDRTree", ref="simple-ppt-like")
+devtools::install_github("cole-trapnell-lab/L1-graph")
+devtools::install_github("cole-trapnell-lab/monocle-release", ref="monocle3_alpha")
+```
+
+```{r load.libs}
+library(monocle)
+library(dplyr)
+library(gridExtra)
+```
+
+```{r load.seurat.obj}
+load('../output/scrnaseq-wf/scrnaseq_combine_force/seurat.Robj')
+sobj = object
+cds <- importCDS(sobj)
+cds <- updateCDS(cds)
+rm(sobj)
+rm(object)
+```
+
+```{r gene.annot}
+genes <- read.table(file.path(Sys.getenv('REFERENCES_DIR'), 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'),
+		    sep='\t',
+		    stringsAsFactors=F,
+		    header=TRUE,
+		    quote=NULL
+		    )
+row.names(genes) <- genes$primary_FBgn
+genes <- genes[, 'gene_symbol', drop = FALSE]
+```
+
+
+
+```{r}
+# Pass TRUE if you want to see progress output on some of Monocle 3's operations
+DelayedArray:::set_verbose_block_processing(TRUE)
+
+# Passing a higher value will make some computations faster but use more memory. Adjust with caution!
+options(DelayedArray.block.size=1000e6)
+
+cds <- estimateSizeFactors(cds)
+cds <- estimateDispersions(cds)
+```
+
+```{r}
+cds <- preprocessCDS(cds)
+cds <- reduceDimension(cds, reduction_method = 'UMAP')
+cds <- partitionCells(cds)
+```
+
+
+```{r}
+cds <- clusterCells(cds, num_clusters = 20)
+print(unique(pData(cds)$Cluster))
+```
+
+```{r}
+lvls = c(
+  '0' = 'L1',
+  '1' = 'MC',
+  '2' = 'M1',
+  '3' = 'E1',
+  '4' = 'LC',
+  '5' = 'EC',
+  '6' = 'SP',
+  '7' = 'TE',
+  '8' = 'PC',
+  '9' = 'U1',
+  '10' = 'U2',
+  '11' = 'U3'
+)
+
+pData(cds)$seurat <- plyr::revalue(as.character(pData(cds)$res.0.6), lvls)
+
+cell_type_color <- c(
+  "SP" = "#b11218",
+  "E1" = "#e32f27",
+  "M1" = "#fb6b4b",
+  "L1" = "#fdd4c2",
+  "EC" = "#105ba4",
+  "MC" = "#3787c0",
+  "LC" = "#6caed6",
+  "TE" = "#6a3d9a",
+  "PC" = "#b15928",
+  "U1" = "#d1d1d1",
+  "U2" = "#d1d1d1",
+  "U3" = "#000000"
+)
+```
+
+```{r fig.width=15}
+p1 <- plot_cell_clusters(cds, color_by = 'Cluster', cell_size = 1, show_group_id = T)
+p2 <- plot_cell_clusters(cds, color_by = 'seurat', cell_size = 1, show_group_id = T)
+p3 <- plot_cell_clusters(cds, color_by = 'rep', cell_size = 1, show_group_id = T)
+grid.arrange(p1, p2, p3, nrow=1)
+```
+```{r fig.width=15}
+pData(cds)$rep1 <- pData(cds)$rep == 'rep1'
+pData(cds)$rep2 <- pData(cds)$rep == 'rep2'
+pData(cds)$rep3 <- pData(cds)$rep == 'rep3'
+
+p1 <- plot_cell_clusters(cds, color_by = 'rep1', cell_size=.5, alpha=.5, show_group_id = F) + scale_color_manual(values = c('gray', 'red'))
+p2 <- plot_cell_clusters(cds, color_by = 'rep2', cell_size=.5, alpha=.5, show_group_id = F) + scale_color_manual(values = c('gray', 'red'))
+p3 <- plot_cell_clusters(cds, color_by = 'rep3', cell_size=.5, alpha=.5, show_group_id = F) + scale_color_manual(values = c('gray', 'red'))
+grid.arrange(p1, p2, p3, nrow=1)
+```
+
+```{r}
+df <- pData(cds)[, 'Cluster', drop = F] %>% tibble::rownames_to_column('cell_id')
+write.table(df, file = '../output/pseudotime-wf/monocle_clusters.tsv', sep = '\t', quote = FALSE, row.names = FALSE)
+```
+
+
+
+```{r}
+umap <- as.data.frame(t(reducedDimS(cds))) 
+colnames(umap) <- c('C1', 'C2')
+umap <- umap %>% tibble::rownames_to_column('cell_id')
+write.table(umap, file = '../output/pseudotime-wf/monocle_umap.tsv', sep = '\t', quote = FALSE, row.names = FALSE)
+```
+
+```{r}
+spatial_res <- principalGraphTest(cds, relative_expr = TRUE, k = 25, cores = detectCores() - 2, verbose = FALSE)
+```
+
+```{r}
+cluster_marker_res <- find_cluster_markers(cds, spatial_res, group_by = 'Cluster', morans_I_threshold = 0.25)
+ 
+```
+
+```{r fig.width=15}
+genes <- (cluster_marker_res %>% dplyr::filter(mean > 0.5, percentage > 0.1) %>% dplyr::group_by(Group) %>% dplyr::slice(which.max(specificity)))
+options(repr.plot.width=22, repr.plot.height=12)
+plot_markers_by_group(cds, genes$gene_short_name, group_by = 'Cluster', ordering_type = 'maximal_on_diag')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

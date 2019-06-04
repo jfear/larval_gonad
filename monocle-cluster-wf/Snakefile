@@ -1,0 +1,29 @@
+import pandas as pd
+
+configfile: 'config/config.yaml'
+
+
+rule targets:
+    input:
+        ''
+
+
+rule monocle_2_clustering:
+    input: ''
+    output: ''
+    conda: '../envs/monocle2.yaml'
+    script: 'scripts/monocle_2_clustering.Rmd'
+
+
+rule monocle_2_gene_driven_clustering:
+    input: ''
+    output: ''
+    conda: '../envs/monocle2.yaml'
+    script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
+
+
+rule monocle_3_clustering:
+    input: ''
+    output: ''
+    conda: '../envs/monocle3.yaml'
+    script: 'scripts/monocle_3_clustering.Rmd'
