@@ -23,3 +23,7 @@ seurat_file_types:
   principal_components_stdev: PC
   clusters: cell_id
   tsne: cell_id 
+  biomarkers_res.0.4: FBgn 
+  biomarkers_res.0.6: FBgn 
+  biomarkers_res.1: FBgn 
+  zscore: FBgn
