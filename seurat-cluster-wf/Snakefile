@@ -17,10 +17,10 @@ SAMPLES = sample_table.index.values.tolist()
 localrules: fbgn2chrom, unzip_cellranger3, table_to_feather, zscore
 
 rule targets:
-    input: 
+    input:
         # Run seurat on individual samples
         expand(
-            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html',
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
             sample=SAMPLES
@@ -28,28 +28,28 @@ rule targets:
 
         # Run seurat after combining replicates
         expand(
-            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html',
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
         ),
 
         # Make feather formatted files from Seurat TSV outputs
         expand(
-            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/{filetype}.feather', 
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/{filetype}.feather',
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
-            sample=SAMPLES[0] + ['combined',],
+            sample=SAMPLES + ['combined',],
             filetype=[
-                'metadata', 'raw', 'normalized_read_counts', 'dispersion', 'scaled', 
+                'metadata', 'raw', 'normalized_read_counts', 'dispersion', 'scaled',
                 'principal_components_cell', 'principal_components_gene', 'principal_components_stdev',
                 'clusters', 'tsne',
-                'biomarkers_res.0.4', 'biomarkers_res.0.6', 'biomarkers_res.1', 
+                'biomarkers_res.0.4', 'biomarkers_res.0.6', 'biomarkers_res.1',
             ]
         ),
 
         # Calculate z-score from normalized data
         expand(
-            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/zscore.feather', 
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/zscore.feather',
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
             sample=SAMPLES + ['combined',],
@@ -61,11 +61,11 @@ rule fbgn2chrom:
 
 
 rule unzip_cellranger3:
-    input: 
+    input:
         barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv') + '.gz',
         features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'features.tsv') + '.gz',
         matrix = config['data_pattern']['cellranger3-wf'] + '.gz'
-    output: 
+    output:
         barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv'),
         features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'genes.tsv'),
         matrix = config['data_pattern']['cellranger3-wf']
@@ -87,7 +87,7 @@ rule seurat_individual_sample:
         rmd = 'scripts/cluster_individual_sample.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = _seurat_individual_sample
-    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
+    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html',
     params:
         rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
         gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
@@ -102,7 +102,7 @@ rule seurat_individual_sample:
 
 rule dummy_seurat_individual_sample:
     input: rules.seurat_individual_sample.output
-    output: 
+    output:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat.Robj',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/metadata.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/raw.tsv',
@@ -134,7 +134,7 @@ rule combine_and_cluster:
         rmd = 'scripts/combine_and_cluster.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = _combine_and_cluster
-    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
+    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html',
     params:
         samples = SAMPLES[:-1],
         gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
@@ -149,7 +149,7 @@ rule combine_and_cluster:
 
 rule dummy_combined_and_cluster:
     input: rules.combine_and_cluster.output
-    output: 
+    output:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat.Robj',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/metadata.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/raw.tsv',
