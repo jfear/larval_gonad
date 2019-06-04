@@ -14,7 +14,7 @@ configfile: 'config/config.yaml'
 sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
 SAMPLES = sample_table.index.values.tolist()
 
-localrules: fbgn2chrom, unzip_cellranger3, table_to_feather, zscore
+localrules: fbgn2chrom, unzip_cellranger3
 ruleorder: combine_and_cluster > seurat_individual_sample
 
 rule targets:
@@ -131,7 +131,7 @@ def _seurat_dummy(wildcards):
         return rules.combine_and_cluster.output
     return rules.seurat_individual_sample.output
 
-    
+
 rule seurat_dummy:
     input: _seurat_dummy
     output:
@@ -159,6 +159,9 @@ rule table_to_feather:
     input: '{prefix}.tsv'
     output: '{prefix}.feather'
     params: lambda wildcards: config['seurat_file_types'][Path(wildcards.prefix).name]
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 8,
+        time_hr=lambda wildcards, attempt: attempt * 1
     run:
         (pd.read_csv(input[0], sep='\t', index_col=0)
         .rename_axis(params[0])
@@ -169,4 +172,7 @@ rule table_to_feather:
 rule zscore:
     input: '{prefix}/normalized_read_counts.feather'
     output: '{prefix}/zscore.tsv'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 8,
+        time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/zscore.py'
