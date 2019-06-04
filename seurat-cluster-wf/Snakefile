@@ -15,6 +15,7 @@ sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index
 SAMPLES = sample_table.index.values.tolist()
 
 localrules: fbgn2chrom, unzip_cellranger3, table_to_feather, zscore
+ruleorder: combine_and_cluster > seurat_individual_sample
 
 rule targets:
     input:
