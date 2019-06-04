@@ -148,7 +148,7 @@ rule seurat_dummy:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.4.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.6.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.1.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.1.tsv'
     run:
         for fname in output:
             Path(fname).touch()
