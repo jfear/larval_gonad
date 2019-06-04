@@ -98,7 +98,7 @@ rule seurat_individual_sample:
         umi_high = lambda wildcards: re.findall('.*uh-(.*)', wildcards.cutoffs)[0]
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 8
+        time_hr=lambda wildcards, attempt: attempt * 24
     script: 'scripts/cluster_individual_sample.Rmd'
 
 
@@ -121,8 +121,8 @@ rule combine_and_cluster:
         umi_low = lambda wildcards: re.findall('.*ul-(.*?)_.*', wildcards.cutoffs)[0],
         umi_high = lambda wildcards: re.findall('.*uh-(.*)', wildcards.cutoffs)[0]
     resources:
-        mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 8
+        mem_gb=lambda wildcards, attempt: attempt * 32,
+        time_hr=lambda wildcards, attempt: attempt * 36
     script: 'scripts/combine_and_cluster.Rmd'
 
 
@@ -153,7 +153,6 @@ rule seurat_dummy:
     run:
         for fname in output:
             Path(fname).touch()
-
 
 
 rule table_to_feather:
