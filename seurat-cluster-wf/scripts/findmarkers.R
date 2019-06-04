@@ -1,4 +1,5 @@
 library(Seurat)
+source('../../lib/seurat.R')
 
 # Get snakemake resources
 WORKDIR <- file.path('../', dirname(snakemake@input[[1]]))

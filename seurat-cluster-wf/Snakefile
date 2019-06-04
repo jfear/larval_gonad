@@ -133,10 +133,9 @@ def _seurat_html(wildcards):
     return rules.seurat_individual_sample.output
 
 
-rule seurat_dummy:
+rule seurat_dump:
     input: _seurat_html
     output:
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat.Robj',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/metadata.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/raw.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/normalized_read_counts.tsv',
@@ -148,10 +147,7 @@ rule seurat_dummy:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv'
-    run:
-        for fname in output:
-            print(fname)
-            Path(fname).touch()
+    script: 'scripts/dump_seurat.R'
 
 
 rule seurat_biomarkers:

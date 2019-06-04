@@ -238,5 +238,5 @@ FeaturePlot(sobj, lit_genes[['hub']], reduction.use = 'tsne', cols.use = c('gray
 
 ### Save Results
 ```{r dump_seurat}
-dump_seurat(object = sobj, dir = OUTDIR)
+save(object = sobj, file = file.path(OUTDIR, "seurat.Robj"))
 ```

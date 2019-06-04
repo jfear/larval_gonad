@@ -62,7 +62,6 @@ REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
 
 ```{r load_libraries, include=FALSE}
 options(repr.plot.width=10, repr.plot.height=10)
-source('../../lib/seurat.R')
 library(Seurat)
 library(dplyr)
 library(Matrix)
@@ -283,5 +282,5 @@ FeaturePlot(combined, lit_genes[['hub']], reduction.use = 'tsne', cols.use = c('
 
 ### Save Results
 ```{r dump_seurat}
-dump_seurat(object = combined, dir = OUTDIR)
+save(object = combined, file = file.path(OUTDIR, "seurat.Robj"))
 ```
