@@ -14,41 +14,50 @@ configfile: 'config/config.yaml'
 sample_table = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0)
 SAMPLES = sample_table.index.values.tolist()
 
-localrules: fbgn2chrom, unzip_cellranger3, table_to_feather
+localrules: fbgn2chrom, unzip_cellranger3, table_to_feather, zscore
 
 rule targets:
     input: 
+        # Run seurat on individual samples
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
             sample=SAMPLES
         ),
+
+        # Run seurat after combining replicates
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
         ),
+
+        # Make feather formatted files from Seurat TSV outputs
         expand(
             '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/{filetype}.feather', 
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
-            sample=SAMPLES + ['combined',],
+            sample=SAMPLES[0] + ['combined',],
             filetype=[
-                'metadata', 'raw', 'normalized_read_counts', 'dispersion',
-                'scaled', 'principal_components_cell',
-                'principal_components_gene', 'principal_components_stdev',
-                'cca_cell', 'cca_gene', 'cca_gene_full', 'cca_aligned_cell',
+                'metadata', 'raw', 'normalized_read_counts', 'dispersion', 'scaled', 
+                'principal_components_cell', 'principal_components_gene', 'principal_components_stdev',
                 'clusters', 'tsne',
+                'biomarkers_res.0.4', 'biomarkers_res.0.6', 'biomarkers_res.1', 
             ]
-        )
+        ),
 
+        # Calculate z-score from normalized data
+        expand(
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/zscore.feather', 
+            cellranger=config['cellranger'],
+            cutoffs=config['cutoffs'],
+            sample=SAMPLES + ['combined',],
+        ),
 
 rule fbgn2chrom:
-    output: 
-        '../output/fbgn2chrom.tsv'
-    script: 
-        '../bin/fbgn2chrom.py'
+    output: '../output/fbgn2chrom.tsv'
+    script: '../bin/fbgn2chrom.py'
 
 
 rule unzip_cellranger3:
@@ -78,8 +87,7 @@ rule seurat_individual_sample:
         rmd = 'scripts/cluster_individual_sample.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = _seurat_individual_sample
-    output: 
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
+    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat_individual.html', 
     params:
         rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
         gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
@@ -106,7 +114,10 @@ rule dummy_seurat_individual_sample:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_gene.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv'
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.4.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.6.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.1.tsv',
     run:
         for fname in output:
             Path(fname).touch()
@@ -123,8 +134,7 @@ rule combine_and_cluster:
         rmd = 'scripts/combine_and_cluster.Rmd',
         fbgn2chrom = rules.fbgn2chrom.output[0],
         data = _combine_and_cluster
-    output: 
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
+    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat_combined.html', 
     params:
         samples = SAMPLES[:-1],
         gene_low = lambda wildcards: re.findall('gl-(.*?)_.*', wildcards.cutoffs)[0],
@@ -160,10 +170,15 @@ rule dummy_combined_and_cluster:
 rule table_to_feather:
     input: '{prefix}.tsv'
     output: '{prefix}.feather'
-    params:
-        lambda wildcards: config['seurat_file_types'][Path(wildcards.prefix).stem]
+    params: lambda wildcards: config['seurat_file_types'][Path(wildcards.prefix).stem]
     run:
         (pd.read_csv(input[0], sep='\t', index_col=0)
         .rename_axis(params[0])
         .reset_index()
         .to_feather(output[0]))
+
+
+rule zscore:
+    input: '{prefix}/normalized_read_counts.feather'
+    output: '{prefix}/zscore.tsv'
+    script: 'scripts/zscore.py'
