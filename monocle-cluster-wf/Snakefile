@@ -22,6 +22,13 @@ rule monocle_2_gene_driven_clustering:
     script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
 
 
+rule monocle_2_garnett:
+    input: ''
+    output: ''
+    conda: '../envs/monocle2.yaml'
+    script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
+
+
 rule monocle_3_clustering:
     input: ''
     output: ''

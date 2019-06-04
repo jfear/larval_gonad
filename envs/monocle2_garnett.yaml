@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials
+  - bioconductor-monocle=2.10.0
+  - bioconductor-delayedarray
+  - bioconductor-delayedmatrixstats
+  - bioconductor-org.dm.eg.db

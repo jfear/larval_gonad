@@ -1,0 +1,14 @@
+---
+title: "Monocle 3 Clustering Using Garnett"
+author: "Justin M Fear"
+date: `r Sys.Date()`
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r install.monocle3.alpha, include=FALSE}
+devtools::install_github("cole-trapnell-lab/garnett")
+```
