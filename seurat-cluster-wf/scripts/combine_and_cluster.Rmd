@@ -19,6 +19,7 @@ DATA <- lapply(snakemake@input[["data"]], get_dir_names)
 FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
 OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
 SAMPLES <- snakemake@params[['samples']]
+RESOLUTIONS <- snakemake@params[['resolutions']]
 
 GENE_LOW <- snakemake@params[['gene_low']]
 if (GENE_LOW == 'None'){
@@ -49,33 +50,15 @@ if (UMI_HIGH == 'None'){
 }
 ```
 
-```{r set_globals_testing, include=FALSE, eval=FALSE}
-DATA <- c(
-    '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24',
-    '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis2/outs/filtered_gene_bc_matrices/dmelr6-24',
-    '/home/fearjm/local_data_store/larval_gonad/output/cellranger-force-wf/testis3/outs/filtered_gene_bc_matrices/dmelr6-24'
-)
-FBGN2CHROM <- '../../output/fbgn2chrom.tsv'
-OUTDIR <- '../../output/seurat-cluster-wf/combined'
-SAMPLES <- c('testis1', 'testis2', 'testis3')
-
-GENE_LOW <- 200
-GENE_HIGH <- Inf
-
-UMI_LOW <- -Inf
-UMI_HIGH <- Inf
-```
-
 ```{r set_other_globas, include=FALSE}
 REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
-PARAMS <- c(0.4, 0.6, 1)
 ```
 
 ## Combined
-Gene Low End Cutoff: `r GENE_LOW`
-Gene High End Cutoff: `r GENE_HIGH`
-UMI Low End Cutoff: `r UMI_LOW`
-UMI High End Cutoff: `r UMI_HIGH`
+* Gene Low End Cutoff: `r GENE_LOW`
+* Gene High End Cutoff: `r GENE_HIGH`
+* UMI Low End Cutoff: `r UMI_LOW`
+* UMI High End Cutoff: `r UMI_HIGH`
 
 ```{r load_libraries, include=FALSE}
 options(repr.plot.width=10, repr.plot.height=10)
@@ -89,7 +72,6 @@ library(yaml)
 
 ```{r import_annotations}
 fbgn2chrom <- read.table(FBGN2CHROM, header=T)
-fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
 
 # Get list of mitochondiral genes
 mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
@@ -164,15 +146,13 @@ find_var_genes <- function(sobj){
 }
 
 variable_genes <- lapply(sobjs, find_var_genes)
-
-#TODO see if this works
 genes_use <- Reduce(intersect, variable_genes)
 ```
 
-Variable Genes Rep 1: `r length(variable_genes[[1]])`
-Variable Genes Rep 2: `r length(variable_genes[[2]])`
-Variable Genes Rep 3: `r length(variable_genes[[3]])`
-Variable All Three Replicates: `r length(genes_use)`
+* Variable Genes Rep 1: `r length(variable_genes[[1]])`
+* Variable Genes Rep 2: `r length(variable_genes[[2]])`
+* Variable Genes Rep 3: `r length(variable_genes[[3]])`
+* Variable All Three Replicates: `r length(genes_use)`
 
 ## Combine Replicates
 ```{r combine_replicates_w_cca}
@@ -231,7 +211,7 @@ plot_grid(p1, p2)
 combined <- FindClusters(
     object = combined, 
     reduction.type = "cca.aligned", 
-    resolution = PARAMS, 
+    resolution = RESOLUTIONS, 
     dims.use = 1:25, 
     save.SNN = FALSE, 
     print.output = FALSE
@@ -248,7 +228,7 @@ combined <- RunTSNE(
 ```
 
 ```{r plot_tsne_results, fig.width=8}
-for (i in PARAMS){
+for (i in RESOLUTIONS){
     name <- paste0('res.', i)
     combined <- SetAllIdent(combined, id = name)
   
@@ -302,22 +282,6 @@ FeaturePlot(combined, lit_genes[['hub']], reduction.use = 'tsne', cols.use = c('
 ```
 
 ### Save Results
-
 ```{r dump_seurat}
 dump_seurat(object = combined, dir = OUTDIR)
-```
-
-### Differential Expression
-
-```{r save.biomarkers}
-for (i in PARAMS){
-    name <- paste0('res.', i)
-    combined <- SetAllIdent(combined, id = name)
-  
-    # Get markers ignoring replicate.
-    fname <- paste0('biomarkers_', name, '.tsv')
-    markers <- FindAllMarkers(object = combined, only.pos = TRUE, print.bar = FALSE)
-    markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
-    save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
-}
 ```

@@ -12,6 +12,10 @@ cutoffs:
   - 'gl-200_gh-None_ul-None_uh-None'
   - 'gl-200_gh-None_ul-None_uh-1e5'
 
+resolutions:
+  - 0.4
+  - 0.6
+  - 1
 seurat_file_types:
   metadata: cell_id
   raw: FBgn

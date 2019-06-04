@@ -16,6 +16,7 @@ DATA_DIR <- file.path('../', dirname(snakemake@input[["data"]]))
 FBGN2CHROM <- file.path('../', snakemake@input[['fbgn2chrom']])
 OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
 REP <- snakemake@params[['rep']]
+RESOLUTIONS <- snakemake@params[['resolutions']]
 
 GENE_LOW <- snakemake@params[['gene_low']]
 if (GENE_LOW == 'None'){
@@ -46,31 +47,15 @@ if (UMI_HIGH == 'None'){
 }
 ```
 
-```{r set_globals_testing, include=FALSE, eval=FALSE}
-SAMPLE <- 'testis1'
-#DATA_DIR <- dirname('../cellranger-wf/testis1/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx')
-DATA_DIR <- dirname('/home/fearjm/local_data_store/larval_gonad/output.bak/scrnaseq-wf/scrnaseq_samples/testis1/outs/filtered_gene_bc_matrices/dm6.16/matrix.mtx')
-FBGN2CHROM <- '../../output/fbgn2chrom.tsv'
-OUTDIR <- dirname('../output/seurat-cluster-wf/testis1/cluster_sample_low_end_cutoff.html')
-REP <-'rep1'
-
-GENE_LOW <- 200
-GENE_HIGH <- Inf
-
-UMI_LOW <- -Inf
-UMI_HIGH <- Inf
-```
-
 ```{r set_other_globas}
 REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
-PARAMS <- c(0.4, 0.6, 1)
 ```
 
 ## `r SAMPLE`
-Gene Low End Cutoff: `r GENE_LOW`
-Gene High End Cutoff: `r GENE_HIGH`
-UMI Low End Cutoff: `r UMI_LOW`
-UMI High End Cutoff: `r UMI_HIGH`
+* Gene Low End Cutoff: `r GENE_LOW`
+* Gene High End Cutoff: `r GENE_HIGH`
+* UMI Low End Cutoff: `r UMI_LOW`
+* UMI High End Cutoff: `r UMI_HIGH`
 
 ```{r load_libraries, include=FALSE}
 options(repr.plot.width=10, repr.plot.height=10)
@@ -84,7 +69,6 @@ library(yaml)
 
 ```{r import_annotations}
 fbgn2chrom <- read.table(FBGN2CHROM, header=T)
-fbgn2symbol <- read.csv(file.path(REFERENCES_DIR, 'dmel/r6-16/fb_annotation/dmel_r6-16.fb_annotation'), header=T, sep = '\t')[, c('gene_symbol', 'primary_FBgn')]
 
 # Get list of mitochondiral genes
 mito <- fbgn2chrom[fbgn2chrom$chrom == 'chrM', 'FBgn']
@@ -185,7 +169,7 @@ PCElbowPlot(object = sobj)
 sobj <- FindClusters(
     object = sobj, 
     reduction.type = "pca", 
-    resolution = PARAMS, 
+    resolution = RESOLUTIONS, 
     dims.use = 1:8, 
     save.SNN = FALSE, 
     print.output = FALSE
@@ -197,7 +181,7 @@ sobj <- RunTSNE(sobj, reduction.use = "pca", dims.use = 1:8, do.fast = TRUE)
 ```
 
 ```{r plot_tsne_results, fig.width=8}
-for (i in PARAMS){
+for (i in RESOLUTIONS){
   name <- paste0('res.', i)
   sobj <- SetAllIdent(sobj, id = name)
   
@@ -253,22 +237,6 @@ FeaturePlot(sobj, lit_genes[['hub']], reduction.use = 'tsne', cols.use = c('gray
 ```
 
 ### Save Results
-
 ```{r dump_seurat}
 dump_seurat(object = sobj, dir = OUTDIR)
-```
-
-### Differential Expression
-
-```{r save.biomarkers}
-for (i in PARAMS){
-  name <- paste0('res.', i)
-  sobj <- SetAllIdent(sobj, id = name)
-  
-  # Get markers ignoring replicate.
-  fname <- paste0('biomarkers_', name, '.tsv')
-  markers <- FindAllMarkers(object = sobj, only.pos = TRUE, print.bar = FALSE)
-  markers = merge(fbgn2symbol, markers, by.x='primary_FBgn', by.y='gene', all.y=T)
-  save_biomarkers(markers = markers, dir = OUTDIR, fname = fname)
-}
 ```
