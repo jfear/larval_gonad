@@ -3,5 +3,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - r-essentials=3.6.0
+  - r-essentials
   - bioconductor-monocle=2.10.0
