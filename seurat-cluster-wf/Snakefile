@@ -56,6 +56,7 @@ rule targets:
             sample=SAMPLES + ['combined',],
         ),
 
+
 rule fbgn2chrom:
     output: '../output/fbgn2chrom.tsv'
     script: '../bin/fbgn2chrom.py'
@@ -101,29 +102,6 @@ rule seurat_individual_sample:
     script: 'scripts/cluster_individual_sample.Rmd'
 
 
-rule dummy_seurat_individual_sample:
-    input: rules.seurat_individual_sample.output
-    output:
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat.Robj',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/metadata.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/raw.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/normalized_read_counts.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/dispersion.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/var_genes.txt',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/scaled.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_cell.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_gene.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.4.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.6.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.1.tsv',
-    run:
-        for fname in output:
-            Path(fname).touch()
-
-
 def _combine_and_cluster(wildcards):
     return expand(
         config['data_pattern'][wildcards.cellranger], assembly=assembly, tag=tag, sample=SAMPLES[:-1]
@@ -148,30 +126,40 @@ rule combine_and_cluster:
     script: 'scripts/combine_and_cluster.Rmd'
 
 
-rule dummy_combined_and_cluster:
-    input: rules.combine_and_cluster.output
+def _seurat_dummy(wildcards):
+    if wildcards.sample == "combined":
+        return rules.combine_and_cluster.output
+    return rules.seurat_individual_sample.output
+
+    
+rule seurat_dummy:
+    input: _seurat_dummy
     output:
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/seurat.Robj',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/metadata.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/raw.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/normalized_read_counts.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/dispersion.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/var_genes.txt',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/scaled.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/principal_components_cell.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/principal_components_gene.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/principal_components_stdev.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/clusters.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/combined/tsne.tsv'
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/seurat.Robj',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/metadata.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/raw.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/normalized_read_counts.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/dispersion.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/var_genes.txt',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/scaled.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_cell.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_gene.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.4.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.6.tsv',
+        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.1.tsv',
     run:
         for fname in output:
             Path(fname).touch()
 
 
+
 rule table_to_feather:
     input: '{prefix}.tsv'
     output: '{prefix}.feather'
-    params: lambda wildcards: config['seurat_file_types'][Path(wildcards.prefix).stem]
+    params: lambda wildcards: config['seurat_file_types'][Path(wildcards.prefix).name]
     run:
         (pd.read_csv(input[0], sep='\t', index_col=0)
         .rename_axis(params[0])
