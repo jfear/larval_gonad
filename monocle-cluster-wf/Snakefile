@@ -1,36 +1,58 @@
+import yaml
+
 import pandas as pd
 
 configfile: 'config/config.yaml'
-
+common_config = yaml.load(open('../config/common.yaml', 'rb').read())
 
 rule targets:
     input:
-        ''
+        expand(
+            '../output/monocle-cluster-wf/{cellranger}/{cutoffs}/{sample}/monocle.html',
+            cellranger=config['cellranger'],
+            cutoffs=['test'],
+            sample=['testis1']
+        )
 
+
+def _monocle_sample(wildcards):
+    return expand(
+        config['data_pattern'][wildcards.cellranger],
+        sample=wildcards.sample,
+        assembly=common_config['assembly'],
+        tag=common_config['tag']
+    )
 
 rule monocle_2_clustering:
-    input: ''
-    output: ''
+    input: 
+        rmd = 'scripts/monocle_2_clustering.Rmd',
+        data = _monocle_sample
+    output: '../output/monocle-cluster-wf/{cellranger}/{cutoffs}/{sample}/monocle.html',
+    params:
+        rep = lambda wildcards: 'rep' + wildcards.sample.replace('testis', ''),
     conda: '../envs/monocle2.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 12
     script: 'scripts/monocle_2_clustering.Rmd'
 
 
-rule monocle_2_gene_driven_clustering:
-    input: ''
-    output: ''
-    conda: '../envs/monocle2.yaml'
-    script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
+# rule monocle_2_gene_driven_clustering:
+#     input: ''
+#     output: ''
+#     conda: '../envs/monocle2.yaml'
+#     script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
 
 
-rule monocle_2_garnett:
-    input: ''
-    output: ''
-    conda: '../envs/monocle2.yaml'
-    script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
+# rule monocle_2_garnett:
+#     input: ''
+#     output: ''
+#     conda: '../envs/monocle2.yaml'
+#     script: 'scripts/monocle_2_gene_driven_clustering.Rmd'
 
 
-rule monocle_3_clustering:
-    input: ''
-    output: ''
-    conda: '../envs/monocle3.yaml'
-    script: 'scripts/monocle_3_clustering.Rmd'
+# rule monocle_3_clustering:
+#     input: ''
+#     output: ''
+#     conda: '../envs/monocle3.yaml'
+#     script: 'scripts/monocle_3_clustering.Rmd'

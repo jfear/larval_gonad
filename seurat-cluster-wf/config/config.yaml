@@ -1,16 +1,16 @@
-data_pattern: 
+data_pattern:
   cellranger-wf: '../output/cellranger-wf/{sample}/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
   cellranger-force-wf: '../output/cellranger-force-wf/{sample}/outs/filtered_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
   cellranger3-wf: '../output/cellranger3-wf/{sample}/outs/filtered_feature_bc_matrix/matrix.mtx'
 
 cellranger:
-  - 'cellranger-wf'
+  #  - 'cellranger-wf'
   - 'cellranger-force-wf'
-  - 'cellranger3-wf'
+    #- 'cellranger3-wf'
 
-cutoffs: 
+cutoffs:
   - 'gl-200_gh-None_ul-None_uh-None'
-  - 'gl-200_gh-None_ul-None_uh-1e5'
+    #- 'gl-200_gh-None_ul-None_uh-1e5'
 
 resolutions:
   - 0.4
@@ -20,14 +20,10 @@ seurat_file_types:
   metadata: cell_id
   raw: FBgn
   normalized_read_counts: FBgn
-  dispersion: FBgn
   scaled: FBgn
-  principal_components_cell: cell_id
-  principal_components_gene: FBgn
-  principal_components_stdev: PC
   clusters: cell_id
-  tsne: cell_id 
-  biomarkers_res.0.4: FBgn 
-  biomarkers_res.0.6: FBgn 
-  biomarkers_res.1: FBgn 
+  tsne: cell_id
+  biomarkers_res.0.4: FBgn
+  biomarkers_res.0.6: FBgn
+  biomarkers_res.1: FBgn
   zscore: FBgn
