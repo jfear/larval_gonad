@@ -39,11 +39,7 @@ rule targets:
             cellranger=config['cellranger'],
             cutoffs=config['cutoffs'],
             sample=SAMPLES + ['combined',],
-            filetype=[
-                'metadata', 'raw', 'normalized_read_counts', 'dispersion', 'scaled',
-                'principal_components_cell', 'principal_components_gene', 'principal_components_stdev',
-                'clusters', 'tsne',
-            ]
+            filetype=['metadata', 'raw', 'normalized_read_counts', 'scaled', 'clusters', 'tsne']
         ),
 
         # Run DEG among clusters
@@ -147,12 +143,8 @@ rule seurat_to_tsv:
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/metadata.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/raw.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/normalized_read_counts.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/dispersion.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/var_genes.txt',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/scaled.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_cell.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_gene.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/principal_components_stdev.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/clusters.tsv',
         '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/tsne.tsv'
     resources:
