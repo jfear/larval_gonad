@@ -43,8 +43,16 @@ rule targets:
                 'metadata', 'raw', 'normalized_read_counts', 'dispersion', 'scaled',
                 'principal_components_cell', 'principal_components_gene', 'principal_components_stdev',
                 'clusters', 'tsne',
-                'biomarkers_res.0.4', 'biomarkers_res.0.6', 'biomarkers_res.1',
             ]
+        ),
+
+        # Run DEG among clusters
+        expand(
+            '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.{resolution}.feather',
+            cellranger=config['cellranger'],
+            cutoffs=config['cutoffs'],
+            sample=SAMPLES + ['combined',],
+            resolution=config['resolutions']
         ),
 
         # Calculate z-score from normalized data
@@ -98,7 +106,7 @@ rule seurat_individual_sample:
         umi_high = lambda wildcards: re.findall('.*uh-(.*)', wildcards.cutoffs)[0]
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 24
+        time_hr=lambda wildcards, attempt: attempt * 12
     script: 'scripts/cluster_individual_sample.Rmd'
 
 
@@ -122,8 +130,8 @@ rule combine_and_cluster:
         umi_low = lambda wildcards: re.findall('.*ul-(.*?)_.*', wildcards.cutoffs)[0],
         umi_high = lambda wildcards: re.findall('.*uh-(.*)', wildcards.cutoffs)[0]
     resources:
-        mem_gb=lambda wildcards, attempt: attempt * 32,
-        time_hr=lambda wildcards, attempt: attempt * 24
+        mem_gb=lambda wildcards, attempt: attempt * 24,
+        time_hr=lambda wildcards, attempt: attempt * 12
     script: 'scripts/combine_and_cluster.Rmd'
 
 
@@ -155,14 +163,10 @@ rule seurat_dump:
 
 rule seurat_biomarkers:
     input: _seurat_html
-    params: resolutions=config['resolutions']
-    output:
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.4.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.0.6.tsv',
-        '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.1.tsv'
+    output: '../output/seurat-cluster-wf/{cellranger}/{cutoffs}/{sample}/biomarkers_res.{resolution}.tsv',
     resources:
-        mem_gb=lambda wildcards, attempt: attempt * 32,
-        time_hr=lambda wildcards, attempt: attempt * 36
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 12
     script: 'scripts/findmarkers.R'
 
 
@@ -185,5 +189,5 @@ rule zscore:
     output: '{prefix}/zscore.tsv'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 8,
-        time_hr=lambda wildcards, attempt: attempt * 2
+        time_hr=lambda wildcards, attempt: attempt * 1
     script: 'scripts/zscore.py'
