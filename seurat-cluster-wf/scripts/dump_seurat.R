@@ -1,9 +1,13 @@
+library(Seurat)
 library(dplyr)
-source('../../lib/seurat.R')
+source('../lib/seurat.R')
 
-FNAME <- snakemake@input[[1]]
-OUTDIR <- dirname(FNAME)
+SAMPLE <- snakemake@wildcards[['sample']]
+WORKDIR <- dirname(snakemake@input[[1]])
+load(file.path(WORKDIR, 'seurat.Robj'))
 
-load(FNAME)
+if (SAMPLE == 'combined'){
+    sobj <- combined
+}
 
-dump_seurat(object, OUTDIR)
+dump_seurat(sobj, WORKDIR)

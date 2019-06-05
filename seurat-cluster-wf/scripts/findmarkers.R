@@ -1,8 +1,9 @@
 library(Seurat)
-source('../../lib/seurat.R')
+library(dplyr)
+source('../lib/seurat.R')
 
 # Get snakemake resources
-WORKDIR <- file.path('../', dirname(snakemake@input[[1]]))
+WORKDIR <- dirname(snakemake@input[[1]])
 RESOLUTIONS <- snakemake@params[['resolutions']]
 
 REFERENCES_DIR <- Sys.getenv('REFERENCES_DIR', '/data/LCDB/lcdb-references')
@@ -18,7 +19,6 @@ fbgn2gene <- read.table(
 
 # Load the Seurat Object
 load(file.path(WORKDIR, 'seurat.Robj'))
-sobj <- object
 
 # Run differential expression
 for (i in RESOLUTIONS){
