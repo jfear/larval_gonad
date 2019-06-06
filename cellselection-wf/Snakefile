@@ -31,4 +31,7 @@ rule dropletutils:
     input: _dropletutils
     output: '../output/{cellranger}/dropletutils/{sample}.html'
     conda: '../envs/dropletutils.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/dropletutils.Rmd'
