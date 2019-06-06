@@ -4,13 +4,13 @@ data_pattern:
   cellranger3-wf: '../output/cellranger3-wf/{sample}/outs/filtered_feature_bc_matrix/matrix.mtx'
 
 cellranger:
-  #  - 'cellranger-wf'
+  - 'cellranger-wf'
   - 'cellranger-force-wf'
-    #- 'cellranger3-wf'
+  - 'cellranger3-wf'
 
 cutoffs:
   - 'gl-200_gh-None_ul-None_uh-None'
-    #- 'gl-200_gh-None_ul-None_uh-1e5'
+  - 'gl-200_gh-None_ul-None_uh-1e5'
 
 resolutions:
   - 0.4
