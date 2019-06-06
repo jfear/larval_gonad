@@ -1,0 +1,34 @@
+"""This workflow aims to reconcile the differences among the cell ranger runs 
+and to identify which barcodes are indeed cells."""
+import yaml 
+
+import pandas as pd
+
+from snakemake.shell import shell
+
+configfile: 'config/config.yaml'
+common_config = yaml.load(open('../config/common.yaml', 'rb').read())
+ASSEMBLY = common_config['assembly']
+TAG = common_config['tag']
+
+SAMPLES = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0).index.tolist()
+
+rule targets:
+    input: 
+        expand('../output/{cellranger}/dropletutils/{sample}.html',
+            cellranger=config['cellranger'],
+            sample=SAMPLES
+        )
+
+def _dropletutils(wildcards):
+    return expand(config['data_pattern'][wildcards.cellranger],
+        sample=wildcards.sample,
+        assembly=ASSEMBLY,
+        tag=TAG
+    )
+
+rule dropletutils:
+    input: _dropletutils
+    output: '../output/{cellranger}/dropletutils/{sample}.html'
+    conda: '../envs/dropletutils.yaml'
+    script: 'scripts/dropletutils.Rmd'
