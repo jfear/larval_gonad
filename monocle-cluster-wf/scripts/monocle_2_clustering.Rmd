@@ -11,16 +11,16 @@ knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FA
                       fig.ext='png')
 ```
 
-```{r snakemake, include=FALSE, eval=TRUE}
+```{r snakemake, include=FALSE, eval=FALSE}
 SAMPLE <- snakemake@wildcards[['sample']]
 DATA_DIR <- file.path('../', dirname(snakemake@input[["data"]]))
 OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
 REP <- snakemake@params[['rep']]
 ```
 
-```{r debug, include=FALSE, eval=FALSE}
+```{r debug, include=FALSE, eval=TRUE}
 SAMPLE <- 'testis1'
-DATA_DIR <- '../../output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24'
+DATA_DIR <- '../../output/cellranger3-wf/testis1/outs/filtered_feature_bc_matrix'
 OUT_DIR <- '../../output/monocle-cluster-wf/cellranger-force-wf/test/testis1'
 REP <- 'rep1'
 ```
@@ -37,17 +37,139 @@ options(repr.plot.width=10, repr.plot.height=10)
 library('monocle')
 library('dplyr')
 library('gridExtra')
+library(yaml)
 ```
 
-```{r eval=FALSE}
-#read.table(file.path(REFERENCES_DIR, 'dmel/r6-24/fb_annotation/dmel_r6-24.fb_annotation'),  sep='\t',  stringsAsFactors = FALSE,  header = TRUE)
-genes <- read.table('/data/LCDB/lcdb-references/dmel/r6-24/fb_annotation/dmel_r6-24.fb_annotation',
-		    sep='\t',
-		    stringsAsFactors=F,
-		    header=T,
-		    quote=NULL,
-		    fill=TRUE,
-		    colClasses=c("character", "NULL", "character", rep("NULL", 6))
-		    )
+```{r load_cellranger_data}
+load.10x <- function(){
+    # Load flybase gene information
+    fbgn2symbol <- read.table(file.path(REFERENCES_DIR, 'dmel/r6-24/fb_annotation/dmel_r6-24.fb_annotation'),
+    		    sep='\t',
+    		    stringsAsFactors=F,
+    		    header=T,
+    		    quote=NULL,
+    		    fill=TRUE,
+    		    colClasses=c("character", "NULL", "character", rep("NULL", 6))
+    		    ) %>% 
+    	        distinct() %>%
+                rename(FBgn = primary_FBgn, gene_short_name = gene_symbol)
+    
+    # Load feature data
+    genes <- tibble(FBgn = read.table(file.path(DATA_DIR, 'genes.tsv'), stringsAsFactors = FALSE)[,1])
+    genes <- left_join(genes, fbgn2symbol) %>% tibble::column_to_rownames('FBgn')
+    
+    # Load cell sample data
+    cells <- tibble(cell_id = read.table(file.path(DATA_DIR, 'barcodes.tsv'), stringsAsFactors = FALSE)[,1])
+    cells$rep <- REP
+    cells$tissue <- 'testis'
+    cells <- cells %>% tibble::column_to_rownames('cell_id')
+    
+    # Load matrix
+    mtx <- readMM(file.path(DATA_DIR, 'matrix.mtx'))
+    colnames(mtx) <- row.names(cells)
+    rownames(mtx) <- row.names(genes)
+    
+    # Build CDS
+    fd <- new('AnnotatedDataFrame', data = genes)
+    pd <- new('AnnotatedDataFrame', data = cells)
+    cds <- newCellDataSet(mtx, phenoData = pd, featureData = fd, expressionFamily = negbinomial.size())
+    return(cds)
+}
+
+cds <- load.10x()
+cds <- estimateSizeFactors(cds)
+cds <- estimateDispersions(cds)
 ```
 
+
+```{r filter_low_quality}
+# Gene level filter
+cds <- detectGenes(cds, min_expr = 0.1)
+valid_genes <- row.names(subset(fData(cds), num_cells_expressed >= 3))
+valid_cells <- row.names(subset(pData(cds), num_genes_expressed >= 200))
+cds <- cds[valid_genes, valid_cells]
+pData(cds)$Total_UMI <- Matrix::colSums(exprs(cds))
+
+# UMI level filter
+valid_cells <- row.names(subset(pData(cds), Total_UMI <= 1e5))
+cds <- cds[,valid_cells]
+
+# Re-call genes
+cds <- detectGenes(cds, min_expr = 0.1)
+```
+
+
+```{r plot_standardized_counts}
+L <- log(exprs(cds))
+melted_dens_df <- reshape2::melt(Matrix::t(scale(Matrix::t(L))))
+qplot(value, geom = "density", data = melted_dens_df) +
+    stat_function(fun = dnorm, size = 0.5, color = 'red') +
+    xlab("Standardized log(FPKM)") +
+    ylab("Density")
+```
+
+
+```{r unsupervised_clustering}
+# ID what genes to use for clustering based on variability.
+dispersion_table <- dispersionTable(cds)
+unsup_clustering_genes <- subset(dispersion_table, mean_expression >= 0.1)
+cds <- setOrderingFilter(cds, unsup_clustering_genes$gene_id)
+plot_ordering_genes(cds)
+```
+
+```{r plot_pca_var_explained}
+plot_pc_variance_explained(cds, return_all = FALSE)
+```
+
+```{r}
+cds <- reduceDimension(cds, max_components = 2, num_dim = 6, reduction_method = 'tSNE', verbose = T)
+cds <- clusterCells(cds, num_clusters = 12)
+```
+
+
+```{r}
+plot_cell_clusters(cds, 1, 2)
+```
+
+```{r}
+lit_genes <- yaml.load_file('../../config/literature_genes.yaml')
+```
+
+## Spermatogonia
+```{r fig.width=20}
+markers <- fData(cds)[lit_genes$gonia,]$gene_short_name
+plot_cell_clusters(cds, 1, 2, marker=markers, option = 'B')
+```
+
+
+## Primary Spermatocytes
+```{r fig.width=20}
+markers <- fData(cds)[lit_genes$spermatocytes,]$gene_short_name
+plot_cell_clusters(cds, 1, 2, marker=markers, option = 'B')
+```
+
+## CySC
+```{r fig.width=20}
+markers <- fData(cds)[lit_genes$cysc,]$gene_short_name
+plot_cell_clusters(cds, 1, 2, marker=markers, option = 'B')
+```
+
+## Pigment Cells
+```{r fig.width=20}
+markers <- fData(cds)[lit_genes$pigment,]$gene_short_name
+plot_cell_clusters(cds, 1, 2, marker=markers, option = 'B')
+```
+
+
+## Terminal Epithelium
+```{r fig.width=20}
+markers <- fData(cds)[lit_genes$te,]$gene_short_name
+plot_cell_clusters(cds, 1, 2, marker=markers, option = 'B')
+```
+
+
+## Hub
+```{r fig.width=20}
+markers <- fData(cds)[lit_genes$hub,]$gene_short_name
+plot_cell_clusters(cds, 1, 2, marker=markers, option = 'B')
+```
