@@ -19,8 +19,8 @@ theme_set(theme_bw())
 ```
 
 ```{r snakemake, include=FALSE, eval=TRUE}
-DATA_DIR <- dirname(snakemake@input[[1]])
-OUTDIR <- dirname(snakemake@output[[1]])
+DATA_DIR <- file.path('../', dirname(snakemake@input[[1]]))
+OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
 SAMPLE <- snakemake@wildcards[['sample']]
 REP <- paste0('rep', gsub('.*(\\d)', '\\1', SAMPLE), '_')
 ```
