@@ -1,7 +1,7 @@
 data_pattern:
-  cellranger-wf: '../output/cellranger-wf/{sample}/outs/raw_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
-  cellranger-force-wf: '../output/cellranger-force-wf/{sample}/outs/raw_gene_bc_matrices/{assembly}{tag}/matrix.mtx'
-  cellranger3-wf: '../output/cellranger3-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx'
+  cellranger-wf: '../output/cellranger-wf/{sample}/outs/{stage}_gene_bc_matrices/{assembly}{tag}/barcodes.tsv'
+  cellranger-force-wf: '../output/cellranger-force-wf/{sample}/outs/{stage}_gene_bc_matrices/{assembly}{tag}/barcodes.tsv'
+  cellranger3-wf: '../output/cellranger3-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv'
 
 cellranger:
   - 'cellranger-wf'
