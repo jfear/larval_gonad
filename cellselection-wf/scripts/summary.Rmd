@@ -7,8 +7,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
-                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE, dev=c('png', 'svg'), fig.path='figures/')
+knitr::opts_chunk$set(
+    collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
+    bootstrap.show.code=FALSE, bootstrap.show.output=FALSE, 
+    dev=c('png', 'svg'), fig.path='figures/'
+)
 ```
 
 
@@ -28,21 +31,20 @@ NAMES <- snakemake@params
 SAMPLE <- snakemake@wildcards[['sample']]
 ```
 
-
 ```{r debug, include=FALSE, eval=TRUE}
 RAW <- c(
-    '../../output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/barcodes.tsv',
-    '../../output/cellranger-force-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/barcodes.tsv',
-    '../../output/cellranger3-wf/testis1/outs/raw_feature_bc_matrix/barcodes.tsv'
+    '../output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger-force-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger3-wf/testis1/outs/raw_feature_bc_matrix/barcodes.tsv'
 )
 
 FILTERED <- c(
-    '../../output/cellranger-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24/barcodes.tsv',
-    '../../output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24/barcodes.tsv',
-    '../../output/cellranger3-wf/testis1/outs/filtered_feature_bc_matrix/barcodes.tsv'
+    '../output/cellranger-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger3-wf/testis1/outs/filtered_feature_bc_matrix/barcodes.tsv'
 )
 
-DROPUTILS <- '../../output/cellranger-wf/dropletutils/testis1_cell_metadta.feather'
+DROPUTILS <- '../output/cellranger-wf/dropletutils/testis1_cell_metadta.feather'
 NAMES <- c('cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf')
 SAMPLE <- 'testis1'
 ```
@@ -52,18 +54,18 @@ get_10x <- function(raw, filtered, name){
     rep <- paste0('rep', gsub('.*(\\d)', '\\1', SAMPLE))
     
     # read in the raw data to get call GEMs
-    df <- read.table(raw, stringsAsFactors = F, col.names = 'barcodes')
+    df <- read.table(file.path('..', raw), stringsAsFactors = F, col.names = 'barcodes')
     df$cell_id <- gsub('(\\w+)-1', paste(rep, '\\1', sep='_'), df$barcodes)
     df[name] <- 0
     
     # Flag cells in filtered data
-    barcodes <- read.table(filtered,  stringsAsFactors = F)[,1]
+    barcodes <- read.table(file.path('..', filtered),  stringsAsFactors = F)[,1]
     df[df$barcodes %in% barcodes, name] <- 1
     return(df %>% select('cell_id', name))
 }
 
 get_drop <- function(fname){
-    df <- read_feather(fname) %>% 
+    df <- read_feather(file.path('..', fname)) %>% 
         rename(droputils = is_cell) %>% 
         select(cell_id, droputils) %>%
         mutate(droputils = as.integer(droputils))

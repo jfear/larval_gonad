@@ -7,7 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
-                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE)
+                      bootstrap.show.code=FALSE, bootstrap.show.output=FALSE, dev=c('png', 'svg'), 
+                      fig.path='figures/', fig.width=8)
 ```
 
 ```{r load_library}
@@ -19,8 +20,8 @@ theme_set(theme_bw())
 ```
 
 ```{r snakemake, include=FALSE, eval=TRUE}
-DATA_DIR <- file.path('../', dirname(snakemake@input[[1]]))
-OUTDIR <- file.path('../', dirname(snakemake@output[[1]]))
+DATA_DIR <- file.path('..', dirname(snakemake@input[[1]]))
+OUTDIR <- file.path('..', dirname(snakemake@output[[1]]))
 SAMPLE <- snakemake@wildcards[['sample']]
 REP <- paste0('rep', gsub('.*(\\d)', '\\1', SAMPLE), '_')
 ```
@@ -58,19 +59,17 @@ is_cell[is.na(is_cell)] <- FALSE
 table(Limited = empty_drops$Limited, Signifcant = is_cell)
 ```
 
-```{r fig.width=12}
+```{r plot_pval}
 ggplot(as.data.frame(empty_drops), aes(x = Total, y = -LogProb, color=is_cell)) + 
     geom_point() +
     scale_color_manual(values = c('lightgray', 'black')) + 
     labs(x = 'Total UMI', y = '-Log P-Value', title = SAMPLE) +
     scale_x_log10() + 
     scale_y_log10()
-
-ggsave(file.path(OUTDIR, paste0(SAMPLE, '_pval.png')))
 ```
 
-
-```{r}
+# Output Cell Selection Calls
+```{r call_cells}
 df <- as.data.frame(barcode_rank)
 df$is_cell <- is_cell
 df$barcode <- tenX@colData$Barcode
@@ -80,8 +79,7 @@ write_feather(df, file.path(OUTDIR, paste0(SAMPLE, '_cell_metadta.feather')))
 write.table(df, file = file.path(OUTDIR, paste0(SAMPLE, '_cell_metadta.tsv')), sep = '\t', quote = FALSE, row.names = FALSE)
 ```
 
-
-```{r fig.width=12}
+```{r plot_bc_rank}
 ggplot(df, aes(x=rank, y=total, color=is_cell)) + 
     geom_point() + 
     scale_x_log10() + 
@@ -91,5 +89,4 @@ ggplot(df, aes(x=rank, y=total, color=is_cell)) +
     geom_hline(yintercept = barcode_rank$inflection, linetype = 2, color = "forestgreen") + 
     scale_color_manual(values = c('lightgray', 'black')) +
     labs(x = "Ranks", y = "Total UMI", title = paste0(SAMPLE, ' (DropletUtils)'))
-ggsave(file.path(OUTDIR, paste0(SAMPLE, '_bc_rank.png')))
 ```

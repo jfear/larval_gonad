@@ -1,6 +1,8 @@
 """This workflow aims to reconcile the differences among the cell ranger runs 
 and to identify which barcodes are indeed cells."""
 import yaml 
+from itertools import chain
+from pathlib import Path
 
 import pandas as pd
 
@@ -17,21 +19,23 @@ localrules: unzip_cellranger3
 
 rule targets:
     input: 
-        expand('../output/{cellranger}/dropletutils/{sample}.html',
-            cellranger=config['cellranger'],
-            sample=SAMPLES
+        expand('../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather',
+            sample=SAMPLES[1]
+        ),
+        expand('../output/cellselection-wf/{sample}_combined_cell_calls.feather',
+            sample=SAMPLES[1]
         )
 
 
 rule unzip_cellranger3:
     input:
-        barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv') + '.gz',
+        barcodes = config['data_pattern']['cellranger3-wf'] + '.gz',
         features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'features.tsv') + '.gz',
-        matrix = config['data_pattern']['cellranger3-wf'] + '.gz'
+        matrix = config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'matrix.mtx') + '.gz'
     output:
-        barcodes = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'barcodes.tsv'),
-        features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'genes.tsv'),
-        matrix = config['data_pattern']['cellranger3-wf']
+        barcodes = config['data_pattern']['cellranger3-wf'],
+        features = config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'genes.tsv'),
+        matrix = config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'matrix.mtx')
     shell:"""
         gunzip -c {input.barcodes} > {output.barcodes} && \
         gunzip -c {input.features} > {output.features} && \
@@ -40,17 +44,52 @@ rule unzip_cellranger3:
 
 
 def _dropletutils(wildcards):
-    return expand(config['data_pattern'][wildcards.cellranger],
+    return expand(config['data_pattern'][config['cellranger'][0]],
         sample=wildcards.sample,
         assembly=ASSEMBLY,
-        tag=TAG
+        tag=TAG,
+        stage='raw'
     )
 
 rule dropletutils:
     input: _dropletutils
-    output: '../output/{cellranger}/dropletutils/{sample}.html'
+    output: 
+        pval_plot = '../output/cellselection-wf/dropletutils/{sample}_pval.svg',
+        barcode_rank = '../output/cellselection-wf/dropletutils/{sample}_bc_rank.svg',
+        cell_calls = '../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather'
     conda: '../envs/dropletutils.yaml'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: 'scripts/dropletutils.Rmd'
+    script: 'scripts/dropletutils.R'
+
+
+def _summary(wildcards, stage):
+    res = []
+    for k, v in config['data_pattern'].items():
+        res.extend(expand(v, sample=wildcards.sample, assembly=ASSEMBLY, tag=TAG, stage=stage))
+    return res
+
+
+def _summary_raw(wildcards):
+    return _summary(wildcards, 'raw')
+
+
+def _summary_filtered(wildcards):
+    return _summary(wildcards, 'filtered')
+
+
+rule summary:
+    input:
+        raw = _summary_raw,
+        filtered = _summary_filtered,
+        droputils = rules.dropletutils.output.cell_calls
+    output: 
+        cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
+        upset_plot = '../output/cellselection-wf/{sample}_combined_upset.svg'
+    params: config['data_pattern'].keys()
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: 'scripts/summary.R'
+    
