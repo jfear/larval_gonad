@@ -13,6 +13,8 @@ TAG = common_config['tag']
 
 SAMPLES = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0).index.tolist()
 
+localrules: unzip_cellranger3
+
 rule targets:
     input: 
         expand('../output/{cellranger}/dropletutils/{sample}.html',
