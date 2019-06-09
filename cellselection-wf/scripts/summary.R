@@ -10,7 +10,7 @@ DROPUTILS <- snakemake@input[["droputils"]]      # droputils feather file
 CALLS <- snakemake@output[["cell_calls"]]       # Output a table of cell calls
 SVG <- snakemake@output[["upset_plot"]]       # Output an upset plot
 
-NAMES <- snakemake@params           # Names of different cell ranger runs
+NAMES <- snakemake@params[[1]]           # Names of different cell ranger runs
 SAMPLE <- snakemake@wildcards[["sample"]]       # Name of the sample
 
 # Helper functions
@@ -51,9 +51,8 @@ drops <- get_drop(DROPUTILS)
 
 # Merge calls and remove always empty GEMs
 df <- full_join(tenx, drops, by = c("cell_id")) %>%
-    tibble::column_to_rownames("cell_id") %>%
-    subset(rowSums(.) > 0) %>%
-    tibble::rownames_to_column("cell_id")
+    filter(rowSums(.[2:ncol(.)]) > 0)
+
 write_feather(df, CALLS)
 
 svg(SVG)

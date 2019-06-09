@@ -20,10 +20,10 @@ localrules: unzip_cellranger3
 rule targets:
     input: 
         expand('../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather',
-            sample=SAMPLES[1]
+            sample=SAMPLES
         ),
         expand('../output/cellselection-wf/{sample}_combined_cell_calls.feather',
-            sample=SAMPLES[1]
+            sample=SAMPLES
         )
 
 
