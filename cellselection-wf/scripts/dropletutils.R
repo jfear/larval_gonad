@@ -40,7 +40,7 @@ ggsave(PVAL_PLOT)
 df <- as.data.frame(barcode_rank)
 df$is_cell <- is_cell
 df$barcode <- tenx@colData$Barcode
-df$cell_id <- gsub("(.*?)-1", paste0(REP, "\\1"), df$barcode)
+df$cell_id <- gsub("(.*?)-1", paste0(REP, "_\\1"), df$barcode)
 df <- df %>% select(cell_id, barcode, everything())
 write_feather(df, CELL_CALLS)
 
