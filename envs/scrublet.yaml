@@ -1,0 +1,18 @@
+channels:
+- conda-forge
+- bioconda
+- defaults
+dependencies:
+- python=3.6
+- numpy
+- scipy
+- pandas
+- feather-format
+- scikit-learn
+- scikit-image
+- numba
+- umap-learn
+- cython
+- python-annoy
+- pip:
+    - scrublet=0.2
