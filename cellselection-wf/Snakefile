@@ -143,5 +143,7 @@ rule scrublet:
             sample=wildcards.sample
         ),
     output: 'output/cellselection/{sample}_scrublet_dublets.txt'
+    params: 
+        threshold = 0.25
     conda: '../envs/scrublet.yaml'
     script: 'scripts/scrublet.py'
