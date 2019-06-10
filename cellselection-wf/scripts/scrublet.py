@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.io 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 import scrublet as scr
 
@@ -28,7 +29,7 @@ def main():
     cell_index = np.in1d(cells, filtered_cells)
 
     # Import raw counts matrix removing empty cells
-    counts_matrix = scipy.io.mmread(mtx)[:, cells].tocsc()[:, cells].T
+    counts_matrix = scipy.io.mmread(mtx).tocsc()[:, cell_index].T
 
     # Run scrublet
     scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.06)
@@ -43,19 +44,19 @@ def main():
     # Plot distribution to check threshold
     scrub.plot_histogram()
     fig = plt.gcf()
-    fig.savefig(HIST)
+    fig.savefig(HIST, dpi=300)
 
     # Plot tSNE embedding
     scrub.set_embedding('tSNE', scr.get_tsne(scrub.manifold_obs_, perplexity=30))
     scrub.plot_embedding('tSNE', order_points=True)
     fig = plt.gcf()
-    fig.savefig(TSNE)
+    fig.savefig(TSNE, dpi=300)
     
     # Plot UMAP embedding
     scrub.set_embedding('UMAP', scr.get_umap(scrub.manifold_obs_, 10, min_dist=0.3))
     scrub.plot_embedding('UMAP', order_points=True)
     fig = plt.gcf()
-    fig.savefig(UMAP)
+    fig.savefig(UMAP, dpi=300)
 
 
 if __name__ == '__main__':

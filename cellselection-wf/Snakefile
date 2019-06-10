@@ -41,8 +41,8 @@ rule targets:
         expand('../output/cellselection-wf/{sample}_combined_cell_calls.feather',
             sample=SAMPLES
         ),
-        expand('output/cellselection/{sample}_scrublet_dublets.txt',
-            sample=SAMPLES[0]
+        expand('../output/cellselection-wf/{sample}_scrublet_dublets.txt',
+            sample=SAMPLES
         )
 
 
@@ -130,19 +130,23 @@ rule scrublet:
             assembly=ASSEMBLY, 
             tag=TAG, 
             sample=wildcards.sample
-        ),
+        )[0],
         mtx = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
             stage='raw', 
             assembly=ASSEMBLY, 
             tag=TAG, 
             sample=wildcards.sample
-        ),
+        )[0],
         cell_calls = lambda wildcards: expand(
             '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
             sample=wildcards.sample
-        ),
-    output: 'output/cellselection/{sample}_scrublet_dublets.txt'
+        )[0],
+    output: 
+        doublets = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
+        histogram = '../output/cellselection-wf/{sample}_scrublet_histogram.png',
+        umap = '../output/cellselection-wf/{sample}_scrublet_umap.png',
+        tsne = '../output/cellselection-wf/{sample}_scrublet_tsne.png',
     params: 
         threshold = 0.25
     conda: '../envs/scrublet.yaml'
