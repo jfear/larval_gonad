@@ -19,11 +19,30 @@ localrules: unzip_cellranger3
 
 rule targets:
     input: 
+        expand(config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
+            stage=['raw', 'filtered'],
+            assembly=ASSEMBLY,
+            tag=TAG,
+            sample=SAMPLES
+        ),
+        expand(config['data_pattern']['cellranger-force-wf'].replace('barcodes', 'cell_ids'),
+            stage=['raw', 'filtered'],
+            assembly=ASSEMBLY,
+            tag=TAG,
+            sample=SAMPLES
+        ),
+        expand(config['data_pattern']['cellranger3-wf'].replace('barcodes', 'cell_ids'),
+            stage=['raw', 'filtered'],
+            sample=SAMPLES
+        ),
         expand('../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather',
             sample=SAMPLES
         ),
         expand('../output/cellselection-wf/{sample}_combined_cell_calls.feather',
             sample=SAMPLES
+        ),
+        expand('output/cellselection/{sample}_scrublet_dublets.txt',
+            sample=SAMPLES[0]
         )
 
 
@@ -43,6 +62,14 @@ rule unzip_cellranger3:
     """
 
 
+rule barcode_to_cellid:
+    input: '{prefix}/barcodes.tsv'
+    output: '{prefix}/cell_ids.tsv'
+    params: 
+        sample = lambda wildcards: re.search('testis\d', wildcards.prefix)[0]
+    script: 'scripts/barcode_to_cellid.py'
+
+
 def _dropletutils(wildcards):
     return expand(config['data_pattern'][config['cellranger'][0]],
         sample=wildcards.sample,
@@ -51,11 +78,12 @@ def _dropletutils(wildcards):
         stage='raw'
     )
 
+
 rule dropletutils:
     input: _dropletutils
     output: 
-        pval_plot = '../output/cellselection-wf/dropletutils/{sample}_pval.svg',
-        barcode_rank = '../output/cellselection-wf/dropletutils/{sample}_bc_rank.svg',
+        pval_plot = '../output/cellselection-wf/dropletutils/{sample}_pval.png',
+        barcode_rank = '../output/cellselection-wf/dropletutils/{sample}_bc_rank.png',
         cell_calls = '../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather'
     conda: '../envs/dropletutils.yaml'
     resources:
@@ -93,3 +121,27 @@ rule summary:
         time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/summary.R'
     
+
+rule scrublet:
+    input: 
+        cell_ids = lambda wildcards: expand(
+            config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
+            stage='raw', 
+            assembly=ASSEMBLY, 
+            tag=TAG, 
+            sample=wildcards.sample
+        ),
+        mtx = lambda wildcards: expand(
+            config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+            stage='raw', 
+            assembly=ASSEMBLY, 
+            tag=TAG, 
+            sample=wildcards.sample
+        ),
+        cell_calls = lambda wildcards: expand(
+            '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
+            sample=wildcards.sample
+        ),
+    output: 'output/cellselection/{sample}_scrublet_dublets.txt'
+    conda: '../envs/scrublet.yaml'
+    script: 'scripts/scrublet.py'

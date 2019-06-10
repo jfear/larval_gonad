@@ -15,4 +15,4 @@ dependencies:
 - cython
 - python-annoy
 - pip:
-    - scrublet=0.2
+    - scrublet==0.2

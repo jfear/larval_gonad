@@ -24,7 +24,7 @@ is_cell <- empty_drops$FDR <= 0.01
 is_cell[is.na(is_cell)] <- FALSE
 
 # Plot pval
-ggplot(
+g <- ggplot(
     as.data.frame(empty_drops),
     aes(x = Total, y = -LogProb, color = is_cell)
 ) +
@@ -34,7 +34,7 @@ ggplot(
     scale_x_log10() +
     scale_y_log10()
 
-ggsave(PVAL_PLOT)
+ggsave(PVAL_PLOT, plot = g, width = 8, dpi = 300)
 
 # Output Cell Selection Calls
 df <- as.data.frame(barcode_rank)
@@ -45,7 +45,7 @@ df <- df %>% select(cell_id, barcode, everything())
 write_feather(df, CELL_CALLS)
 
 # plot barcod rank
-ggplot(df, aes(x = rank, y = total, color = is_cell)) +
+g <- ggplot(df, aes(x = rank, y = total, color = is_cell)) +
     geom_point() +
     scale_x_log10() +
     scale_y_log10() +
@@ -63,4 +63,4 @@ ggplot(df, aes(x = rank, y = total, color = is_cell)) +
         x = "Ranks", y = "Total UMI",
         title = paste0(SAMPLE, " (DropletUtils)")
     )
-ggsave(BC_RANK_PLOT)
+ggsave(BC_RANK_PLOT, plot = g, width = 8, dpi = 300)

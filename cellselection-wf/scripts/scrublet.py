@@ -2,7 +2,7 @@ import numpy as np
 import scipy.io 
 import scrublet as scr
 
-barcodes = snakemake.input.barcodes
+cell_ids = snakemake.input.cell_ids # '../output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/cell_ids.tsv'
 mtx = snakemake.input.mtx
 cell_calls = snakemake.input.cell_calls
 
@@ -15,16 +15,17 @@ def main():
 
 
 def get_cell_calls():
-
-    # read barcodes file
+    # read cell_id file
+    with open(cell_ids) as fh:
+        ids = fh.read().strip().split('\n')
 
     # read cell_calls file
+    pd.read_feather(cell_calls)
 
     # Create a bool array of cells with 
     flag_cells = []
 
     return flag_cells
-
 
 
 if __name__ == '__main__':
