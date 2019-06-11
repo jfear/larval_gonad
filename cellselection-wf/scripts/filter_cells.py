@@ -9,7 +9,7 @@ genes = snakemake.input.genes
 mtx = snakemake.input.mtx
 fbgn_annotation = snakemake.input.fbgn_annotation
 
-cell_ids_out = snakemake.output.cell_ids
+barcodes = snakemake.output.barcodes
 genes_out = snakemake.output.genes
 mtx_out = snakemake.output.mtx
 
@@ -18,7 +18,7 @@ def main():
     # Remove bad cells from cell ids.
     idx = get_cell_id_index()
     ids = _read_text(cell_ids)[idx]
-    with open(cell_ids_out, 'w') as fout:
+    with open(barcodes, 'w') as fout:
         fout.write('\n'.join(ids))
 
     # Remove bad cells from matrix

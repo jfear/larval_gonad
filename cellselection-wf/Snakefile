@@ -190,7 +190,7 @@ rule save_filtered_cell_matrix:
             expand('{assembly}/{tag}/fb_annotation/{assembly}_{tag}.fb_annotation', assembly=ASSEMBLY, tag=TAG)[0]
         ).as_posix()
     output:
-        cell_ids = '../output/cellselection-wf/{sample}/cell_ids.tsv',
+        cell_ids = '../output/cellselection-wf/{sample}/barcodes.tsv',
         genes = '../output/cellselection-wf/{sample}/genes.tsv',
         mtx = '../output/cellselection-wf/{sample}/matrix.mtx'
     resources:
