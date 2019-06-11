@@ -1,5 +1,6 @@
 """This workflow aims to reconcile the differences among the cell ranger runs 
 and to identify which barcodes are indeed cells."""
+import os
 import yaml 
 from itertools import chain
 from pathlib import Path
@@ -42,6 +43,9 @@ rule targets:
             sample=SAMPLES
         ),
         expand('../output/cellselection-wf/{sample}_scrublet_dublets.txt',
+            sample=SAMPLES
+        ),
+        expand('../output/cellselection-wf/{sample}/matrix.mtx',
             sample=SAMPLES
         )
 
@@ -151,3 +155,40 @@ rule scrublet:
         threshold = 0.25
     conda: '../envs/scrublet.yaml'
     script: 'scripts/scrublet.py'
+
+
+rule save_filtered_cell_matrix:
+    input: 
+        scrublet = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
+        cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
+        barcodes = lambda wildcards: expand(
+            config['data_pattern']['cellranger-wf'],
+            stage='raw', 
+            assembly=ASSEMBLY, 
+            tag=TAG, 
+            sample=wildcards.sample
+        )[0],
+        genes = lambda wildcards: expand(
+            config['data_pattern']['cellranger-wf'].replace('barcodes', 'genes'),
+            stage='raw', 
+            assembly=ASSEMBLY, 
+            tag=TAG, 
+            sample=wildcards.sample
+        )[0],
+        mtx = lambda wildcards: expand(
+            config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+            stage='raw', 
+            assembly=ASSEMBLY, 
+            tag=TAG, 
+            sample=wildcards.sample
+        )[0],
+        fbgn_annotation = Path(
+            os.getenv('REFERENCES_DIR', '../lcdb-references'), 
+            expand('{assembly}/{tag}/fb_annotation/{assembly}_{tag}.fb_annotation', assembly=ASSEMBLY, tag=TAG)[0]
+        ).as_posix()
+    output:
+        cell_ids = '../output/cellselection-wf/{sample}/cell_ids.tsv',
+        genes = '../output/cellselection-wf/{sample}/genes.tsv',
+        mtx = '../output/cellselection-wf/{sample}/matrix.mtx'
+    script: 'scripts/filter_cells.py'
+    
