@@ -154,6 +154,9 @@ rule scrublet:
     params: 
         threshold = 0.25
     conda: '../envs/scrublet.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/scrublet.py'
 
 
@@ -190,5 +193,8 @@ rule save_filtered_cell_matrix:
         cell_ids = '../output/cellselection-wf/{sample}/cell_ids.tsv',
         genes = '../output/cellselection-wf/{sample}/genes.tsv',
         mtx = '../output/cellselection-wf/{sample}/matrix.mtx'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/filter_cells.py'
     
