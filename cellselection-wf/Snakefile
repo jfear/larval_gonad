@@ -164,8 +164,8 @@ rule save_filtered_cell_matrix:
     input: 
         scrublet = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
         cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
-        barcodes = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'],
+        cell_ids = lambda wildcards: expand(
+            config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
             stage='raw', 
             assembly=ASSEMBLY, 
             tag=TAG, 
