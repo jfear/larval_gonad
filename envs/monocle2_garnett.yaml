@@ -3,8 +3,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - r-essentials
+  - r-essentials=3.6.0
   - bioconductor-monocle=2.10.0
-  - bioconductor-delayedarray
-  - bioconductor-delayedmatrixstats
-  - bioconductor-org.dm.eg.db
+  - bioconductor-delayedarray=0.8.0
+  - bioconductor-delayedmatrixstats=1.4.0
+  - bioconductor-org.dm.eg.db=3.7.0

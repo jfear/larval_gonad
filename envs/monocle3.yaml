@@ -1,9 +1,8 @@
 channels:
   - conda-forge
   - bioconda
-  - defaults
-dependencies:
-  - r-essentials
+  - r-essentials=3.6.0
   - bioconductor-monocle=2.10.0 # Note this will get updated to moncocle 3 alpha in the script
-  - umap-learn
-  - louvain
+  - umap-learn=0.3.9
+  - louvain=0.6.1
+
