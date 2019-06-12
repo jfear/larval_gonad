@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from yaml import load
+import yaml
 
 from joblib import Memory
 
@@ -13,7 +13,7 @@ def read_config(fname, keepers=None):
 
     """
     with open(fname, 'r') as fh:
-        c = load(fh)
+        c = yaml.full_load(fh)
 
     if keepers is None:
         return c
