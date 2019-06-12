@@ -7,7 +7,7 @@ cell_calls = snakemake.input.cell_calls
 cell_ids = snakemake.input.cell_ids
 genes = snakemake.input.genes
 mtx = snakemake.input.mtx
-fbgn_annotation = snakemake.input.fbgn_annotation
+fbgn2symbol_ = snakemake.input.fbgn2symbol
 
 barcodes = snakemake.output.barcodes
 genes_out = snakemake.output.genes
@@ -26,16 +26,13 @@ def main():
     scipy.io.mmwrite(mtx_out, mm)
 
     # Add gene symbol
-    fbgn2symbol = (pd.read_csv(fbgn_annotation, sep='\t')
-        .loc[:, ['primary_FBgn', 'gene_symbol']]
-        .set_index('primary_FBgn')
-        .rename_axis('FBgn')
-        .drop_duplicates()
+    fbgn2symbol = (pd.read_feather(fbgn2symbol_)
+        .set_index('FBgn')
     )
 
     (pd.read_csv(genes, sep='\t', header=None, index_col=0)
         .rename_axis('FBgn')
-        .join(fbgn2symbol)
+        .join(fbgn2symbol, how='left')
         .gene_symbol
         .reset_index()
         .to_csv(genes_out, sep='\t', index=None, header=None)

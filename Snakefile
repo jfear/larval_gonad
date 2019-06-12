@@ -38,7 +38,7 @@ rule fbgn2symbol_feather:
     input: rules.fbgn2symbol.output[0]
     output: 'references/fbgn2symbol-{assembly}-all-{tag}.feather'
     run:
-        df = pd.read_csv(input[0], sep='\t').sort_values('FBgn').reset_index(drop=True)
+        df = pd.read_csv(input[0], sep='\t', keep_default_na=False, na_values=['99999999999']).sort_values('FBgn').reset_index(drop=True)
         df.to_feather(output[0])
 
 
