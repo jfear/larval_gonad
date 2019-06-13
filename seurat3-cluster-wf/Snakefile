@@ -1,0 +1,18 @@
+from pathlib import Path
+from larval_gonad.config import read_config
+
+commong_config = read_config('../config/common.yaml')
+ASSEMBLY = commong_config['assembly']
+TAG = commong_config['tag']
+
+rule targets:
+    input: 
+        '../output/seurat3-cluster-wf/testis1_individual.html'
+
+rule testis1:
+    input:
+        rmd = 'scripts/testis1_individual.Rmd'
+    output: 
+        html = '../output/seurat3-cluster-wf/testis1_individual.html',
+    conda: '../envs/seurat3.yaml'
+    script: 'scripts/rscript.py'
