@@ -185,7 +185,7 @@ rule save_filtered_cell_matrix:
             tag=TAG, 
             sample=wildcards.sample
         )[0],
-        fbgn2symbol = '../references/fbgn2symbol-dmel-all-r6-24.feather'
+        gene_annotation = expand('../references/gene_annotation_{assembly}_{tag}.feather', assembly=ASSEMBLY, tag=TAG)[0]
     output:
         barcodes = '../output/cellselection-wf/{sample}/barcodes.tsv',
         genes = '../output/cellselection-wf/{sample}/genes.tsv',
