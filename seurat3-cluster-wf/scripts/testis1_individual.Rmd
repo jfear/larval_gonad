@@ -4,6 +4,7 @@ author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 output: 
     html_document:
+        self_contained: TRUE
         keep_md: TRUE
 ---
 
@@ -29,21 +30,23 @@ set.seed(42)
 
 ```{r globals}
 SAMPLE <- 'testis1'
-DATA_DIR <- '../../output/cellselection-wf/testis1'
-GENE_ANNOTATION <-  '../../references/gene_annotation_dmel_r6-24.feather'
-OUTDIR <- '../../output/seurat3-cluster-wf'
+PROJ_DIR <- '/home/fearjm/Projects/larval_gonad'
+DATA_DIR <- file.path(PROJ_DIR, 'output/cellselection-wf/testis1')
+OUTDIR <- file.path(PROJ_DIR, 'output/seurat3-cluster-wf')
+
+GENE_ANNOTATION <- file.path(PROJ_DIR, 'references/gene_annotation_dmel_r6-24.feather')
+LITERATURE_GENES <- file.path(PROJ_DIR, 'config/literature_genes.yaml')
 ```
 
 ```{r load_gene_annotations}
 fbgn2symbol <- feather::read_feather(
-    '../../references/gene_annotation_dmel_r6-24.feather',
+    GENE_ANNOTATION,
     columns = c("FBgn", "gene_symbol")
 )
 ```
 
 Here I explore clustering `r SAMPLE` using Seurat v3. This document will walk through the clustering process and highlights different decision points.
 
-### Load 10X Data
 ```{r load_10x_data}
 tenX.data <- Read10X(data.dir = DATA_DIR, gene.column = 2)
 sobj <- CreateSeuratObject(
@@ -54,9 +57,16 @@ sobj <- CreateSeuratObject(
 )
 ```
 
-#### Basic QC 
+## Quality Control and Filtering
 
-For basic QC we look at the number of counts and the representation of mitochondrial genes. This will give us an idea of what cells to filter before analysis.
+First I identify additional cells to remove prior to analysis.
+In particular, I want to remove GEMs that are possibly homotypic doublets as well as dead or dying cells.
+Homotypic doublets will have abnormally high gene/UMI content.
+Apoptotic cells will likely have high mitochondrial gene expression.
+I also look for cells with high rRNA expression which may have had bad poly(A) selection.
+However, both high RNA content and mitochondrial expression could be functionally important in germline development.
+I would like to remove problematic cells, but not be too stringent to remove real signal.
+
 ```{r estimate_mito_content}
 sobj[["percent.mt"]] <- PercentageFeatureSet(sobj, pattern = "^mt:")
 ```
@@ -65,41 +75,55 @@ sobj[["percent.mt"]] <- PercentageFeatureSet(sobj, pattern = "^mt:")
 sobj[["percent.ribo"]] <- PercentageFeatureSet(sobj, pattern = ".*rRNA")
 ```
 
-```{r dist_basic_cnts}
+```{r dist_basic_cnts, include=TRUE}
 VlnPlot(sobj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt", "percent.ribo"), pt.size = .1, ncol = 4)
 ```
-* `nFeature_RNA` is the number of expressed genes per cell
-* `nCount_RNA` is the total UMI per cell
-* `percent.mt` is the proportion of expressed genes that are mitochondrial. 
-* `percent.ribo` is the proportion of expressed genes that are rRNA
 
-Extremely high number of expressed genes (or UMI) are indicative of homeotypic doublets, and these cells should be removed. 
-High levels of mitochondrial expression are indicative of stress and cell death and are typically removed. 
-However, mitochondria play an important role during spermatogenesis and may not indicate a problem. 
-The rRNA is relatively low at less than 4%.
-
-```{r scatter_basic_cnts, fig.width=12}
+```{r scatter_basic_cnts, fig.width=12, include=TRUE}
 p1 <- FeatureScatter(sobj, feature1 = "nCount_RNA", feature2 = "percent.mt") + scale_x_log10() + xlab("UMI")
 p2 <- FeatureScatter(sobj, feature1 = "nCount_RNA", feature2 = "percent.ribo") + scale_x_log10() + xlab("UMI")
 p3 <- FeatureScatter(sobj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") + scale_x_log10() + xlab("UMI") + ylab("Number Genes")
 CombinePlots(plots = list(p1, p2, p3), ncol = 3)
 ```
 
-We can see that in general there is a popultion of cells with really high mitochondrial expression (>40) that may be problematic.
-Also there are a number of cells with more than 4,000 genes expressed that look to be `~5e+05` and maybe doublets.
+To identify problematic cells I plot several key features.
 
-Based on these plots I am going to keep cells that:
-* 200 < Number of Genes < 4,000
-* percent.mt < 40
+* `nFeature_RNA` is the number of expressed genes per cell
+* `nCount_RNA` is the total UMI per cell
+* `percent.mt` is the proportion of expressed genes that are mitochondrial. 
+* `percent.ribo` is the proportion of expressed genes that are rRNA.
+
+I see a break in the distribution of expressed genes around 4,000 genes (`nFeature_RNA` distribution panel) . 
+Gene content is correlated (0.84) with total UMI (last scatter plot), so removing these cells would result in removal of cells above 50,000 UMI. 
+There are also a number of lower expressing cells that have a high percent (>40%) of mitochondrial reads.
+rRNA content is low for most cells (<2%) suggesting overall good poly(A) selection.
+
+**Filtering criteria**
+
+* 200 < Number of Genes <= 4,000
+* percent.mt <= 40
+* percent.mt <= 4
 
 ```{r filter_cells, include=TRUE}
-sobj <- subset(sobj, subset = nFeature_RNA > 200 & nFeature_RNA <= 4000 & percent.mt < 40)
+num_cells <- dim(sobj)[2]
+sobj <- subset(sobj, subset = nFeature_RNA > 200 & nFeature_RNA <= 4000 & percent.mt <= 40 & percent.ribo <= 4)
+num_cells_kept <- dim(sobj)[2]
+num_cells_removed <- num_cells - num_cells_kept
+num_genes <- dim(sobj)[1]
 ```
 
-### Normalization and Scaling
+* Starting with `r num_cells` cells.
+* Removing `r num_cells_removed` cells.
+* Keeping `r num_cells_kept` cells.
+* Using `r num_genes` genes.
+
+## Normalization and Scaling
 
 I am using Seurat's default LogNormalization followed by a variance stabelizing transformation and selection of highly variable genes. 
 Unlike previous v2, Seurat3 is using more variable genes (n = 2,000).
+Variable genes are in red, with the top 20 variable genes annotated.
+I will use these genes 2,000 genes as features during dimensionality reduction.
+
 ```{r normalize}
 sobj <- NormalizeData(
     sobj,
@@ -114,31 +138,34 @@ sobj <- FindVariableFeatures(sobj, selection.method = "vst", nfeatures = 2000, v
 top20 <- head(VariableFeatures(sobj), 20)
 ```
 
-```{r scatter_variable_genes, fig.width=10}
+```{r scatter_variable_genes, fig.width=10, include=TRUE}
 p1 <- VariableFeaturePlot(sobj)
 p2 <- LabelPoints(plot = p1, points = top20, repel = TRUE)
 print(p2)
 ```
-Variable genes are in red, with the top 20 variable genes called out.
-I will use these genes 2,000 genes as features during dimensionality reduction.
-I will also scale the data and regress out the mitochondrial batch effects.
+Similar to Seurat v2, I decided to regress out mitochondrial batch effects during scaling.
 
 ```{r scale_data, include=TRUE}
 all_genes <- rownames(sobj)
 sobj <- ScaleData(sobj, features = all_genes, vars.to.regress = "percent.mt", verbose = FALSE)
 ```
 
-### Dimensionality Reduction
+## Dimensionality Reduction
 
-Using the variable genes above I performed PCA. Here I look to decide how many PCs to keep in the dataset.
+I used PCA to reduce dimensionality using the 2,000 variable genes. 
+To decide how many PCs to use I look at a number of diagnostic plots.
+
 ```{r dim_reduction}
 sobj <- RunPCA(sobj, features = VariableFeatures(sobj), verbose = FALSE)
 ```
 
-```{r dotplot_pcs, fig.wdith=12, fig.height=12}
+### Dimensional Gene Loadings
+
+```{r dotplot_pcs, fig.wdith=12, fig.height=12, include=TRUE}
 VizDimLoadings(sobj, dims = 1:4, reduction = "pca", ncol = 2)
 ```
 There are some interesting genes poping out in the first 4 PCs.
+
 * PC1
     * *soti*
     * *dj*
@@ -152,50 +179,58 @@ There are some interesting genes poping out in the first 4 PCs.
     * *Abd-B*
     * *Fas3*
 
-Now I look at several different metrics to determine how many PCs to keep.
+### Top Genes Heatmap
+
 The first metric plotting each PC with the top genes.
 On the X-axis are all of the cells and on the Y-axis are the top genes driving that variation in that PC. 
 I am looking through each PC and seeing if there are genes that I recognize. 
 The idea being that I don't want to remove a PC that has interesting genes driving variation.
-Start at the last PC and working my way up. 
-The PC 12 is the first to have a gene that I recognize (*nht*). 
+I start at the last PC and working my way up. 
+PC 12 is the first to have a gene that I recognize (*nht*). 
 This would suggest a cutoff around PC12.
 
-```{r heatmap_pca, fig.height=20}
+```{r heatmap_pca, fig.height=20, include=TRUE}
 DimHeatmap(sobj, dims = 1:15, balanced = TRUE)
 ```
 
+### JackStraw
 
 The next method is an actual metric called JackStraw analsyis. 
+In this plot we look for a large drop in the theortical vs empirical distribution. 
+For sure we don't want to include any PCs that fall below the dashed line.
+However, it is suggested to remove PCs after the first major drop which puts us around PC11.
 
 ```{r run_jackstraw}
 sobj <- JackStraw(sobj, num.replicate = 100, dims = 30, verbose = FALSE)
 sobj <- ScoreJackStraw(sobj, dims = 1:30)
 ```
 
-In this plot we look for a large drop in the theortical vs empirical distribution. 
-For sure we don't want to include any PCs that fall below the dashed line.
-However, it is suggested to remove PCs after the first major drop which puts us around PC11.
-```{r jackstraw_pca, fig.width=12}
+```{r jackstraw_pca, fig.width=12, include=TRUE}
 p1 <- JackStrawPlot(sobj, dims=1:30)
 p2 <- JackStrawPlot(sobj, dims=1:11)
 CombinePlots(plots = list(p1, p2), ncol = 1)
 ```
 
-Finally, we look at the classic Elbow plot.
-Simialar to the Jackstraw plot we want to look for a large space between points and a flattening out. 
-This would suggest somewhere between 6-12
-```{r elbow_pca}
+### Elbow Plot
+
+The elbow plot is a classic metric, plotted on the Y-axis is the variability measured by standard deviation.
+On the X axis is the first 20 PCs. 
+Simialar to the Jackstraw plot we want to look for a large space between points and a flattening out of the captured variation. 
+This metric would suggest somewhere between PCs 6-12
+
+```{r elbow_pca, include=TRUE}
 ElbowPlot(sobj)
 ```
 
+### Dimension Selection 
+
 After looking at all of the metrics I think 11 is a good point to cut this sample off.
 
-
-### Clustering 
+## Clustering 
 
 Next I perform clustering. 
-Since I am wanting to compare methods and parameters can be adjusted to get any number of clusters, I have decided to shoot for 12-13 clusters.
+Since I am wanting to compare methods, and parameters can be adjusted to get any number of clusters, I have decided to shoot for 12-13 clusters.
+From perliminary analysis we think that we capture roughly this many cell types.
 I ran a range of resolutions and found for this sample around `0.8` give me 13 clusters.
 
 ```{r run_clustering}
@@ -213,77 +248,85 @@ for (i in 1:dim(diff_res)[[2]]){
 sobj <- SetIdent(sobj, value = "RNA_snn_res.0.8")
 ```
 
-```{r umap, fig.asp=1}
+```{r umap, fig.asp=1, include=TRUE}
 sobj <- RunUMAP(sobj, dims = 1:11)
 DimPlot(sobj, reduction = "umap") + ggtitle(paste0(SAMPLE, ': res.0.8'))
 ```
 
-```{r tsne, fig.asp=1}
+```{r tsne, fig.asp=1, include=TRUE}
 sobj <- RunTSNE(sobj, dims = 1:11)
 DimPlot(sobj, reduction = "tsne") + ggtitle(paste0(SAMPLE, ': res.0.8'))
 ```
+
 ```{r save_robj}
 save(tesits1 = sobj, file = 'testis1.Robj')
 ```
 
-### Look at marker genes
+## Look at marker genes
 
 To get a better sense of these clusters I am plotting various known marker genes from the literature.
 
 ```{r load_lit_genes}
-lit_genes <- yaml::yaml.load_file('../../config/literature_genes.yaml')
+lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
 ```
 
-#### Spermatogonia
+### Spermatogonia
 
 *bam* looks to be expressed in cluster 7 along with *Rbp4*, *Phf7*, and *fest*.
-
 In general, the bill of the duck shape looks to be goina.
-```{r heatmap_gonia, fig.width=20, fig.height=20}
+
+```{r heatmap_gonia, fig.width=20, fig.height=20, include=TRUE}
 lg <- fbgn2symbol %>% filter(FBgn %in% lit_genes[['gonia']]) %>% pull("gene_symbol")
 VlnPlot(sobj, features = lg)
 FeaturePlot(sobj, features = lg)
 ```
 
-#### Spermatocytes
+### Spermatocytes
 
 Cluster 11 has good expression of *sa*, *bol*, *fzo*, *mia*, *tomb*, *d-cup*, *bb8*.
-
 The head of the duck looks like spermatocytes.
-```{r heatmap_spermatocytes, fig.width=20, fig.height=20}
+
+```{r heatmap_spermatocytes, fig.width=20, fig.height=20, include=TRUE}
 lg <- fbgn2symbol %>% filter(FBgn %in% lit_genes[['spermatocytes']]) %>% pull("gene_symbol")
 VlnPlot(sobj, features = lg)
 FeaturePlot(sobj, features = lg)
 ```
 
-#### CySC
+### CySC
+
 Somatic cells appear to be the ducsk body, with *tj* in the very tip tail.
-```{r heatmap_cysc, fig.width=20, fig.height=20}
+
+```{r heatmap_cysc, fig.width=20, fig.height=20, include=TRUE}
 lg <- fbgn2symbol %>% filter(FBgn %in% lit_genes[['cysc']]) %>% pull("gene_symbol")
 VlnPlot(sobj, features = lg)
 FeaturePlot(sobj, features = lg)
 ```
 
-#### TE
+### TE
+
 The TE appears to be the large island.
-```{r heatmap_te, fig.width=20, fig.height=20}
+
+```{r heatmap_te, fig.width=20, fig.height=20, include=TRUE}
 lg <- fbgn2symbol %>% filter(FBgn %in% lit_genes[['te']]) %>% pull("gene_symbol")
 VlnPlot(sobj, features = lg)
 FeaturePlot(sobj, features = lg)
 ```
 
-#### PC
+### PC
+
 PC appears to be the smaller island.
-```{r heatmap_pc, fig.width=8}
+
+```{r heatmap_pc, fig.width=8, include=TRUE}
 lg <- fbgn2symbol %>% filter(FBgn %in% lit_genes[['pigment']]) %>% pull("gene_symbol")
 VlnPlot(sobj, features = lg)
 FeaturePlot(sobj, features = lg)
 ```
 
-#### hub
+### hub
+
 The hub genes overlap the TE island and some of the cells in the tail.
 
-```{r heatmap_hub, fig.width=20, fig.height=20}
+```{r heatmap_hub, fig.width=20, fig.height=20, include=TRUE}
 lg <- fbgn2symbol %>% filter(FBgn %in% lit_genes[['hub']]) %>% pull("gene_symbol")
 VlnPlot(sobj, features = lg)
 FeaturePlot(sobj, features = lg)
@@ -291,26 +334,25 @@ FeaturePlot(sobj, features = lg)
 
 ## Cluster Markers
 
-Next I identified a number of genes that are differentially upregulated in each cluster. These genes can be used as markers that that cluster.
+Next I identified a number of genes that are differentially upregulated in each cluster. 
+These genes can be used as markers that that cluster.
+Cluster 5 only had 20 genes, while the other clusters had `>=100`
+
 ```{r find_markers}
 biomarkers <- FindAllMarkers(sobj, only.pos = TRUE, verbose = FALSE)
 ```
 
-
-```{r num_markers_per_cluster}
+```{r num_markers_per_cluster, include=TRUE}
 biomarkers %>% filter(p_val_adj <= 0.001) %>% group_by(cluster) %>% summarise(num_markers_per_cluster = n()) %>% print(n=nrow(.))
 ```
-Cluster 5 only had 20 genes, while the other clusters had `>=100`
-
-
-Now I plot the top 12 genes for each cluster.
 
 ```{r top_markers}
 top_markers <- biomarkers %>% filter(p_val_adj <= 0.001) %>% group_by(cluster) %>% top_n(n = 12, wt= avg_logFC)
 ```
 
+Here I plot the top 12 genes for each cluster.
 
-```{r plot_top_markers, fig.width=20}
+```{r plot_top_markers, fig.width=20, fig.height=20, include=TRUE}
 for (i in 0:12){
     features <- top_markers %>% filter(cluster == i) %>% pull(gene)
     p1 <- FeaturePlot(sobj, features = features)
@@ -319,18 +361,6 @@ for (i in 0:12){
 }
 ```
 
-
-
-```{r}
-pcs <- purrr::pmap_chr(list(rep('PC_', 11), 1:11), function(x, y){paste0(x, y)[[1]]})
-embedings <- as.data.frame(Embeddings(sobj, reduction = "pca")) %>% 
-    tibble::rownames_to_column('cell_id') %>% 
-    tbl_df %>% select(cell_id, pcs)
+```{r save_biomarkers}
+write.table(biomarkers, file = file.path(OUTDIR, "biomarkers.tsv"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 ```
-
-
-
-
-
-
-
