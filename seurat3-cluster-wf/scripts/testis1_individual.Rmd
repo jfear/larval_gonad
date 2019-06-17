@@ -362,5 +362,5 @@ for (i in 0:12){
 ```
 
 ```{r save_biomarkers}
-write.table(biomarkers, file = file.path(OUTDIR, "biomarkers.tsv"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+write.table(biomarkers, file = file.path(OUTDIR, paste(SAMPLE, "biomarkers.tsv", sep='_')), sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 ```
