@@ -31,7 +31,6 @@ set.seed(42)
 ```{r globals}
 SAMPLE <- 'testis2'
 PROJ_DIR <- '/home/fearjm/Projects/larval_gonad'
-PROJ_DIR <- '/Users/fearjm/Projects/larval_gonad'
 DATA_DIR <- file.path(PROJ_DIR, 'output/cellselection-wf/testis2')
 OUTDIR <- file.path(PROJ_DIR, 'output/seurat3-cluster-wf')
 
