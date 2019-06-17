@@ -19,7 +19,7 @@ def main():
     idx = get_cell_id_index()
     ids = _read_text(cell_ids)[idx]
     with open(barcodes, "w") as fout:
-        fout.write("\n".join(ids))
+        fout.write("\n".join(ids) + "\n")
 
     # Remove bad cells from matrix
     mm = scipy.io.mmread(mtx).tocsc()[:, idx].tocoo()
