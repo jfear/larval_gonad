@@ -7,12 +7,39 @@ TAG = commong_config['tag']
 
 rule targets:
     input: 
-        '../output/seurat3-cluster-wf/testis1_individual.html'
+        '../output/seurat3-cluster-wf/testis1_individual.html',
+        '../output/seurat3-cluster-wf/testis2_individual.html',
+        '../output/seurat3-cluster-wf/testis3_individual.html',
+        '../output/seurat3-cluster-wf/testis4_individual.html'
 
 rule testis1:
     input:
         rmd = 'scripts/testis1_individual.Rmd'
     output: 
         html = '../output/seurat3-cluster-wf/testis1_individual.html',
+    conda: '../envs/seurat3.yaml'
+    script: 'scripts/rscript.py'
+
+rule testis2:
+    input:
+        rmd = 'scripts/testis2_individual.Rmd'
+    output: 
+        html = '../output/seurat3-cluster-wf/testis2_individual.html',
+    conda: '../envs/seurat3.yaml'
+    script: 'scripts/rscript.py'
+
+rule testis3:
+    input:
+        rmd = 'scripts/testis3_individual.Rmd'
+    output: 
+        html = '../output/seurat3-cluster-wf/testis3_individual.html',
+    conda: '../envs/seurat3.yaml'
+    script: 'scripts/rscript.py'
+
+rule testis4:
+    input:
+        rmd = 'scripts/testis4_individual.Rmd'
+    output: 
+        html = '../output/seurat3-cluster-wf/testis4_individual.html',
     conda: '../envs/seurat3.yaml'
     script: 'scripts/rscript.py'

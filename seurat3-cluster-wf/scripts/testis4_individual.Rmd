@@ -1,5 +1,5 @@
 ---
-title: Seurat3 Testis 2 Clustering
+title: Seurat3 Testis 4 Clustering
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 output: 
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
     message = FALSE,
     include = FALSE,
     cache.lazy = FALSE,
-    fig.path = 'testis2_figures/',
+    fig.path = 'testis4_figures/',
     fig.ext = c('png', 'svg'),
     fig.width = 8
 )
@@ -29,10 +29,10 @@ set.seed(42)
 ```
 
 ```{r globals}
-SAMPLE <- 'testis2'
+SAMPLE <- 'testis4'
 PROJ_DIR <- '/home/fearjm/Projects/larval_gonad'
 PROJ_DIR <- '/Users/fearjm/Projects/larval_gonad'
-DATA_DIR <- file.path(PROJ_DIR, 'output/cellselection-wf/testis2')
+DATA_DIR <- file.path(PROJ_DIR, 'output/cellselection-wf/testis4')
 OUTDIR <- file.path(PROJ_DIR, 'output/seurat3-cluster-wf')
 
 GENE_ANNOTATION <- file.path(PROJ_DIR, 'references/gene_annotation_dmel_r6-24.feather')
