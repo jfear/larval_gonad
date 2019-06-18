@@ -1,3 +1,4 @@
+from pathlib import Path
 from itertools import product
 from pathlib import Path
 
@@ -73,8 +74,8 @@ def main():
     plt.savefig(OUTPUT, bbox_inches="tight")
 
 
-def get_data(fname: Path):
-    name = "_".join(fname.stem.split("_")[1:5])
+def get_data(fname):
+    name = "_".join(Path(fname).stem.split("_")[1:5])
 
     return (
         pd.read_feather(fname, columns=["cell_id", "cluster"])
