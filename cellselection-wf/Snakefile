@@ -195,3 +195,13 @@ rule save_filtered_cell_matrix:
         time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/filter_cells.py'
     
+
+rule gene_level_filters:
+    input: 
+        mtx = rules.save_filtered_cell_matrix.output['mtx'],
+    output: '../output/cellselection-wf/{sample}/clusters_calls.feather'
+    conda: '../envs/seurat2.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 4
+    script: 'scripts/seurat2_cluster.R'
