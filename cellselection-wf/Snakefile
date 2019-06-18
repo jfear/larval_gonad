@@ -47,6 +47,13 @@ rule targets:
         ),
         expand('../output/cellselection-wf/{sample}/matrix.mtx',
             sample=SAMPLES
+        ),
+        expand('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather',
+            sample=SAMPLES,
+            gene_low=[200, 500, 1000],
+            gene_high=[4000, 5000, 6000, 'None'],
+            pct_mito=[20, 40, 60, 'None'],
+            pct_ribo=[2, 4, 5, 'None'],
         )
 
 
@@ -196,12 +203,11 @@ rule save_filtered_cell_matrix:
     script: 'scripts/filter_cells.py'
     
 
-rule gene_level_filters:
-    input: 
-        mtx = rules.save_filtered_cell_matrix.output['mtx'],
-    output: '../output/cellselection-wf/{sample}/clusters_calls.feather'
+rule grid_search:
+    input: rules.save_filtered_cell_matrix.output['mtx']
+    output: '../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather'
     conda: '../envs/seurat2.yaml'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 4
-    script: 'scripts/seurat2_cluster.R'
+    script: 'scripts/grid_search_cell_selection.R'
