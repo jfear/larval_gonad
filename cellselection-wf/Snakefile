@@ -1,7 +1,7 @@
-"""This workflow aims to reconcile the differences among the cell ranger runs 
+"""This workflow aims to reconcile the differences among the cell ranger runs
 and to identify which barcodes are indeed cells."""
 import os
-import yaml 
+import yaml
 from itertools import chain
 from pathlib import Path
 
@@ -19,7 +19,7 @@ SAMPLES = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=
 localrules: unzip_cellranger3
 
 rule targets:
-    input: 
+    input:
         expand(config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
             stage=['raw', 'filtered'],
             assembly=ASSEMBLY,
@@ -54,8 +54,10 @@ rule targets:
             gene_high=[4000, 5000, 6000, 'None'],
             pct_mito=[20, 40, 60, 'None'],
             pct_ribo=[2, 4, 5, 'None'],
-        )
-
+        ),
+        expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg',
+            sample=SAMPLES
+        ),
 
 rule unzip_cellranger3:
     input:
@@ -76,7 +78,7 @@ rule unzip_cellranger3:
 rule barcode_to_cellid:
     input: '{prefix}/barcodes.tsv'
     output: '{prefix}/cell_ids.tsv'
-    params: 
+    params:
         sample = lambda wildcards: re.search('testis\d', wildcards.prefix)[0]
     script: 'scripts/barcode_to_cellid.py'
 
@@ -92,7 +94,7 @@ def _dropletutils(wildcards):
 
 rule dropletutils:
     input: _dropletutils
-    output: 
+    output:
         pval_plot = '../output/cellselection-wf/dropletutils/{sample}_pval.png',
         barcode_rank = '../output/cellselection-wf/dropletutils/{sample}_bc_rank.png',
         cell_calls = '../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather'
@@ -123,7 +125,7 @@ rule summary:
         raw = _summary_raw,
         filtered = _summary_filtered,
         droputils = rules.dropletutils.output.cell_calls
-    output: 
+    output:
         cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
         upset_plot = '../output/cellselection-wf/{sample}_combined_upset.svg'
     params: config['data_pattern'].keys()
@@ -131,34 +133,34 @@ rule summary:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/summary.R'
-    
+
 
 rule scrublet:
-    input: 
+    input:
         cell_ids = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
-            stage='raw', 
-            assembly=ASSEMBLY, 
-            tag=TAG, 
+            stage='raw',
+            assembly=ASSEMBLY,
+            tag=TAG,
             sample=wildcards.sample
         )[0],
         mtx = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
-            stage='raw', 
-            assembly=ASSEMBLY, 
-            tag=TAG, 
+            stage='raw',
+            assembly=ASSEMBLY,
+            tag=TAG,
             sample=wildcards.sample
         )[0],
         cell_calls = lambda wildcards: expand(
             '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
             sample=wildcards.sample
         )[0],
-    output: 
+    output:
         doublets = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
         histogram = '../output/cellselection-wf/{sample}_scrublet_histogram.png',
         umap = '../output/cellselection-wf/{sample}_scrublet_umap.png',
         tsne = '../output/cellselection-wf/{sample}_scrublet_tsne.png',
-    params: 
+    params:
         threshold = 0.25
     conda: '../envs/scrublet.yaml'
     resources:
@@ -168,28 +170,28 @@ rule scrublet:
 
 
 rule save_filtered_cell_matrix:
-    input: 
+    input:
         scrublet = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
         cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
         cell_ids = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
-            stage='raw', 
-            assembly=ASSEMBLY, 
-            tag=TAG, 
+            stage='raw',
+            assembly=ASSEMBLY,
+            tag=TAG,
             sample=wildcards.sample
         )[0],
         genes = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes', 'genes'),
-            stage='raw', 
-            assembly=ASSEMBLY, 
-            tag=TAG, 
+            stage='raw',
+            assembly=ASSEMBLY,
+            tag=TAG,
             sample=wildcards.sample
         )[0],
         mtx = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
-            stage='raw', 
-            assembly=ASSEMBLY, 
-            tag=TAG, 
+            stage='raw',
+            assembly=ASSEMBLY,
+            tag=TAG,
             sample=wildcards.sample
         )[0],
         gene_annotation = expand('../references/gene_annotation_{assembly}_{tag}.feather', assembly=ASSEMBLY, tag=TAG)[0]
@@ -201,7 +203,7 @@ rule save_filtered_cell_matrix:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/filter_cells.py'
-    
+
 
 rule grid_search:
     input: rules.save_filtered_cell_matrix.output['mtx']
@@ -211,3 +213,22 @@ rule grid_search:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 4
     script: 'scripts/grid_search_cell_selection.R'
+
+
+def _grid_search_summary(wildcards):
+    return expand('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather',
+            sample=wildcards.sample,
+            gene_low=[200, 500, 1000],
+            gene_high=[4000, 5000, 6000, 'None'],
+            pct_mito=[20, 40, 60, 'None'],
+            pct_ribo=[2, 4, 5, 'None'],
+    )
+
+
+rule grid_search_summary:
+    input: _grid_search_summary
+    output: '../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 4
+    script: 'scripts/grid_search_summary.py'
