@@ -112,6 +112,9 @@ for (i in 1:length(RESOLUTIONS)){
         df <- metadata %>% 
             select("cell_id", "nGene", "nUMI", percent_mito = "percent.mito", percent_ribo = "percent.ribo", "gene_low_threshold", "gene_high_threshold", "percent_mito_threshold", "percent_ribo_threshold", cluster = res)
         break
+    } else if (i == length(RESOLUTIONS)){
+        df <- metadata %>% 
+            select("cell_id", "nGene", "nUMI", percent_mito = "percent.mito", percent_ribo = "percent.ribo", "gene_low_threshold", "gene_high_threshold", "percent_mito_threshold", "percent_ribo_threshold", cluster = res)
     }
 }
 
