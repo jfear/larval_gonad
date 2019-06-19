@@ -4,7 +4,6 @@ channels:
   - defaults
 dependencies:
   - r-essentials
-  - r-feather
   - r-svglite
-  - bioconductor-monocle=2.10.0
-
+  - r-feather
+  - r-upsetr=1.4.0

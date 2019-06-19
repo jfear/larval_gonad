@@ -3,7 +3,7 @@ channels:
 - bioconda
 - default
 dependencies:
-- r-essentials=3.6.0
+- r-essentials
+- r-feather
+- r-svglite
 - bioconductor-dropletutils=1.2.1
-- r-feather=0.3.3
-- r-svglite=1.2.1

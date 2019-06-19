@@ -3,7 +3,9 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - r-essentials=3.6.0
+  - r-essentials
+  - r-feather
+  - r-svglite
   - bioconductor-monocle=2.10.0
   - bioconductor-delayedarray=0.8.0
   - bioconductor-delayedmatrixstats=1.4.0
