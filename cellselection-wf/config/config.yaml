@@ -7,3 +7,7 @@ cellranger:
   - 'cellranger-wf'
   - 'cellranger-force-wf'
   - 'cellranger3-wf'
+
+cutoffs:
+  low_gene: 200
+  high_gene: 5000
