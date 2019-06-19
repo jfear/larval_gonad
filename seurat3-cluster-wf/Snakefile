@@ -18,7 +18,7 @@ rule testis1:
     output: 
         html = '../output/seurat3-cluster-wf/testis1_individual.html',
     conda: '../envs/seurat3.yaml'
-    script: 'scripts/rscript.py'
+    script: '../scripts/rscript.py'
 
 rule testis2:
     input:
@@ -26,7 +26,7 @@ rule testis2:
     output: 
         html = '../output/seurat3-cluster-wf/testis2_individual.html',
     conda: '../envs/seurat3.yaml'
-    script: 'scripts/rscript.py'
+    script: '../scripts/rscript.py'
 
 rule testis3:
     input:
@@ -34,7 +34,7 @@ rule testis3:
     output: 
         html = '../output/seurat3-cluster-wf/testis3_individual.html',
     conda: '../envs/seurat3.yaml'
-    script: 'scripts/rscript.py'
+    script: '../scripts/rscript.py'
 
 rule testis4:
     input:
@@ -42,4 +42,4 @@ rule testis4:
     output: 
         html = '../output/seurat3-cluster-wf/testis4_individual.html',
     conda: '../envs/seurat3.yaml'
-    script: 'scripts/rscript.py'
+    script: '../scripts/rscript.py'
