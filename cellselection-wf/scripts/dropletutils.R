@@ -2,6 +2,7 @@ library(DropletUtils)
 library(dplyr)
 library(feather)
 library(ggplot2)
+set.seed(42)
 theme_set(theme_bw())
 
 DATA_DIR <- dirname(snakemake@input[[1]])
