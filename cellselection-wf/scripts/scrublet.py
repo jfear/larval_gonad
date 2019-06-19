@@ -22,8 +22,8 @@ def main():
         cells = np.array(fh.read().strip().split('\n'))
 
     # Use cellranger and dropletutils to pull out non-empty cells.
-    calls = pd.read_feather(cell_calls)
-    filtered_cells = calls[calls.sum(axis=1) >= 3].cell_id.values
+    calls = pd.read_feather(cell_calls, columns=['cell_id', 'is_cell'])
+    filtered_cells = calls[calls.is_cell].cell_id.values
 
     # Create a bool array of non-empty cells
     cell_index = np.in1d(cells, filtered_cells)

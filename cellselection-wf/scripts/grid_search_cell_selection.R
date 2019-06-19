@@ -3,7 +3,9 @@ library(dplyr)
 library(feather)
 
 SAMPLE <- snakemake@wildcards[['sample']]
-DATA_DIR <- dirname(snakemake@input[[1]])
+DATA_DIR <- dirname(snakemake@input[['mtx']])
+cell_calls <- snakemake@input[['cell_calls']]
+doublets <- snakemake@input[['doublets']]
 OUTPUT <- snakemake@output[[1]]
 
 # Parameters for Grid Search

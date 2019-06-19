@@ -1,5 +1,39 @@
-"""This workflow aims to reconcile the differences among the cell ranger runs
-and to identify which barcodes are indeed cells."""
+"""Decide what cells to use.
+
+Before doing downstream analysis, I need to decide what cells to use. There are four different
+steps of cell selection.
+
+1. Remove empty cells
+2. Remove heterotypic doublets
+3. Remove homotypic doublets
+4. Remove low complexity cells (or high mitochondrial expression, or high rRNA expression)
+
+STEP 1: There are several tools available for identifying empty cells. All of these tools model 
+total UMI and find a threshold to separate GEMs with cells and GEMs without cells. Here I am 
+three different tools (cell ranger v2, cell ranger v3, dropLetUtils). 
+
+DECISION: I will go forward using the consensus of cell ranger v3 and dropLetUtils.
+
+STEP 2: There are several tools available to identify heterotypic doublets. All of these methods
+generate synthetic doublets by mixing cells from different clusters. They then re-cluster and call 
+cells that cluster with the synthetic cells doublets. I have decided to only use scrublet because
+it uses the raw count data directly while other method require a pre-clustered datasets.
+
+DECISION: I remove cells scrublet calls as doublets
+
+STEP 3 + 4: Homotypic doublets are impossible to identify bioinformatically. The only signal would be 
+cells with high UMI counts and a large number of expressed genes. Similarly, cells with low complexity 
+I need to remove cells with low gene content, potentially cells with high mito or rRNA expression. 
+To look at this problem I use a grid search approach where I try the combination of different filtering
+thresholds and compare clustering of these cells. 
+
+DECISION: Filtering of mitochondrial and rRNA had no affect on clustering so will be ignored. The low end
+cutoff of 200 and 500 expressed genes had very similar results, while a more extreme 1,000 genes behaved very
+differently. Because we have potentially quisent cell types I will use the 200 gene cutoff. The high cutoffs 
+of 5,000 and 6,000 were similar while no cutoff performed very differently suggesting these high end genes were 
+driving clustering. I will use 5,000 because these high expressing cells are potentially doublets.
+
+"""
 import os
 import yaml
 from itertools import chain
@@ -17,6 +51,7 @@ TAG = common_config['tag']
 SAMPLES = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0).index.tolist()
 
 localrules: unzip_cellranger3
+
 
 rule targets:
     input:
@@ -36,30 +71,24 @@ rule targets:
             stage=['raw', 'filtered'],
             sample=SAMPLES
         ),
-        expand('../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather',
-            sample=SAMPLES
-        ),
-        expand('../output/cellselection-wf/{sample}_combined_cell_calls.feather',
-            sample=SAMPLES
-        ),
-        expand('../output/cellselection-wf/{sample}_scrublet_dublets.txt',
-            sample=SAMPLES
-        ),
-        expand('../output/cellselection-wf/{sample}/matrix.mtx',
-            sample=SAMPLES
-        ),
-        expand('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather',
-            sample=SAMPLES,
-            gene_low=[200, 500, 1000],
-            gene_high=[4000, 5000, 6000, 'None'],
-            pct_mito=[20, 40, 60, 'None'],
-            pct_ribo=[2, 4, 5, 'None'],
-        ),
-        expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg',
-            sample=SAMPLES
-        ),
+        expand('../output/cellselection-wf/dropletutils/{sample}_cell_calls.feather', sample=SAMPLES),
+        expand('../output/cellselection-wf/{sample}_combined_cell_calls.feather', sample=SAMPLES),
+        expand('../output/cellselection-wf/{sample}_scrublet_dublets.txt', sample=SAMPLES),
+        # expand('../output/cellselection-wf/{sample}/matrix.mtx', sample=SAMPLES),
+        # expand('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather',
+        #     sample=SAMPLES,
+        #     gene_low=[200, 500, 1000],
+        #     gene_high=[4000, 5000, 6000, 'None'],
+        #     pct_mito=[20, 40, 60, 'None'],
+        #     pct_ribo=[2, 4, 5, 'None'],
+        # ),
+        # expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg', sample=SAMPLES),
+        expand('../output/cellselection-wf/{sample}_vln.svg', sample=SAMPLES),
+        expand('../output/cellselection-wf/{sample}_scatter.svg', sample=SAMPLES)
+
 
 rule unzip_cellranger3:
+    """Cell Ranger v3 gzip outputs but downstream algorithms expect unzipped files."""
     input:
         barcodes = config['data_pattern']['cellranger3-wf'] + '.gz',
         features = config['data_pattern']['cellranger3-wf'].replace('matrix.mtx', 'features.tsv') + '.gz',
@@ -76,12 +105,19 @@ rule unzip_cellranger3:
 
 
 rule barcode_to_cellid:
+    """Make a unique cell_id across replicates.
+
+    10X barcodes are not unique across replicates. I simply prepend the
+    replicate number to make cell_id unique.
+    """
     input: '{prefix}/barcodes.tsv'
     output: '{prefix}/cell_ids.tsv'
     params:
         sample = lambda wildcards: re.search('testis\d', wildcards.prefix)[0]
     script: 'scripts/barcode_to_cellid.py'
 
+
+# STEP 1
 
 def _dropletutils(wildcards):
     return expand(config['data_pattern'][config['cellranger'][0]],
@@ -132,8 +168,11 @@ rule summary:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
+    conda: '../envs/upset.yaml'
     script: 'scripts/summary.R'
 
+
+# STEP 2
 
 rule scrublet:
     input:
@@ -169,24 +208,10 @@ rule scrublet:
     script: 'scripts/scrublet.py'
 
 
-rule save_filtered_cell_matrix:
-    input:
-        scrublet = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
-        cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
-        cell_ids = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
-            stage='raw',
-            assembly=ASSEMBLY,
-            tag=TAG,
-            sample=wildcards.sample
-        )[0],
-        genes = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes', 'genes'),
-            stage='raw',
-            assembly=ASSEMBLY,
-            tag=TAG,
-            sample=wildcards.sample
-        )[0],
+# STEP 3 + 4
+
+rule data_distribution:
+    input: 
         mtx = lambda wildcards: expand(
             config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
             stage='raw',
@@ -194,41 +219,89 @@ rule save_filtered_cell_matrix:
             tag=TAG,
             sample=wildcards.sample
         )[0],
-        gene_annotation = expand('../references/gene_annotation_{assembly}_{tag}.feather', assembly=ASSEMBLY, tag=TAG)[0]
-    output:
-        barcodes = '../output/cellselection-wf/{sample}/barcodes.tsv',
-        genes = '../output/cellselection-wf/{sample}/genes.tsv',
-        mtx = '../output/cellselection-wf/{sample}/matrix.mtx'
-    resources:
-        mem_gb=lambda wildcards, attempt: attempt * 12,
-        time_hr=lambda wildcards, attempt: attempt * 2
-    script: 'scripts/filter_cells.py'
-
-
-rule grid_search:
-    input: rules.save_filtered_cell_matrix.output['mtx']
-    output: '../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather'
+        cell_calls = rules.summary.output['cell_calls'],
+        doublets = rules.scrublet.output['doublets'],
+        gene_annotation = expand(
+            '../references/gene_annotation_{assembly}_{tag}.feather',
+            assembly = ASSEMBLY,
+            tag = TAG
+        )
+    output: 
+        vln = '../output/cellselection-wf/{sample}_vln.svg',
+        scatter = '../output/cellselection-wf/{sample}_scatter.svg',
     conda: '../envs/seurat2.yaml'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 4
-    script: 'scripts/grid_search_cell_selection.R'
+    script: 'scripts/data_distribution.R'
 
 
-def _grid_search_summary(wildcards):
-    return expand('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather',
-            sample=wildcards.sample,
-            gene_low=[200, 500, 1000],
-            gene_high=[4000, 5000, 6000, 'None'],
-            pct_mito=[20, 40, 60, 'None'],
-            pct_ribo=[2, 4, 5, 'None'],
-    )
+# rule grid_search:
+#     input: 
+#         mtx = rules.save_filtered_cell_matrix.output['mtx'],
+#         cell_calls = rules.summary.output['cell_calls'],
+#         doublets = rules.scrublet.output['doublets']
+#     output: temp('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather')
+#     conda: '../envs/seurat2.yaml'
+#     resources:
+#         mem_gb=lambda wildcards, attempt: attempt * 16,
+#         time_hr=lambda wildcards, attempt: attempt * 4
+#     script: 'scripts/grid_search_cell_selection.R'
 
 
-rule grid_search_summary:
-    input: _grid_search_summary
-    output: '../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg'
-    resources:
-        mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 4
-    script: 'scripts/grid_search_summary.py'
+# def _grid_search_summary(wildcards):
+#     return expand('../output/cellselection-wf/grid_search/{sample}/{sample}_{gene_low}_{gene_high}_{pct_mito}_{pct_ribo}_clusters.feather',
+#             sample=wildcards.sample,
+#             gene_low=[200, 500, 1000],
+#             gene_high=[4000, 5000, 6000, 'None'],
+#             pct_mito=[20, 40, 60, 'None'],
+#             pct_ribo=[2, 4, 5, 'None'],
+#     )
+
+
+# rule grid_search_summary:
+#     input: _grid_search_summary
+#     output: 
+#         good_cell_ids = '../output/cellselection-wf/grid_search/{sample}/{sample}_good_cell_ids.txt',
+#         fig = '../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg'
+#     resources:
+#         mem_gb=lambda wildcards, attempt: attempt * 16,
+#         time_hr=lambda wildcards, attempt: attempt * 4
+#     script: 'scripts/grid_search_summary.py'
+
+
+# # Save filtered dataset
+
+# rule save_filtered_cell_matrix:
+#     input:
+#         good_cell_ids = grid_search_summary.output['good_cell_ids'],
+#         cell_ids = lambda wildcards: expand(
+#             config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
+#             stage='raw',
+#             assembly=ASSEMBLY,
+#             tag=TAG,
+#             sample=wildcards.sample
+#         )[0],
+#         genes = lambda wildcards: expand(
+#             config['data_pattern']['cellranger-wf'].replace('barcodes', 'genes'),
+#             stage='raw',
+#             assembly=ASSEMBLY,
+#             tag=TAG,
+#             sample=wildcards.sample
+#         )[0],
+#         mtx = lambda wildcards: expand(
+#             config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+#             stage='raw',
+#             assembly=ASSEMBLY,
+#             tag=TAG,
+#             sample=wildcards.sample
+#         )[0],
+#         gene_annotation = expand('../references/gene_annotation_{assembly}_{tag}.feather', assembly=ASSEMBLY, tag=TAG)[0]
+#     output:
+#         barcodes = '../output/cellselection-wf/{sample}/barcodes.tsv',
+#         genes = '../output/cellselection-wf/{sample}/genes.tsv',
+#         mtx = '../output/cellselection-wf/{sample}/matrix.mtx'
+#     resources:
+#         mem_gb=lambda wildcards, attempt: attempt * 12,
+#         time_hr=lambda wildcards, attempt: attempt * 2
+#     script: 'scripts/filter_cells.py'

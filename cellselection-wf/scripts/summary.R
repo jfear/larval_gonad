@@ -51,7 +51,8 @@ drops <- get_drop(DROPUTILS)
 
 # Merge calls and remove always empty GEMs
 df <- full_join(tenx, drops, by = c("cell_id")) %>%
-    filter(rowSums(.[2:ncol(.)]) > 0)
+    filter(rowSums(.[2:ncol(.)]) > 0) %>%
+    mutate(is_cell = `cellranger3-wf` + droputils == 2)
 
 write_feather(df, CALLS)
 

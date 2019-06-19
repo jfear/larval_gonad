@@ -2,44 +2,32 @@ library(Seurat)
 library(dplyr)
 library(ggplot2)
 library(feather)
+source("scripts/common.R")
 
-# SAMPLE <- snakemake@wildcards[['sample']]
-# DATA_DIR <- dirname(snakemake@input[['mtx']])
-# cell_calls <- snakemake@input[['cell_calls']]
-# doublets <- snakemake@input[['doublets']]
-# VLN <- snakemake@output[['vln']]
-# SCATTER <- snakemake@output[['scatter']]
-
-SAMPLE <- 'testis1'
-DATA_DIR <- '../../output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24'
-cell_calls <- '../../output/cellselection-wf/dropletutils/testis1_cell_calls.feather'
-doublets <- '../../output/cellselection-wf/testis1_scrublet_dublets.txt'
-GENE_ANNOT <- '../../references/gene_annotation_dmel_r6-24.feather'
-VLN <- '../../output/cellselection-wf/testis1_distribtuion_vln.png'
-SCATTER <- '../../output/cellselection-wf/testis1_distribtuion_scatter.png'
-
+SAMPLE <- snakemake@wildcards[['sample']]
+DATA_DIR <- dirname(snakemake@input[['mtx']])
+CELL_CALLS <- snakemake@input[['cell_calls']]
+DOUBLETS <- snakemake@input[['doublets']]
+GENE_ANNOT <- snakemake@input[['gene_annotation']]
+VLN <- snakemake@output[['vln']]
+SCATTER <- snakemake@output[['scatter']]
 REP <- gsub('testis', 'rep', SAMPLE)
 
 # Get list of good cell IDs
-cells <- read_feather(cell_calls, columns=c('cell_id', 'is_cell')) %>% 
+cells <- read_feather(CELL_CALLS, columns=c('cell_id', 'is_cell')) %>% 
     filter(.$is_cell) %>%
     pull(cell_id)
 
-dbls <- read.table(doublets, stringsAsFactors = FALSE, header = FALSE, col.names = c('cell_id')) %>% 
+dbls <- read.table(DOUBLETS, stringsAsFactors = FALSE, header = FALSE, col.names = c('cell_id')) %>% 
     pull(cell_id)
 
 good_cells <- cells[!cells %in% dbls]
 
-# Load 10x data
-tenX.data <- Read10X(data.dir = DATA_DIR)
-
-# Keep good cells
-colnames(tenX.data) <- as.vector(sapply(colnames(tenX.data), function(x) paste(REP, x, sep='_')))
-tenX.data <- tenX.data[, good_cells]
-
-# Rename to gene symbol
+# Gene annotation
 fbgn2symbol <- read_feather(GENE_ANNOT, columns=c('FBgn', 'gene_symbol'))
-row.names(tenX.data) <- left_join(tibble(FBgn = row.names(tenX.data)), fbgn2symbol, by='FBgn') %>% pull(gene_symbol)
+
+# Read and filter good cells from 10X
+tenX.data <- load_and_filter_10x(DATA_DIR, good_cells, fbgn2symbol, REP)
 
 # Build basic seurat object
 sobj <- CreateSeuratObject(
