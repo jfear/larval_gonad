@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - r-essentials
+  - r-svglite
   - r-feather
   - r-seurat=2.3.4
 
