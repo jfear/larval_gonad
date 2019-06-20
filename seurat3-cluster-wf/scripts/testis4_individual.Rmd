@@ -1,5 +1,5 @@
 ---
-title: Seurat3 Testis 1 Clustering
+title: Seurat3 Testis 4 Clustering
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 output: 
@@ -8,7 +8,7 @@ output:
         keep_md: TRUE
 ---
 
-## Testis 1
+## Testis 4
 
 Here I explore clustering using Seurat v3 for clustering.
 
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
     include = TRUE,
     echo = FALSE,
     cache.lazy = FALSE,
-    fig.path = "testis1_figures/",
+    fig.path = "testis4_figures/",
     fig.ext = c("png", "svg"),
     fig.width = 8
 )
@@ -34,7 +34,7 @@ set.seed(42)
 ```
 
 ```{r globals}
-SAMPLE <- "testis1"
+SAMPLE <- "testis4"
 RESOLUTIONS <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
 SEL_RESOLUTION <- "RNA_snn_res.0.8"
 PCA_DIMS <- 1:9
