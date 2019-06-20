@@ -75,7 +75,7 @@ rule targets:
         expand('../output/cellselection-wf/{sample}_scrublet_dublets.txt', sample=SAMPLES),
         expand('../output/cellselection-wf/{sample}_vln.png', sample=SAMPLES),
         expand('../output/cellselection-wf/{sample}_scatter.png', sample=SAMPLES),
-        # expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg', sample=SAMPLES),
+        expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg', sample=SAMPLES),
         expand('../output/cellselection-wf/{sample}/matrix.mtx', sample=SAMPLES),
 
 
