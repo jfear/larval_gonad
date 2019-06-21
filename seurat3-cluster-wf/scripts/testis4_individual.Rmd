@@ -36,8 +36,8 @@ set.seed(42)
 ```{r globals}
 SAMPLE <- "testis4"
 RESOLUTIONS <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
-SEL_RESOLUTION <- "RNA_snn_res.0.8"
-PCA_DIMS <- 1:9
+SEL_RESOLUTION <- "RNA_snn_res.0.6"
+PCA_DIMS <- 1:11
 
 PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
 DATA_DIR <- file.path(PROJ_DIR, paste0("output/cellselection-wf/", SAMPLE))
