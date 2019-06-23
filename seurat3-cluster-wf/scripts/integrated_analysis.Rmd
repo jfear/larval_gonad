@@ -37,7 +37,7 @@ RESOLUTIONS <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
 SEL_RESOLUTION <- "RNA_snn_res.0.8"
 PCA_DIMS <- 1:9
 
-PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
+PROJ_DIR <- "/Users/fearjm/Projects/larval_gonad"
 DATA_DIR <- file.path(PROJ_DIR, "output/seurat3-cluster-wf")
 
 GENE_ANNOTATION <- file.path(PROJ_DIR, "references/gene_annotation_dmel_r6-24.feather")
@@ -56,9 +56,25 @@ fbgn2symbol <- feather::read_feather(
 ```{r load_data}
 load_seurat_data <- function(sample){
     load(file.path(DATA_DIR, paste0(sample, '.Robj')))
+    sobj <- NormalizeData(sobj, verbose = FALSE)
+    sobj <- FindVariableFeatures(sobj, selection.method = "vst", nfeatures = 2000, verbose = FALSE)
     sobj$sample <- sample
     return(sobj)
 }
 
 sample.list <- lapply(SAMPLES, load_seurat_data)
 ```
+
+```{r dimplots, fig.width=12, fig.height=10}
+plts <- lapply(sample.list, DimPlot, label=TRUE, legend='none')
+gridExtra::grid.arrange(grobs = plts)
+```
+
+
+```{r}
+anchors <- FindIntegrationAnchors(sample.list, dims=1:30)
+```
+
+
+
+
