@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-essentials
+  - r-feather
+  - r-svglite
+  - bioconductor-monocle=2.10.0 # Note this will get updated to moncocle 3 alpha in the script
+  - umap-learn=0.3.9
+  - louvain=0.6.1
+

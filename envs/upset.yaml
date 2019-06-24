@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials
+  - r-svglite
+  - r-feather
+  - r-upsetr=1.4.0

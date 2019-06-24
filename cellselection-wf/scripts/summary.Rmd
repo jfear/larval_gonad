@@ -1,0 +1,92 @@
+---
+title: Cell Selection Summary
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+    html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    collapse=TRUE, warning=FALSE, message=FALSE, cache.lazy=FALSE,
+    bootstrap.show.code=FALSE, bootstrap.show.output=FALSE, 
+    dev=c('png', 'svg'), fig.path='figures/'
+)
+```
+
+
+```{r load_libraries, include=FALSE}
+library(dplyr)
+library(glue)
+library(feather)
+library(UpSetR)
+library(grid)
+```
+
+```{r globals, include=FALSE, eval=FALSE}
+RAW <- snakemake@input[['raw']]
+FILTERED <- snakemake@input[['filtered']]
+DROPUTILS <- sankemake@input[['duputils']]
+NAMES <- snakemake@params
+SAMPLE <- snakemake@wildcards[['sample']]
+```
+
+```{r debug, include=FALSE, eval=TRUE}
+RAW <- c(
+    '../output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger-force-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger3-wf/testis1/outs/raw_feature_bc_matrix/barcodes.tsv'
+)
+
+FILTERED <- c(
+    '../output/cellranger-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger-force-wf/testis1/outs/filtered_gene_bc_matrices/dmelr6-24/barcodes.tsv',
+    '../output/cellranger3-wf/testis1/outs/filtered_feature_bc_matrix/barcodes.tsv'
+)
+
+DROPUTILS <- '../output/cellranger-wf/dropletutils/testis1_cell_metadta.feather'
+NAMES <- c('cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf')
+SAMPLE <- 'testis1'
+```
+
+```{r helper_functions, include=FALSE}
+get_10x <- function(raw, filtered, name){
+    rep <- paste0('rep', gsub('.*(\\d)', '\\1', SAMPLE))
+    
+    # read in the raw data to get call GEMs
+    df <- read.table(file.path('..', raw), stringsAsFactors = F, col.names = 'barcodes')
+    df$cell_id <- gsub('(\\w+)-1', paste(rep, '\\1', sep='_'), df$barcodes)
+    df[name] <- 0
+    
+    # Flag cells in filtered data
+    barcodes <- read.table(file.path('..', filtered),  stringsAsFactors = F)[,1]
+    df[df$barcodes %in% barcodes, name] <- 1
+    return(df %>% select('cell_id', name))
+}
+
+get_drop <- function(fname){
+    df <- read_feather(file.path('..', fname)) %>% 
+        rename(droputils = is_cell) %>% 
+        select(cell_id, droputils) %>%
+        mutate(droputils = as.integer(droputils))
+    return(df)
+}
+```
+
+```{r parse_droputils_calls}
+tenX <- plyr::join_all(purrr::pmap(list(raw = RAW, filtered = FILTERED, name = NAMES), get_10x), by = "cell_id")
+drops <- get_drop(DUPUTILS)
+
+# Merge and remove always empty GEMs
+df <- full_join(tenX, drops, by=('cell_id')) %>%
+    tibble::column_to_rownames('cell_id') %>%
+    subset(rowSums(.) > 0) %>%
+    tibble::rownames_to_column('cell_id')
+```
+
+```{r upset_plot}
+upset(df, sets = c('cellranger-wf', 'cellranger-force-wf', 'cellranger3-wf', 'droputils'), order.by='degree', mainbar.y.label = 'Cell Detected')
+grid.text(SAMPLE,x = 0.65, y=0.95, gp=gpar(fontsize=20))
+```
+
+

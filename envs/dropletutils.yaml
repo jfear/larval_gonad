@@ -1,0 +1,9 @@
+channels:
+- conda-forge
+- bioconda
+- default
+dependencies:
+- r-essentials
+- r-feather
+- r-svglite
+- bioconductor-dropletutils=1.2.1

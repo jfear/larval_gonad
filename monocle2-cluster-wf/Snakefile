@@ -1,0 +1,57 @@
+from pathlib import Path
+from larval_gonad.config import read_config
+
+commong_config = read_config('../config/common.yaml')
+ASSEMBLY = commong_config['assembly']
+TAG = commong_config['tag']
+
+rule targets:
+    input: 
+        '../output/monocle2-cluster-wf/testis1_individual.html',
+        '../output/monocle2-cluster-wf/testis2_individual.html',
+        '../output/monocle2-cluster-wf/testis3_individual.html',
+        '../output/monocle2-cluster-wf/testis4_individual.html'
+
+rule testis1:
+    input:
+        rmd = 'scripts/testis1_individual.Rmd'
+    output: 
+        html = '../output/monocle2-cluster-wf/testis1_individual.html',
+    conda: '../envs/monocle2.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: '../scripts/rscript.py'
+
+rule testis2:
+    input:
+        rmd = 'scripts/testis2_individual.Rmd'
+    output: 
+        html = '../output/monocle2-cluster-wf/testis2_individual.html',
+    conda: '../envs/monocle2.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: '../scripts/rscript.py'
+
+rule testis3:
+    input:
+        rmd = 'scripts/testis3_individual.Rmd'
+    output: 
+        html = '../output/monocle2-cluster-wf/testis3_individual.html',
+    conda: '../envs/monocle2.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: '../scripts/rscript.py'
+
+rule testis4:
+    input:
+        rmd = 'scripts/testis4_individual.Rmd'
+    output: 
+        html = '../output/monocle2-cluster-wf/testis4_individual.html',
+    conda: '../envs/monocle2.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: '../scripts/rscript.py'

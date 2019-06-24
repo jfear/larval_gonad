@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials
+  - r-feather
+  - r-svglite
+  - r-seurat=3.0.1
+

@@ -4,8 +4,6 @@
 #' @param object Seurat object
 #' @param dir Output directory
 dump_seurat <- function(object, dir) {
-    save(object, file = file.path(dir, "seurat.Robj"))
-
     meta_data <- as.data.frame(object@meta.data)
     write.table(meta_data, file = file.path(dir, 'metadata.tsv'), quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 

@@ -7,7 +7,7 @@ from yaml import load
 CHROMS = ['chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4', 'chrX', 'chrY', 'chrM']
 OUT = '../output/fbgn2chrom.tsv'
 
-with open('../config/common.yml') as fh:
+with open('../config/common.yaml') as fh:
     CONFIG = load(fh)
 
 

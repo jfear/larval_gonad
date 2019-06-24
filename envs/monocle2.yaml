@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials
+  - r-feather
+  - r-svglite
+  - bioconductor-monocle=2.10.0
+
