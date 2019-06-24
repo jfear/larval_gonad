@@ -1,5 +1,5 @@
 ---
-title: Seurat3 Integrate Testis Replicates
+title: Seurat3 Integrate Testis Replicates (n = 3)
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 output: 
@@ -8,7 +8,7 @@ output:
         keep_md: TRUE
 ---
 
-## Replicate Integration (Seurat v3)
+## Replicate Integration (Seurat v3; n = 3)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
     include = TRUE,
     echo = FALSE,
     cache.lazy = FALSE,
-    fig.path = "integrated_3reps_figures/",
+    fig.path = "combined_n3_figures/",
     fig.ext = c("png", "svg"),
     fig.width = 8
 )
@@ -56,9 +56,17 @@ fbgn2symbol <- feather::read_feather(
 
 ```{r load_data}
 load_seurat_data <- function(sample){
-    load(file.path(DATA_DIR, paste0(sample, '.Robj')))
+    load(file.path(DATA_DIR, paste0(sample, ".Robj")))
+
     sobj <- NormalizeData(sobj, verbose = FALSE)
-    sobj <- FindVariableFeatures(sobj, selection.method = "vst", nfeatures = 2000, verbose = FALSE)
+
+    sobj <- FindVariableFeatures(
+        sobj,
+        selection.method = "vst",
+        nfeatures = 2000,
+        verbose = FALSE
+    )
+
     sobj$sample <- sample
     return(sobj)
 }
@@ -67,15 +75,13 @@ sample.list <- lapply(SAMPLES, load_seurat_data)
 ```
 
 ```{r dimplots, fig.width=8, fig.height=12}
-plts <- lapply(sample.list, DimPlot, label=TRUE, legend='none')
+plts <- lapply(sample.list, DimPlot, label = TRUE, legend = "none")
 gridExtra::grid.arrange(grobs = plts)
 ```
 
-
 ```{r find_anchors}
-anchors <- FindIntegrationAnchors(sample.list, dims=1:30)
+anchors <- FindIntegrationAnchors(sample.list, dims = 1:30)
 ```
-
 
 ```{r combine_samples}
 combined <- IntegrateData(anchorset = anchors, dims = 1:30)
@@ -85,45 +91,53 @@ DefaultAssay(combined) <- "integrated"
 
 ```{r scale_dimension_reduction}
 combined <- ScaleData(combined, verbose = FALSE)
-combined <- RunPCA(combined, npcs = 30, features = VariableFeatures(combined), verbose = FALSE)
+
+combined <- RunPCA(
+    combined,
+    npcs = 30,
+    features = VariableFeatures(combined),
+    verbose = FALSE
+)
+
 combined <- RunUMAP(combined, reduction = "pca", dims = PCA_DIMS)
 ```
 
 ```{r find_clusters}
-combined <- FindNeighbors(combined, reduction = "pca", dims = PCA_DIMS, verbose = FALSE)
+combined <- FindNeighbors(
+    combined,
+    reduction = "pca",
+    dims = PCA_DIMS,
+    verbose = FALSE
+)
+
 combined <- FindClusters(combined, resolution = RESOLUTIONS, verbose = FALSE)
 ```
 
-```{r fig.width=8, fig.height=4}
+```{r umap_reps, fig.width=8, fig.height=4}
 combined <- SetIdent(combined, value = SEL_RESOLUTION)
 p1 <- DimPlot(combined, reduction = "umap", group.by = "sample")
 p2 <- DimPlot(combined, reduction = "umap", label = TRUE)
 plot_grid(p1, p2)
 ```
 
-
-```{r fig.width=8, fig.height=4}
+```{r umap_reps_split, fig.width=8, fig.height=4}
 DimPlot(combined, reduction = "umap", split.by = "sample")
 ```
 
-
-```{r}
+```{r num_cells_per_cluster}
 combined[[c("sample", SEL_RESOLUTION)]] %>%
     rename(res = SEL_RESOLUTION) %>%
     group_by(res) %>%
-    summarise(num_cells=n())
+    summarise(num_cells = n())
 ```
 
-
-```{r}
+```{r num_cells_per_rep_per_cluster}
 combined[[c("sample", SEL_RESOLUTION)]] %>%
     rename(res = SEL_RESOLUTION) %>%
     group_by(sample, res) %>%
-    summarise(num_cells=n()) %>%
+    summarise(num_cells = n()) %>%
     arrange(res, sample)
 ```
-
-
 
 ### Look at marker genes
 
@@ -139,13 +153,25 @@ lg <- fbgn2symbol %>%
     pull("gene_symbol")
 
 VlnPlot(combined, features = lg, ncol = 2, pt.size = .1)
-FeaturePlot(combined, features = lg, ncol = 2, pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = lg,
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
 ```{r vas_bam, fig.width=8, fig.height=4}
-FeaturePlot(combined, features = c("vas", "bam"), pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = c("vas", "bam"),
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
-
 
 #### Spermatocytes
 
@@ -155,12 +181,25 @@ lg <- fbgn2symbol %>%
     pull("gene_symbol")
 
 VlnPlot(combined, features = lg, ncol = 2, pt.size = .1)
-FeaturePlot(combined, features = lg, ncol = 2, pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = lg,
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
-
 ```{r aly_nht_can_soti, fig.width=8, fig.height=8}
-FeaturePlot(combined, features = c("aly", "can", "nht", "soti"), ncol = 2, pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = c("aly", "can", "nht", "soti"),
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
 #### CySC
@@ -171,11 +210,26 @@ lg <- fbgn2symbol %>%
     pull("gene_symbol")
 
 VlnPlot(combined, features = lg, ncol = 2, pt.size = .1)
-FeaturePlot(combined, features = lg, ncol = 2, pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = lg,
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
 ```{r tj_eya, fig.width=8, fig.height=4}
 FeaturePlot(combined, features = c("tj", "eya"), pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = c("tj", "eya"),
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
 #### TE
@@ -186,7 +240,14 @@ lg <- fbgn2symbol %>%
     pull("gene_symbol")
 
 VlnPlot(combined, features = lg, ncol = 2, pt.size = .1)
-FeaturePlot(combined, features = lg, ncol = 2, pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = lg,
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
 #### PC
@@ -197,7 +258,14 @@ lg <- fbgn2symbol %>%
     pull("gene_symbol")
 
 VlnPlot(combined, features = lg, pt.size = .1)
-FeaturePlot(combined, features = lg, pt.size = .4, min.cutoff = 0, order=TRUE)
+FeaturePlot(
+    combined,
+    features = lg,
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
+)
 ```
 
 #### hub
@@ -208,44 +276,13 @@ lg <- fbgn2symbol %>%
     pull("gene_symbol")
 
 VlnPlot(combined, features = lg, ncol = 2, pt.size = .1)
-FeaturePlot(combined, features = lg, ncol = 2, pt.size = .4, min.cutoff = 0, order=TRUE)
-```
-
-### Cluster Markers
-
-```{r find_markers}
-DefaultAssay(combined) <- "RNA"
-biomarkers <- FindAllMarkers(combined, only.pos = TRUE, verbose = FALSE)
-
-biomarkers <- tibble::as_tibble(biomarkers) %>%
-    rename(gene_symbol = gene) %>%
-    left_join(fbgn2symbol) %>%
-    select(FBgn, gene_symbol, cluster, everything())
-```
-
-```{r num_markers_per_cluster}
-biomarkers %>%
-    filter(p_val_adj <= 0.001) %>%
-    group_by(cluster) %>%
-    summarise(num_markers_per_cluster = n()) %>%
-    print(n = nrow(.))
-```
-
-
-
-```{r save_biomarkers}
-write.table(
-    biomarkers,
-    file = file.path(DATA_DIR, paste("combined", paste0("n", length(SAMPLES)), "biomarkers.tsv", sep="_")),
-    sep = "\t",
-    quote = FALSE,
-    row.names = FALSE,
-    col.names = TRUE
-)
-
-feather::write_feather(
-    biomarkers,
-    path = file.path(DATA_DIR, paste("combined", paste0("n", length(SAMPLES)), "biomarkers.feather", sep="_"))
+FeaturePlot(
+    combined,
+    features = lg,
+    ncol = 2,
+    pt.size = .4,
+    min.cutoff = 0,
+    order = TRUE
 )
 ```
 
@@ -253,29 +290,12 @@ feather::write_feather(
 ```{r save_robj}
 save(
     tesits1 = combined,
-    file = file.path(DATA_DIR, paste0(paste("combined", paste0("n", length(SAMPLES)), sep="_"), ".Robj"))
-)
-```
-
-```{r save_metadata}
-df <- tibble::as_tibble(
-    combined@meta.data %>%
-        tibble::rownames_to_column("cell_id")
-)
-
-df$cluster <- df[, SEL_RESOLUTION] %>% pull(.)
-
-write.table(
-    df,
-    file = file.path(DATA_DIR, paste("combined", paste0("n", length(SAMPLES)), "clusters.tsv", sep="_")),
-    sep = "\t",
-    quote = FALSE,
-    row.names = FALSE,
-    col.names = TRUE
-)
-
-feather::write_feather(
-    df,
-    path = file.path(DATA_DIR, paste("combined", paste0("n", length(SAMPLES)), "clusters.feather", sep="_"))
+    file = file.path(
+        DATA_DIR,
+        paste0(
+            paste("combined", paste0("n", length(SAMPLES)), sep = "_"),
+            ".Robj"
+        )
+    )
 )
 ```

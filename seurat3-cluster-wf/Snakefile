@@ -12,8 +12,30 @@ rule targets:
         '../output/seurat3-cluster-wf/testis2_individual.html',
         '../output/seurat3-cluster-wf/testis3_individual.html',
         '../output/seurat3-cluster-wf/testis4_individual.html',
-        '../output/seurat3-cluster-wf/integrated_analysis_3reps.html',
-        '../output/seurat3-cluster-wf/integrated_analysis_4reps.html',
+        expand('../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather', cnt=[3, 4]),
+        expand(
+            '../output/seurat3-cluster-wf/{sample}_normalized.feather', 
+            sample=[
+                'testis1_individual',
+                'testis2_individual',
+                'testis3_individual',
+                'testis4_individual',
+                'combined_n3',
+                'combined_n4',
+            ]
+        ),
+        expand(
+            '../output/seurat3-cluster-wf/{sample}_metadata.feather', 
+            sample=[
+                'testis1_individual',
+                'testis2_individual',
+                'testis3_individual',
+                'testis4_individual',
+                'combined_n3',
+                'combined_n4',
+            ]
+        )
+
 
 rule testis1:
     input:
@@ -26,6 +48,7 @@ rule testis1:
         time_hr=lambda wildcards, attempt: attempt * 6
     script: '../scripts/rscript.py'
 
+
 rule testis2:
     input:
         rmd = 'scripts/testis2_individual.Rmd'
@@ -36,6 +59,7 @@ rule testis2:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
     script: '../scripts/rscript.py'
+
 
 rule testis3:
     input:
@@ -48,6 +72,7 @@ rule testis3:
         time_hr=lambda wildcards, attempt: attempt * 6
     script: '../scripts/rscript.py'
 
+
 rule testis4:
     input:
         rmd = 'scripts/testis4_individual.Rmd'
@@ -59,26 +84,70 @@ rule testis4:
         time_hr=lambda wildcards, attempt: attempt * 6
     script: '../scripts/rscript.py'
 
+
 rule merge_3reps:
     input: 
-        rmd = 'scripts/integrated_analysis_3reps.Rmd',
+        rmd = 'scripts/combined_n3.Rmd',
         data = expand('../output/seurat3-cluster-wf/{sample}_individual.html', sample=SAMPLES[:3])
     output:
-        html = '../output/seurat3-cluster-wf/integrated_analysis_3reps.html',
+        html = '../output/seurat3-cluster-wf/combined_n3.html',
     conda: '../envs/seurat3.yaml'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
     script: '../scripts/rscript.py'
 
+
 rule merge_4reps:
     input: 
-        rmd = 'scripts/integrated_analysis_4reps.Rmd',
+        rmd = 'scripts/combined_n4.Rmd',
         data = expand('../output/seurat3-cluster-wf/{sample}_individual.html', sample=SAMPLES)
     output:
-        html = '../output/seurat3-cluster-wf/integrated_analysis_4reps.html',
+        html = '../output/seurat3-cluster-wf/combined_n4.html',
     conda: '../envs/seurat3.yaml'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
     script: '../scripts/rscript.py'
+
+
+rule biomarkers:
+    input: 
+        html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
+        gene_annotation = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+    output: 
+        tsv = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.tsv",
+        feather = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather"
+    conda: '../envs/seurat3.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: 'scripts/combined_biomarkers.R'
+
+
+def _params(wildcards):
+    return {
+        'testis1_individual': 'RNA_snn_res.0.8',
+        'testis2_individual': 'RNA_snn_res.0.6',
+        'testis3_individual': 'RNA_snn_res.0.6',
+        'testis4_individual': 'RNA_snn_res.0.6',
+        'combined_n3': 'integrated_snn_res.0.3',
+        'combined_n4': 'integrated_snn_res.0.3',
+
+    }[wildcards.sample]
+
+
+rule dump_robj:
+    input: 
+        html = "../output/seurat3-cluster-wf/{sample}.html",
+        gene_annotation = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+    output: 
+        norm = "../output/seurat3-cluster-wf/{sample}_normalized.feather",
+        metadata = "../output/seurat3-cluster-wf/{sample}_metadata.feather"
+    params:
+        integrated_resolution = _params
+    conda: '../envs/seurat3.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: 'scripts/combined_dump.R'
