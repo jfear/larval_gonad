@@ -58,25 +58,25 @@ write_feather(df, path = METADATA)
 
 # PCA Cell Embedings
 df <- as_tibble(
-    as.data.frame(Embeddings(sobj, reduction = "pca")) %>% 
-    rownames_to_column('cell_id')
+    as.data.frame(Embeddings(sobj, reduction = "pca")) %>%
+        rownames_to_column("cell_id")
 )
 
 write_feather(df, path = PCA_EMBED)
 
 # PCA Gene Loadings
 df <- as_tibble(
-    as.data.frame(Loadings(sobj, reduction = "pca")) %>% 
-    rownames_to_column('gene_symbol') %>%
-    left_join(fbgn2symbol, by = 'gene_symbol') %>%
-    select(FBgn, gene_symbol, everything())
+    as.data.frame(Loadings(sobj, reduction = "pca")) %>%
+        rownames_to_column("gene_symbol") %>%
+        left_join(fbgn2symbol, by = "gene_symbol") %>%
+        select(FBgn, gene_symbol, everything())
 )
 
 write_feather(df, path = PCA_LOAD)
 
 # UMAP
 df <- as_tibble(
-    as.data.frame(Embeddings(sobj, reduction = "umap")) %>% 
-    rownames_to_column('cell_id')
+    as.data.frame(Embeddings(sobj, reduction = "umap")) %>%
+        rownames_to_column("cell_id")
 )
 write_feather(df, path = UMAP)
