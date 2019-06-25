@@ -33,6 +33,7 @@ rule all:
         '../output/science_submission/zscore_by_cluster_rep.feather',
         '../output/science_submission/background_fbgns.pkl',
         '../output/science_submission/gene_locations.feather',
+        '../output/science_submission/figures/heatmap-all-genes-w-rep.svg',
         '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg',
         '../output/science_submission/figures/umap.svg',
         '../output/science_submission/figures/boxplot-autosome-ratio.svg',
@@ -169,6 +170,16 @@ rule plot_heatmap_all_lit_genes:
     script: 'scripts/plot_heatmap_all_lit_genes.py'
 
 # # Supplemental Figures
+
+rule plot_heatmap_all_genes:
+    input:
+         zscores=rules.zscore.output[0],
+         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+    output: '../output/science_submission/figures/heatmap-all-genes-w-rep.svg'
+    params:
+        lit_genes=LIT_GENES,
+        cmap=COLORS['heatmap']
+    script: 'scripts/plot_heatmap_all_genes.py'
 
 # rule plot_heatmap_unique_biomarkers:
 #     input:
