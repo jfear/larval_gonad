@@ -29,7 +29,7 @@ def main():
             results.append((cluster, pval_x <= 0.05, pval_4 <= 0.05, pval_y <= 0.05))
 
     df = pd.DataFrame(results, columns=["cluster", "pval_x", "pval_4", "pval_y"])
-    pvals = 1 - df.groupby("cluster").mean().reindex(ratios.cluster.cat.categories)
+    pvals = 1 - df.groupby("cluster").mean().reindex(ratios.cluster.cat.categories).rename_axis('cluster')
     pvals.reset_index().to_feather(ONAME)
 
 
