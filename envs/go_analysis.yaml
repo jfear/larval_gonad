@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-essentials
+  - r-feather
+  - r-svglite
+  - bioconductor-clusterprofiler=3.10.1
+  - bioconductor-org.dm.eg.db=3.7.0

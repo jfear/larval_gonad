@@ -30,7 +30,8 @@ rule targets:
                 "pca_gene_loadings",
                 "umap",
             ]
-        )
+        ),
+        '../output/seurat3-cluster-wf/combined_n3_GO_analysis.html',
 
 
 rule testis1:
@@ -150,3 +151,16 @@ rule dump_robj:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/dump.R'
+
+
+rule combined_n3_GO:
+    input: 
+        rmd = 'scripts/combined_n3_GO_analysis.Rmd',
+        data = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output:
+        html = '../output/seurat3-cluster-wf/combined_n3_GO_analysis.html',
+    conda: '../envs/go_analysis.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: '../scripts/rscript.py'
