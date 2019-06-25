@@ -35,6 +35,7 @@ rule all:
         '../output/science_submission/gene_locations.feather',
         '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg',
         '../output/science_submission/figures/umap.svg',
+        '../output/science_submission/figures/boxplot-autosome-ratio.svg',
         # '../output/science_submission/figures/cluster-legend.svg',
         # '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
         # '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
@@ -43,7 +44,6 @@ rule all:
         # '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg',
         # '../output/science_submission/figures/heatmap-y-genes.svg',
         # '../output/science_submission/figures/heatmap-msl-genes.svg',
-        #  '../output/science_submission/figures/boxplot-autosome-ratio.svg',
         # '../output/science_submission/figures/boxplot-total-umi.svg',
         # '../output/science_submission/figures/boxplot-expression-diversity.svg',
         # '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg',
@@ -127,9 +127,9 @@ rule gene_locs:
 #     output: '../output/science_submission/ptrap_scores.parquet'
 #     script: 'scripts/ptrap-scores.py'
 
-# ################################################################################
-# # Fig 1
-# ################################################################################
+################################################################################
+# Fig 1
+################################################################################
 
 # rule plot_cluster_legend:
 #     params:
@@ -214,21 +214,19 @@ rule plot_heatmap_all_lit_genes:
 #     output: '../output/science_submission/figures/heatmap-ptrap-scores.svg'
 #     script: 'scripts/plot_heatmap_ptrap_scores.py'
 
-# ################################################################################
-# # Fig 2
-# ################################################################################
+################################################################################
+# Fig 2
+################################################################################
 
 # # (A, B) Distribution of X:A and 4:A ratios by cluster
-# rule plot_boxplot_autosome_ratio:
-#     input:
-#         ratios='../output/x-to-a-wf/autosome_ratios_by_cell.parquet',
-#         pvals='../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
-#     output: '../output/science_submission/figures/boxplot-autosome-ratio.svg'
-#     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_boxplot_autosome_ratio.py'
+rule plot_boxplot_autosome_ratio:
+    input:
+        ratios='../output/x-to-a-wf/autosome_ratios_by_cell.feather',
+        pvals='../output/x-to-a-wf/permuted_autosome_ratio_pvalues.feather'
+    output: '../output/science_submission/figures/boxplot-autosome-ratio.svg'
+    params:
+          cluster_colors=COLORS['clusters']
+    script: 'scripts/plot_boxplot_autosome_ratio.py'
 
 # # (D) Normalized Y expression by cluster
 # rule plot_boxplot_y_genes:
