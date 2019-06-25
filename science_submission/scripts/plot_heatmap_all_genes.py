@@ -5,7 +5,6 @@ matplotlib.use("Agg")
 
 from itertools import chain
 from more_itertools import flatten
-from pickle import loads
 import pandas as pd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
