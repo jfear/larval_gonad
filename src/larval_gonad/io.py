@@ -149,3 +149,21 @@ def cellranger_counts(fname, genome='dm6.16'):
     barcodes = np.array([x.decode().replace('-1', '') for x in barcodes])
 
     return CellRangerCounts(matrix, gene_ids, barcodes)
+
+
+def feather_to_cluster_rep_matrix(fname):
+    """Helper function to building a cluster rep matrix from a feather"""
+    return (
+        pd.read_feather(fname)
+        .set_index(['FBgn', 'cluster', 'rep'])
+        .iloc[:, 0]
+        .unstack(level=[1, 2])
+    )
+
+
+def melt_cluster_rep_matrix(df, name='count'):
+    """Helper function to melt a cluster rep matrix for saving as feather"""
+    return (
+        df.T.reset_index()
+        .melt(id_vars=['cluster', 'rep'], var_name='FBgn', value_name=name)
+    )
