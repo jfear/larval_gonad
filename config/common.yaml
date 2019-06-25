@@ -37,3 +37,14 @@ chrom_order:
   - chr3R
   - chr4
   - chrY
+legend_names:
+  - 'Spermatogonia'
+  - 'Early Primary Spermatocyte'
+  - 'Primary Spermatocyte (1)'
+  - 'Primary Spermatocyte (2)'
+  - 'Primary Spermatocyte (2)'
+  - 'Early Somatic Cyst Cell'
+  - 'Somatic Cyst Cell (1)'
+  - 'Somatic Cyst Cell (2)'
+  - 'Terminal Epithelium'
+  - 'Pigment Cells'

@@ -37,7 +37,7 @@ rule all:
         '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg',
         '../output/science_submission/figures/umap.svg',
         '../output/science_submission/figures/boxplot-autosome-ratio.svg',
-        # '../output/science_submission/figures/cluster-legend.svg',
+        '../output/science_submission/figures/cluster-legend.svg',
         # '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
         # '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
         # '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
@@ -132,12 +132,12 @@ rule gene_locs:
 # Fig 1
 ################################################################################
 
-# rule plot_cluster_legend:
-#     params:
-#         cluster_colors=config['colors']['clusters'],
-#         legend_names = config['legend_names']
-#     output: '../output/science_submission/figures/cluster-legend.svg'
-#     script: 'scripts/plot_cluster_legend.py'
+rule plot_cluster_legend:
+    params:
+        cluster_colors=COLORS['clusters'],
+        legend_names = config['legend_names']
+    output: '../output/science_submission/figures/cluster-legend.svg'
+    script: 'scripts/plot_cluster_legend.py'
 
 # # (B) Correlation with bulk RNA-Seq
 # rule plot_heatmap_bulk_scRNAseq_w_rep:
