@@ -8,9 +8,11 @@ HTML <- snakemake@input[["html"]]
 if (grepl("combined", HTML)) {
     COMBINED <- TRUE
     INPUT_ROBJ <- gsub(".html", ".Robj", HTML)
+    SW <- "int"
 } else {
     COMBINED <- FALSE
     INPUT_ROBJ <- gsub("_individual.html", ".Robj", HTML)
+    SW <- "RNA_snn"
 }
 
 GENE_ANNOTATION <- snakemake@input[["gene_annotation"]]
@@ -50,7 +52,7 @@ df <- as_tibble(
     sobj@meta.data %>%
         rownames_to_column("cell_id")
 ) %>%
-    select(cell_id, nCount_RNA, nFeature_RNA, starts_with("int"))
+    select(cell_id, nCount_RNA, nFeature_RNA, starts_with(SW))
 
 df$cluster <- df[, RESOLUTION] %>% pull(.)
 
