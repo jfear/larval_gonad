@@ -49,7 +49,7 @@ def main():
     sns.boxplot("cluster", "fourth_to_a_ratio", ax=ax2, **_defaults)
     ax2.set_axisbelow(True)
     ax2.axhline(1, ls="--", lw=0.5, color="#b0b0b0", zorder=0)
-    ax2.set(xlabel="", ylabel="X:A")
+    ax2.set(xlabel="", ylabel="4:A")
     ax2.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
 
     # Add p-value indicators
