@@ -40,11 +40,11 @@ rule all:
         '../output/science_submission/figures/cluster-legend.svg',
         '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
         '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg',
+        '../output/science_submission/figures/violin-total-umi.svg'
+        # '../output/science_submission/figures/boxplot-total-umi.svg',
         # '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
         # '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
-        # '../output/science_submission/figures/heatmap-all-genes.svg',
         # '../output/science_submission/figures/heatmap-y-genes.svg',
-        # '../output/science_submission/figures/heatmap-msl-genes.svg',
         # '../output/science_submission/figures/boxplot-total-umi.svg',
         # '../output/science_submission/figures/boxplot-expression-diversity.svg',
         # '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg',
@@ -274,14 +274,14 @@ rule plot_boxplot_autosome_ratio:
 #           cluster_colors=config['colors']['clusters']
 #     script: 'scripts/plot_barplot_cell_per_cluster.py'
 
-# rule plot_violin_total_umi:
-#     input: '../output/scrnaseq-wf/raw.parquet'
-#     output: '../output/science_submission/figures/violin-total-umi.svg'
-#     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_violin_total_umi.py'
+rule plot_violin_total_umi:
+    input: rules.raw_agg.output[0],
+    output: '../output/science_submission/figures/violin-total-umi.svg'
+    params:
+        cluster_colors = COLORS['clusters'],
+        cluster_annot = config['cluster_annot'],
+        cluster_order = config['cluster_order']
+    script: 'scripts/plot_violin_total_umi.py'
 
 # rule plot_boxplot_total_umi:
 #     input: '../output/scrnaseq-wf/raw.parquet'
