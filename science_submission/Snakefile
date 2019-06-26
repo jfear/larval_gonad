@@ -81,7 +81,7 @@ rule raw:
     script: 'scripts/raw_expression_matrix.py'
 
 rule raw_agg:
-    input: 
+    input:
         raw = rules.raw.output[0],
         metadata = '../output/seurat3-cluster-wf/combined_n3_metadata.feather',
     output: '../output/science_submission/raw_by_cluster_rep.feather'
@@ -91,7 +91,7 @@ rule raw_agg:
     script: 'scripts/raw_agg.py'
 
 rule tpm:
-    input: 
+    input:
         raw_agg = rules.raw_agg.output[0],
         gene_metadata = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
     output: '../output/science_submission/tpm_by_cluster_rep.feather'
@@ -112,7 +112,7 @@ rule background:
             pd.read_feather(input[0])
             .set_index('FBgn')
             .sum(axis=1)
-            .pipe(lambda df: df[df > 0])                                                                                                                                                                                  
+            .pipe(lambda df: df[df > 0])
             .index.values
         )
         with open(output[0], 'wb') as fh:
@@ -184,7 +184,7 @@ rule plot_heatmap_all_genes:
 rule plot_heatmap_unique_biomarkers:
     input:
          zscores=rules.zscore.output[0],
-         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather',
          biomarkers='../output/seurat3-cluster-wf/combined_n3_biomarkers.feather'
     output: '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg'
     params:
