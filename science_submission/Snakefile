@@ -38,7 +38,7 @@ rule all:
         '../output/science_submission/figures/umap.svg',
         '../output/science_submission/figures/boxplot-autosome-ratio.svg',
         '../output/science_submission/figures/cluster-legend.svg',
-        # '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
+        '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
         # '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
         # '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
         # '../output/science_submission/figures/heatmap-all-genes.svg',
@@ -188,6 +188,8 @@ rule plot_heatmap_unique_biomarkers:
          biomarkers='../output/seurat3-cluster-wf/combined_n3_biomarkers.feather'
     output: '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg'
     params:
+        cluster_annot = config['cluster_annot'],
+        cluster_order = config['cluster_order'],
           cmap=COLORS['heatmap']
     script: 'scripts/plot_heatmap_unique_biomarkers.py'
 
