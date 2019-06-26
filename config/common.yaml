@@ -29,6 +29,17 @@ cluster_order:
   - 'CY2'
   - 'TE'
   - 'PC'
+cluster_types:
+  - 'germ'
+  - 'germ'
+  - 'germ'
+  - 'germ'
+  - 'germ'
+  - 'soma'
+  - 'soma'
+  - 'soma'
+  - 'soma'
+  - 'soma'
 chrom_order:
   - chrX
   - chr2L
