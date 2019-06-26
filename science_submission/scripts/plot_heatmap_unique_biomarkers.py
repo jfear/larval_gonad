@@ -95,7 +95,7 @@ def main():
         loc += dd.shape[0]
         mid = loc - ((loc - prev) / 2)
         ax.axhline(loc, color='w', ls='--', lw=.5)
-        txt = f'{clus} ({dd.shape[0]})'
+        txt = f'{clus} ({dd.shape[0]:,})'
         ax.text(xloc, mid, txt, ha='left', va='center', fontweight='bold', fontsize=8)
 
     fig.savefig(ONAME, bbox_inches='tight')
