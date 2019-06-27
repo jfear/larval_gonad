@@ -40,7 +40,8 @@ rule all:
         '../output/science_submission/figures/cluster-legend.svg',
         '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
         '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg',
-        '../output/science_submission/figures/violin-total-umi.svg'
+        '../output/science_submission/figures/violin-total-umi.svg',
+        '../output/science_submission/figures/boxplot-y-genes.svg',
         # '../output/science_submission/figures/boxplot-total-umi.svg',
         # '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
         # '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
@@ -48,7 +49,6 @@ rule all:
         # '../output/science_submission/figures/boxplot-total-umi.svg',
         # '../output/science_submission/figures/boxplot-expression-diversity.svg',
         # '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg',
-        # '../output/science_submission/figures/boxplot-y-genes.svg',
         # '../output/science_submission/figures/barplot-replicate-representation.svg',
         # '../output/science_submission/figures/barplot_germline_deg.svg',
         # '../output/science_submission/figures/barplot-cell-per-cluster.svg',
@@ -239,17 +239,17 @@ rule plot_boxplot_autosome_ratio:
     script: 'scripts/plot_boxplot_autosome_ratio.py'
 
 # # (D) Normalized Y expression by cluster
-# rule plot_boxplot_y_genes:
-#     input:
-#          tpm='../output/scrnaseq-wf/tpm_w_rep.parquet',
-#          clusters='../output/scrnaseq-wf/clusters.parquet',
-#          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
-#     output: '../output/science_submission/figures/boxplot-y-genes.svg'
-#     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters'],
-#     script: 'scripts/plot_boxplot_y_genes.py'
+rule plot_boxplot_y_genes:
+    input:
+        tpm=rules.tpm.output[0],
+        metadata = '../output/seurat3-cluster-wf/combined_n3_metadata.feather',
+        gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+    output: '../output/science_submission/figures/boxplot-y-genes.svg'
+    params:
+        cluster_annot = config['cluster_annot'],
+        cluster_order = config['cluster_order'],
+        cluster_colors=COLORS['clusters']
+    script: 'scripts/plot_boxplot_y_genes.py'
 
 # # Supplemental Figures
 # rule plot_barplot_replicate_representation:
