@@ -273,16 +273,14 @@ rule plot_boxplot_y_genes:
 #     script: 'scripts/plot_barplot_cell_per_cluster.py'
 
 rule plot_violin_total_umi:
-    input: rules.raw_agg.output[0],
+    input: rules.raw_agg.output[0]
     output: '../output/science_submission/figures/violin-total-umi.svg'
     params:
-        cluster_colors = COLORS['clusters'],
-        cluster_annot = config['cluster_annot'],
-        cluster_order = config['cluster_order']
+        cluster_colors = COLORS['clusters']
     script: 'scripts/plot_violin_total_umi.py'
 
 rule plot_boxplot_total_umi:
-    input: rules.raw_agg.output[0],
+    input: rules.raw_agg.output[0]
     output: '../output/science_submission/figures/boxplot-total-umi.svg'
     params:
         cluster_colors = COLORS['clusters']
