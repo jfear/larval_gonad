@@ -38,7 +38,10 @@ def main():
     )
     cell_annot.head()
 
-    umap = pd.read_feather(UMAP).set_index("cell_id").join(cell_annot, how="right")
+    umap = (
+        pd.read_feather(UMAP).set_index("cell_id").join(cell_annot, how="right")
+        .assign(UMAP_1=lambda df: df.UMAP_1 * -1)
+    )
 
     plt.style.use("scripts/figure_styles.mplstyle")
     fig, ax = plt.subplots()
