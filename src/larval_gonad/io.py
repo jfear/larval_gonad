@@ -8,12 +8,11 @@ import tables
 
 from .config import memory
 
-NUCS = ['A', 'C', 'G', 'T']
-NUCS_INVERSE = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+NUCS = ["A", "C", "G", "T"]
+NUCS_INVERSE = {"A": 0, "C": 1, "G": 2, "T": 3}
 
 
-CellRangerCounts = namedtuple('CellRangerCounts',
-                              ['matrix', 'gene_ids', 'barcodes'])
+CellRangerCounts = namedtuple("CellRangerCounts", ["matrix", "gene_ids", "barcodes"])
 
 
 def compress_seq(s: str):
@@ -27,7 +26,7 @@ def compress_seq(s: str):
 
     """
     bits = 64
-    assert len(s) <= (bits/2 - 1)
+    assert len(s) <= (bits / 2 - 1)
     result = 0
     for nuc in s:
         if nuc not in NUCS_INVERSE:
@@ -56,12 +55,12 @@ def decompress_seq(x: int, length=16):
     """
     bits = 64
     x = np.uint64(x)
-    assert length <= (bits/2 - 1)
-    if x & (1 << (bits-1)):
-        return 'N' * length
+    assert length <= (bits / 2 - 1)
+    if x & (1 << (bits - 1)):
+        return "N" * length
     result = bytearray(length)
     for i in range(length):
-        result[(length-1)-i] = bytearray(NUCS[x & np.uint64(0b11)].encode())[0]
+        result[(length - 1) - i] = bytearray(NUCS[x & np.uint64(0b11)].encode())[0]
         x = x >> np.uint64(2)
     return result.decode()
 
@@ -95,23 +94,19 @@ def decode_cell_names(iterable):
 
 @memory.cache
 def cellranger_umi(fname):
-    with tables.open_file(fname, 'r') as f:
-        group = f.get_node('/')
-        cell_ids = getattr(group, 'barcode').read()
-        umi = getattr(group, 'umi').read()
-        read_cnts = getattr(group, 'reads').read()
+    with tables.open_file(fname, "r") as f:
+        group = f.get_node("/")
+        cell_ids = getattr(group, "barcode").read()
+        umi = getattr(group, "umi").read()
+        read_cnts = getattr(group, "reads").read()
 
     cell_names = decode_cell_names(cell_ids)
 
-    return pd.DataFrame(dict(
-        cell_id=cell_names,
-        umi=umi,
-        read_cnt=read_cnts
-    ))
+    return pd.DataFrame(dict(cell_id=cell_names, umi=umi, read_cnt=read_cnts))
 
 
 @memory.cache
-def cellranger_counts(fname, genome='dm6.16'):
+def cellranger_counts(fname, genome="dm6.16"):
     """Import cell ranger counts.
 
     Cell ranger stores it counts tables in a hdf5 formatted file. This reads
@@ -131,22 +126,22 @@ def cellranger_counts(fname, genome='dm6.16'):
     namedtuple: matrix, gene_ids, barcodes
 
     """
-    with tables.open_file(fname, 'r') as f:
+    with tables.open_file(fname, "r") as f:
         try:
             group = f.get_node(f.root, genome)
         except tables.NoSuchNodeError:
             print("That genome does not exist in this file.")
             return None
-        gene_ids = getattr(group, 'genes').read()
-        barcodes = getattr(group, 'barcodes').read()
-        data = getattr(group, 'data').read()
-        indices = getattr(group, 'indices').read()
-        indptr = getattr(group, 'indptr').read()
-        shape = getattr(group, 'shape').read()
+        gene_ids = getattr(group, "genes").read()
+        barcodes = getattr(group, "barcodes").read()
+        data = getattr(group, "data").read()
+        indices = getattr(group, "indices").read()
+        indptr = getattr(group, "indptr").read()
+        shape = getattr(group, "shape").read()
 
     matrix = sp_sparse.csc_matrix((data, indices, indptr), shape=shape)
     gene_ids = np.array([x.decode() for x in gene_ids])
-    barcodes = np.array([x.decode().replace('-1', '') for x in barcodes])
+    barcodes = np.array([x.decode().replace("-1", "") for x in barcodes])
 
     return CellRangerCounts(matrix, gene_ids, barcodes)
 
@@ -155,15 +150,12 @@ def feather_to_cluster_rep_matrix(fname):
     """Helper function to building a cluster rep matrix from a feather"""
     return (
         pd.read_feather(fname)
-        .set_index(['FBgn', 'cluster', 'rep'])
+        .set_index(["FBgn", "cluster", "rep"])
         .iloc[:, 0]
         .unstack(level=[1, 2])
     )
 
 
-def melt_cluster_rep_matrix(df, name='count'):
+def melt_cluster_rep_matrix(df, name="count"):
     """Helper function to melt a cluster rep matrix for saving as feather"""
-    return (
-        df.T.reset_index()
-        .melt(id_vars=['cluster', 'rep'], var_name='FBgn', value_name=name)
-    )
+    return df.T.reset_index().melt(id_vars=["cluster", "rep"], var_name="FBgn", value_name=name)

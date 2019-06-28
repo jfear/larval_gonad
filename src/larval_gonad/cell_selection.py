@@ -24,10 +24,10 @@ def build_umi_gene_count_table(cr_raw, cr_umi):
     umi = cellranger_umi(cr_umi)
 
     num_genes_on = calc_num_genes_on(cr)
-    umi_cnts = umi.query('read_cnt > 0').groupby('cell_id').size().to_frame()
-    umi_cnts.columns = ['umi_cnt']
+    umi_cnts = umi.query("read_cnt > 0").groupby("cell_id").size().to_frame()
+    umi_cnts.columns = ["umi_cnt"]
 
-    return umi_cnts.join(num_genes_on).sort_values('umi_cnt', ascending=False)
+    return umi_cnts.join(num_genes_on).sort_values("umi_cnt", ascending=False)
 
 
 def calc_num_genes_on(cr: CellRangerCounts):
@@ -38,8 +38,8 @@ def calc_num_genes_on(cr: CellRangerCounts):
 
     """
     num_genes_on = np.asarray((cr.matrix > 0).sum(axis=0))[0]
-    idx = pd.Index(cr.barcodes, name='cell_id')
-    return pd.Series(data=num_genes_on, index=idx, name='gene_cnt')
+    idx = pd.Index(cr.barcodes, name="cell_id")
+    return pd.Series(data=num_genes_on, index=idx, name="gene_cnt")
 
 
 def cells_with_min_gene_expression(cr: CellRangerCounts, cutoff=200):
@@ -82,11 +82,7 @@ def filter_gene_counts_by_barcode(barcodes: np.array, cr: CellRangerCounts):
     bcs = cr.barcodes[mask]
     matrix = cr.matrix[:, mask].todense()
 
-    return pd.DataFrame(
-        data=matrix,
-        index=pd.Index(cr.gene_ids, name='FBgn'),
-        columns=bcs
-    )
+    return pd.DataFrame(data=matrix, index=pd.Index(cr.gene_ids, name="FBgn"), columns=bcs)
 
 
 def get_number_of_expressed_genes(fname):
@@ -95,39 +91,29 @@ def get_number_of_expressed_genes(fname):
     fname : str
         Path to the gene counts table.
     """
-    cnts = pd.read_csv(fname, sep='\t')
+    cnts = pd.read_csv(fname, sep="\t")
     return (cnts.sum(axis=1) > 0).sum()
 
 
 def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
     """Plot Barcode Rank Plot."""
-    options = {
-        'kind': 'scatter',
-        's': 3,
-        'logx': True,
-        'logy': True
-    }
+    options = {"kind": "scatter", "s": 3, "logx": True, "logy": True}
     options.update(kwargs)
     try:
-        ax = options.pop('ax')
+        ax = options.pop("ax")
     except KeyError:
         ax = make_ax()
 
     dat = umi.to_frame()
-    dat.columns = ['umi']
+    dat.columns = ["umi"]
 
-    dat = dat.sort_values('umi', ascending=False)
-    dat['cell_num'] = list(range(1, dat.shape[0] + 1))
+    dat = dat.sort_values("umi", ascending=False)
+    dat["cell_num"] = list(range(1, dat.shape[0] + 1))
 
-    dat.plot('cell_num', 'umi', c='lightgrey', ax=ax, **options)
+    dat.plot("cell_num", "umi", c="lightgrey", ax=ax, **options)
 
     if selected is not None:
-        dat.loc[dat.index.isin(selected), :].plot('cell_num',
-                                                  'umi',
-                                                  c='g',
-                                                  ax=ax,
-                                                  **options
-                                                  )
+        dat.loc[dat.index.isin(selected), :].plot("cell_num", "umi", c="g", ax=ax, **options)
 
     if title is not None:
         ax.set_title(title)

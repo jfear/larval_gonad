@@ -14,15 +14,10 @@ from lcdblib.plotting import maPlot, PairGrid, corrfunc
 
 from .cell_selection import filter_gene_counts_by_barcode
 
-TESTIS_BULK = [
-    'B5_TCP',
-    'B6_TCP',
-    'B7_TCP',
-    'B8_TCP',
-]
+TESTIS_BULK = ["B5_TCP", "B6_TCP", "B7_TCP", "B8_TCP"]
 
 
-def read_bulk(path, filter=None, pattern='*/*.featurecounts.txt'):
+def read_bulk(path, filter=None, pattern="*/*.featurecounts.txt"):
     """Read in a folder of feature count data.
 
     Using the lcdb-wf, featurecounts are organized in a set of sub-folders for
@@ -50,8 +45,7 @@ def read_bulk(path, filter=None, pattern='*/*.featurecounts.txt'):
         sname = fname.parent.name
         if (filter is not None) & (sname in filter):
 
-            dat = pd.read_csv(fname, sep='\t', comment='#',
-                              index_col=[0]).iloc[:, -1]
+            dat = pd.read_csv(fname, sep="\t", comment="#", index_col=[0]).iloc[:, -1]
 
             dat.name = sname
             dfs.append(dat)
@@ -61,7 +55,7 @@ def read_bulk(path, filter=None, pattern='*/*.featurecounts.txt'):
     return bulk_dat
 
 
-def read_bulk_for_lengths(path, filter=None, pattern='*/*.featurecounts.txt'):
+def read_bulk_for_lengths(path, filter=None, pattern="*/*.featurecounts.txt"):
     """Read in a folder of feature count data to get gene lengths.
 
     Using the lcdb-wf, featurecounts are organized in a set of sub-folders for
@@ -89,18 +83,16 @@ def read_bulk_for_lengths(path, filter=None, pattern='*/*.featurecounts.txt'):
         sname = fname.parent.name
         if (filter is not None) & (sname in filter):
 
-            dat = pd.read_csv(fname, sep='\t', comment='#',
-                              index_col=[0]).iloc[:, -2]
+            dat = pd.read_csv(fname, sep="\t", comment="#", index_col=[0]).iloc[:, -2]
 
-            dat.name = 'length'
+            dat.name = "length"
             dfs.append(dat)
 
     bulk_dat = pd.concat(dfs, axis=0)
-    return bulk_dat.to_frame().reset_index().drop_duplicates().set_index('Geneid').length
+    return bulk_dat.to_frame().reset_index().drop_duplicates().set_index("Geneid").length
 
 
-def plot_bulk_pairwise_corr(bulk_dat, subplots_kws=None, scatter_kws=None,
-                            corrfunc_kws=None):
+def plot_bulk_pairwise_corr(bulk_dat, subplots_kws=None, scatter_kws=None, corrfunc_kws=None):
     """Plot a pairgrid of RNA-seq data.
 
     The upper triangle is the scatter plot and spearman correlation. The lower
@@ -119,19 +111,13 @@ def plot_bulk_pairwise_corr(bulk_dat, subplots_kws=None, scatter_kws=None,
     if corrfunc_kws is None:
         corrfunc_kws = {}
 
-    subplots_default = {
-        'sharex': False,
-        'sharey': False
-    }
+    subplots_default = {"sharex": False, "sharey": False}
     subplots_default.update(subplots_kws)
 
-    scatter_default = {
-        's': 10
-    }
+    scatter_default = {"s": 10}
     scatter_default.update(scatter_kws)
 
-    corrfunc_default = {
-    }
+    corrfunc_default = {}
     corrfunc_default.update(corrfunc_kws)
 
     g = PairGrid(bulk_dat, subplots_kws=subplots_default)
@@ -143,8 +129,7 @@ def plot_bulk_pairwise_corr(bulk_dat, subplots_kws=None, scatter_kws=None,
     return g
 
 
-def scRNAseq_corr_distribution(umi, raw, bulk_dat, start=200,
-                               interval=100, stop=10000):
+def scRNAseq_corr_distribution(umi, raw, bulk_dat, start=200, interval=100, stop=10000):
     """Calculate the correlation distribution between scRNASeq and Bulk.
 
     Iterate by intervals of cells and calculate the correlation of summed
@@ -172,7 +157,7 @@ def scRNAseq_corr_distribution(umi, raw, bulk_dat, start=200,
         samples. Values are Spearman r coefficients.
 
     """
-    _umi = umi.sort_values(by='umi_count', ascending=False)
+    _umi = umi.sort_values(by="umi_count", ascending=False)
 
     res = []
     loc = start
@@ -185,12 +170,12 @@ def scRNAseq_corr_distribution(umi, raw, bulk_dat, start=200,
         res.append([loc, *corrs])
         loc += interval
 
-    col_names = ['Cell Number']
+    col_names = ["Cell Number"]
     col_names.extend(bulk_dat.columns)
 
     df = pd.DataFrame(res, columns=col_names)
 
-    return df.set_index('Cell Number')
+    return df.set_index("Cell Number")
 
 
 def plot_corr_distribution(corr):
@@ -199,14 +184,15 @@ def plot_corr_distribution(corr):
     for col, ax in zip(corr.columns, axes.flatten()):
         ax.plot(corr[col])
         ax.set_title(col)
-        ax.set_ylabel('Spearman r')
-        ax.set_xlabel('Cells')
+        ax.set_ylabel("Spearman r")
+        ax.set_xlabel("Cells")
 
     plt.tight_layout()
 
 
-def scRNAseq_corr_distribution_random(umi, raw, bulk_dat, interval=100,
-                                      stop=10000, random_state=42):
+def scRNAseq_corr_distribution_random(
+    umi, raw, bulk_dat, interval=100, stop=10000, random_state=42
+):
     """Calculate the correlation distribution between scRNASeq and Bulk.
 
     Iterate by intervals of cells and calculate the correlation of summed
@@ -248,9 +234,9 @@ def scRNAseq_corr_distribution_random(umi, raw, bulk_dat, interval=100,
         res.append([loc, *corrs])
         loc += interval
 
-    col_names = ['Cell Number']
+    col_names = ["Cell Number"]
     col_names.extend(bulk_dat.columns)
 
     df = pd.DataFrame(res, columns=col_names)
 
-    return df.set_index('Cell Number')
+    return df.set_index("Cell Number")

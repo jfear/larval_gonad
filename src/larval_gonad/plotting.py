@@ -8,12 +8,14 @@ import seaborn as sns
 from .config import config
 
 # colormaps
-cluster_cmap = dict(zip(config['cluster_order'], config['colors']['clusters']))
-cluster_cmap_w_rep = dict(zip(config['sel_cluster_order_w_rep'], config['colors']['sel_clusters_w_rep']))
-chrom_cmap = dict(zip(config['chrom_order'], config['colors']['chrom']))
+cluster_cmap = dict(zip(config["cluster_order"], config["colors"]["clusters"]))
+cluster_cmap_w_rep = dict(
+    zip(config["sel_cluster_order_w_rep"], config["colors"]["sel_clusters_w_rep"])
+)
+chrom_cmap = dict(zip(config["chrom_order"], config["colors"]["chrom"]))
 
 # I have a separate color scheme for boxplots, that does not contain Y.
-chrom_boxplot_cmap = dict(zip(config['chrom_order'][:-1], config['colors']['chrom_boxplot']))
+chrom_boxplot_cmap = dict(zip(config["chrom_order"][:-1], config["colors"]["chrom_boxplot"]))
 
 
 def add_styles(dirname):
@@ -37,27 +39,28 @@ def figure_element(func):
     me.
 
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
-        ax = kwargs.get('ax', None)
+        ax = kwargs.get("ax", None)
         if ax is None:
             fig, ax = plt.subplots()
-            kwargs.update({'ax': ax})
+            kwargs.update({"ax": ax})
         return func(*args, **kwargs)
+
     return wrapper
 
 
-def make_figs(fname=None, styles=None, formats=None, layout=True,
-              kws_layout=None):
+def make_figs(fname=None, styles=None, formats=None, layout=True, kws_layout=None):
     if isinstance(formats, str):
         formats = [formats]
     elif formats is None:
-        formats = ['png', 'eps']
+        formats = ["png", "eps"]
 
     if isinstance(styles, str):
         styles = [styles]
     elif styles is None:
-        styles = ['notebook']
+        styles = ["notebook"]
 
     if kws_layout is None:
         kws_layout = {}
@@ -66,25 +69,26 @@ def make_figs(fname=None, styles=None, formats=None, layout=True,
         @wraps(func)
         def wrapper(*args, **kwargs):
             def plot_style(style, formats):
-                with plt.style.context(['common', style]):
+                with plt.style.context(["common", style]):
                     func(*args, **kwargs)
                     if layout:
                         plt.tight_layout(**kws_layout)
-                    if ('notebook' not in style) & (fname is not None):
-                        fn = fname + '_' + style
+                    if ("notebook" not in style) & (fname is not None):
+                        fn = fname + "_" + style
                         for f in formats:
-                            plt.savefig('{}.{}'.format(fn, f))
+                            plt.savefig("{}.{}".format(fn, f))
                         plt.close()
 
             for style in styles:
                 plot_style(style, formats)
 
         return wrapper
+
     return _plot_all
 
 
 def add_color_labels(ax, s=5, germ=False):
-    clusters = config['sel_cluster_order']
+    clusters = config["sel_cluster_order"]
 
     if germ:
         clusters = clusters[:5]
@@ -95,14 +99,14 @@ def add_color_labels(ax, s=5, germ=False):
     ax.set_xlim(0, lclus)
 
     for i, clus in enumerate(clusters):
-        ax.plot(i + 0.5, 1, 'bo', markersize=s, color=cluster_cmap[clus])
+        ax.plot(i + 0.5, 1, "bo", markersize=s, color=cluster_cmap[clus])
         sns.despine(ax=ax, left=True, bottom=True)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
 
 
 def add_color_labels_w_rep(ax, s=5, germ=False):
-    clusters = config['sel_cluster_order_w_rep']
+    clusters = config["sel_cluster_order_w_rep"]
 
     if germ:
         clusters = clusters[:12]
@@ -113,34 +117,34 @@ def add_color_labels_w_rep(ax, s=5, germ=False):
     ax.set_xlim(0, lclus)
 
     for i, clus in enumerate(clusters):
-        ax.plot(i + 0.5, 1, 'bo', markersize=s, color=cluster_cmap_w_rep[clus])
+        ax.plot(i + 0.5, 1, "bo", markersize=s, color=cluster_cmap_w_rep[clus])
         sns.despine(ax=ax, left=True, bottom=True)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
 
 
-def flip_ticks(ax, pos='left'):
+def flip_ticks(ax, pos="left"):
     ax.yaxis.set_ticks_position(pos)
     ax.yaxis.set_label_position(pos)
 
 
 def add_triangle(ax, add_text=True, **kwargs):
     points = [[0, 0], [1, 0], [1, 1]]
-    polygon = plt.Polygon(points, alpha=.6)
+    polygon = plt.Polygon(points, alpha=0.6)
     ax.add_artist(polygon)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    ax.axis('off')
+    ax.axis("off")
 
     if add_text:
-        ax.text(0.5, .1, 'Pseudotime', ha='center', )
+        ax.text(0.5, 0.1, "Pseudotime", ha="center")
 
 
 def centerify(text, width=-1):
     """Center multiline text."""
-    lines = text.split(' ')
+    lines = text.split(" ")
     width = max(map(len, lines)) if width == -1 else width
-    return '\n'.join(line.center(width) for line in lines)
+    return "\n".join(line.center(width) for line in lines)
 
 
 def dechr(ax, axis=0):
@@ -148,23 +152,23 @@ def dechr(ax, axis=0):
     labels = []
     if axis == 0:
         for label in ax.get_xticklabels():
-            labels.append(label.get_text().replace('chr', ''))
+            labels.append(label.get_text().replace("chr", ""))
         ax.set_xticklabels(labels)
     elif axis == 1:
         for lable in ax.get_yticklabels():
-            labels.append(label.get_text().replace('chr', ''))
+            labels.append(label.get_text().replace("chr", ""))
         ax.set_yticklabels(labels)
 
 
 def format_pval(ax, x, y, pvalue, **kwargs):
     if pvalue <= 0.001:
-        annotation = '***'
+        annotation = "***"
     elif pvalue <= 0.01:
-        annotation = '**'
+        annotation = "**"
     elif pvalue <= 0.05:
-        annotation = '*'
+        annotation = "*"
     else:
         return ax
 
-    ax.text(x, y, annotation, ha='center', **kwargs)
+    ax.text(x, y, annotation, ha="center", **kwargs)
     return ax

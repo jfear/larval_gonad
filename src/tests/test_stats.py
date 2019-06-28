@@ -2,45 +2,46 @@ import pytest
 import numpy as np
 
 from larval_gonad.stats import permutation_sample, permutation_test_chrom1_lt_chrom2
+
 np.random.seed(42)
 
 SAMPLE_SIZE = 1_000
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def toy_data():
     data1 = np.array([1, 2, 3, 4, 5])
     data2 = np.array([11, 12, 13, 14])
     return data1, data2
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def random_counts():
     return np.random.lognormal(6, size=SAMPLE_SIZE)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def chrom1_chrom2_large_difference(random_counts):
     chrom1 = random_counts
     chrom2 = chrom1 + np.random.normal(500, size=SAMPLE_SIZE)
     return chrom1, chrom2
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def chrom1_chrom2_small_difference(random_counts):
     chrom1 = random_counts
     chrom2 = chrom1 + np.random.normal(50, size=SAMPLE_SIZE)
     return chrom1, chrom2
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def chrom1_chrom2_minute_difference(random_counts):
     chrom1 = random_counts
     chrom2 = chrom1 + np.random.normal(5, size=SAMPLE_SIZE)
     return chrom1, chrom2
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def chrom1_chrom2_no_difference(random_counts):
     chrom1 = random_counts
     chrom2 = chrom1 + np.random.normal(0, size=SAMPLE_SIZE)
@@ -101,4 +102,3 @@ def test_small_difference_div_by_zero(chrom1_chrom2_small_difference):
     chrom1, chrom2 = chrom1_chrom2_small_difference
     chrom2[10] = 0
     assert permutation_test_chrom1_lt_chrom2(chrom1, chrom2, size=100) <= 0.05
-
