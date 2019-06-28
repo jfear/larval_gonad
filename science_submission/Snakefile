@@ -37,6 +37,7 @@ rule all:
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
+        "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
@@ -170,6 +171,11 @@ rule plot_heatmap_all_lit_genes:
     script: "scripts/plot_heatmap_all_lit_genes.py"
 
 # Supplemental Figures
+
+rule plot_barplot_cell_per_cluster_number:
+    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
+    output: "../output/science_submission/figures/barplot-cell-per-cluster-number.svg"
+    script: "scripts/plot_barplot_cell_per_cluster_number.py"
 
 rule plot_barplot_cell_per_cluster:
     input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
