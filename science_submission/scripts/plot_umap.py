@@ -41,7 +41,7 @@ def main():
     umap = pd.read_feather(UMAP).set_index("cell_id").join(cell_annot, how="right")
 
     plt.style.use("scripts/figure_styles.mplstyle")
-    fig, ax = plt.subplots(figsize=(4, 4))
+    fig, ax = plt.subplots()
     ax.scatter(
         umap.UMAP_1,
         umap.UMAP_2,

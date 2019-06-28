@@ -29,7 +29,7 @@ def main():
     tpm = pd.read_feather(FNAME).pipe(lambda df: df[df.FBgn.isin(y_fbgns)])
 
     plt.style.use('scripts/figure_styles.mplstyle')
-    fig, ax = plt.subplots(1, 1, figsize=(4, 2))
+    fig, ax = plt.subplots()
     sns.boxplot('cluster', 'TPM', data=tpm, 
         palette=CLUSTER_COLORS, 
         ax=ax, 

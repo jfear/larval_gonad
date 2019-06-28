@@ -70,7 +70,6 @@ def main():
         list(chain.from_iterable([("", x, "") for x in zscores.columns.levels[0]])),
         ha="center",
         va="bottom",
-        fontsize=5.5,
     )
 
     # Add lines separating cell types
@@ -81,8 +80,6 @@ def main():
     ax.set_ylabel("")
 
     # Clean up color bar
-    plt.setp(cax.xaxis.label, fontsize=6)
-    plt.setp(cax.get_xticklabels(), fontsize=5)
     cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(ONAME, bbox_inches="tight")

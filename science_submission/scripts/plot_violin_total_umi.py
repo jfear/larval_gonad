@@ -1,6 +1,6 @@
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 
 import numpy as np
 import pandas as pd
@@ -22,42 +22,48 @@ ONAME = snakemake.output[0]
 def main():
     df = (
         pd.read_feather(FNAME)
-        .groupby(['FBgn', 'cluster'])
+        .groupby(["FBgn", "cluster"])
         .UMI.sum()
         .to_frame()
         .reset_index()
         .assign(log_UMI=lambda df: np.log10(df.UMI + 1))
     )
 
-    plt.style.use('scripts/figure_styles.mplstyle')
-    fig, ax = plt.subplots(figsize=(4, 3))
+    plt.style.use("scripts/figure_styles.mplstyle")
+    fig, ax = plt.subplots()
 
-    sns.violinplot('cluster', 'log_UMI', data=df, 
+    sns.violinplot(
+        "cluster",
+        "log_UMI",
+        data=df,
         ax=ax,
-        linewidth=.5, 
-        width=.9, 
-        palette=CLUSTER_COLORS, 
-        inner=None, 
-        scale='count', 
-        zorder=0, 
+        linewidth=0.5,
+        width=0.9,
+        palette=CLUSTER_COLORS,
+        inner=None,
+        scale="count",
+        zorder=0,
     )
 
-    sns.boxplot('cluster', 'log_UMI', data=df, 
-        ax=ax, 
-        linewidth=.5, 
-        width=.1, 
-        showfliers=False, 
-        boxprops=dict(zorder=10, facecolor='w'), 
+    sns.boxplot(
+        "cluster",
+        "log_UMI",
+        data=df,
+        ax=ax,
+        linewidth=0.5,
+        width=0.1,
+        showfliers=False,
+        boxprops=dict(zorder=10, facecolor="w"),
         whiskerprops=dict(zorder=10),
-        zorder=10, 
+        zorder=10,
     )
 
     ax.set_axisbelow(True)
-    ax.grid(axis='y')
-    ax.set(xlabel='', ylabel='UMI Per Cell\n(Log10)')
+    ax.grid(axis="y")
+    ax.set(xlabel="", ylabel="UMI Per Cell\n(Log10)")
 
-    fig.savefig(ONAME, bbox_inches='tight')
+    fig.savefig(ONAME, bbox_inches="tight")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

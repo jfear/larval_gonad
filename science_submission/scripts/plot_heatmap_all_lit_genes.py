@@ -59,9 +59,7 @@ def main():
         cmap=CMAP,
         ax=ax,
         cbar_ax=cax,
-        cbar_kws=dict(
-            label="Z-Score (TPM)", ticks=[-3, 0, 3], orientation="horizontal"
-        ),
+        cbar_kws=dict(label="Z-Score (TPM)", ticks=[-3, 0, 3], orientation="horizontal"),
     )
 
     # Clean up X axis
@@ -72,7 +70,6 @@ def main():
         list(chain.from_iterable([("", x, "") for x in zscores.columns.levels[0]])),
         ha="center",
         va="bottom",
-        fontsize=5.5,
     )
 
     # Add lines separating cell types
@@ -82,9 +79,7 @@ def main():
     # Clean up Y axis
     ax.set_ylabel("")
     ax.yaxis.set_tick_params(pad=0.1, length=2)
-    plt.setp(
-        ax.get_yticklabels(), fontsize=7, fontstyle="italic", rotation=0, va="center"
-    )
+    plt.setp(ax.get_yticklabels(), fontstyle="italic", rotation=0, va="center")
 
     # Add lines separating lit genes
     cols = zscores.shape[1]
@@ -95,11 +90,9 @@ def main():
         loc += len(v)
         mid = prev + (loc - prev) / 2
         ax.axhline(loc, color="w", ls="--", lw=0.5)
-        ax.text(xloc, mid, k, ha="left", va="center", fontsize=6, fontweight="bold")
+        ax.text(xloc, mid, k, ha="left", va="center", fontweight="bold")
 
     # Clean up color bar
-    plt.setp(cax.xaxis.label, fontsize=6)
-    plt.setp(cax.get_xticklabels(), fontsize=5)
     cax.xaxis.set_tick_params(pad=0, length=2)
 
     fig.savefig(ONAME, bbox_inches="tight")

@@ -1,6 +1,6 @@
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 
 import numpy as np
 import pandas as pd
@@ -22,31 +22,28 @@ ONAME = snakemake.output[0]
 
 
 def main():
-    df = (
-        pd.read_feather(FNAME)
-        .groupby(['FBgn', 'cluster'])
-        .UMI.sum()
-        .to_frame()
-        .reset_index()
-    )
+    df = pd.read_feather(FNAME).groupby(["FBgn", "cluster"]).UMI.sum().to_frame().reset_index()
 
-    plt.style.use('scripts/figure_styles.mplstyle')
-    fig, ax = plt.subplots(figsize=(4, 3))
+    plt.style.use("scripts/figure_styles.mplstyle")
+    fig, ax = plt.subplots()
 
-    sns.boxplot('cluster', 'UMI', data=df, 
-        palette=CLUSTER_COLORS, 
-        ax=ax, 
-        notch=True, 
-        linewidth=.5,
-        showfliers=False
+    sns.boxplot(
+        "cluster",
+        "UMI",
+        data=df,
+        palette=CLUSTER_COLORS,
+        ax=ax,
+        notch=True,
+        linewidth=0.5,
+        showfliers=False,
     )
-    ax.set(xlabel='', ylabel='UMI Per Cell')
+    ax.set(xlabel="", ylabel="UMI Per Cell")
 
     ax.set_axisbelow(True)
-    ax.grid(axis='y')
+    ax.grid(axis="y")
 
-    fig.savefig(ONAME, bbox_inches='tight')
+    fig.savefig(ONAME, bbox_inches="tight")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

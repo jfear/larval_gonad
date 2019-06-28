@@ -43,7 +43,7 @@ def main():
     )
 
     biomarkers = (
-        pd.read_feather(BIOMARKERS, columns=['FBgn', 'cluster'])
+        pd.read_feather(BIOMARKERS, columns=["FBgn", "cluster"])
         .assign(cluster=lambda df: df.cluster.cat.rename_categories(CLUSTER_ANNOT))
         .assign(cluster=lambda df: df.cluster.cat.reorder_categories(CLUSTER_ORDER))
         .drop_duplicates(subset="FBgn", keep=False)
@@ -52,12 +52,11 @@ def main():
     zscores = feather_to_cluster_rep_matrix(FNAME).reindex(biomarkers.FBgn)
 
     # order zscores by doing a hierarchical cluster for each cluster.
-    zscores_ordered = pd.concat((
-        hierarchal_cluster(zscores.reindex(v.FBgn))
-        for k, v in biomarkers.groupby('cluster')
-    ))
+    zscores_ordered = pd.concat(
+        (hierarchal_cluster(zscores.reindex(v.FBgn)) for k, v in biomarkers.groupby("cluster"))
+    )
 
-    plt.style.use('scripts/figure_styles.mplstyle')
+    plt.style.use("scripts/figure_styles.mplstyle")
     fig = plt.figure(figsize=(4, 8))
     gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
     ax = fig.add_subplot(gs[0, 0])
@@ -72,42 +71,48 @@ def main():
         cmap=CMAP,
         ax=ax,
         cbar_ax=cax,
-        cbar_kws=dict(label='Z-Score (TPM)', ticks=[-3, 0, 3], orientation='horizontal')
+        cbar_kws=dict(label="Z-Score (TPM)", ticks=[-3, 0, 3], orientation="horizontal"),
     )
 
     # Clean up X axis
-    ax.set_xlabel('')
-    ax.xaxis.set_ticks_position('top')
-    ax.set_xticklabels(list(chain.from_iterable([('', x, '') for x in CLUSTER_ORDER])), ha='center', va='bottom')
+    ax.set_xlabel("")
+    ax.xaxis.set_ticks_position("top")
+    ax.set_xticklabels(
+        list(chain.from_iterable([("", x, "") for x in CLUSTER_ORDER])), ha="center", va="bottom"
+    )
 
     # Add lines separating cell types
     for i in range(1, len(CLUSTER_ORDER)):
-        ax.axvline(i * 3, color='w', ls='--', lw=.5)
+        ax.axvline(i * 3, color="w", ls="--", lw=0.5)
 
     # Clean up Y axis
-    ax.set_ylabel('')
+    ax.set_ylabel("")
 
     # Add lines separating biomarker groups
     loc = 0
-    xloc = zscores_ordered.shape[1] + 1
-    for clus, dd in biomarkers.groupby('cluster'):
+    cols = zscores_ordered.shape[1]
+    xloc = cols + cols * 0.01
+    for clus, dd in biomarkers.groupby("cluster"):
         prev = loc
         loc += dd.shape[0]
         mid = loc - ((loc - prev) / 2)
-        ax.axhline(loc, color='w', ls='--', lw=.5)
-        txt = f'{clus} ({dd.shape[0]:,})'
-        ax.text(xloc, mid, txt, ha='left', va='center', fontweight='bold', fontsize=8)
+        ax.axhline(loc, color="w", ls="--", lw=0.5)
+        txt = f"{clus} ({dd.shape[0]:,})"
+        ax.text(xloc, mid, txt, ha="left", va="center", fontweight="bold")
 
-    fig.savefig(ONAME, bbox_inches='tight')
+    # Clean up color bar
+    cax.xaxis.set_tick_params(pad=0, length=2)
+
+    fig.savefig(ONAME, bbox_inches="tight")
 
 
 def hierarchal_cluster(df):
     # cluster genes bases on expression
-    link = linkage(df.values, 'average')
+    link = linkage(df.values, "average")
     tree = dendrogram(link, no_plot=True)
-    leaves = tree['leaves']
+    leaves = tree["leaves"]
     return df.iloc[leaves, :]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
