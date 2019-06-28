@@ -36,6 +36,7 @@ rule all:
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
+        "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
@@ -51,7 +52,6 @@ rule all:
         # "../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg",
         # "../output/science_submission/figures/barplot-replicate-representation.svg",
         # "../output/science_submission/figures/barplot_germline_deg.svg",
-        # "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         # "../output/science_submission/figures/barplot_bulk_demasculinization.svg",
         # "../output/science_submission/figures/barplot_sp_demasculinization.svg",
         # "../output/science_submission/figures/barplot_m1_demasculinization.svg",
@@ -169,7 +169,27 @@ rule plot_heatmap_all_lit_genes:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_all_lit_genes.py"
 
-# # Supplemental Figures
+# Supplemental Figures
+
+rule plot_barplot_cell_per_cluster:
+    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
+    output: "../output/science_submission/figures/barplot-cell-per-cluster.svg"
+    params:
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"]
+    script: "scripts/plot_barplot_cell_per_cluster.py"
+
+# rule plot_barplot_replicate_representation:
+#     input:
+#          dat="../output/scrnaseq-wf/number_of_cells_per_cluster.parquet",
+#          clusters=rules.clusters.output[0]
+#     output: "../output/science_submission/figures/barplot-replicate-representation.svg"
+#     params:
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_barplot_replicate_representation.py"
+
 
 rule plot_heatmap_all_genes:
     input:
@@ -250,27 +270,6 @@ rule plot_boxplot_y_genes:
     script: "scripts/plot_boxplot_y_genes.py"
 
 # # Supplemental Figures
-# rule plot_barplot_replicate_representation:
-#     input:
-#          dat="../output/scrnaseq-wf/number_of_cells_per_cluster.parquet",
-#          clusters=rules.clusters.output[0]
-#     output: "../output/science_submission/figures/barplot-replicate-representation.svg"
-#     params:
-#           annotation=config["short_cluster_annot"],
-#           cluster_order=config["short_cluster_order"],
-#           cluster_colors=config["colors"]["clusters"]
-#     script: "scripts/plot_barplot_replicate_representation.py"
-
-# rule plot_barplot_cell_per_cluster:
-#     input:
-#          dat="../output/scrnaseq-wf/number_of_cells_per_cluster.parquet",
-#          clusters=rules.clusters.output[0]
-#     output: "../output/science_submission/figures/barplot-cell-per-cluster.svg"
-#     params:
-#           annotation=config["short_cluster_annot"],
-#           cluster_order=config["short_cluster_order"],
-#           cluster_colors=config["colors"]["clusters"]
-#     script: "scripts/plot_barplot_cell_per_cluster.py"
 
 rule plot_violin_total_umi:
     input: rules.raw_agg.output[0]
