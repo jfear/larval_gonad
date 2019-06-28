@@ -7,126 +7,126 @@ from pathlib import Path
 
 from larval_gonad.config import read_config
 
-workdir: '.'
-configfile: 'config/config.yaml'
+workdir: "."
+configfile: "config/config.yaml"
 
-config.update(read_config('../config/common.yaml'))
+config.update(read_config("../config/common.yaml"))
 
-SAMPLES = ['testis1', 'testis2', 'testis3']
+SAMPLES = ["testis1", "testis2", "testis3"]
 
-REFERENCES_DIR = os.environ.get('REFERENCES_DIR', config.get('REFERENCES_DIR', ''))
-ASSEMBLY = config['assembly']
-TAG = config['tag']
+REFERENCES_DIR = os.environ.get("REFERENCES_DIR", config.get("REFERENCES_DIR", ""))
+ASSEMBLY = config["assembly"]
+TAG = config["tag"]
 
-LIT_GENES = read_config('../config/literature_genes.yaml')
-del LIT_GENES['hub']
+LIT_GENES = read_config("../config/literature_genes.yaml")
+del LIT_GENES["hub"]
 
-COLORS = yaml.full_load(open('../config/colors.yaml'))
+COLORS = yaml.full_load(open("../config/colors.yaml"))
 
 rule all:
     input:
-        '../output/science_submission/intron_less_genes.pkl',
-        '../output/science_submission/non_coding_genes.pkl',
-        '../output/science_submission/raw.feather',
-        '../output/science_submission/raw_by_cluster_rep.feather',
-        '../output/science_submission/tpm_by_cluster_rep.feather',
-        '../output/science_submission/zscore_by_cluster_rep.feather',
-        '../output/science_submission/background_fbgns.pkl',
-        '../output/science_submission/gene_locations.feather',
-        '../output/science_submission/figures/heatmap-all-genes-w-rep.svg',
-        '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg',
-        '../output/science_submission/figures/umap.svg',
-        '../output/science_submission/figures/boxplot-autosome-ratio.svg',
-        '../output/science_submission/figures/cluster-legend.svg',
-        '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg',
-        '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg',
-        '../output/science_submission/figures/violin-total-umi.svg',
-        '../output/science_submission/figures/boxplot-y-genes.svg',
-        '../output/science_submission/figures/boxplot-total-umi.svg',
-        # '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg',
-        # '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg',
-        # '../output/science_submission/figures/heatmap-y-genes.svg',
-        # '../output/science_submission/figures/boxplot-total-umi.svg',
-        # '../output/science_submission/figures/boxplot-expression-diversity.svg',
-        # '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg',
-        # '../output/science_submission/figures/barplot-replicate-representation.svg',
-        # '../output/science_submission/figures/barplot_germline_deg.svg',
-        # '../output/science_submission/figures/barplot-cell-per-cluster.svg',
-        # '../output/science_submission/figures/barplot_bulk_demasculinization.svg',
-        # '../output/science_submission/figures/barplot_sp_demasculinization.svg',
-        # '../output/science_submission/figures/barplot_m1_demasculinization.svg',
-        # '../output/science_submission/figures/scatter_bulk_deg.svg',
-        # '../output/science_submission/figures/bubble_germline_deg_GO_BP.svg',
-        # '../output/science_submission/figures/bubble_germline_deg_GO_MF.svg',
-        # '../output/science_submission/figures/bubble_germline_deg_GO_CC.svg',
-        # '../output/science_submission/figures/tsne_comparison.svg',
-        # '../output/science_submission/results_table.xlsx'
+        "../output/science_submission/intron_less_genes.pkl",
+        "../output/science_submission/non_coding_genes.pkl",
+        "../output/science_submission/raw.feather",
+        "../output/science_submission/raw_by_cluster_rep.feather",
+        "../output/science_submission/tpm_by_cluster_rep.feather",
+        "../output/science_submission/zscore_by_cluster_rep.feather",
+        "../output/science_submission/background_fbgns.pkl",
+        "../output/science_submission/gene_locations.feather",
+        "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
+        "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
+        "../output/science_submission/figures/umap.svg",
+        "../output/science_submission/figures/boxplot-autosome-ratio.svg",
+        "../output/science_submission/figures/cluster-legend.svg",
+        "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
+        "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg",
+        "../output/science_submission/figures/violin-total-umi.svg",
+        "../output/science_submission/figures/boxplot-y-genes.svg",
+        "../output/science_submission/figures/boxplot-total-umi.svg",
+        # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
+        # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
+        # "../output/science_submission/figures/heatmap-y-genes.svg",
+        # "../output/science_submission/figures/boxplot-total-umi.svg",
+        # "../output/science_submission/figures/boxplot-expression-diversity.svg",
+        # "../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg",
+        # "../output/science_submission/figures/barplot-replicate-representation.svg",
+        # "../output/science_submission/figures/barplot_germline_deg.svg",
+        # "../output/science_submission/figures/barplot-cell-per-cluster.svg",
+        # "../output/science_submission/figures/barplot_bulk_demasculinization.svg",
+        # "../output/science_submission/figures/barplot_sp_demasculinization.svg",
+        # "../output/science_submission/figures/barplot_m1_demasculinization.svg",
+        # "../output/science_submission/figures/scatter_bulk_deg.svg",
+        # "../output/science_submission/figures/bubble_germline_deg_GO_BP.svg",
+        # "../output/science_submission/figures/bubble_germline_deg_GO_MF.svg",
+        # "../output/science_submission/figures/bubble_germline_deg_GO_CC.svg",
+        # "../output/science_submission/figures/tsne_comparison.svg",
+        # "../output/science_submission/results_table.xlsx"
 
 ################################################################################
 # Data Sets
 ################################################################################
 rule intron_less_genes:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
-    output: '../output/science_submission/intron_less_genes.pkl'
-    script: 'scripts/intron_less_genes.py'
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
+    output: "../output/science_submission/intron_less_genes.pkl"
+    script: "scripts/intron_less_genes.py"
 
 rule non_coding_genes:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
-    output: '../output/science_submission/non_coding_genes.pkl'
-    script: 'scripts/non_coding_genes.py'
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
+    output: "../output/science_submission/non_coding_genes.pkl"
+    script: "scripts/non_coding_genes.py"
 
 rule raw:
-    input: expand('../output/cellselection-wf/{sample}/matrix.mtx', sample=SAMPLES),
-    output: '../output/science_submission/raw.feather'
-    script: 'scripts/raw_expression_matrix.py'
+    input: expand("../output/cellselection-wf/{sample}/matrix.mtx", sample=SAMPLES),
+    output: "../output/science_submission/raw.feather"
+    script: "scripts/raw_expression_matrix.py"
 
 rule raw_agg:
     input:
         raw = rules.raw.output[0],
-        metadata = '../output/seurat3-cluster-wf/combined_n3_metadata.feather',
-    output: '../output/science_submission/raw_by_cluster_rep.feather'
+        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+    output: "../output/science_submission/raw_by_cluster_rep.feather"
     params:
-        cluster_annot = config['cluster_annot'],
-        cluster_order = config['cluster_order'],
-    script: 'scripts/raw_agg.py'
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"],
+    script: "scripts/raw_agg.py"
 
 rule tpm:
     input:
         raw_agg = rules.raw_agg.output[0],
-        gene_metadata = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
-    output: '../output/science_submission/tpm_by_cluster_rep.feather'
-    script: 'scripts/tpm.py'
+        gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/science_submission/tpm_by_cluster_rep.feather"
+    script: "scripts/tpm.py"
 
 rule zscore:
     input: rules.tpm.output[0]
-    output: '../output/science_submission/zscore_by_cluster_rep.feather'
-    script: 'scripts/zscore.py'
+    output: "../output/science_submission/zscore_by_cluster_rep.feather"
+    script: "scripts/zscore.py"
 
 rule background:
     input: rules.raw.output[0]
-    output: '../output/science_submission/background_fbgns.pkl'
+    output: "../output/science_submission/background_fbgns.pkl"
     run:
         import pandas as pd
         import pickle
         fbgns = (
             pd.read_feather(input[0])
-            .set_index('FBgn')
+            .set_index("FBgn")
             .sum(axis=1)
             .pipe(lambda df: df[df > 0])
             .index.values
         )
-        with open(output[0], 'wb') as fh:
+        with open(output[0], "wb") as fh:
             pickle.dump(fbgns, fh)
 
 rule gene_locs:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf.db').as_posix()
-    params: chrom_order=config['chrom_order']
-    output: '../output/science_submission/gene_locations.feather'
-    script: 'scripts/gene_locations.py'
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
+    params: chrom_order=config["chrom_order"]
+    output: "../output/science_submission/gene_locations.feather"
+    script: "scripts/gene_locations.py"
 
 # rule ptrap_scores:
-#     output: '../output/science_submission/ptrap_scores.parquet'
-#     script: 'scripts/ptrap-scores.py'
+#     output: "../output/science_submission/ptrap_scores.parquet"
+#     script: "scripts/ptrap-scores.py"
 
 ################################################################################
 # Fig 1
@@ -134,95 +134,95 @@ rule gene_locs:
 
 rule plot_cluster_legend:
     params:
-        cluster_colors=COLORS['clusters'],
-        legend_names = config['legend_names']
-    output: '../output/science_submission/figures/cluster-legend.svg'
-    script: 'scripts/plot_cluster_legend.py'
+        cluster_colors=COLORS["clusters"],
+        legend_names = config["legend_names"]
+    output: "../output/science_submission/figures/cluster-legend.svg"
+    script: "scripts/plot_cluster_legend.py"
 
 # # (B) Correlation with bulk RNA-Seq
 # rule plot_heatmap_bulk_scRNAseq_w_rep:
 #     input:
-#          bulk='../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet',
-#          scrnaseq='../output/scrnaseq-wf/tpm_by_rep.parquet'
-#     output: '../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg'
-#     script: 'scripts/plot_heatmap_bulk_scRNAseq_w_rep.py'
+#          bulk="../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet",
+#          scrnaseq="../output/scrnaseq-wf/tpm_by_rep.parquet"
+#     output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
+#     script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
 
 rule plot_umap:
     input:
-        umap = '../output/seurat3-cluster-wf/combined_n3_umap.feather',
-        metadata = '../output/seurat3-cluster-wf/combined_n3_metadata.feather'
-    output: '../output/science_submission/figures/umap.svg'
+        umap = "../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
+    output: "../output/science_submission/figures/umap.svg"
     params:
-        cluster_colors = COLORS['clusters'],
-        cluster_annot = config['cluster_annot'],
-        cluster_order = config['cluster_order']
-    script: 'scripts/plot_umap.py'
+        cluster_colors = COLORS["clusters"],
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"]
+    script: "scripts/plot_umap.py"
 
 # (E) Heatmap of literature genes
 rule plot_heatmap_all_lit_genes:
     input:
          zscores=rules.zscore.output[0],
-         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
-    output: '../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg'
+         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg"
     params:
         lit_genes=LIT_GENES,
-        cmap=COLORS['heatmap']
-    script: 'scripts/plot_heatmap_all_lit_genes.py'
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_all_lit_genes.py"
 
 # # Supplemental Figures
 
 rule plot_heatmap_all_genes:
     input:
          zscores=rules.zscore.output[0],
-         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
-    output: '../output/science_submission/figures/heatmap-all-genes-w-rep.svg'
+         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/science_submission/figures/heatmap-all-genes-w-rep.svg"
     params:
         lit_genes=LIT_GENES,
-        cmap=COLORS['heatmap']
-    script: 'scripts/plot_heatmap_all_genes.py'
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_all_genes.py"
 
 rule plot_heatmap_unique_biomarkers:
     input:
          zscores=rules.zscore.output[0],
-         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather',
-         biomarkers='../output/seurat3-cluster-wf/combined_n3_biomarkers.feather'
-    output: '../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg'
+         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output: "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg"
     params:
-        cluster_annot = config['cluster_annot'],
-        cluster_order = config['cluster_order'],
-        cmap=COLORS['heatmap']
-    script: 'scripts/plot_heatmap_unique_biomarkers.py'
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"],
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_unique_biomarkers.py"
 
 rule plot_heatmap_multi_biomarkers:
     input:
          zscores=rules.zscore.output[0],
-         gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather',
-         biomarkers='../output/seurat3-cluster-wf/combined_n3_biomarkers.feather'
-    output: '../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg'
+         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output: "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg"
     params:
-        cluster_annot = config['cluster_annot'],
-        cluster_order = config['cluster_order'],
-        cluster_types = config['cluster_types'],
-        cmap=COLORS['heatmap']
-    script: 'scripts/plot_heatmap_multi_biomarkers.py'
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"],
+        cluster_types = config["cluster_types"],
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_multi_biomarkers.py"
 
 # rule plot_heatmap_scRNAseq_cluster_corr:
-#     input: '../output/scrnaseq-wf/tpm.parquet'
-#     output: '../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg'
+#     input: "../output/scrnaseq-wf/tpm.parquet"
+#     output: "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_heatmap_scRNAseq_cluster_corr.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_heatmap_scRNAseq_cluster_corr.py"
 
 # rule plot_heatmap_ptrap_genes_w_rep:
-#     input: '../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', rules.ptrap_scores.output[0]
-#     output: '../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg'
-#     script: 'scripts/plot_heatmap_ptrap_genes_w_rep.py'
+#     input: "../output/scrnaseq-wf/tpm_zscore_w_rep.parquet", rules.ptrap_scores.output[0]
+#     output: "../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg"
+#     script: "scripts/plot_heatmap_ptrap_genes_w_rep.py"
 
 # rule plot_heatmap_ptrap_scores:
 #     input: rules.ptrap_scores.output[0]
-#     output: '../output/science_submission/figures/heatmap-ptrap-scores.svg'
-#     script: 'scripts/plot_heatmap_ptrap_scores.py'
+#     output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
+#     script: "scripts/plot_heatmap_ptrap_scores.py"
 
 ################################################################################
 # Fig 2
@@ -231,137 +231,137 @@ rule plot_heatmap_multi_biomarkers:
 # # (A, B) Distribution of X:A and 4:A ratios by cluster
 rule plot_boxplot_autosome_ratio:
     input:
-        ratios='../output/x-to-a-wf/autosome_ratios_by_cell.feather',
-        pvals='../output/x-to-a-wf/permuted_autosome_ratio_pvalues.feather'
-    output: '../output/science_submission/figures/boxplot-autosome-ratio.svg'
+        ratios="../output/x-to-a-wf/autosome_ratios_by_cell.feather",
+        pvals="../output/x-to-a-wf/permuted_autosome_ratio_pvalues.feather"
+    output: "../output/science_submission/figures/boxplot-autosome-ratio.svg"
     params:
-          cluster_colors=COLORS['clusters']
-    script: 'scripts/plot_boxplot_autosome_ratio.py'
+          cluster_colors=COLORS["clusters"]
+    script: "scripts/plot_boxplot_autosome_ratio.py"
 
 # # (D) Normalized Y expression by cluster
 rule plot_boxplot_y_genes:
     input:
         tpm=rules.tpm.output[0],
-        metadata = '../output/seurat3-cluster-wf/combined_n3_metadata.feather',
-        gene_metadata=f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
-    output: '../output/science_submission/figures/boxplot-y-genes.svg'
+        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+        gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/science_submission/figures/boxplot-y-genes.svg"
     params:
-        cluster_colors=COLORS['clusters']
-    script: 'scripts/plot_boxplot_y_genes.py'
+        cluster_colors=COLORS["clusters"]
+    script: "scripts/plot_boxplot_y_genes.py"
 
 # # Supplemental Figures
 # rule plot_barplot_replicate_representation:
 #     input:
-#          dat='../output/scrnaseq-wf/number_of_cells_per_cluster.parquet',
+#          dat="../output/scrnaseq-wf/number_of_cells_per_cluster.parquet",
 #          clusters=rules.clusters.output[0]
-#     output: '../output/science_submission/figures/barplot-replicate-representation.svg'
+#     output: "../output/science_submission/figures/barplot-replicate-representation.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_barplot_replicate_representation.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_barplot_replicate_representation.py"
 
 # rule plot_barplot_cell_per_cluster:
 #     input:
-#          dat='../output/scrnaseq-wf/number_of_cells_per_cluster.parquet',
+#          dat="../output/scrnaseq-wf/number_of_cells_per_cluster.parquet",
 #          clusters=rules.clusters.output[0]
-#     output: '../output/science_submission/figures/barplot-cell-per-cluster.svg'
+#     output: "../output/science_submission/figures/barplot-cell-per-cluster.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_barplot_cell_per_cluster.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_barplot_cell_per_cluster.py"
 
 rule plot_violin_total_umi:
     input: rules.raw_agg.output[0]
-    output: '../output/science_submission/figures/violin-total-umi.svg'
+    output: "../output/science_submission/figures/violin-total-umi.svg"
     params:
-        cluster_colors = COLORS['clusters']
-    script: 'scripts/plot_violin_total_umi.py'
+        cluster_colors = COLORS["clusters"]
+    script: "scripts/plot_violin_total_umi.py"
 
 rule plot_boxplot_total_umi:
     input: rules.raw_agg.output[0]
-    output: '../output/science_submission/figures/boxplot-total-umi.svg'
+    output: "../output/science_submission/figures/boxplot-total-umi.svg"
     params:
-        cluster_colors = COLORS['clusters']
-    script: 'scripts/plot_boxplot_total_umi.py'
+        cluster_colors = COLORS["clusters"]
+    script: "scripts/plot_boxplot_total_umi.py"
 
 # rule plot_boxplot_expression_diversity:
 #     input:
 #         norm=rules.seurat_norm.output[0],
 #         clusters=rules.clusters.output[0]
-#     output: '../output/science_submission/figures/boxplot-expression-diversity.svg'
+#     output: "../output/science_submission/figures/boxplot-expression-diversity.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_boxplot_expression_diversity.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_boxplot_expression_diversity.py"
 
 # rule plot_boxplot_male_biased_expression_diversity:
 #     input:
 #          norm=rules.seurat_norm.output[0],
-#          male_bias='../output/bulk-rnaseq-wf/deseq2_tcp_male_biased_expressed_genes.txt',
+#          male_bias="../output/bulk-rnaseq-wf/deseq2_tcp_male_biased_expressed_genes.txt",
 #          clusters=rules.clusters.output[0]
-#     output: '../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg'
+#     output: "../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters']
-#     script: 'scripts/plot_boxplot_male_biased_expression_diversity.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_boxplot_male_biased_expression_diversity.py"
 
 # rule plot_bubble_y_genes:
 #     input:
-#          raw='../output/scrnaseq-wf/raw.parquet',
-#          clusters='../output/scrnaseq-wf/clusters.parquet',
-#          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+#          raw="../output/scrnaseq-wf/raw.parquet",
+#          clusters="../output/scrnaseq-wf/clusters.parquet",
+#          fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet",
 #          fbgn2symbol=rules.fbgn2symbol.output[0]
-#     output: '../output/science_submission/figures/bubble-y-genes.svg'
+#     output: "../output/science_submission/figures/bubble-y-genes.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters'],
-#           cmap=config['colors']['heatmap']
-#     script: 'scripts/plot_bubble_y_genes.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"],
+#           cmap=config["colors"]["heatmap"]
+#     script: "scripts/plot_bubble_y_genes.py"
 
 # rule plot_heatmap_y_genes:
 #     input:
-#          zscores='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
-#          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+#          zscores="../output/scrnaseq-wf/tpm_zscore_w_rep.parquet",
+#          fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet",
 #          fbgn2symbol=rules.fbgn2symbol.output[0]
-#     output: '../output/science_submission/figures/heatmap-y-genes.svg'
+#     output: "../output/science_submission/figures/heatmap-y-genes.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters'],
-#           cmap=config['colors']['heatmap']
-#     script: 'scripts/plot_heatmap_y_genes.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"],
+#           cmap=config["colors"]["heatmap"]
+#     script: "scripts/plot_heatmap_y_genes.py"
 
 # rule plot_bubble_msl_genes:
 #     input:
-#          raw='../output/scrnaseq-wf/raw.parquet',
-#          clusters='../output/scrnaseq-wf/clusters.parquet',
+#          raw="../output/scrnaseq-wf/raw.parquet",
+#          clusters="../output/scrnaseq-wf/clusters.parquet",
 #          fbgn2symbol=rules.fbgn2symbol.output[0]
-#     output: '../output/science_submission/figures/bubble-msl-genes.svg'
+#     output: "../output/science_submission/figures/bubble-msl-genes.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters'],
-#           cmap=config['colors']['heatmap'],
-#           msl_genes=config['msl_genes']
-#     script: 'scripts/plot_bubble_msl_genes.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"],
+#           cmap=config["colors"]["heatmap"],
+#           msl_genes=config["msl_genes"]
+#     script: "scripts/plot_bubble_msl_genes.py"
 
 # rule plot_heatmap_msl_genes:
 #     input:
-#          zscores='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
+#          zscores="../output/scrnaseq-wf/tpm_zscore_w_rep.parquet",
 #          fbgn2symbol=rules.fbgn2symbol.output[0]
-#     output: '../output/science_submission/figures/heatmap-msl-genes.svg'
+#     output: "../output/science_submission/figures/heatmap-msl-genes.svg"
 #     params:
-#           annotation=config['short_cluster_annot'],
-#           cluster_order=config['short_cluster_order'],
-#           cluster_colors=config['colors']['clusters'],
-#           msl_genes=config['msl_genes'],
-#           cmap=config['colors']['heatmap']
-#     script: 'scripts/plot_heatmap_msl_genes.py'
+#           annotation=config["short_cluster_annot"],
+#           cluster_order=config["short_cluster_order"],
+#           cluster_colors=config["colors"]["clusters"],
+#           msl_genes=config["msl_genes"],
+#           cmap=config["colors"]["heatmap"]
+#     script: "scripts/plot_heatmap_msl_genes.py"
 
 # ################################################################################
 # # Fig 3
@@ -378,75 +378,75 @@ rule plot_boxplot_total_umi:
 #          clusters=rules.clusters.output[0],
 #          tsne=rules.tsne.output[0],
 #     params:
-#           colors=config['colors']['clusters'],
-#           cluster_order=config['short_cluster_order'],
-#           annotation=config['short_cluster_annot']
-#     output: '../output/science_submission/figures/tsne_comparison.svg'
-#     script: 'scripts/plot_tsne_comparison.py'
+#           colors=config["colors"]["clusters"],
+#           cluster_order=config["short_cluster_order"],
+#           annotation=config["short_cluster_annot"]
+#     output: "../output/science_submission/figures/tsne_comparison.svg"
+#     script: "scripts/plot_tsne_comparison.py"
 
 # rule plot_barplot_germline_deg:
 #     input:
-#         gonia='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
-#         early='../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv',
-#         mid='../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv',
-#         late='../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv',
-#         fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+#         gonia="../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv",
+#         early="../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv",
+#         mid="../output/scrnaseq-wf/germcell_deg/early_vs_mid.tsv",
+#         late="../output/scrnaseq-wf/germcell_deg/mid_vs_late.tsv",
+#         fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet",
 #         background=rules.background.output[0]
-#     output: '../output/science_submission/figures/barplot_germline_deg.svg'
-#     script: 'scripts/plot_barplot_germline_deg.py'
+#     output: "../output/science_submission/figures/barplot_germline_deg.svg"
+#     script: "scripts/plot_barplot_germline_deg.py"
 
 # # (B) GO analysis SP vs M1°
 # rule plot_bubble_germline_deg_GO_BP:
 #     input:
-#          deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
+#          deg="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
 #          background=rules.background.output[0]
-#     output: '../output/science_submission/figures/bubble_germline_deg_GO_BP.svg'
-#     script: 'scripts/plot_bubble_germline_deg_GO_BP.py'
+#     output: "../output/science_submission/figures/bubble_germline_deg_GO_BP.svg"
+#     script: "scripts/plot_bubble_germline_deg_GO_BP.py"
 
 # # (E) X depleted male-biased expression
 # rule plot_barplot_bulk_demasculinization:
 #     input:
-#          deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
-#          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
-#     output: '../output/science_submission/figures/barplot_bulk_demasculinization.svg'
-#     script: 'scripts/plot_barplot_bulk_demasculinization.py'
+#          deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv",
+#          fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet"
+#     output: "../output/science_submission/figures/barplot_bulk_demasculinization.svg"
+#     script: "scripts/plot_barplot_bulk_demasculinization.py"
 
 # rule plot_barplot_sp_demasculinization:
 #     input:
-#          bulk_deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
-#          sc_deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
-#          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
-#     output: '../output/science_submission/figures/barplot_sp_demasculinization.svg'
-#     script: 'scripts/plot_barplot_sp_demasculinization.py'
+#          bulk_deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv",
+#          sc_deg="../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv",
+#          fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet"
+#     output: "../output/science_submission/figures/barplot_sp_demasculinization.svg"
+#     script: "scripts/plot_barplot_sp_demasculinization.py"
 
 # rule plot_barplot_m1_demasculinization:
 #     input:
-#          bulk_deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
-#          sc_deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
-#          fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet'
-#     output: '../output/science_submission/figures/barplot_m1_demasculinization.svg'
-#     script: 'scripts/plot_barplot_m1_demasculinization.py'
+#          bulk_deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv",
+#          sc_deg="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
+#          fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet"
+#     output: "../output/science_submission/figures/barplot_m1_demasculinization.svg"
+#     script: "scripts/plot_barplot_m1_demasculinization.py"
 
 # # Supplemental Figures
 # rule plot_bubble_germline_deg_GO_MF:
 #     input:
-#          deg='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
+#          deg="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
 #          background=rules.background.output[0]
-#     output: '../output/science_submission/figures/bubble_germline_deg_GO_MF.svg'
-#     script: 'scripts/plot_bubble_germline_deg_GO_MF.py'
+#     output: "../output/science_submission/figures/bubble_germline_deg_GO_MF.svg"
+#     script: "scripts/plot_bubble_germline_deg_GO_MF.py"
 
 # rule plot_bubble_germline_deg_GO_CC:
 #     input:
-#          deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv',
+#          deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv",
 #          background=rules.background.output[0]
-#     output: '../output/science_submission/figures/bubble_germline_deg_GO_CC.svg'
-#     script: 'scripts/plot_bubble_germline_deg_GO_CC.py'
+#     output: "../output/science_submission/figures/bubble_germline_deg_GO_CC.svg"
+#     script: "scripts/plot_bubble_germline_deg_GO_CC.py"
 
 # rule plot_scatter_bulk_deg:
 #     input:
-#          deg='../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv'
-#     output: '../output/science_submission/figures/scatter_bulk_deg.svg'
-#     script: 'scripts/plot_scatter_bulk_deg.py'
+#          deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv"
+#     output: "../output/science_submission/figures/scatter_bulk_deg.svg"
+#     script: "scripts/plot_scatter_bulk_deg.py"
 
 # ################################################################################
 # # Tables
@@ -455,30 +455,30 @@ rule plot_boxplot_total_umi:
 
 # # rule differential_expression_tables:
 # #     input:
-# #          biomarkers='../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv',
-# #          germ_soma='../output/scrnaseq-wf/germcell_soma_deg/germ_vs_soma.tsv',
-# #          gonia_cytes='../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv',
-# #          gonia_early='../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv',
-# #          gonia_mid='../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv',
-# #          gonia_late='../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv',
-# #          raw='../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet',
-# #          tpm='../output/scrnaseq-wf/tpm_w_rep.parquet',
-# #          zscore='../output/scrnaseq-wf/tpm_zscore_w_rep.parquet',
-# #     output: '../output/science_submission/tables/scRNASeq_cluster_deg.xlsx'
-# #     script: 'scripts/table_scRNASeq_cluster_deg.py'
+# #          biomarkers="../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv",
+# #          germ_soma="../output/scrnaseq-wf/germcell_soma_deg/germ_vs_soma.tsv",
+# #          gonia_cytes="../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv",
+# #          gonia_early="../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv",
+# #          gonia_mid="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
+# #          gonia_late="../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv",
+# #          raw="../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet",
+# #          tpm="../output/scrnaseq-wf/tpm_w_rep.parquet",
+# #          zscore="../output/scrnaseq-wf/tpm_zscore_w_rep.parquet",
+# #     output: "../output/science_submission/tables/scRNASeq_cluster_deg.xlsx"
+# #     script: "scripts/table_scRNASeq_cluster_deg.py"
 
 # rule results_table:
 #     input:
-#         config_name='results_table_config.yaml',
-#         fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.parquet',
+#         config_name="results_table_config.yaml",
+#         fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet",
 #         fbgn2symbol=rules.fbgn2symbol.output[0],
 #         biomarkers=rules.biomarkers.output[0]
 #     params:
-#         annotation=config['short_cluster_annot'],
-#         cluster_order=config['short_cluster_order'],
-#         legend_names=config['legend_names']
-#     output: '../output/science_submission/results_table.xlsx'
-#     script: 'scripts/results_table.py'
+#         annotation=config["short_cluster_annot"],
+#         cluster_order=config["short_cluster_order"],
+#         legend_names=config["legend_names"]
+#     output: "../output/science_submission/results_table.xlsx"
+#     script: "scripts/results_table.py"
 
 
 # ################################################################################
@@ -486,13 +486,13 @@ rule plot_boxplot_total_umi:
 # ################################################################################
 
 # rule svg_png:
-#     input: '{fig}.svg'
-#     output: '{fig}.png'
-#     shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background='white' --without-gui"
+#     input: "{fig}.svg"
+#     output: "{fig}.png"
+#     shell: "inkscape {input[0]} --export-png={output[0]} --export-dpi=800 --export-background="white" --without-gui"
 
 # rule svg_pdf:
-#     input: '{fig}.svg'
-#     output: '{fig}.pdf'
+#     input: "{fig}.svg"
+#     output: "{fig}.pdf"
 #     shell: "inkscape {input[0]} --export-pdf={output[0]}"
 
 # # vim: set ft=snakemake.python
