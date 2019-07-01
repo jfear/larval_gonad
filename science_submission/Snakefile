@@ -23,14 +23,11 @@ del LIT_GENES["hub"]
 
 COLORS = yaml.full_load(open("../config/colors.yaml"))
 
+
 rule all:
     input:
         "../output/science_submission/intron_less_genes.pkl",
         "../output/science_submission/non_coding_genes.pkl",
-        "../output/science_submission/raw.feather",
-        "../output/science_submission/raw_by_cluster_rep.feather",
-        "../output/science_submission/tpm_by_cluster_rep.feather",
-        "../output/science_submission/zscore_by_cluster_rep.feather",
         "../output/science_submission/background_fbgns.pkl",
         "../output/science_submission/gene_locations.feather",
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
@@ -63,6 +60,7 @@ rule all:
         # "../output/science_submission/figures/tsne_comparison.svg",
         # "../output/science_submission/results_table.xlsx"
 
+
 ################################################################################
 # Data Sets
 ################################################################################
@@ -71,40 +69,15 @@ rule intron_less_genes:
     output: "../output/science_submission/intron_less_genes.pkl"
     script: "scripts/intron_less_genes.py"
 
+
 rule non_coding_genes:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
     output: "../output/science_submission/non_coding_genes.pkl"
     script: "scripts/non_coding_genes.py"
 
-rule raw:
-    input: expand("../output/cellselection-wf/{sample}/matrix.mtx", sample=SAMPLES),
-    output: "../output/science_submission/raw.feather"
-    script: "scripts/raw_expression_matrix.py"
-
-rule raw_agg:
-    input:
-        raw = rules.raw.output[0],
-        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
-    output: "../output/science_submission/raw_by_cluster_rep.feather"
-    params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"],
-    script: "scripts/raw_agg.py"
-
-rule tpm:
-    input:
-        raw_agg = rules.raw_agg.output[0],
-        gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/tpm_by_cluster_rep.feather"
-    script: "scripts/tpm.py"
-
-rule zscore:
-    input: rules.tpm.output[0]
-    output: "../output/science_submission/zscore_by_cluster_rep.feather"
-    script: "scripts/zscore.py"
 
 rule background:
-    input: rules.raw.output[0]
+    input: "../output/cellselection-wf/raw.feather"
     output: "../output/science_submission/background_fbgns.pkl"
     run:
         import pandas as pd
@@ -119,11 +92,13 @@ rule background:
         with open(output[0], "wb") as fh:
             pickle.dump(fbgns, fh)
 
+
 rule gene_locs:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
     params: chrom_order=config["chrom_order"]
     output: "../output/science_submission/gene_locations.feather"
     script: "scripts/gene_locations.py"
+
 
 # rule ptrap_scores:
 #     output: "../output/science_submission/ptrap_scores.parquet"
@@ -132,13 +107,13 @@ rule gene_locs:
 ################################################################################
 # Fig 1
 ################################################################################
-
 rule plot_cluster_legend:
     params:
         cluster_colors=COLORS["clusters"],
         legend_names = config["legend_names"]
     output: "../output/science_submission/figures/cluster-legend.svg"
     script: "scripts/plot_cluster_legend.py"
+
 
 # # (B) Correlation with bulk RNA-Seq
 # rule plot_heatmap_bulk_scRNAseq_w_rep:
@@ -147,6 +122,7 @@ rule plot_cluster_legend:
 #          scrnaseq="../output/scrnaseq-wf/tpm_by_rep.parquet"
 #     output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
 #     script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
+
 
 rule plot_umap:
     input:
@@ -159,10 +135,11 @@ rule plot_umap:
         cluster_order = config["cluster_order"]
     script: "scripts/plot_umap.py"
 
+
 # (E) Heatmap of literature genes
 rule plot_heatmap_all_lit_genes:
     input:
-         zscores=rules.zscore.output[0],
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
          gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg"
     params:
@@ -170,12 +147,13 @@ rule plot_heatmap_all_lit_genes:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_all_lit_genes.py"
 
-# Supplemental Figures
 
+# Supplemental Figures
 rule plot_barplot_cell_per_cluster_number:
     input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
     output: "../output/science_submission/figures/barplot-cell-per-cluster-number.svg"
     script: "scripts/plot_barplot_cell_per_cluster_number.py"
+
 
 rule plot_barplot_cell_per_cluster:
     input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
@@ -184,6 +162,7 @@ rule plot_barplot_cell_per_cluster:
         cluster_annot = config["cluster_annot"],
         cluster_order = config["cluster_order"]
     script: "scripts/plot_barplot_cell_per_cluster.py"
+
 
 # rule plot_barplot_replicate_representation:
 #     input:
@@ -199,7 +178,7 @@ rule plot_barplot_cell_per_cluster:
 
 rule plot_heatmap_all_genes:
     input:
-         zscores=rules.zscore.output[0],
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
          gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: "../output/science_submission/figures/heatmap-all-genes-w-rep.svg"
     params:
@@ -207,9 +186,10 @@ rule plot_heatmap_all_genes:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_all_genes.py"
 
+
 rule plot_heatmap_unique_biomarkers:
     input:
-         zscores=rules.zscore.output[0],
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
          gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
          biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
     output: "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg"
@@ -219,9 +199,10 @@ rule plot_heatmap_unique_biomarkers:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_unique_biomarkers.py"
 
+
 rule plot_heatmap_multi_biomarkers:
     input:
-         zscores=rules.zscore.output[0],
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
          gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
          biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
     output: "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg"
@@ -231,6 +212,7 @@ rule plot_heatmap_multi_biomarkers:
         cluster_types = config["cluster_types"],
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_multi_biomarkers.py"
+
 
 # rule plot_heatmap_scRNAseq_cluster_corr:
 #     input: "../output/scrnaseq-wf/tpm.parquet"
@@ -264,10 +246,11 @@ rule plot_boxplot_autosome_ratio:
           cluster_colors=COLORS["clusters"]
     script: "scripts/plot_boxplot_autosome_ratio.py"
 
+
 # # (D) Normalized Y expression by cluster
 rule plot_boxplot_y_genes:
     input:
-        tpm=rules.tpm.output[0],
+        tpm='../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather',
         metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: "../output/science_submission/figures/boxplot-y-genes.svg"
@@ -275,21 +258,24 @@ rule plot_boxplot_y_genes:
         cluster_colors=COLORS["clusters"]
     script: "scripts/plot_boxplot_y_genes.py"
 
+
 # # Supplemental Figures
 
 rule plot_violin_total_umi:
-    input: rules.raw_agg.output[0]
+    input: '../output/seurat3-cluster-wf/raw_by_cluster_rep.feather'
     output: "../output/science_submission/figures/violin-total-umi.svg"
     params:
         cluster_colors = COLORS["clusters"]
     script: "scripts/plot_violin_total_umi.py"
 
+
 rule plot_boxplot_total_umi:
-    input: rules.raw_agg.output[0]
+    input: '../output/seurat3-cluster-wf/raw_by_cluster_rep.feather'
     output: "../output/science_submission/figures/boxplot-total-umi.svg"
     params:
         cluster_colors = COLORS["clusters"]
     script: "scripts/plot_boxplot_total_umi.py"
+
 
 # rule plot_boxplot_expression_diversity:
 #     input:

@@ -77,6 +77,7 @@ rule targets:
         expand('../output/cellselection-wf/{sample}_scatter.png', sample=SAMPLES),
         expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg', sample=SAMPLES),
         expand('../output/cellselection-wf/{sample}/matrix.mtx', sample=SAMPLES),
+        "../output/cellselection-wf/raw.feather",
 
 
 rule unzip_cellranger3:
@@ -315,3 +316,9 @@ rule save_filtered_cell_matrix:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: 'scripts/filter_cells.py'
+
+
+rule raw:
+    input: expand("../output/cellselection-wf/{sample}/matrix.mtx", sample=SAMPLES),
+    output: "../output/cellselection-wf/raw.feather"
+    script: "scripts/raw_expression_matrix.py"
