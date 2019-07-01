@@ -1,30 +1,36 @@
 from pathlib import Path
 from larval_gonad.config import read_config
 
-common_config = read_config('../config/common.yaml')
-ASSEMBLY = common_config['assembly']
-TAG = common_config['tag']
-SAMPLES = ['testis1', 'testis2', 'testis3', 'testis4']
+common_config = read_config("../config/common.yaml")
+ASSEMBLY = common_config["assembly"]
+TAG = common_config["tag"]
+SAMPLES = ["testis1", "testis2", "testis3", "testis4"]
 
 rule targets:
     input: 
-        '../output/seurat3-cluster-wf/testis1_individual.html',
-        '../output/seurat3-cluster-wf/testis2_individual.html',
-        '../output/seurat3-cluster-wf/testis3_individual.html',
-        '../output/seurat3-cluster-wf/testis4_individual.html',
+        "../output/seurat3-cluster-wf/testis1_individual.html",
+        "../output/seurat3-cluster-wf/testis2_individual.html",
+        "../output/seurat3-cluster-wf/testis3_individual.html",
+        "../output/seurat3-cluster-wf/testis4_individual.html",
         "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
         "../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
         "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
-        expand('../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather', cnt=[3, 4]),
+        expand("../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather", cnt=[3, 4]),
         expand(
-            '../output/seurat3-cluster-wf/{sample}_{ftypes}.feather', 
+            "../output/seurat3-cluster-wf/combined_n{cnt}_{comparison}.{ext}",
+            cnt=3,
+            comparison=["gonia_vs_cytes", "gonia_vs_eps", "eps_vs_ps"],
+            ext=["feather", "tsv"]
+        ),
+        expand(
+            "../output/seurat3-cluster-wf/{sample}_{ftypes}.feather", 
             sample=[
-                'testis1_individual',
-                'testis2_individual',
-                'testis3_individual',
-                'testis4_individual',
-                'combined_n3',
-                'combined_n4',
+                "testis1_individual",
+                "testis2_individual",
+                "testis3_individual",
+                "testis4_individual",
+                "combined_n3",
+                "combined_n4",
             ],
             ftypes=[
                 "normalized",
@@ -34,105 +40,123 @@ rule targets:
                 "umap",
             ]
         ),
-        '../output/seurat3-cluster-wf/combined_n3_GO_analysis.html',
+        "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
 
 
 rule testis1:
     input:
-        rmd = 'scripts/testis1_individual.Rmd'
+        rmd = "scripts/testis1_individual.Rmd"
     output: 
-        html = '../output/seurat3-cluster-wf/testis1_individual.html',
-    conda: '../envs/seurat3.yaml'
+        html = "../output/seurat3-cluster-wf/testis1_individual.html",
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule testis2:
     input:
-        rmd = 'scripts/testis2_individual.Rmd'
+        rmd = "scripts/testis2_individual.Rmd"
     output: 
-        html = '../output/seurat3-cluster-wf/testis2_individual.html',
-    conda: '../envs/seurat3.yaml'
+        html = "../output/seurat3-cluster-wf/testis2_individual.html",
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule testis3:
     input:
-        rmd = 'scripts/testis3_individual.Rmd'
+        rmd = "scripts/testis3_individual.Rmd"
     output: 
-        html = '../output/seurat3-cluster-wf/testis3_individual.html',
-    conda: '../envs/seurat3.yaml'
+        html = "../output/seurat3-cluster-wf/testis3_individual.html",
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule testis4:
     input:
-        rmd = 'scripts/testis4_individual.Rmd'
+        rmd = "scripts/testis4_individual.Rmd"
     output: 
-        html = '../output/seurat3-cluster-wf/testis4_individual.html',
-    conda: '../envs/seurat3.yaml'
+        html = "../output/seurat3-cluster-wf/testis4_individual.html",
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule merge_3reps:
     input: 
-        rmd = 'scripts/combined_n3.Rmd',
-        data = expand('../output/seurat3-cluster-wf/{sample}_individual.html', sample=SAMPLES[:3])
+        rmd = "scripts/combined_n3.Rmd",
+        data = expand("../output/seurat3-cluster-wf/{sample}_individual.html", sample=SAMPLES[:3])
     output:
-        html = '../output/seurat3-cluster-wf/combined_n3.html',
-    conda: '../envs/seurat3.yaml'
+        html = "../output/seurat3-cluster-wf/combined_n3.html",
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule merge_4reps:
     input: 
-        rmd = 'scripts/combined_n4.Rmd',
-        data = expand('../output/seurat3-cluster-wf/{sample}_individual.html', sample=SAMPLES)
+        rmd = "scripts/combined_n4.Rmd",
+        data = expand("../output/seurat3-cluster-wf/{sample}_individual.html", sample=SAMPLES)
     output:
-        html = '../output/seurat3-cluster-wf/combined_n4.html',
-    conda: '../envs/seurat3.yaml'
+        html = "../output/seurat3-cluster-wf/combined_n4.html",
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule biomarkers:
     input: 
         html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
-        gene_annotation = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: 
         tsv = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.tsv",
         feather = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather"
-    conda: '../envs/seurat3.yaml'
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: 'scripts/combined_biomarkers.R'
+    script: "scripts/combined_biomarkers.R"
+
+
+rule germline_deg:
+    input: 
+        html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: 
+        gvcf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.feather",
+        gvct = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.tsv",
+        gvef = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.feather",
+        gvet = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.tsv",
+        evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
+        evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv"
+    conda: "../envs/seurat3.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: "scripts/deg_gonia_vs_cytes.R"
 
 
 def _params(wildcards):
     return {
-        'testis1_individual': 'RNA_snn_res.0.8',
-        'testis2_individual': 'RNA_snn_res.0.6',
-        'testis3_individual': 'RNA_snn_res.0.6',
-        'testis4_individual': 'RNA_snn_res.0.6',
-        'combined_n3': 'integrated_snn_res.0.3',
-        'combined_n4': 'integrated_snn_res.0.3',
+        "testis1_individual": "RNA_snn_res.0.8",
+        "testis2_individual": "RNA_snn_res.0.6",
+        "testis3_individual": "RNA_snn_res.0.6",
+        "testis4_individual": "RNA_snn_res.0.6",
+        "combined_n3": "integrated_snn_res.0.3",
+        "combined_n4": "integrated_snn_res.0.3",
 
     }[wildcards.sample]
 
@@ -140,7 +164,7 @@ def _params(wildcards):
 rule dump_robj:
     input: 
         html = "../output/seurat3-cluster-wf/{sample}.html",
-        gene_annotation = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: 
         norm = "../output/seurat3-cluster-wf/{sample}_normalized.feather",
         metadata = "../output/seurat3-cluster-wf/{sample}_metadata.feather",
@@ -149,24 +173,24 @@ rule dump_robj:
         umap = "../output/seurat3-cluster-wf/{sample}_umap.feather",
     params:
         integrated_resolution = _params
-    conda: '../envs/seurat3.yaml'
+    conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: 'scripts/dump.R'
+    script: "scripts/dump.R"
 
 
 rule combined_n3_GO:
     input: 
-        rmd = 'scripts/combined_n3_GO_analysis.Rmd',
+        rmd = "scripts/combined_n3_GO_analysis.Rmd",
         data = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
     output:
-        html = '../output/seurat3-cluster-wf/combined_n3_GO_analysis.html',
-    conda: '../envs/go_analysis.yaml'
+        html = "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
+    conda: "../envs/go_analysis.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: '../scripts/rscript.py'
+    script: "../scripts/rscript.py"
 
 
 rule raw_agg:
