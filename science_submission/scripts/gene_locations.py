@@ -27,5 +27,6 @@ for gene in db.features_of_type('gene'):
     .assign(chrom=lambda df: df.chrom.astype('category').cat.as_ordered().cat.reorder_categories(chrom_order))
     .sort_values(['chrom', 'pos'])
     .assign(location=lambda df: range(1, df.shape[0] + 1))
-    .to_parquet(oname)
+    .reset_index()
+    .to_feather(oname)
 )

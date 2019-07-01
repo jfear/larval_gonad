@@ -21,14 +21,15 @@ from .plotting import figure_element
 
 @memory.cache
 def read_counts(fname):
-    df = pd.read_csv(fname, sep='\t')
-    df.index.name = 'FBgn'
-    df.columns.name = 'cell_id'
+    df = pd.read_csv(fname, sep="\t")
+    df.index.name = "FBgn"
+    df.columns.name = "cell_id"
     return df
 
 
 class Seurat(object):
     """Class that stores basic paths for files from Seurat analysis."""
+
     def __init__(self, path=None):
         """Create a list of Seurat paths.
         raw : str
@@ -60,7 +61,7 @@ class Seurat(object):
 
         self.path = path
 
-        if (path is None):
+        if path is None:
             self.raw = None
             self.metadata = None
             self.scaled = None
@@ -75,45 +76,37 @@ class Seurat(object):
             self.clusters = None
             self.robj = None
         else:
-            self.raw = os.path.join(path, 'raw.tsv')
-            self.metadata = os.path.join(path, 'metadata.tsv')
-            self.scaled = os.path.join(path, 'scaled.tsv')
-            self.dispersion = os.path.join(path, 'dispersion.tsv')
-            self.var_genes = os.path.join(path, 'var_genes.txt')
-            self.normalized_read_counts = os.path.join(
-                path, 'normalized_read_counts.tsv'
-            )
-            self.principal_components_cell = os.path.join(
-                path, 'principal_components_cell.tsv'
-            )
-            self.principal_components_gene = os.path.join(
-                path, 'principal_components_gene.tsv'
-            )
-            self.principal_components_stdev = os.path.join(
-                path, 'principal_components_stdev.tsv'
-            )
-            self.tsne = os.path.join(path, 'tsne.tsv')
-            self.biomarkers = os.path.join(path, 'biomarkers.tsv')
-            self.clusters = os.path.join(path, 'clusters.tsv')
-            self.robj = os.path.join(path, 'seurat.Robj')
+            self.raw = os.path.join(path, "raw.tsv")
+            self.metadata = os.path.join(path, "metadata.tsv")
+            self.scaled = os.path.join(path, "scaled.tsv")
+            self.dispersion = os.path.join(path, "dispersion.tsv")
+            self.var_genes = os.path.join(path, "var_genes.txt")
+            self.normalized_read_counts = os.path.join(path, "normalized_read_counts.tsv")
+            self.principal_components_cell = os.path.join(path, "principal_components_cell.tsv")
+            self.principal_components_gene = os.path.join(path, "principal_components_gene.tsv")
+            self.principal_components_stdev = os.path.join(path, "principal_components_stdev.tsv")
+            self.tsne = os.path.join(path, "tsne.tsv")
+            self.biomarkers = os.path.join(path, "biomarkers.tsv")
+            self.clusters = os.path.join(path, "clusters.tsv")
+            self.robj = os.path.join(path, "seurat.Robj")
 
     def get_raw(self):
         return read_counts(self.raw)
 
     def get_metadata(self):
-        df = pd.read_csv(self.metadata, sep='\t')
-        df.index.name = 'cell_id'
+        df = pd.read_csv(self.metadata, sep="\t")
+        df.index.name = "cell_id"
         return df
 
     def get_scaled(self):
-        df = pd.read_csv(self.scaled, sep='\t')
-        df.index.name = 'FBgn'
-        df.columns.name = 'cell_id'
+        df = pd.read_csv(self.scaled, sep="\t")
+        df.index.name = "FBgn"
+        df.columns.name = "cell_id"
         return df
 
     def get_dispersion(self):
-        df = pd.read_csv(self.dispersion, sep='\t')
-        df.index.name = 'FBgn'
+        df = pd.read_csv(self.dispersion, sep="\t")
+        df.index.name = "FBgn"
         return df
 
     def get_var_genes(self):
@@ -124,42 +117,42 @@ class Seurat(object):
         return read_counts(self.normalized_read_counts)
 
     def get_principal_components_cell(self):
-        df = pd.read_csv(self.principal_components_cell, sep='\t')
-        df.index.name = 'cell_id'
-        df.columns.name = 'PC'
+        df = pd.read_csv(self.principal_components_cell, sep="\t")
+        df.index.name = "cell_id"
+        df.columns.name = "PC"
         return df
 
     def get_principal_components_gene(self):
-        df = pd.read_csv(self.principal_components_gene, sep='\t')
-        df.index.name = 'FBgn'
-        df.columns.name = 'PC'
+        df = pd.read_csv(self.principal_components_gene, sep="\t")
+        df.index.name = "FBgn"
+        df.columns.name = "PC"
         return df
 
     def get_principal_components_stdev(self):
-        df = pd.read_csv(self.principal_components_stdev, sep='\t')
-        df.index.name = 'PC'
-        df.columns.name = 'stdev'
+        df = pd.read_csv(self.principal_components_stdev, sep="\t")
+        df.index.name = "PC"
+        df.columns.name = "stdev"
         return df
 
     def get_tsne(self):
-        df = pd.read_csv(self.tsne, sep='\t')
-        df.index.name = 'FBgn'
+        df = pd.read_csv(self.tsne, sep="\t")
+        df.index.name = "FBgn"
         return df
 
     def get_biomarkers(self, resolution):
-        fname = Path(self.path, f'biomarkers_{resolution}.tsv')
-        df = pd.read_csv(fname, sep='\t', index_col='primary_FBgn')
-        df.index.name = 'FBgn'
+        fname = Path(self.path, f"biomarkers_{resolution}.tsv")
+        df = pd.read_csv(fname, sep="\t", index_col="primary_FBgn")
+        df.index.name = "FBgn"
         return df
 
     def get_clusters(self, resolution=None):
-        df = pd.read_csv(self.clusters, sep='\t', index_col=0)
+        df = pd.read_csv(self.clusters, sep="\t", index_col=0)
 
         if resolution is None:
             return df
 
         clusters = df[resolution]
-        clusters.name = 'cluster'
+        clusters.name = "cluster"
         return clusters
 
 
@@ -172,7 +165,7 @@ def raw_data(seurat_dir, cluster=None, resolution=None):
         return s.get_raw()
 
     if resolution is None:
-        resolution = config['resolution']
+        resolution = config["resolution"]
 
     clusters = s.get_clusters(resolution)
     cells = clusters.index[clusters == cluster].tolist()
@@ -187,7 +180,7 @@ def norm_data(seurat_dir, cluster=None, resolution=None):
         return s.get_normalized_read_counts()
 
     if resolution is None:
-        resolution = config['resolution']
+        resolution = config["resolution"]
 
     clusters = s.get_clusters(resolution)
     cells = clusters.index[clusters == cluster].tolist()
@@ -196,19 +189,30 @@ def norm_data(seurat_dir, cluster=None, resolution=None):
 
 def seurat_or_data(func):
     def wrapper(*args, **kwargs):
-        data = kwargs.get('data', None)
-        seurat_dir = kwargs.get('seurat_dir', None)
+        data = kwargs.get("data", None)
+        seurat_dir = kwargs.get("seurat_dir", None)
         if (data is None) & (seurat_dir is None):
-            raise ValueError('You must provide either data or a seurat_dir')
+            raise ValueError("You must provide either data or a seurat_dir")
 
         return func(*args, **kwargs)
+
     return wrapper
 
 
 # Plotting Functions
-def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
-             palette=None, ax=None, class_names=None,
-             legend_kws=None, cbar=True, **kwargs):
+def TSNEPlot(
+    x="tSNE_1",
+    y="tSNE_2",
+    data=None,
+    hue=None,
+    cmap=None,
+    palette=None,
+    ax=None,
+    class_names=None,
+    legend_kws=None,
+    cbar=True,
+    **kwargs,
+):
     """ Make a TSNE plot using either continuous or discrete data.
 
     Parameters
@@ -233,11 +237,7 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
         Additional kwargs are passed to pd.DataFrame.plot.scatter
 
     """
-    defaults = {
-        'vmin': 0,
-        'vmax': 5,
-        'edgecolor': 'k',
-    }
+    defaults = {"vmin": 0, "vmax": 5, "edgecolor": "k"}
     defaults.update(kwargs)
 
     df = data.copy()
@@ -247,30 +247,31 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
     if palette is None:
         palette = sns.color_palette()
 
-    legend_defaults = {
-        'loc': 'center left',
-        'bbox_to_anchor': (1, 0.5),
-    }
+    legend_defaults = {"loc": "center left", "bbox_to_anchor": (1, 0.5)}
     if legend_kws is not None:
         legend_defaults.update(legend_kws)
 
     if isinstance(hue, pd.Series):
-        df['on'] = hue.astype(int).apply(lambda x: str(x))
-        hue = 'on'
+        df["on"] = hue.astype(int).apply(lambda x: str(x))
+        hue = "on"
 
     values = sorted(df[hue].unique())
-    if (isinstance(values[0], (int, np.integer)) & (len(values) > 20)) | isinstance(values[0], (float, np.float64)):
+    if (isinstance(values[0], (int, np.integer)) & (len(values) > 20)) | isinstance(
+        values[0], (float, np.float64)
+    ):
         if cmap is None:
             cmap = mpl.colors.ListedColormap(palette)
         zeros = df[df[hue] == 0]
         if len(zeros) > 0:
-            zeros.plot.scatter(x, y, c=zeros[hue], cmap=cmap, ax=ax,
-                               colorbar=False, zorder=1, **defaults)
+            zeros.plot.scatter(
+                x, y, c=zeros[hue], cmap=cmap, ax=ax, colorbar=False, zorder=1, **defaults
+            )
 
         expressed = df[df[hue] > 0]
         if len(expressed) > 0:
-            expressed.plot.scatter(x, y, c=expressed[hue], cmap=cmap, ax=ax,
-                                   colorbar=cbar, zorder=3, **defaults)
+            expressed.plot.scatter(
+                x, y, c=expressed[hue], cmap=cmap, ax=ax, colorbar=cbar, zorder=3, **defaults
+            )
     else:
         if cmap is None:
             cmap = {k: v for k, v in zip(values, palette)}
@@ -282,10 +283,9 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
                 _class = class_names[l]
 
             try:
-                dd.plot.scatter(x, y, c=cmap[l], label=_class, ax=ax,
-                                **defaults)
+                dd.plot.scatter(x, y, c=cmap[l], label=_class, ax=ax, **defaults)
             except KeyError as e:
-                print('Try Setting Palette with the correct number of colors.')
+                print("Try Setting Palette with the correct number of colors.")
                 print(len(cmap), len(values))
                 print(type(values[0]))
                 raise e
@@ -297,42 +297,47 @@ def TSNEPlot(x='tSNE_1', y='tSNE_2', data=None, hue=None, cmap=None,
     ax.set_yticks([])
 
 
-def plot_confusion_matrix(cm, classes, normalize=False,
-                          title='Confusion matrix', cmap=plt.cm.Blues):
+def plot_confusion_matrix(
+    cm, classes, normalize=False, title="Confusion matrix", cmap=plt.cm.Blues
+):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
     if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
         print("Normalized confusion matrix")
     else:
-        print('Confusion matrix, without normalization')
+        print("Confusion matrix, without normalization")
 
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.imshow(cm, interpolation="nearest", cmap=cmap)
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     plt.xticks(tick_marks, classes, rotation=45)
     plt.yticks(tick_marks, classes)
 
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
+    fmt = ".2f" if normalize else "d"
+    thresh = cm.max() / 2.0
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, format(cm[i, j], fmt),
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
+        plt.text(
+            j,
+            i,
+            format(cm[i, j], fmt),
+            horizontalalignment="center",
+            color="white" if cm[i, j] > thresh else "black",
+        )
 
     plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
+    plt.ylabel("True label")
+    plt.xlabel("Predicted label")
 
 
 @seurat_or_data
 @figure_element
 def fe_tsne(data=None, seurat_dir=None, ax=None, resolution=None, **kwargs):
     if resolution is None:
-        resolution = config['resolution']
+        resolution = config["resolution"]
 
     if data is None:
         s = Seurat(seurat_dir)
@@ -340,19 +345,23 @@ def fe_tsne(data=None, seurat_dir=None, ax=None, resolution=None, **kwargs):
         clusters = s.get_clusters(resolution)
         data = tsne.join(clusters)
 
-    TSNEPlot(data=data, hue='cluster',
-             class_names=config['cluster_annot'],
-             palette=config['colors']['clusters'], ax=ax, **kwargs)
+    TSNEPlot(
+        data=data,
+        hue="cluster",
+        class_names=config["cluster_annot"],
+        palette=config["colors"]["clusters"],
+        ax=ax,
+        **kwargs,
+    )
 
     return ax
 
 
 @seurat_or_data
 @figure_element
-def fe_heatmap_all(data=None, seurat_dir=None, ax=None, resolution=None,
-                   **kwargs):
+def fe_heatmap_all(data=None, seurat_dir=None, ax=None, resolution=None, **kwargs):
     if resolution is None:
-        resolution = config['resolution']
+        resolution = config["resolution"]
 
     if data is None:
         s = Seurat(seurat_dir)
@@ -360,8 +369,13 @@ def fe_heatmap_all(data=None, seurat_dir=None, ax=None, resolution=None,
         clusters = s.get_clusters(resolution)
         data = tsne.join(clusters)
 
-    TSNEPlot(data=data, hue='cluster',
-             class_names=config['cluster_annot'],
-             palette=config['colors']['clusters'], ax=ax, **kwargs)
+    TSNEPlot(
+        data=data,
+        hue="cluster",
+        class_names=config["cluster_annot"],
+        palette=config["colors"]["clusters"],
+        ax=ax,
+        **kwargs,
+    )
 
     return ax

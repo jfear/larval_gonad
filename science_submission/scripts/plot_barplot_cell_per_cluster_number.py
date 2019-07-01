@@ -8,9 +8,6 @@ import seaborn as sns
 
 FILE_NAME = snakemake.input[0]
 
-CLUSTER_ANNOT = snakemake.params.cluster_annot
-CLUSTER_ORDER = snakemake.params.cluster_order
-
 ONAME = snakemake.output[0]
 
 # Debug Settings
@@ -24,8 +21,6 @@ ONAME = snakemake.output[0]
 def main():
     df = (
         pd.read_feather(FILE_NAME, columns=["cell_id", "cluster"])
-        .assign(cluster=lambda df: df.cluster.cat.rename_categories(CLUSTER_ANNOT))
-        .assign(cluster=lambda df: df.cluster.cat.reorder_categories(CLUSTER_ORDER))
         .assign(rep=lambda df: df.cell_id.str.extract("(rep\d)", expand=False))
         .groupby(["cluster", "rep"])
         .size()

@@ -1,9 +1,9 @@
 from pathlib import Path
 from larval_gonad.config import read_config
 
-commong_config = read_config('../config/common.yaml')
-ASSEMBLY = commong_config['assembly']
-TAG = commong_config['tag']
+common_config = read_config('../config/common.yaml')
+ASSEMBLY = common_config['assembly']
+TAG = common_config['tag']
 SAMPLES = ['testis1', 'testis2', 'testis3', 'testis4']
 
 rule targets:
@@ -12,9 +12,12 @@ rule targets:
         '../output/seurat3-cluster-wf/testis2_individual.html',
         '../output/seurat3-cluster-wf/testis3_individual.html',
         '../output/seurat3-cluster-wf/testis4_individual.html',
+        "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+        "../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
         expand('../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather', cnt=[3, 4]),
         expand(
-            '../output/seurat3-cluster-wf/{sample}_normalized.feather', 
+            '../output/seurat3-cluster-wf/{sample}_{ftypes}.feather', 
             sample=[
                 'testis1_individual',
                 'testis2_individual',
@@ -22,19 +25,16 @@ rule targets:
                 'testis4_individual',
                 'combined_n3',
                 'combined_n4',
+            ],
+            ftypes=[
+                "normalized",
+                "metadata",
+                "pca_cell_embedings",
+                "pca_gene_loadings",
+                "umap",
             ]
         ),
-        expand(
-            '../output/seurat3-cluster-wf/{sample}_metadata.feather', 
-            sample=[
-                'testis1_individual',
-                'testis2_individual',
-                'testis3_individual',
-                'testis4_individual',
-                'combined_n3',
-                'combined_n4',
-            ]
-        )
+        '../output/seurat3-cluster-wf/combined_n3_GO_analysis.html',
 
 
 rule testis1:
@@ -143,11 +143,52 @@ rule dump_robj:
         gene_annotation = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
     output: 
         norm = "../output/seurat3-cluster-wf/{sample}_normalized.feather",
-        metadata = "../output/seurat3-cluster-wf/{sample}_metadata.feather"
+        metadata = "../output/seurat3-cluster-wf/{sample}_metadata.feather",
+        pca_embed = "../output/seurat3-cluster-wf/{sample}_pca_cell_embedings.feather",
+        pca_load = "../output/seurat3-cluster-wf/{sample}_pca_gene_loadings.feather",
+        umap = "../output/seurat3-cluster-wf/{sample}_umap.feather",
     params:
         integrated_resolution = _params
     conda: '../envs/seurat3.yaml'
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: 'scripts/combined_dump.R'
+    script: 'scripts/dump.R'
+
+
+rule combined_n3_GO:
+    input: 
+        rmd = 'scripts/combined_n3_GO_analysis.Rmd',
+        data = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output:
+        html = '../output/seurat3-cluster-wf/combined_n3_GO_analysis.html',
+    conda: '../envs/go_analysis.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: '../scripts/rscript.py'
+
+
+rule raw_agg:
+    input:
+        raw = "../output/cellselection-wf/raw.feather",
+        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+    output: "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather"
+    params:
+        cluster_annot = common_config["cluster_annot"],
+        cluster_order = common_config["cluster_order"],
+    script: "scripts/raw_agg.py"
+
+
+rule tpm:
+    input:
+        raw_agg = rules.raw_agg.output[0],
+        gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather"
+    script: "scripts/tpm.py"
+
+
+rule zscore:
+    input: rules.tpm.output[0]
+    output: "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    script: "scripts/zscore.py"

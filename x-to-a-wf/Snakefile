@@ -1,4 +1,5 @@
 import os
+import yaml
 from pathlib import Path
 
 import pandas as pd
@@ -7,94 +8,123 @@ from larval_gonad.config import read_config
 
 workdir: '.'
 configfile: '../config/common.yaml'
-config['colors'] = read_config('../config/colors.yaml')
 
 REFERENCES_DIR = os.environ.get('REFERENCES_DIR', config.get('REFERENCES_DIR', ''))
 ASSEMBLY = config['assembly']
 TAG = config['tag']
-AUTOSOMES = ['chr2L', 'chr2R', 'chr3L', 'chr3R']
+CHROMS = ['X', 'Y', '2L', '2R', '3L', '3R', '4']
+AUTOSOMES = ['2L', '2R', '3L', '3R']
 
 rule targets:
     input:
-         '../output/x-to-a-wf/raw_by_chrom.parquet',
-         '../output/x-to-a-wf/expressed_genes_by_chrom.parquet',
-         '../output/x-to-a-wf/autosome_ratios_by_cell.parquet',
-         '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
-
-rule fbgn2chrom:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, 'gtf', f'{ASSEMBLY}_{TAG}.gtf').as_posix()
-    output: '../output/x-to-a-wf/fbgn2chrom.parquet'
-    script: 'scripts/parse_fbgn2chrom.py'
+         '../output/x-to-a-wf/raw_by_chrom.feather',
+         '../output/x-to-a-wf/expressed_genes_by_chrom.feather',
+         '../output/x-to-a-wf/autosome_ratios_by_cell.feather',
+         '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.feather'
 
 rule num_genes_by_chrom:
     input:
-         raw='../output/scrnaseq-wf/raw.parquet',
-         chrom=rules.fbgn2chrom.output[0]
+         raw = '../output/science_submission/raw.feather',
+         gene_metadata = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
     output: '../output/x-to-a-wf/num_genes_by_chrom.pkl'
     run:
+        fbgns = (
+            pd.read_feather(input['raw']).set_index('FBgn')
+            .pipe(lambda df: df[(df > 0).sum(axis=1) >= 3])
+            .index.values
+        )
         (
-            pd.read_parquet(input['chrom'])
-                .reindex(pd.read_parquet(input['raw']).index)
-                .dropna()
-                .groupby('chrom')
-                .size()
-                .to_pickle(output[0])
+            pd.read_feather(input['gene_metadata'], columns=['FBgn', 'FB_chrom'])
+            .set_index('FBgn')
+            .rename({'FB_chrom': 'chrom'}, axis=1)
+            .reindex(fbgns)
+            .groupby('chrom')
+            .size()
+            .reindex(CHROMS)
+            .rename('num_genes')
+            .to_pickle(output[0])
         )
 
 rule raw_by_chrom:
     input:
-         raw='../output/scrnaseq-wf/raw.parquet',
-         chrom=rules.fbgn2chrom.output[0]
-    output: '../output/x-to-a-wf/raw_by_chrom.parquet'
+         raw = '../output/science_submission/raw.feather',
+         gene_metadata = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+    output: '../output/x-to-a-wf/raw_by_chrom.feather'
     run:
+        fbgn2chrom = (
+            pd.read_feather(input['gene_metadata'], columns=['FBgn', 'FB_chrom'])
+            .set_index('FBgn')
+            .rename({'FB_chrom': 'chrom'}, axis=1)
+        )
         (
-            pd.read_parquet(input['raw'])
-                .join(pd.read_parquet(input['chrom']))
-                .groupby('chrom').sum()
-                .T
-                .to_parquet(output[0])
+            pd.read_feather(input['raw']).set_index('FBgn')
+            .join(fbgn2chrom)
+            .groupby('chrom').sum()
+            .reindex(CHROMS)
+            .T
+            .rename_axis('cell_id')
+            .reset_index()
+            .to_feather(output[0])
         )
 
 rule expressed_genes_by_chrom:
     input:
-         raw='../output/scrnaseq-wf/raw.parquet',
-         chrom=rules.fbgn2chrom.output[0]
-    output: '../output/x-to-a-wf/expressed_genes_by_chrom.parquet'
+         raw = '../output/science_submission/raw.feather',
+         gene_metadata = f'../references/gene_annotation_{ASSEMBLY}_{TAG}.feather'
+    output: '../output/x-to-a-wf/expressed_genes_by_chrom.feather'
     run:
+        fbgn2chrom = (
+            pd.read_feather(input['gene_metadata'], columns=['FBgn', 'FB_chrom'])
+            .set_index('FBgn')
+            .rename({'FB_chrom': 'chrom'}, axis=1)
+        )
         (
-            pd.read_parquet(input['raw'])
-                .pipe(lambda df: df > 0)
-                .join(pd.read_parquet(input['chrom']))
-                .groupby('chrom').sum()
-                .T
-                .to_parquet(output[0])
+            pd.read_feather(input['raw']).set_index('FBgn')
+            .pipe(lambda df: df > 0)
+            .join(fbgn2chrom)
+            .groupby('chrom').sum()
+            .reindex(CHROMS)
+            .T
+            .rename_axis('cell_id')
+            .reset_index()
+            .to_feather(output[0])
         )
 
 rule autosome_ratios_by_cell:
     input:
-         raw=rules.raw_by_chrom.output[0],
-         num_genes=rules.num_genes_by_chrom.output[0],
-         cluster='../output/scrnaseq-wf/clusters.parquet'
-    output: '../output/x-to-a-wf/autosome_ratios_by_cell.parquet'
+         raw = rules.raw_by_chrom.output[0],
+         num_genes = rules.num_genes_by_chrom.output[0],
+         metadata = '../output/seurat3-cluster-wf/combined_n3_metadata.feather'
+    output: '../output/x-to-a-wf/autosome_ratios_by_cell.feather'
+    params:
+        cluster_annot = config['cluster_annot'],
+        cluster_order = config['cluster_order']
     run:
         num_genes = pd.read_pickle(input['num_genes'])
         num_genes['autosome'] = num_genes[AUTOSOMES].sum()
+        cell_annot = (
+            pd.read_feather(input['metadata'], columns=['cell_id', 'cluster']).set_index('cell_id')
+            .assign(cluster=lambda df: df.cluster.cat.rename_categories(config['cluster_annot']))
+            .assign(cluster=lambda df: df.cluster.cat.reorder_categories(config['cluster_order']))
+            .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
+        )
 
         # Calculate the X / A ratio after scaling by the number of genes
         (
-            pd.read_parquet(input['raw'])
-                .assign(autosome=lambda df: df[AUTOSOMES].sum(axis=1))
-                .div(num_genes / 1e3, axis='columns')
-                .assign(x_to_a_ratio=lambda df: df.chrX / df.autosome)
-                .assign(fourth_to_a_ratio=lambda df: df.chr4 / df.autosome)
-                .assign(y_to_a_ratio=lambda df: df.chrY / df.autosome)
-                .loc[:, ['x_to_a_ratio', 'fourth_to_a_ratio', 'y_to_a_ratio']]
-                .join(pd.read_parquet(input['cluster']))
-                .assign(rep=lambda df: df.index.str.extract('(rep\d)', expand=False))
-                .to_parquet(output[0])
+            pd.read_feather(input['raw']).set_index('cell_id')
+            .assign(autosome=lambda df: df[AUTOSOMES].sum(axis=1))
+            .div(num_genes / 1e3, axis='columns')
+            .assign(x_to_a_ratio=lambda df: df['X'] / df.autosome)
+            .assign(fourth_to_a_ratio=lambda df: df['4'] / df.autosome)
+            .assign(y_to_a_ratio=lambda df: df['Y']/ df.autosome)
+            .loc[:, ['x_to_a_ratio', 'fourth_to_a_ratio', 'y_to_a_ratio']]
+            .join(cell_annot)
+            .reset_index()
+            .to_feather(output[0])
         )
+
 
 rule permutation_test_autosome_ratios:
     input: rules.autosome_ratios_by_cell.output[0]
-    output: '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.parquet'
+    output: '../output/x-to-a-wf/permuted_autosome_ratio_pvalues.feather'
     script: 'scripts/permutation_test_autosome_ratios.py'

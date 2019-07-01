@@ -1,6 +1,7 @@
 """Library for normalization of RNA-seq data."""
 import numpy as np
 
+
 def cpm(df, scale=1e6, log=None):
     """Coverage per million.
 
@@ -22,11 +23,11 @@ def cpm(df, scale=1e6, log=None):
     totals = df.sum()
     if log is None:
         log = lambda x: x - 1
-    elif log == 'log2':
+    elif log == "log2":
         log = np.log2
-    elif log == 'log10':
+    elif log == "log10":
         log = np.log10
-    elif log == 'ln':
+    elif log == "ln":
         log = np.log
 
     return log(df / (totals / scale) + 1)
@@ -56,11 +57,11 @@ def rpkm(df, gene_length, scale_library=1e6, scale_length=1e3, log=None):
     totals = df.sum()
     if log is None:
         log = lambda x: x - 1
-    elif log == 'log2':
+    elif log == "log2":
         log = np.log2
-    elif log == 'log10':
+    elif log == "log10":
         log = np.log10
-    elif log == 'ln':
+    elif log == "ln":
         log = np.log
 
     return log((df / (totals / scale_library)).T / (gene_length / scale_length) + 1).T
@@ -93,11 +94,11 @@ def tpm(df, gene_length, scale_library=1e6, scale_length=1e3, log=None):
 
     if log is None:
         log = lambda x: x - 1
-    elif log == 'log2':
+    elif log == "log2":
         log = np.log2
-    elif log == 'log10':
+    elif log == "log10":
         log = np.log10
-    elif log == 'ln':
+    elif log == "ln":
         log = np.log
 
     return log((rpk / (totals / scale_library)) + 1)
@@ -106,4 +107,4 @@ def tpm(df, gene_length, scale_library=1e6, scale_length=1e3, log=None):
 def zscore(df):
     mu = df.mean(axis=1)
     sigma = df.std(axis=1)
-    return df.subtract(mu, axis='rows').div(sigma, axis='rows')
+    return df.subtract(mu, axis="rows").div(sigma, axis="rows")
