@@ -1,0 +1,26 @@
+import pandas as pd
+
+from larval_gonad.config import read_config
+
+common_config = read_config('../config/common.yaml')
+
+rule all:
+    input: 
+        '../output/neox-wf/sturgill_2007.xls',
+        '../output/neox-wf/sturgill_2007_mullerD.feather',
+        '../output/neox-wf/sturgill_2007_mullerE.feather',
+
+
+rule download_strugill:
+    output: '../output/neox-wf/sturgill_2007.xls'
+    shell: """
+        curl -o {output[0]} https://media.nature.com/original/nature-assets/nature/journal/v450/n7167/extref/nature06330-s2.xls
+    """
+
+
+rule sturgill_data_prep:
+    input: rules.download_strugill.output[0]
+    output: 
+        mullerD='../output/neox-wf/sturgill_2007_mullerD.feather',
+        mullerE='../output/neox-wf/sturgill_2007_mullerE.feather'
+    script: 'scripts/parse_sturgill.py'
