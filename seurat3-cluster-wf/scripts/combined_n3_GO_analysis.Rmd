@@ -17,12 +17,12 @@ knitr::opts_chunk$set(
     echo = FALSE,
     cache.lazy = FALSE,
     fig.path = "combined_n3_GO_figures/",
-    fig.ext = c("png", "svg"),
+    dev = c("png", "svg"),
     fig.width = 8
 )
 ```
 ```{r globals}
-PROJ_DIR = '/home/fearjm/Projects/larval_gonad'
+PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
 ```
 
 ```{r load_library}
@@ -99,7 +99,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_ps1, echo=TRUE}
-gl <- lit_genes[['spermatocytes']]
+gl <- lit_genes[["spermatocytes"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -110,7 +110,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_ps2, echo=TRUE}
-gl <- lit_genes[['spermatocytes']]
+gl <- lit_genes[["spermatocytes"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -121,7 +121,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_ps3, echo=TRUE}
-gl <- lit_genes[['spermatocytes']]
+gl <- lit_genes[["spermatocytes"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -134,7 +134,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_ecy, echo=TRUE}
-gl <- lit_genes[['cysc']]
+gl <- lit_genes[["cysc"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -147,7 +147,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_cy1, echo=TRUE}
-gl <- lit_genes[['cysc']]
+gl <- lit_genes[["cysc"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -158,7 +158,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_cy2, echo=TRUE}
-gl <- lit_genes[['cysc']]
+gl <- lit_genes[["cysc"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -171,7 +171,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_te, echo=TRUE}
-gl <- lit_genes[['te']]
+gl <- lit_genes[["te"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -184,6 +184,6 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_pc, echo=TRUE}
-gl <- lit_genes[['pigment']]
+gl <- lit_genes[["pigment"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
