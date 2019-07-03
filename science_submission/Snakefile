@@ -42,6 +42,7 @@ rule all:
         "../output/science_submission/figures/violin-total-umi.svg",
         "../output/science_submission/figures/boxplot-y-genes.svg",
         "../output/science_submission/figures/boxplot-total-umi.svg",
+        "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
         # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
@@ -212,6 +213,16 @@ rule plot_heatmap_multi_biomarkers:
         cluster_types = config["cluster_types"],
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_multi_biomarkers.py"
+
+
+rule plot_heatmap_lit_gene_evidence:
+    input:
+         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         lit_evidence = '../data/external/lit_genes.tsv'
+    output: "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
+    params:
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_lit_evidence.py"
 
 
 # rule plot_heatmap_scRNAseq_cluster_corr:
