@@ -57,13 +57,13 @@ rule sturgill_data_prep:
 
 
 rule download_annotation:
-    input: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
+    params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
     output: '../output/neox-wf/GTF/{species}.gtf'
     script: 'scripts/download_annotation.py'
 
 
 rule download_orthologs:
-    input: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.ortholog.txt.tar.gz'
+    params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.ortholog.txt.tar.gz'
     output: '../output/neox-wf/orthologs/{species}.tsv'
     script: 'scripts/download_ortholog.py'
 
