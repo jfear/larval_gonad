@@ -79,7 +79,7 @@ def main():
     # Clean up Y axis
     ax.set_ylabel("")
     ax.yaxis.set_tick_params(pad=0.1, length=2)
-    plt.setp(ax.get_yticklabels(), fontstyle="italic", rotation=0, va="center")
+    plt.setp(ax.get_yticklabels(), fontstyle="italic", fontfamily="Helvetica", rotation=0, va="center")
 
     # Add lines separating lit genes
     cols = zscores.shape[1]
