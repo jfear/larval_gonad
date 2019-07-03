@@ -6,5 +6,5 @@ dependencies:
   - r-essentials
   - r-feather
   - r-svglite
+  - umap-learn=0.3.9
   - r-seurat=3.0.1
-

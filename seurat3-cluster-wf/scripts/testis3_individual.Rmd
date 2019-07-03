@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
     echo = FALSE,
     cache.lazy = FALSE,
     fig.path = "testis3_figures/",
-    fig.ext = c("png", "svg"),
+    dev = c("png", "svg"),
     fig.width = 8
 )
 ```

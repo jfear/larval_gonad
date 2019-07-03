@@ -1,0 +1,521 @@
+gsm	title	source name	organism
+GSM2646960	dana_AC_f_r1	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2646961	dana_AC_f_r2	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2646962	dana_AC_f_r3	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2646963	dana_AC_m_r1	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2646964	dana_AC_m_r2	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2646965	dana_AC_m_r3	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2646966	dana_DG_f_r1	digestive plus excretory system	Drosophila ananassae 
+GSM2646967	dana_DG_f_r2	digestive plus excretory system	Drosophila ananassae 
+GSM2646968	dana_DG_f_r3	digestive plus excretory system	Drosophila ananassae 
+GSM2646969	dana_DG_m_r1	digestive plus excretory system	Drosophila ananassae 
+GSM2646970	dana_DG_m_r2	digestive plus excretory system	Drosophila ananassae 
+GSM2646971	dana_DG_m_r3	digestive plus excretory system	Drosophila ananassae 
+GSM2646972	dana_GO_f_r1	gonad	Drosophila ananassae 
+GSM2646973	dana_GO_f_r2	gonad	Drosophila ananassae 
+GSM2646974	dana_GO_f_r3	gonad	Drosophila ananassae 
+GSM2646975	dana_GO_m_r1	gonad	Drosophila ananassae 
+GSM2646976	dana_GO_m_r2	gonad	Drosophila ananassae 
+GSM2646977	dana_GO_m_r3	gonad	Drosophila ananassae 
+GSM2646978	dana_HD_f_r1	head	Drosophila ananassae 
+GSM2646979	dana_HD_f_r2	head	Drosophila ananassae 
+GSM2646980	dana_HD_f_r3	head	Drosophila ananassae 
+GSM2646981	dana_HD_m_r1	head	Drosophila ananassae 
+GSM2646982	dana_HD_m_r2	head	Drosophila ananassae 
+GSM2646983	dana_HD_m_r3	head	Drosophila ananassae 
+GSM2646984	dana_RE_f_r1	reproductive system without gonad	Drosophila ananassae 
+GSM2646985	dana_RE_f_r2	reproductive system without gonad	Drosophila ananassae 
+GSM2646986	dana_RE_f_r3	reproductive system without gonad	Drosophila ananassae 
+GSM2646987	dana_RE_m_r1	reproductive system without gonad	Drosophila ananassae 
+GSM2646988	dana_RE_m_r2	reproductive system without gonad	Drosophila ananassae 
+GSM2646989	dana_RE_m_r3	reproductive system without gonad	Drosophila ananassae 
+GSM2646990	dana_TX_f_r1	thorax without digestive system	Drosophila ananassae 
+GSM2646991	dana_TX_f_r2	thorax without digestive system	Drosophila ananassae 
+GSM2646992	dana_TX_f_r3	thorax without digestive system	Drosophila ananassae 
+GSM2646993	dana_TX_m_r1	thorax without digestive system	Drosophila ananassae 
+GSM2646994	dana_TX_m_r2	thorax without digestive system	Drosophila ananassae 
+GSM2646995	dana_TX_m_r3	thorax without digestive system	Drosophila ananassae 
+GSM2646996	dana_WB_f_r1	whole body	Drosophila ananassae 
+GSM2646997	dana_WB_f_r2	whole body	Drosophila ananassae 
+GSM2646998	dana_WB_f_r3	whole body	Drosophila ananassae 
+GSM2646999	dana_WB_m_r1	whole body	Drosophila ananassae 
+GSM2647000	dana_WB_m_r2	whole body	Drosophila ananassae 
+GSM2647001	dana_WB_m_r3	whole body	Drosophila ananassae 
+GSM2647002	dmoj_AC_f_r1	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2647003	dmoj_AC_f_r2	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2647004	dmoj_AC_f_r3	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2647005	dmoj_AC_m_r1	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2647006	dmoj_AC_m_r2	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2647007	dmoj_AC_m_r3	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2647008	dmoj_DG_f_r1	digestive plus excretory system	Drosophila mojavensis 
+GSM2647009	dmoj_DG_f_r2	digestive plus excretory system	Drosophila mojavensis 
+GSM2647010	dmoj_DG_f_r3	digestive plus excretory system	Drosophila mojavensis 
+GSM2647011	dmoj_DG_m_r1	digestive plus excretory system	Drosophila mojavensis 
+GSM2647012	dmoj_DG_m_r2	digestive plus excretory system	Drosophila mojavensis 
+GSM2647013	dmoj_DG_m_r3	digestive plus excretory system	Drosophila mojavensis 
+GSM2647014	dmoj_GO_f_r1	gonad	Drosophila mojavensis 
+GSM2647015	dmoj_GO_f_r2	gonad	Drosophila mojavensis 
+GSM2647016	dmoj_GO_f_r3	gonad	Drosophila mojavensis 
+GSM2647017	dmoj_GO_m_r1	gonad	Drosophila mojavensis 
+GSM2647018	dmoj_GO_m_r2	gonad	Drosophila mojavensis 
+GSM2647019	dmoj_GO_m_r3	gonad	Drosophila mojavensis 
+GSM2647020	dmoj_HD_f_r1	head	Drosophila mojavensis 
+GSM2647021	dmoj_HD_f_r2	head	Drosophila mojavensis 
+GSM2647022	dmoj_HD_f_r3	head	Drosophila mojavensis 
+GSM2647023	dmoj_HD_m_r1	head	Drosophila mojavensis 
+GSM2647024	dmoj_HD_m_r2	head	Drosophila mojavensis 
+GSM2647025	dmoj_HD_m_r3	head	Drosophila mojavensis 
+GSM2647026	dmoj_RE_f_r1	reproductive system without gonad	Drosophila mojavensis 
+GSM2647027	dmoj_RE_f_r2	reproductive system without gonad	Drosophila mojavensis 
+GSM2647028	dmoj_RE_f_r3	reproductive system without gonad	Drosophila mojavensis 
+GSM2647029	dmoj_RE_m_r1	reproductive system without gonad	Drosophila mojavensis 
+GSM2647030	dmoj_RE_m_r2	reproductive system without gonad	Drosophila mojavensis 
+GSM2647031	dmoj_RE_m_r3	reproductive system without gonad	Drosophila mojavensis 
+GSM2647032	dmoj_TX_f_r1	thorax without digestive system	Drosophila mojavensis 
+GSM2647033	dmoj_TX_f_r2	thorax without digestive system	Drosophila mojavensis 
+GSM2647034	dmoj_TX_f_r3	thorax without digestive system	Drosophila mojavensis 
+GSM2647035	dmoj_TX_m_r1	thorax without digestive system	Drosophila mojavensis 
+GSM2647036	dmoj_TX_m_r2	thorax without digestive system	Drosophila mojavensis 
+GSM2647037	dmoj_TX_m_r3	thorax without digestive system	Drosophila mojavensis 
+GSM2647038	dmoj_WB_f_r1	whole body	Drosophila mojavensis 
+GSM2647039	dmoj_WB_f_r2	whole body	Drosophila mojavensis 
+GSM2647040	dmoj_WB_f_r3	whole body	Drosophila mojavensis 
+GSM2647041	dmoj_WB_m_r1	whole body	Drosophila mojavensis 
+GSM2647042	dmoj_WB_m_r2	whole body	Drosophila mojavensis 
+GSM2647043	dmoj_WB_m_r3	whole body	Drosophila mojavensis 
+GSM2647044	dper_AC_f_r1	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2647045	dper_AC_f_r2	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2647046	dper_AC_f_r3	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2647047	dper_AC_m_r1	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2647048	dper_AC_m_r2	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2647049	dper_AC_m_r3	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2647050	dper_DG_f_r1	digestive plus excretory system	Drosophila persimilis
+GSM2647051	dper_DG_f_r2	digestive plus excretory system	Drosophila persimilis
+GSM2647052	dper_DG_f_r3	digestive plus excretory system	Drosophila persimilis
+GSM2647053	dper_DG_m_r1	digestive plus excretory system	Drosophila persimilis
+GSM2647054	dper_DG_m_r2	digestive plus excretory system	Drosophila persimilis
+GSM2647055	dper_DG_m_r3	digestive plus excretory system	Drosophila persimilis
+GSM2647056	dper_GO_f_r1	gonad	Drosophila persimilis
+GSM2647057	dper_GO_f_r2	gonad	Drosophila persimilis
+GSM2647058	dper_GO_f_r3	gonad	Drosophila persimilis
+GSM2647059	dper_GO_m_r1	gonad	Drosophila persimilis
+GSM2647060	dper_GO_m_r2	gonad	Drosophila persimilis
+GSM2647061	dper_GO_m_r3	gonad	Drosophila persimilis
+GSM2647062	dper_HD_f_r1	head	Drosophila persimilis
+GSM2647063	dper_HD_f_r2	head	Drosophila persimilis
+GSM2647064	dper_HD_f_r3	head	Drosophila persimilis
+GSM2647065	dper_HD_m_r1	head	Drosophila persimilis
+GSM2647066	dper_HD_m_r2	head	Drosophila persimilis
+GSM2647067	dper_HD_m_r3	head	Drosophila persimilis
+GSM2647068	dper_RE_f_r1	reproductive system without gonad	Drosophila persimilis
+GSM2647069	dper_RE_f_r2	reproductive system without gonad	Drosophila persimilis
+GSM2647070	dper_RE_f_r3	reproductive system without gonad	Drosophila persimilis
+GSM2647071	dper_RE_m_r1	reproductive system without gonad	Drosophila persimilis
+GSM2647072	dper_RE_m_r2	reproductive system without gonad	Drosophila persimilis
+GSM2647073	dper_RE_m_r3	reproductive system without gonad	Drosophila persimilis
+GSM2647074	dper_TX_f_r1	thorax without digestive system	Drosophila persimilis
+GSM2647075	dper_TX_f_r2	thorax without digestive system	Drosophila persimilis
+GSM2647076	dper_TX_f_r3	thorax without digestive system	Drosophila persimilis
+GSM2647077	dper_TX_m_r1	thorax without digestive system	Drosophila persimilis
+GSM2647078	dper_TX_m_r2	thorax without digestive system	Drosophila persimilis
+GSM2647079	dper_TX_m_r3	thorax without digestive system	Drosophila persimilis
+GSM2647080	dper_WB_f_r1	whole body	Drosophila persimilis
+GSM2647081	dper_WB_f_r2	whole body	Drosophila persimilis
+GSM2647082	dper_WB_f_r3	whole body	Drosophila persimilis
+GSM2647083	dper_WB_m_r1	whole body	Drosophila persimilis
+GSM2647084	dper_WB_m_r2	whole body	Drosophila persimilis
+GSM2647085	dper_WB_m_r3	whole body	Drosophila persimilis
+GSM2647086	dpse_AC_f_r1	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2647087	dpse_AC_f_r2	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2647088	dpse_AC_f_r3	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2647089	dpse_AC_m_r1	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2647090	dpse_AC_m_r2	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2647091	dpse_AC_m_r3	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2647092	dpse_DG_f_r1	digestive plus excretory system	Drosophila pseudoobscura
+GSM2647093	dpse_DG_f_r2	digestive plus excretory system	Drosophila pseudoobscura
+GSM2647094	dpse_DG_f_r3	digestive plus excretory system	Drosophila pseudoobscura
+GSM2647095	dpse_DG_m_r1	digestive plus excretory system	Drosophila pseudoobscura
+GSM2647096	dpse_DG_m_r2	digestive plus excretory system	Drosophila pseudoobscura
+GSM2647097	dpse_DG_m_r3	digestive plus excretory system	Drosophila pseudoobscura
+GSM2647098	dpse_GO_f_r1	gonad	Drosophila pseudoobscura
+GSM2647099	dpse_GO_f_r2	gonad	Drosophila pseudoobscura
+GSM2647100	dpse_GO_f_r3	gonad	Drosophila pseudoobscura
+GSM2647101	dpse_GO_m_r1	gonad	Drosophila pseudoobscura
+GSM2647102	dpse_GO_m_r2	gonad	Drosophila pseudoobscura
+GSM2647103	dpse_GO_m_r3	gonad	Drosophila pseudoobscura
+GSM2647104	dpse_HD_f_r1	head	Drosophila pseudoobscura
+GSM2647105	dpse_HD_f_r2	head	Drosophila pseudoobscura
+GSM2647106	dpse_HD_f_r3	head	Drosophila pseudoobscura
+GSM2647107	dpse_HD_m_r1	head	Drosophila pseudoobscura
+GSM2647108	dpse_HD_m_r2	head	Drosophila pseudoobscura
+GSM2647109	dpse_HD_m_r3	head	Drosophila pseudoobscura
+GSM2647110	dpse_RE_f_r1	reproductive system without gonad	Drosophila pseudoobscura
+GSM2647111	dpse_RE_f_r2	reproductive system without gonad	Drosophila pseudoobscura
+GSM2647112	dpse_RE_f_r3	reproductive system without gonad	Drosophila pseudoobscura
+GSM2647113	dpse_RE_m_r1	reproductive system without gonad	Drosophila pseudoobscura
+GSM2647114	dpse_RE_m_r2	reproductive system without gonad	Drosophila pseudoobscura
+GSM2647115	dpse_RE_m_r3	reproductive system without gonad	Drosophila pseudoobscura
+GSM2647116	dpse_TX_f_r1	thorax without digestive system	Drosophila pseudoobscura
+GSM2647117	dpse_TX_f_r2	thorax without digestive system	Drosophila pseudoobscura
+GSM2647118	dpse_TX_f_r3	thorax without digestive system	Drosophila pseudoobscura
+GSM2647119	dpse_TX_m_r1	thorax without digestive system	Drosophila pseudoobscura
+GSM2647120	dpse_TX_m_r2	thorax without digestive system	Drosophila pseudoobscura
+GSM2647121	dpse_TX_m_r3	thorax without digestive system	Drosophila pseudoobscura
+GSM2647122	dpse_WB_f_r1	whole body	Drosophila pseudoobscura
+GSM2647123	dpse_WB_f_r2	whole body	Drosophila pseudoobscura
+GSM2647124	dpse_WB_f_r3	whole body	Drosophila pseudoobscura
+GSM2647125	dpse_WB_m_r1	whole body	Drosophila pseudoobscura
+GSM2647126	dpse_WB_m_r2	whole body	Drosophila pseudoobscura
+GSM2647127	dpse_WB_m_r3	whole body	Drosophila pseudoobscura
+GSM2647128	dvir_AC_f_r1	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2647129	dvir_AC_f_r2	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2647130	dvir_AC_f_r3	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2647131	dvir_AC_m_r1	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2647132	dvir_AC_m_r2	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2647133	dvir_AC_m_r3	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2647134	dvir_DG_f_r1	digestive plus excretory system	Drosophila virilis
+GSM2647135	dvir_DG_f_r2	digestive plus excretory system	Drosophila virilis
+GSM2647136	dvir_DG_f_r3	digestive plus excretory system	Drosophila virilis
+GSM2647137	dvir_DG_m_r1	digestive plus excretory system	Drosophila virilis
+GSM2647138	dvir_DG_m_r2	digestive plus excretory system	Drosophila virilis
+GSM2647139	dvir_DG_m_r3	digestive plus excretory system	Drosophila virilis
+GSM2647140	dvir_GO_f_r1	gonad	Drosophila virilis
+GSM2647141	dvir_GO_f_r2	gonad	Drosophila virilis
+GSM2647142	dvir_GO_f_r3	gonad	Drosophila virilis
+GSM2647143	dvir_GO_m_r1	gonad	Drosophila virilis
+GSM2647144	dvir_GO_m_r2	gonad	Drosophila virilis
+GSM2647145	dvir_GO_m_r3	gonad	Drosophila virilis
+GSM2647146	dvir_HD_f_r1	head	Drosophila virilis
+GSM2647147	dvir_HD_f_r2	head	Drosophila virilis
+GSM2647148	dvir_HD_f_r3	head	Drosophila virilis
+GSM2647149	dvir_HD_m_r1	head	Drosophila virilis
+GSM2647150	dvir_HD_m_r2	head	Drosophila virilis
+GSM2647151	dvir_HD_m_r3	head	Drosophila virilis
+GSM2647152	dvir_RE_f_r1	reproductive system without gonad	Drosophila virilis
+GSM2647153	dvir_RE_f_r2	reproductive system without gonad	Drosophila virilis
+GSM2647154	dvir_RE_f_r3	reproductive system without gonad	Drosophila virilis
+GSM2647155	dvir_RE_m_r1	reproductive system without gonad	Drosophila virilis
+GSM2647156	dvir_RE_m_r2	reproductive system without gonad	Drosophila virilis
+GSM2647157	dvir_RE_m_r3	reproductive system without gonad	Drosophila virilis
+GSM2647158	dvir_TX_f_r1	thorax without digestive system	Drosophila virilis
+GSM2647159	dvir_TX_f_r2	thorax without digestive system	Drosophila virilis
+GSM2647160	dvir_TX_f_r3	thorax without digestive system	Drosophila virilis
+GSM2647161	dvir_TX_m_r1	thorax without digestive system	Drosophila virilis
+GSM2647162	dvir_TX_m_r2	thorax without digestive system	Drosophila virilis
+GSM2647163	dvir_TX_m_r3	thorax without digestive system	Drosophila virilis
+GSM2647164	dvir_WB_f_r1	whole body	Drosophila virilis
+GSM2647165	dvir_WB_f_r2	whole body	Drosophila virilis
+GSM2647166	dvir_WB_f_r3	whole body	Drosophila virilis
+GSM2647167	dvir_WB_m_r1	whole body	Drosophila virilis
+GSM2647168	dvir_WB_m_r2	whole body	Drosophila virilis
+GSM2647169	dvir_WB_m_r3	whole body	Drosophila virilis
+GSM2647170	dwil_AC_f_r1	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2647171	dwil_AC_f_r2	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2647172	dwil_AC_f_r3	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2647173	dwil_AC_m_r1	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2647174	dwil_AC_m_r2	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2647175	dwil_AC_m_r3	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2647176	dwil_DG_f_r1	digestive plus excretory system	Drosophila willistoni
+GSM2647177	dwil_DG_f_r2	digestive plus excretory system	Drosophila willistoni
+GSM2647178	dwil_DG_f_r3	digestive plus excretory system	Drosophila willistoni
+GSM2647179	dwil_DG_m_r1	digestive plus excretory system	Drosophila willistoni
+GSM2647180	dwil_DG_m_r2	digestive plus excretory system	Drosophila willistoni
+GSM2647181	dwil_DG_m_r3	digestive plus excretory system	Drosophila willistoni
+GSM2647182	dwil_GO_f_r1	gonad	Drosophila willistoni
+GSM2647183	dwil_GO_f_r2	gonad	Drosophila willistoni
+GSM2647184	dwil_GO_f_r3	gonad	Drosophila willistoni
+GSM2647185	dwil_GO_m_r1	gonad	Drosophila willistoni
+GSM2647186	dwil_GO_m_r2	gonad	Drosophila willistoni
+GSM2647187	dwil_GO_m_r3	gonad	Drosophila willistoni
+GSM2647188	dwil_HD_f_r1	head	Drosophila willistoni
+GSM2647189	dwil_HD_f_r2	head	Drosophila willistoni
+GSM2647190	dwil_HD_f_r3	head	Drosophila willistoni
+GSM2647191	dwil_HD_m_r1	head	Drosophila willistoni
+GSM2647192	dwil_HD_m_r2	head	Drosophila willistoni
+GSM2647193	dwil_HD_m_r3	head	Drosophila willistoni
+GSM2647194	dwil_RE_f_r1	reproductive system without gonad	Drosophila willistoni
+GSM2647195	dwil_RE_f_r2	reproductive system without gonad	Drosophila willistoni
+GSM2647196	dwil_RE_f_r3	reproductive system without gonad	Drosophila willistoni
+GSM2647197	dwil_RE_m_r1	reproductive system without gonad	Drosophila willistoni
+GSM2647198	dwil_RE_m_r2	reproductive system without gonad	Drosophila willistoni
+GSM2647199	dwil_RE_m_r3	reproductive system without gonad	Drosophila willistoni
+GSM2647200	dwil_TX_f_r1	thorax without digestive system	Drosophila willistoni
+GSM2647201	dwil_TX_f_r2	thorax without digestive system	Drosophila willistoni
+GSM2647202	dwil_TX_f_r3	thorax without digestive system	Drosophila willistoni
+GSM2647203	dwil_TX_m_r1	thorax without digestive system	Drosophila willistoni
+GSM2647204	dwil_TX_m_r2	thorax without digestive system	Drosophila willistoni
+GSM2647205	dwil_TX_m_r3	thorax without digestive system	Drosophila willistoni
+GSM2647206	dwil_WB_f_r1	whole body	Drosophila willistoni
+GSM2647207	dwil_WB_f_r2	whole body	Drosophila willistoni
+GSM2647208	dwil_WB_f_r3	whole body	Drosophila willistoni
+GSM2647209	dwil_WB_m_r1	whole body	Drosophila willistoni
+GSM2647210	dwil_WB_m_r2	whole body	Drosophila willistoni
+GSM2647211	dwil_WB_m_r3	whole body	Drosophila willistoni
+GSM2647212	dyak_AC_f_r1	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2647213	dyak_AC_f_r2	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2647214	dyak_AC_f_r3	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2647215	dyak_AC_m_r1	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2647216	dyak_AC_m_r2	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2647217	dyak_AC_m_r3	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2647218	dyak_DG_f_r1	digestive plus excretory system	Drosophila yakuba
+GSM2647219	dyak_DG_f_r2	digestive plus excretory system	Drosophila yakuba
+GSM2647220	dyak_DG_f_r3	digestive plus excretory system	Drosophila yakuba
+GSM2647221	dyak_DG_m_r1	digestive plus excretory system	Drosophila yakuba
+GSM2647222	dyak_DG_m_r2	digestive plus excretory system	Drosophila yakuba
+GSM2647223	dyak_DG_m_r3	digestive plus excretory system	Drosophila yakuba
+GSM2647224	dyak_GO_f_r1	gonad	Drosophila yakuba
+GSM2647225	dyak_GO_f_r2	gonad	Drosophila yakuba
+GSM2647226	dyak_GO_f_r3	gonad	Drosophila yakuba
+GSM2647227	dyak_GO_m_r1	gonad	Drosophila yakuba
+GSM2647228	dyak_GO_m_r2	gonad	Drosophila yakuba
+GSM2647229	dyak_GO_m_r3	gonad	Drosophila yakuba
+GSM2647230	dyak_HD_f_r1	head	Drosophila yakuba
+GSM2647231	dyak_HD_f_r2	head	Drosophila yakuba
+GSM2647232	dyak_HD_f_r3	head	Drosophila yakuba
+GSM2647233	dyak_HD_m_r1	head	Drosophila yakuba
+GSM2647234	dyak_HD_m_r2	head	Drosophila yakuba
+GSM2647235	dyak_HD_m_r3	head	Drosophila yakuba
+GSM2647236	dyak_RE_f_r1	reproductive system without gonad	Drosophila yakuba
+GSM2647237	dyak_RE_f_r2	reproductive system without gonad	Drosophila yakuba
+GSM2647238	dyak_RE_f_r3	reproductive system without gonad	Drosophila yakuba
+GSM2647239	dyak_RE_m_r1	reproductive system without gonad	Drosophila yakuba
+GSM2647240	dyak_RE_m_r2	reproductive system without gonad	Drosophila yakuba
+GSM2647241	dyak_RE_m_r3	reproductive system without gonad	Drosophila yakuba
+GSM2647242	dyak_TX_f_r1	thorax without digestive system	Drosophila yakuba
+GSM2647243	dyak_TX_f_r2	thorax without digestive system	Drosophila yakuba
+GSM2647244	dyak_TX_f_r3	thorax without digestive system	Drosophila yakuba
+GSM2647245	dyak_TX_m_r1	thorax without digestive system	Drosophila yakuba
+GSM2647246	dyak_TX_m_r2	thorax without digestive system	Drosophila yakuba
+GSM2647247	dyak_TX_m_r3	thorax without digestive system	Drosophila yakuba
+GSM2647248	dyak_WB_f_r1	whole body	Drosophila yakuba
+GSM2647249	dyak_WB_f_r2	whole body	Drosophila yakuba
+GSM2647250	dyak_WB_f_r3	whole body	Drosophila yakuba
+GSM2647251	dyak_WB_m_r1	whole body	Drosophila yakuba
+GSM2647252	dyak_WB_m_r2	whole body	Drosophila yakuba
+GSM2647253	dyak_WB_m_r3	whole body	Drosophila yakuba
+GSM2647254	orgR_AC_f_r1	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647255	orgR_AC_f_r2	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647256	orgR_AC_f_r3	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647257	orgR_AC_m_r1	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647258	orgR_AC_m_r2	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647259	orgR_AC_m_r3	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647260	orgR_DG_f_r1	digestive plus excretory system	Drosophila melanogaster
+GSM2647261	orgR_DG_f_r2	digestive plus excretory system	Drosophila melanogaster
+GSM2647262	orgR_DG_f_r3	digestive plus excretory system	Drosophila melanogaster
+GSM2647263	orgR_DG_m_r1	digestive plus excretory system	Drosophila melanogaster
+GSM2647264	orgR_DG_m_r2	digestive plus excretory system	Drosophila melanogaster
+GSM2647265	orgR_DG_m_r3	digestive plus excretory system	Drosophila melanogaster
+GSM2647266	orgR_GE_f_r1	genitalia	Drosophila melanogaster
+GSM2647267	orgR_GE_f_r2	genitalia	Drosophila melanogaster
+GSM2647268	orgR_GE_f_r3	genitalia	Drosophila melanogaster
+GSM2647269	orgR_GE_m_r1	genitalia	Drosophila melanogaster
+GSM2647270	orgR_GE_m_r2	genitalia	Drosophila melanogaster
+GSM2647271	orgR_GE_m_r3	genitalia	Drosophila melanogaster
+GSM2647272	orgR_GO_f_r1	gonad	Drosophila melanogaster
+GSM2647273	orgR_GO_f_r2	gonad	Drosophila melanogaster
+GSM2647274	orgR_GO_f_r3	gonad	Drosophila melanogaster
+GSM2647275	orgR_GO_m_r1	gonad	Drosophila melanogaster
+GSM2647276	orgR_GO_m_r2	gonad	Drosophila melanogaster
+GSM2647277	orgR_GO_m_r3	gonad	Drosophila melanogaster
+GSM2647278	orgR_HD_f_r1	head	Drosophila melanogaster
+GSM2647279	orgR_HD_f_r2	head	Drosophila melanogaster
+GSM2647280	orgR_HD_f_r3	head	Drosophila melanogaster
+GSM2647281	orgR_HD_m_r1	head	Drosophila melanogaster
+GSM2647282	orgR_HD_m_r2	head	Drosophila melanogaster
+GSM2647283	orgR_HD_m_r3	head	Drosophila melanogaster
+GSM2647284	orgR_RE_f_r1	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647285	orgR_RE_f_r2	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647286	orgR_RE_f_r3	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647287	orgR_RE_m_r1	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647288	orgR_RE_m_r2	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647289	orgR_RE_m_r3	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647290	orgR_TX_f_r1	thorax without digestive system	Drosophila melanogaster
+GSM2647291	orgR_TX_f_r2	thorax without digestive system	Drosophila melanogaster
+GSM2647292	orgR_TX_f_r3	thorax without digestive system	Drosophila melanogaster
+GSM2647293	orgR_TX_m_r1	thorax without digestive system	Drosophila melanogaster
+GSM2647294	orgR_TX_m_r2	thorax without digestive system	Drosophila melanogaster
+GSM2647295	orgR_TX_m_r3	thorax without digestive system	Drosophila melanogaster
+GSM2647296	orgR_WB_f_r1	whole body	Drosophila melanogaster
+GSM2647297	orgR_WB_f_r2	whole body	Drosophila melanogaster
+GSM2647298	orgR_WB_f_r3	whole body	Drosophila melanogaster
+GSM2647299	orgR_WB_m_r1	whole body	Drosophila melanogaster
+GSM2647300	orgR_WB_m_r2	whole body	Drosophila melanogaster
+GSM2647301	orgR_WB_m_r3	whole body	Drosophila melanogaster
+GSM2647302	w1118_AC_f_r1	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647303	w1118_AC_f_r2	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647304	w1118_AC_f_r3	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647305	w1118_AC_m_r1	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647306	w1118_AC_m_r2	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647307	w1118_AC_m_r3	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2647308	w1118_DG_f_r1	digestive plus excretory system	Drosophila melanogaster
+GSM2647309	w1118_DG_f_r2	digestive plus excretory system	Drosophila melanogaster
+GSM2647310	w1118_DG_f_r3	digestive plus excretory system	Drosophila melanogaster
+GSM2647311	w1118_DG_m_r1	digestive plus excretory system	Drosophila melanogaster
+GSM2647312	w1118_DG_m_r2	digestive plus excretory system	Drosophila melanogaster
+GSM2647313	w1118_DG_m_r3	digestive plus excretory system	Drosophila melanogaster
+GSM2647314	w1118_GE_f_r1	genitalia	Drosophila melanogaster
+GSM2647315	w1118_GE_f_r2	genitalia	Drosophila melanogaster
+GSM2647316	w1118_GE_f_r3	genitalia	Drosophila melanogaster
+GSM2647317	w1118_GE_m_r1	genitalia	Drosophila melanogaster
+GSM2647318	w1118_GE_m_r2	genitalia	Drosophila melanogaster
+GSM2647319	w1118_GE_m_r3	genitalia	Drosophila melanogaster
+GSM2647320	w1118_GO_f_r1	gonad	Drosophila melanogaster
+GSM2647321	w1118_GO_f_r2	gonad	Drosophila melanogaster
+GSM2647322	w1118_GO_f_r3	gonad	Drosophila melanogaster
+GSM2647323	w1118_GO_m_r1	gonad	Drosophila melanogaster
+GSM2647324	w1118_GO_m_r2	gonad	Drosophila melanogaster
+GSM2647325	w1118_GO_m_r3	gonad	Drosophila melanogaster
+GSM2647326	w1118_HD_f_r1	head	Drosophila melanogaster
+GSM2647327	w1118_HD_f_r2	head	Drosophila melanogaster
+GSM2647328	w1118_HD_f_r3	head	Drosophila melanogaster
+GSM2647329	w1118_HD_m_r1	head	Drosophila melanogaster
+GSM2647330	w1118_HD_m_r2	head	Drosophila melanogaster
+GSM2647331	w1118_HD_m_r3	head	Drosophila melanogaster
+GSM2647332	w1118_RE_f_r1	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647333	w1118_RE_f_r2	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647334	w1118_RE_f_r3	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647335	w1118_RE_m_r1	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647336	w1118_RE_m_r2	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647337	w1118_RE_m_r3	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2647338	w1118_TX_f_r1	thorax without digestive system	Drosophila melanogaster
+GSM2647339	w1118_TX_f_r2	thorax without digestive system	Drosophila melanogaster
+GSM2647340	w1118_TX_f_r3	thorax without digestive system	Drosophila melanogaster
+GSM2647341	w1118_TX_m_r1	thorax without digestive system	Drosophila melanogaster
+GSM2647342	w1118_TX_m_r2	thorax without digestive system	Drosophila melanogaster
+GSM2647343	w1118_TX_m_r3	thorax without digestive system	Drosophila melanogaster
+GSM2647344	w1118_WB_f_r1	whole body	Drosophila melanogaster
+GSM2647345	w1118_WB_f_r2	whole body	Drosophila melanogaster
+GSM2647346	w1118_WB_f_r3	whole body	Drosophila melanogaster
+GSM2647347	w1118_WB_m_r1	whole body	Drosophila melanogaster
+GSM2647348	w1118_WB_m_r2	whole body	Drosophila melanogaster
+GSM2647349	w1118_WB_m_r3	whole body	Drosophila melanogaster
+GSM2817213	dana_AC_f_r4	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2817214	dana_AC_m_r4	abdomen without digestive or reproductive system	Drosophila ananassae 
+GSM2817215	dana_DG_f_r4	digestive plus excretory system	Drosophila ananassae 
+GSM2817216	dana_DG_m_r4	digestive plus excretory system	Drosophila ananassae 
+GSM2817217	dana_GO_f_r4	gonad	Drosophila ananassae 
+GSM2817218	dana_GO_m_r4	gonad	Drosophila ananassae 
+GSM2817219	dana_HD_f_r4	head	Drosophila ananassae 
+GSM2817220	dana_HD_m_r4	head	Drosophila ananassae 
+GSM2817221	dana_RE_f_r4	reproductive system without gonad	Drosophila ananassae 
+GSM2817222	dana_RE_m_r4	reproductive system without gonad	Drosophila ananassae 
+GSM2817223	dana_TX_f_r4	thorax without digestive system	Drosophila ananassae 
+GSM2817224	dana_TX_m_r4	thorax without digestive system	Drosophila ananassae 
+GSM2817225	dana_WB_f_r4	whole body	Drosophila ananassae 
+GSM2817226	dana_WB_m_r4	whole body	Drosophila ananassae 
+GSM2817227	dmoj_AC_f_r4	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2817228	dmoj_AC_m_r4	abdomen without digestive or reproductive system	Drosophila mojavensis 
+GSM2817229	dmoj_DG_f_r4	digestive plus excretory system	Drosophila mojavensis 
+GSM2817230	dmoj_DG_m_r4	digestive plus excretory system	Drosophila mojavensis 
+GSM2817231	dmoj_GO_f_r4	gonad	Drosophila mojavensis 
+GSM2817232	dmoj_GO_m_r4	gonad	Drosophila mojavensis 
+GSM2817233	dmoj_HD_f_r4	head	Drosophila mojavensis 
+GSM2817234	dmoj_HD_m_r4	head	Drosophila mojavensis 
+GSM2817235	dmoj_RE_f_r4	reproductive system without gonad	Drosophila mojavensis 
+GSM2817236	dmoj_RE_m_r4	reproductive system without gonad	Drosophila mojavensis 
+GSM2817237	dmoj_TX_f_r4	thorax without digestive system	Drosophila mojavensis 
+GSM2817238	dmoj_TX_m_r4	thorax without digestive system	Drosophila mojavensis 
+GSM2817239	dmoj_WB_f_r4	whole body	Drosophila mojavensis 
+GSM2817240	dmoj_WB_m_r4	whole body	Drosophila mojavensis 
+GSM2817241	dper_AC_f_r4	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2817242	dper_AC_m_r4	abdomen without digestive or reproductive system	Drosophila persimilis
+GSM2817243	dper_DG_f_r4	digestive plus excretory system	Drosophila persimilis
+GSM2817244	dper_DG_m_r4	digestive plus excretory system	Drosophila persimilis
+GSM2817245	dper_GO_f_r4	gonad	Drosophila persimilis
+GSM2817246	dper_GO_m_r4	gonad	Drosophila persimilis
+GSM2817247	dper_HD_f_r4	head	Drosophila persimilis
+GSM2817248	dper_HD_m_r4	head	Drosophila persimilis
+GSM2817249	dper_RE_f_r4	reproductive system without gonad	Drosophila persimilis
+GSM2817250	dper_RE_m_r4	reproductive system without gonad	Drosophila persimilis
+GSM2817251	dper_TX_f_r4	thorax without digestive system	Drosophila persimilis
+GSM2817252	dper_TX_m_r4	thorax without digestive system	Drosophila persimilis
+GSM2817253	dper_WB_f_r4	whole body	Drosophila persimilis
+GSM2817254	dper_WB_m_r4	whole body	Drosophila persimilis
+GSM2817255	dpse_AC_f_r4	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2817256	dpse_AC_m_r4	abdomen without digestive or reproductive system	Drosophila pseudoobscura
+GSM2817257	dpse_DG_f_r4	digestive plus excretory system	Drosophila pseudoobscura
+GSM2817258	dpse_DG_m_r4	digestive plus excretory system	Drosophila pseudoobscura
+GSM2817259	dpse_GO_f_r4	gonad	Drosophila pseudoobscura
+GSM2817260	dpse_GO_m_r4	gonad	Drosophila pseudoobscura
+GSM2817261	dpse_HD_f_r4	head	Drosophila pseudoobscura
+GSM2817262	dpse_HD_m_r4	head	Drosophila pseudoobscura
+GSM2817263	dpse_RE_f_r4	reproductive system without gonad	Drosophila pseudoobscura
+GSM2817264	dpse_RE_m_r4	reproductive system without gonad	Drosophila pseudoobscura
+GSM2817265	dpse_TX_f_r4	thorax without digestive system	Drosophila pseudoobscura
+GSM2817266	dpse_TX_m_r4	thorax without digestive system	Drosophila pseudoobscura
+GSM2817267	dpse_WB_f_r4	whole body	Drosophila pseudoobscura
+GSM2817268	dpse_WB_m_r4	whole body	Drosophila pseudoobscura
+GSM2817269	dvir_AC_f_r4	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2817270	dvir_AC_m_r4	abdomen without digestive or reproductive system	Drosophila virilis
+GSM2817271	dvir_DG_f_r4	digestive plus excretory system	Drosophila virilis
+GSM2817272	dvir_DG_m_r4	digestive plus excretory system	Drosophila virilis
+GSM2817273	dvir_GO_f_r4	gonad	Drosophila virilis
+GSM2817274	dvir_GO_m_r4	gonad	Drosophila virilis
+GSM2817275	dvir_HD_f_r4	head	Drosophila virilis
+GSM2817276	dvir_HD_m_r4	head	Drosophila virilis
+GSM2817277	dvir_RE_f_r4	reproductive system without gonad	Drosophila virilis
+GSM2817278	dvir_RE_m_r4	reproductive system without gonad	Drosophila virilis
+GSM2817279	dvir_TX_f_r4	thorax without digestive system	Drosophila virilis
+GSM2817280	dvir_TX_m_r4	thorax without digestive system	Drosophila virilis
+GSM2817281	dvir_WB_f_r4	whole body	Drosophila virilis
+GSM2817282	dvir_WB_m_r4	whole body	Drosophila virilis
+GSM2817283	dwil_AC_f_r4	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2817284	dwil_AC_m_r4	abdomen without digestive or reproductive system	Drosophila willistoni
+GSM2817285	dwil_DG_f_r4	digestive plus excretory system	Drosophila willistoni
+GSM2817286	dwil_DG_m_r4	digestive plus excretory system	Drosophila willistoni
+GSM2817287	dwil_GO_f_r4	gonad	Drosophila willistoni
+GSM2817288	dwil_GO_m_r4	gonad	Drosophila willistoni
+GSM2817289	dwil_HD_f_r4	head	Drosophila willistoni
+GSM2817290	dwil_HD_m_r4	head	Drosophila willistoni
+GSM2817291	dwil_RE_f_r4	reproductive system without gonad	Drosophila willistoni
+GSM2817292	dwil_RE_m_r4	reproductive system without gonad	Drosophila willistoni
+GSM2817293	dwil_TX_f_r4	thorax without digestive system	Drosophila willistoni
+GSM2817294	dwil_TX_m_r4	thorax without digestive system	Drosophila willistoni
+GSM2817295	dwil_WB_f_r4	whole body	Drosophila willistoni
+GSM2817296	dwil_WB_m_r4	whole body	Drosophila willistoni
+GSM2817297	dyak_AC_f_r4	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2817298	dyak_AC_m_r4	abdomen without digestive or reproductive system	Drosophila yakuba
+GSM2817299	dyak_DG_f_r4	digestive plus excretory system	Drosophila yakuba
+GSM2817300	dyak_DG_m_r4	digestive plus excretory system	Drosophila yakuba
+GSM2817301	dyak_GO_f_r4	gonad	Drosophila yakuba
+GSM2817302	dyak_GO_m_r4	gonad	Drosophila yakuba
+GSM2817303	dyak_HD_f_r4	head	Drosophila yakuba
+GSM2817304	dyak_HD_m_r4	head	Drosophila yakuba
+GSM2817305	dyak_RE_f_r4	reproductive system without gonad	Drosophila yakuba
+GSM2817306	dyak_RE_m_r4	reproductive system without gonad	Drosophila yakuba
+GSM2817307	dyak_TX_f_r4	thorax without digestive system	Drosophila yakuba
+GSM2817308	dyak_TX_m_r4	thorax without digestive system	Drosophila yakuba
+GSM2817309	dyak_WB_f_r4	whole body	Drosophila yakuba
+GSM2817310	dyak_WB_m_r4	whole body	Drosophila yakuba
+GSM2817311	orgR_AC_f_r4	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2817312	orgR_AC_m_r4	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2817313	orgR_DG_f_r4	digestive plus excretory system	Drosophila melanogaster
+GSM2817314	orgR_DG_m_r4	digestive plus excretory system	Drosophila melanogaster
+GSM2817315	orgR_GE_f_r4	genitalia	Drosophila melanogaster
+GSM2817316	orgR_GE_m_r4	genitalia	Drosophila melanogaster
+GSM2817317	orgR_GO_f_r4	gonad	Drosophila melanogaster
+GSM2817318	orgR_GO_m_r4	gonad	Drosophila melanogaster
+GSM2817319	orgR_HD_f_r4	head	Drosophila melanogaster
+GSM2817320	orgR_HD_m_r4	head	Drosophila melanogaster
+GSM2817321	orgR_RE_f_r4	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2817322	orgR_RE_m_r4	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2817323	orgR_TX_f_r4	thorax without digestive system	Drosophila melanogaster
+GSM2817324	orgR_TX_m_r4	thorax without digestive system	Drosophila melanogaster
+GSM2817325	orgR_WB_f_r4	whole body	Drosophila melanogaster
+GSM2817326	orgR_WB_m_r4	whole body	Drosophila melanogaster
+GSM2817327	w1118_AC_f_r4	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2817328	w1118_AC_m_r4	abdomen without digestive or reproductive system	Drosophila melanogaster
+GSM2817329	w1118_DG_f_r4	digestive plus excretory system	Drosophila melanogaster
+GSM2817330	w1118_DG_m_r4	digestive plus excretory system	Drosophila melanogaster
+GSM2817331	w1118_GE_f_r4	genitalia	Drosophila melanogaster
+GSM2817332	w1118_GE_m_r4	genitalia	Drosophila melanogaster
+GSM2817333	w1118_GO_f_r4	gonad	Drosophila melanogaster
+GSM2817334	w1118_GO_m_r4	gonad	Drosophila melanogaster
+GSM2817335	w1118_HD_f_r4	head	Drosophila melanogaster
+GSM2817336	w1118_HD_m_r4	head	Drosophila melanogaster
+GSM2817337	w1118_RE_f_r4	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2817338	w1118_RE_m_r4	reproductive system without gonad and genitalia	Drosophila melanogaster
+GSM2817339	w1118_TX_f_r4	thorax without digestive system	Drosophila melanogaster
+GSM2817340	w1118_TX_m_r4	thorax without digestive system	Drosophila melanogaster
+GSM2817341	w1118_WB_f_r4	whole body	Drosophila melanogaster
+GSM2817342	w1118_WB_m_r4	whole body	Drosophila melanogaster

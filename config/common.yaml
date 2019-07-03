@@ -29,25 +29,6 @@ cluster_order:
   - 'CY2'
   - 'TE'
   - 'PC'
-cluster_types:
-  - 'germ'
-  - 'germ'
-  - 'germ'
-  - 'germ'
-  - 'germ'
-  - 'soma'
-  - 'soma'
-  - 'soma'
-  - 'soma'
-  - 'soma'
-chrom_order:
-  - chrX
-  - chr2L
-  - chr2R
-  - chr3L
-  - chr3R
-  - chr4
-  - chrY
 legend_names:
   - 'Spermatogonia'
   - 'Early Primary Spermatocyte'
@@ -59,3 +40,43 @@ legend_names:
   - 'Somatic Cyst Cell (2)'
   - 'Terminal Epithelium'
   - 'Pigment Cells'
+cluster_types:
+  - 'germ'
+  - 'germ'
+  - 'germ'
+  - 'germ'
+  - 'germ'
+  - 'soma'
+  - 'soma'
+  - 'soma'
+  - 'soma'
+  - 'soma'
+germ:
+  - 'SP'
+  - 'EPS'
+  - 'PS1'
+  - 'PS1'
+  - 'PS1'
+soma:
+  - 'ECY'
+  - 'CY1'
+  - 'CY2'
+  - 'TE'
+  - 'PC'
+spermatocytes:
+  - 'EPS'
+  - 'PS1'
+  - 'PS1'
+  - 'PS1'
+cyst:
+  - 'ECY'
+  - 'CY1'
+  - 'CY2'
+chrom_order:
+  - chrX
+  - chr2L
+  - chr2R
+  - chr3L
+  - chr3R
+  - chr4
+  - chrY

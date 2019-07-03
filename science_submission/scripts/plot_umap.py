@@ -65,7 +65,6 @@ def main():
             bbox=dict(facecolor=(1, 1, 1, 0.8), edgecolor="none", pad=0.2),
             ha="center",
             va="center",
-            fontsize=7,
             fontweight="bold",
         )
 
