@@ -37,6 +37,7 @@ rule all:
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
         "../output/science_submission/figures/cluster-legend.svg",
+        "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg",
         "../output/science_submission/figures/violin-total-umi.svg",
@@ -186,6 +187,19 @@ rule plot_heatmap_all_genes:
         lit_genes=LIT_GENES,
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_all_genes.py"
+
+
+rule plot_heatmap_biomarkers:
+    input:
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output: "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg"
+    params:
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"],
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_biomarkers.py"
 
 
 rule plot_heatmap_unique_biomarkers:
