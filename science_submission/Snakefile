@@ -198,6 +198,7 @@ rule plot_heatmap_biomarkers:
     params:
         cluster_annot = config["cluster_annot"],
         cluster_order = config["cluster_order"],
+        lit_genes = LIT_GENES,
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_biomarkers.py"
 
