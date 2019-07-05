@@ -3,6 +3,7 @@ from collections import namedtuple
 
 import numpy as np
 import pandas as pd
+import re
 import scipy.sparse as sp_sparse
 import tables
 
@@ -159,3 +160,27 @@ def feather_to_cluster_rep_matrix(fname):
 def melt_cluster_rep_matrix(df, name="count"):
     """Helper function to melt a cluster rep matrix for saving as feather"""
     return df.T.reset_index().melt(id_vars=["cluster", "rep"], var_name="FBgn", value_name=name)
+
+
+class GffRow(object):
+    def __init__(self, row):
+        self.seqid, self.source, self.type, self.start, self.end, self.score, self.strand, self.phase, self.attributes = row.strip().split(
+            "\t"
+        )
+        self.is_gene = self.type == "gene"
+        self.parsed_attributes = self.parse_attributes()
+
+    def parse_attributes(self):
+        parsed_attributes = {}
+        for attr in self.attributes.split(";"):
+            mm = re.search('(?P<key>.*?)\s+"(?P<value>.*?)"', attr)
+            if mm:
+                parsed_attributes[mm.group("key").strip()] = mm.group("value").strip()
+        return parsed_attributes
+
+    def __getitem__(self, key):
+        return self.parsed_attributes[key]
+
+
+if __name__ == "__main__":
+    main()
