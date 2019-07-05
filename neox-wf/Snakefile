@@ -26,7 +26,8 @@ rule all:
                 if sp.startswith("d")
             ] + ['dmel']
         ),
-        '../output/neox-wf/raw_counts.feather'
+        '../output/neox-wf/raw_counts.feather',
+        '../output/neox-wf/ortholog_annotation.feather'
 
 
 rule download_strugill:
@@ -86,3 +87,27 @@ rule coverage_table:
         )
     output: '../output/neox-wf/raw_counts.feather'
     script: 'scripts/build_counts_table.py'
+
+
+rule location_table:
+    input: 
+        orthologs = expand(
+            '../output/neox-wf/orthologs/{species}.tsv', 
+            # remove w1118 and orgR and replace with dmel
+            species=[
+                sp
+                for sp in SPECIES
+                if sp.startswith("d")
+            ] + ['dmel']
+        ),
+        gtf = expand(
+            '../output/neox-wf/GTF/{species}.gtf', 
+            # remove w1118 and orgR and replace with dmel
+            species=[
+                sp
+                for sp in SPECIES
+                if sp.startswith("d")
+            ] + ['dmel']
+        )
+    output: '../output/neox-wf/ortholog_annotation.feather'
+    script: 'scripts/ortholog_annotation.py'
