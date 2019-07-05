@@ -26,19 +26,7 @@ rule all:
                 if sp.startswith("d")
             ] + ['dmel']
         ),
-        expand(
-            '../output/neox-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        ),
-        expand(
-            '../output/neox-wf/raw_counts/{title}.tsv', 
-            title = sample_table.title.tolist(),
-        )
+        '../output/neox-wf/raw_counts.feather'
 
 
 rule download_strugill:
@@ -80,3 +68,21 @@ rule download_coverage_counts:
     output: '../output/neox-wf/raw_counts/{title}.tsv'
     script: 'scripts/download_coverage_counts.py'
 
+
+rule coverage_table:
+    input: 
+        counts = expand(
+            '../output/neox-wf/raw_counts/{title}.tsv', 
+            title = sample_table.title.tolist(),
+        ),
+        orthologs = expand(
+            '../output/neox-wf/orthologs/{species}.tsv', 
+            # remove w1118 and orgR and replace with dmel
+            species=[
+                sp
+                for sp in SPECIES
+                if sp.startswith("d")
+            ] + ['dmel']
+        )
+    output: '../output/neox-wf/raw_counts.feather'
+    script: 'scripts/build_counts_table.py'
