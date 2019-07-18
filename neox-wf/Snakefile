@@ -28,7 +28,8 @@ rule all:
         ),
         '../output/neox-wf/raw_counts.feather',
         '../output/neox-wf/ortholog_annotation.feather',
-        '../output/neox-wf/muller_arm_movement_classes.feather'
+        '../output/neox-wf/muller_arm_consensus.feather',
+        # '../output/neox-wf/muller_arm_movement_classes.feather',
 
 
 rule download_strugill:
@@ -114,7 +115,15 @@ rule location_table:
     script: 'scripts/ortholog_annotation.py'
 
 
+rule muller_arm_consensus:
+    input: 
+        gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
+        orthologs = rules.location_table.output[0]
+    output: '../output/neox-wf/muller_arm_consensus.feather'
+    script: 'scripts/muller_arm_consensus.py'
+
+
 rule muller_arm_movement_classes:
-    input: rules.location_table.output[0]
+    input: rules.muller_arm_consensus.output[0]
     output: '../output/neox-wf/muller_arm_movement_classes.feather'
     script: 'scripts/muller_arms.py'
