@@ -27,7 +27,8 @@ rule all:
             ] + ['dmel']
         ),
         '../output/neox-wf/raw_counts.feather',
-        '../output/neox-wf/ortholog_annotation.feather'
+        '../output/neox-wf/ortholog_annotation.feather',
+        '../output/neox-wf/muller_arm_movement_classes.feather'
 
 
 rule download_strugill:
@@ -111,3 +112,9 @@ rule location_table:
         )
     output: '../output/neox-wf/ortholog_annotation.feather'
     script: 'scripts/ortholog_annotation.py'
+
+
+rule muller_arm_movement_classes:
+    input: rules.location_table.output[0]
+    output: '../output/neox-wf/muller_arm_movement_classes.feather'
+    script: 'scripts/muller_arms.py'
