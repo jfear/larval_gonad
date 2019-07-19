@@ -44,6 +44,7 @@ rule all:
         "../output/science_submission/figures/boxplot-y-genes.svg",
         "../output/science_submission/figures/boxplot-total-umi.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
+        "../output/science_submission/figures/boxplot-polII.svg"
         # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
@@ -383,6 +384,12 @@ rule plot_boxplot_total_umi:
 # ################################################################################
 # # Fig 3
 # ################################################################################
+
+
+rule plot_boxplot_polII:
+    input: '../data/external/galletta/phos_over_tot_data_late_SC_only_061819.xlsx'
+    output: "../output/science_submission/figures/boxplot-polII.svg"
+    script: "scripts/plot_boxplot_polII.py"
 
 # # Not plots needed
 
