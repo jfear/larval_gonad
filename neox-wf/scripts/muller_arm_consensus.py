@@ -6,11 +6,13 @@ Muller elements. We assign chromosome arm based on the consensus from D.
 melanogaster.
 
 """
+import pickle
 import numpy as np
 import pandas as pd
 
 ORTHOLOGS = snakemake.input["orthologs"]
 GENE_ANNOTATION = snakemake.input["gene_annotation"]
+PRIMARY_SECONDARY = snakemake.input['primary2secondary']
 OUTPUT_FILE = snakemake.output[0]
 
 # Debug Settings
@@ -22,6 +24,7 @@ OUTPUT_FILE = snakemake.output[0]
 #     pass
 # ORTHOLOGS = '../../output/neox-wf/ortholog_annotation.feather'
 # GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
+# PRIMARY_SECONDARY = '../../references/primary2secondary_dmel_r6-24.pkl'
 
 DMEL_MULLER = {"X": "A", "2L": "B", "2R": "C", "3L": "D", "3R": "E", "4": "F"}
 DPSE_MULLER = {"XL": "A", "4": "B", "3": "C", "XR": "D", "2": "E", "5": "F"}
@@ -32,11 +35,20 @@ def main():
         pd.read_feather(GENE_ANNOTATION, columns=["FBgn", "FB_chrom"])
         .set_index("FBgn")
         .squeeze()
-        .map(DMEL_MULLER)
+        .map(lambda x: DMEL_MULLER.get(x, 'unknown_scaffold'))
         .rename("muller")
     )
 
-    orthologs = pd.read_feather(ORTHOLOGS).set_index("FBgn").join(fbgn2muller)
+    with open(PRIMARY_SECONDARY, 'rb') as fh:
+        primary2secondary = pickle.load(fh)
+
+    orthologs = pd.read_feather(ORTHOLOGS).set_index("FBgn")
+
+    # update to current reference FBgns
+    orthologs.index = orthologs.index.map(primary2secondary)
+
+    # update dmel chromosome based on the annotation
+    orthologs = orthologs[~orthologs.index.isnull()].join(fbgn2muller)
 
     # Sanity check our consensus method with dpse annotation from FlyBase
     dpse_fbgn2annotated = (
