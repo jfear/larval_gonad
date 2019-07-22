@@ -30,6 +30,8 @@ rule all:
         '../output/neox-wf/ortholog_annotation.feather',
         '../output/neox-wf/muller_arm_assignment.feather',
         '../output/neox-wf/muller_A.feather',
+        '../output/neox-wf/muller_D.feather',
+        '../output/neox-wf/muller_E.feather',
         # '../output/neox-wf/muller_arm_movement_classes.feather',
 
 
@@ -126,6 +128,9 @@ rule muller_arm_assignment:
 
 
 rule muller_arm_movement_classes:
-    input: rules.muller_arm_consensus.output[0]
-    output: '../output/neox-wf/muller_arm_movement_classes.feather'
-    script: 'scripts/muller_arms.py'
+    input: rules.muller_arm_assignment.output[0]
+    output: 
+        muller_a = '../output/neox-wf/muller_A.feather',
+        muller_d = '../output/neox-wf/muller_D.feather',
+        muller_e = '../output/neox-wf/muller_E.feather'
+    script: 'scripts/muller_arms_classes.py'
