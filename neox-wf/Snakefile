@@ -28,7 +28,8 @@ rule all:
         ),
         '../output/neox-wf/raw_counts.feather',
         '../output/neox-wf/ortholog_annotation.feather',
-        '../output/neox-wf/muller_arm_consensus.feather',
+        '../output/neox-wf/muller_arm_assignment.feather',
+        '../output/neox-wf/muller_A.feather',
         # '../output/neox-wf/muller_arm_movement_classes.feather',
 
 
@@ -115,13 +116,13 @@ rule location_table:
     script: 'scripts/ortholog_annotation.py'
 
 
-rule muller_arm_consensus:
+rule muller_arm_assignment:
     input: 
         gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
         orthologs = rules.location_table.output[0],
         primary2secondary = '../references/primary2secondary_dmel_r6-24.pkl'
-    output: '../output/neox-wf/muller_arm_consensus.feather'
-    script: 'scripts/muller_arm_consensus.py'
+    output: '../output/neox-wf/muller_arm_assignment.feather'
+    script: 'scripts/muller_arm_assignment.py'
 
 
 rule muller_arm_movement_classes:
