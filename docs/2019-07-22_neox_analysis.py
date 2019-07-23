@@ -42,6 +42,7 @@ def plot(x, y, data, **kwargs):
         xlabel="Evolutionary Status\n(D. pseudoobscura)",
         ylabel="Percent Cells with Expression\n(Spermatocytes)",
         title=f"{x.replace('_', ' ').title()}\nSpermatocyte Expression vs Evolutionary Status",
+        ylim=(-.1, 1.1)
     )
     return ax
 
