@@ -94,3 +94,4 @@ zscores = (
 sns.heatmap(zscores, xticklabels=True, yticklabels=False, cmap="viridis", vmin=-3, vmax=3)
 
 #%%
+# TODO add X chromosome analysis.
