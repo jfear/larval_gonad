@@ -44,7 +44,9 @@ rule all:
         "../output/science_submission/figures/boxplot-y-genes.svg",
         "../output/science_submission/figures/boxplot-total-umi.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
-        "../output/science_submission/figures/boxplot-polII.svg"
+        "../output/science_submission/figures/boxplot-polII.svg",
+        "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg",
+        "../output/science_submission/figures/boxplot-intronless_genes.svg",
         # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
@@ -282,6 +284,25 @@ rule plot_boxplot_total_umi:
     params:
         cluster_colors = COLORS["clusters"]
     script: "scripts/plot_boxplot_total_umi.py"
+
+
+rule plot_heatmap_intronless_genes:
+    input:
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+         intronless=rules.intron_less_genes.output[0]
+    output: "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg"
+    params: cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_intronless_genes.py"
+
+
+rule plot_boxplot_intronless_genes:
+    input: 
+        gonia_vs_cytes = '../output/seurat3-cluster-wf/combined_n3_gonia_vs_cytes.feather',
+        background=rules.background.output[0],
+        intronless=rules.intron_less_genes.output[0]
+    output: "../output/science_submission/figures/boxplot-intronless_genes.svg"
+    script: "scripts/plot_boxplot_intronless_genes.py"
+
 
 
 # rule plot_boxplot_expression_diversity:
