@@ -175,4 +175,4 @@ def plot_statsmodels_results(file: str, results: str):
     plt.text(0.01, 0.05, results, {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
     plt.axis('off')
     plt.tight_layout()
-    plt.savefig(file)
+    plt.savefig(file, dpi=200)
