@@ -6,12 +6,14 @@ from larval_gonad.config import read_config
 common_config = read_config('config/common.yaml')
 assembly = common_config['assembly']
 tag = common_config['tag']
+release_date = common_config['release_date']
 
 
 rule targets:
     input:
-        expand('references/{assembly}-all-{tag}.modFix.gtf', assembly=assembly, tag=tag),
-        expand('references/gene_annotation_{assembly}_{tag}.feather', assembly=assembly, tag=tag)
+        f'references/{assembly}-all-{tag}.modFix.gtf',
+        f'references/gene_annotation_{assembly}_{tag}.feather',
+        f'references/primary2secondary_{assembly}_{tag}.pkl'
 
 
 rule fix_gtf:
@@ -36,3 +38,9 @@ rule gene_annotation_feather:
     run:
         df = pd.read_csv(input[0], sep='\t', keep_default_na=False, na_values=['99999999999']).sort_values('FBgn').reset_index(drop=True)
         df.to_feather(output[0])
+
+
+rule primary_secondary_fbgn_mapper:
+    params: f"ftp://ftp.flybase.net/releases/FB{release_date}/precomputed_files/genes/fbgn_annotation_ID_fb_{release_date}.tsv.gz"
+    output: f'references/primary2secondary_{assembly}_{tag}.pkl'
+    script: 'scripts/primary_secondary_fbgn_mapper.py'

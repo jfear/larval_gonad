@@ -44,14 +44,15 @@ rule all:
         "../output/science_submission/figures/boxplot-y-genes.svg",
         "../output/science_submission/figures/boxplot-total-umi.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
-        "../output/science_submission/figures/boxplot-polII.svg"
+        "../output/science_submission/figures/boxplot-polII.svg",
+        "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg",
+        "../output/science_submission/figures/boxplot-intronless_genes.svg",
         # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
         # "../output/science_submission/figures/boxplot-total-umi.svg",
         # "../output/science_submission/figures/boxplot-expression-diversity.svg",
         # "../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg",
-        # "../output/science_submission/figures/barplot-replicate-representation.svg",
         # "../output/science_submission/figures/barplot_germline_deg.svg",
         # "../output/science_submission/figures/barplot_bulk_demasculinization.svg",
         # "../output/science_submission/figures/barplot_sp_demasculinization.svg",
@@ -108,7 +109,7 @@ rule gene_locs:
 #     script: "scripts/ptrap-scores.py"
 
 ################################################################################
-# Fig 1
+# Fig 1: Clustering calling, annotation, and "validation"
 ################################################################################
 rule plot_cluster_legend:
     params:
@@ -118,13 +119,12 @@ rule plot_cluster_legend:
     script: "scripts/plot_cluster_legend.py"
 
 
-# # (B) Correlation with bulk RNA-Seq
-# rule plot_heatmap_bulk_scRNAseq_w_rep:
-#     input:
-#          bulk="../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet",
-#          scrnaseq="../output/scrnaseq-wf/tpm_by_rep.parquet"
-#     output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
-#     script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
+rule plot_heatmap_bulk_scRNAseq_w_rep:
+    input:
+         bulk="../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet",
+         scrnaseq="../output/scrnaseq-wf/tpm_by_rep.parquet"
+    output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
+    script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
 
 
 rule plot_umap:
@@ -139,7 +139,6 @@ rule plot_umap:
     script: "scripts/plot_umap.py"
 
 
-# (E) Heatmap of literature genes
 rule plot_heatmap_all_lit_genes:
     input:
          zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
@@ -151,7 +150,6 @@ rule plot_heatmap_all_lit_genes:
     script: "scripts/plot_heatmap_all_lit_genes.py"
 
 
-# Supplemental Figures
 rule plot_barplot_cell_per_cluster_number:
     input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
     output: "../output/science_submission/figures/barplot-cell-per-cluster-number.svg"
@@ -165,18 +163,6 @@ rule plot_barplot_cell_per_cluster:
         cluster_annot = config["cluster_annot"],
         cluster_order = config["cluster_order"]
     script: "scripts/plot_barplot_cell_per_cluster.py"
-
-
-# rule plot_barplot_replicate_representation:
-#     input:
-#          dat="../output/scrnaseq-wf/number_of_cells_per_cluster.parquet",
-#          clusters=rules.clusters.output[0]
-#     output: "../output/science_submission/figures/barplot-replicate-representation.svg"
-#     params:
-#           annotation=config["short_cluster_annot"],
-#           cluster_order=config["short_cluster_order"],
-#           cluster_colors=config["colors"]["clusters"]
-#     script: "scripts/plot_barplot_replicate_representation.py"
 
 
 rule plot_heatmap_all_genes:
@@ -260,10 +246,9 @@ rule plot_heatmap_lit_gene_evidence:
 #     script: "scripts/plot_heatmap_ptrap_scores.py"
 
 ################################################################################
-# Fig 2
+# Fig 2: Sex bias expression and MSCI
 ################################################################################
 
-# # (A, B) Distribution of X:A and 4:A ratios by cluster
 rule plot_boxplot_autosome_ratio:
     input:
         ratios="../output/x-to-a-wf/autosome_ratios_by_cell.feather",
@@ -274,7 +259,6 @@ rule plot_boxplot_autosome_ratio:
     script: "scripts/plot_boxplot_autosome_ratio.py"
 
 
-# # (D) Normalized Y expression by cluster
 rule plot_boxplot_y_genes:
     input:
         tpm='../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather',
@@ -285,8 +269,6 @@ rule plot_boxplot_y_genes:
         cluster_colors=COLORS["clusters"]
     script: "scripts/plot_boxplot_y_genes.py"
 
-
-# # Supplemental Figures
 
 rule plot_violin_total_umi:
     input: '../output/seurat3-cluster-wf/raw_by_cluster_rep.feather'
@@ -302,6 +284,25 @@ rule plot_boxplot_total_umi:
     params:
         cluster_colors = COLORS["clusters"]
     script: "scripts/plot_boxplot_total_umi.py"
+
+
+rule plot_heatmap_intronless_genes:
+    input:
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+         intronless=rules.intron_less_genes.output[0]
+    output: "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg"
+    params: cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_intronless_genes.py"
+
+
+rule plot_boxplot_intronless_genes:
+    input: 
+        gonia_vs_cytes = '../output/seurat3-cluster-wf/combined_n3_gonia_vs_cytes.feather',
+        background=rules.background.output[0],
+        intronless=rules.intron_less_genes.output[0]
+    output: "../output/science_submission/figures/boxplot-intronless_genes.svg"
+    script: "scripts/plot_boxplot_intronless_genes.py"
+
 
 
 # rule plot_boxplot_expression_diversity:
@@ -381,21 +382,18 @@ rule plot_boxplot_total_umi:
 #           cmap=config["colors"]["heatmap"]
 #     script: "scripts/plot_heatmap_msl_genes.py"
 
-# ################################################################################
-# # Fig 3
-# ################################################################################
-
+################################################################################
+# Fig 3: Chromosome territories and Pol II expression
+################################################################################
 
 rule plot_boxplot_polII:
     input: '../data/external/galletta/phos_over_tot_data_late_SC_only_061819.xlsx'
     output: "../output/science_submission/figures/boxplot-polII.svg"
     script: "scripts/plot_boxplot_polII.py"
 
-# # Not plots needed
-
-# ################################################################################
-# # Fig 4
-# ################################################################################
+################################################################################
+# Fig 4: NeoX expression
+################################################################################
 # # (A) DEG among germline
 # rule plot_tsne_comparison:
 #     input:
@@ -472,24 +470,23 @@ rule plot_boxplot_polII:
 #     output: "../output/science_submission/figures/scatter_bulk_deg.svg"
 #     script: "scripts/plot_scatter_bulk_deg.py"
 
-# ################################################################################
-# # Tables
-# ################################################################################
+################################################################################
+# Tables
+################################################################################
 
-
-# # rule differential_expression_tables:
-# #     input:
-# #          biomarkers="../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv",
-# #          germ_soma="../output/scrnaseq-wf/germcell_soma_deg/germ_vs_soma.tsv",
-# #          gonia_cytes="../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv",
-# #          gonia_early="../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv",
-# #          gonia_mid="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
-# #          gonia_late="../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv",
-# #          raw="../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet",
-# #          tpm="../output/scrnaseq-wf/tpm_w_rep.parquet",
-# #          zscore="../output/scrnaseq-wf/tpm_zscore_w_rep.parquet",
-# #     output: "../output/science_submission/tables/scRNASeq_cluster_deg.xlsx"
-# #     script: "scripts/table_scRNASeq_cluster_deg.py"
+# rule differential_expression_tables:
+#     input:
+#          biomarkers="../output/scrnaseq-wf/scrnaseq_combine_force/biomarkers_res.0.6.tsv",
+#          germ_soma="../output/scrnaseq-wf/germcell_soma_deg/germ_vs_soma.tsv",
+#          gonia_cytes="../output/scrnaseq-wf/germcell_deg/gonia_vs_cytes.tsv",
+#          gonia_early="../output/scrnaseq-wf/germcell_deg/gonia_vs_early.tsv",
+#          gonia_mid="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
+#          gonia_late="../output/scrnaseq-wf/germcell_deg/gonia_vs_late.tsv",
+#          raw="../output/scrnaseq-wf/raw_by_cluster_w_rep.parquet",
+#          tpm="../output/scrnaseq-wf/tpm_w_rep.parquet",
+#          zscore="../output/scrnaseq-wf/tpm_zscore_w_rep.parquet",
+#     output: "../output/science_submission/tables/scRNASeq_cluster_deg.xlsx"
+#     script: "scripts/table_scRNASeq_cluster_deg.py"
 
 # rule results_table:
 #     input:
@@ -505,9 +502,9 @@ rule plot_boxplot_polII:
 #     script: "scripts/results_table.py"
 
 
-# ################################################################################
-# # Helpers
-# ################################################################################
+################################################################################
+# Helpers
+################################################################################
 
 # rule svg_png:
 #     input: "{fig}.svg"
@@ -518,5 +515,3 @@ rule plot_boxplot_polII:
 #     input: "{fig}.svg"
 #     output: "{fig}.pdf"
 #     shell: "inkscape {input[0]} --export-pdf={output[0]}"
-
-# # vim: set ft=snakemake.python

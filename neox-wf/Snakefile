@@ -26,19 +26,13 @@ rule all:
                 if sp.startswith("d")
             ] + ['dmel']
         ),
-        expand(
-            '../output/neox-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        ),
-        expand(
-            '../output/neox-wf/raw_counts/{title}.tsv', 
-            title = sample_table.title.tolist(),
-        )
+        '../output/neox-wf/raw_counts.feather',
+        '../output/neox-wf/ortholog_annotation.feather',
+        '../output/neox-wf/muller_arm_assignment.feather',
+        '../output/neox-wf/muller_A.feather',
+        '../output/neox-wf/muller_D.feather',
+        '../output/neox-wf/muller_E.feather',
+        # '../output/neox-wf/muller_arm_movement_classes.feather',
 
 
 rule download_strugill:
@@ -80,3 +74,63 @@ rule download_coverage_counts:
     output: '../output/neox-wf/raw_counts/{title}.tsv'
     script: 'scripts/download_coverage_counts.py'
 
+
+rule coverage_table:
+    input: 
+        counts = expand(
+            '../output/neox-wf/raw_counts/{title}.tsv', 
+            title = sample_table.title.tolist(),
+        ),
+        orthologs = expand(
+            '../output/neox-wf/orthologs/{species}.tsv', 
+            # remove w1118 and orgR and replace with dmel
+            species=[
+                sp
+                for sp in SPECIES
+                if sp.startswith("d")
+            ] + ['dmel']
+        )
+    output: '../output/neox-wf/raw_counts.feather'
+    script: 'scripts/build_counts_table.py'
+
+
+rule location_table:
+    input: 
+        orthologs = expand(
+            '../output/neox-wf/orthologs/{species}.tsv', 
+            # remove w1118 and orgR and replace with dmel
+            species=[
+                sp
+                for sp in SPECIES
+                if sp.startswith("d")
+            ] + ['dmel']
+        ),
+        gtf = expand(
+            '../output/neox-wf/GTF/{species}.gtf', 
+            # remove w1118 and orgR and replace with dmel
+            species=[
+                sp
+                for sp in SPECIES
+                if sp.startswith("d")
+            ] + ['dmel']
+        )
+    output: '../output/neox-wf/ortholog_annotation.feather'
+    script: 'scripts/ortholog_annotation.py'
+
+
+rule muller_arm_assignment:
+    input: 
+        gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
+        orthologs = rules.location_table.output[0],
+        primary2secondary = '../references/primary2secondary_dmel_r6-24.pkl'
+    output: '../output/neox-wf/muller_arm_assignment.feather'
+    script: 'scripts/muller_arm_assignment.py'
+
+
+rule muller_arm_movement_classes:
+    input: rules.muller_arm_assignment.output[0]
+    output: 
+        muller_a = '../output/neox-wf/muller_A.feather',
+        muller_d = '../output/neox-wf/muller_D.feather',
+        muller_e = '../output/neox-wf/muller_E.feather'
+    script: 'scripts/muller_arms_classes.py'
