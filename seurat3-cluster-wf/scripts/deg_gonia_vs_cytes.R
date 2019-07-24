@@ -21,7 +21,7 @@ fbgn2symbol <- feather::read_feather(GENE_METADATA, columns = c("FBgn", "gene_sy
 load(ROBJ)
 
 # Helper function
-find_markers <- function(obj, ident.1, ident.2, alpha = 0.01) {
+find_markers <- function(obj, ident.1, ident.2, alpha = 1) {
     deg <- FindMarkers(obj, ident.1 = ident.1, ident.2 = ident.2)
 
     deg_clean <- tibble::as_tibble(deg %>% tibble::rownames_to_column("gene_symbol")) %>%
