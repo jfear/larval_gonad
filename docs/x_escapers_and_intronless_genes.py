@@ -13,6 +13,12 @@ from scipy.stats import fisher_exact, contingency
 from IPython.display import display, Markdown
 import matplotlib.pyplot as plt
 import seaborn as sns
+from statsmodels.api import formula as smf
+from tabulate import tabulate
+
+from larval_gonad.io import feather_to_cluster_rep_matrix
+from larval_gonad.stats import run_chisq
+from larval_gonad.plotting import plot_statsmodels_results
 
 try:
     os.chdir(os.path.join(os.getcwd(), "docs"))
@@ -26,9 +32,19 @@ except:
 fbgns_no_intron = pickle.load(open("../output/science_submission/intron_less_genes.pkl", "rb"))
 background = pickle.load(open("../output/science_submission/background_fbgns.pkl", "rb"))
 
-#%% [markdown]
+#%%
+# Get list of X chromosome genes
+fbgn2chrom = (
+    pd.read_feather(
+        "../references/gene_annotation_dmel_r6-24.feather", columns=["FBgn", "FB_chrom"]
+    )
+    .set_index("FBgn")
+    .squeeze()
+)
+chrx_fbgns = fbgn2chrom[fbgn2chrom == "X"].index
 
 #%%
+# Get gonia biased and cyte biased genes
 bias = (
     pd.read_feather("../output/seurat3-cluster-wf/combined_n3_gonia_vs_cytes.feather")
     .assign(gonia_bias=lambda x: np.where((x.p_val_adj <= 0.01) & (x.avg_logFC > 0), True, False))
@@ -42,56 +58,116 @@ bias = (
 )
 
 #%%
-df = bias.copy()
+# Munge all into a dataframe
+df = bias.copy().join(fbgn2chrom)
 df["intronless"] = np.where(df.index.isin(fbgns_no_intron), True, False)
-df["intronless2"] = np.where(df.index.isin(fbgns_no_intron), "intronless", "has_intron")
-
-#%%
-# Gonia Biased Enrichment
-ct = pd.crosstab(df.gonia_bias, df.intronless)
-display(Markdown("### Observed Frequencies"))
-display(ct)
-
-display(Markdown("### Expected Frequencies"))
-display(pd.DataFrame(contingency.expected_freq(ct), index=ct.index, columns=ct.columns))
-
-display(Markdown(f"**Fisher's exact test:** {fisher_exact(ct)}"))
-
-#%%
-# Cyte Biased Enrichment
-ct = pd.crosstab(df.cyte_bias, df.intronless)
-display(Markdown("### Observed Frequencies"))
-display(ct)
-
-display(Markdown("### Expected Frequencies"))
-display(pd.DataFrame(contingency.expected_freq(ct), index=ct.index, columns=ct.columns))
-
-display(Markdown(f"**Fisher's exact test:** {fisher_exact(ct)}"))
+df["X"] = np.where(df.index.isin(chrx_fbgns), True, False)
+df["bias"] = "NS"
+df.loc[df.gonia_bias, "bias"] = "gonia"
+df.loc[df.cyte_bias, "bias"] = "cyte"
 
 #%% [markdown]
-# * We see a depletion of intronless genes in Spermatogonia biased genes
-# * We see an enrichment of intronless genes in Spermatocyte biased genes
+# ## How are intronless genes expressed in primary spermatocytes?
+
+#%% [markdown]
+# ### Intronless genes are expressed in fewer cells than genes with introns.
 
 #%%
-fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=plt.figaspect(1 / 2))
-sns.boxplot("intronless2", "pct_gonia", data=df, ax=ax1)
-ax1.set(title="Gonia Baised", xlabel="", ylabel="Percent of Cells", ylim=(-0.1, 1.1))
+# Plot percent cytes with expression by bias*chrom*intronless
+g = sns.FacetGrid(
+    df,
+    row="bias",
+    row_order=["cyte", "gonia", "NS"],
+    col="FB_chrom",
+    col_order=["X", "2L", "2R", "3L", "3R"],
+    sharex=True,
+    sharey=True,
+    margin_titles=True,
+)
+g.map(sns.boxplot, "intronless", "pct_cyte", order=[False, True])
+g.set_ylabels("% Spermatocyte Cells\nWith Expression")
+g.savefig("../output/docs/x_escapers_and_intronless_genes.svg", bbox_inches="tight")
 
-sns.boxplot("intronless2", "pct_cyte", data=df, ax=ax2)
-ax2.set(title="Cyte Baised", xlabel="", ylabel="")
-fig.savefig("../output/docs/2019-07-23_intronless_analysis.svg", bbox_inches="tight")
+#%% [markdown]
+# ### However, intronless genes are enriched in genes with primary spermatocyte biased expression.
 
 #%%
-zscores = (
-    pd.read_feather("../output/science_submission/zscore_by_cluster_rep.feather")
-    .set_index(["FBgn", "cluster", "rep"])
-    .unstack(level=[-2, -1])
+# Cross tab of intronless * bias
+ct = pd.crosstab(df.intronless, df.bias)
+res = run_chisq(ct).loc[(slice(None), ["observed", "adj std residual", "flag_sig"]), :]
+print(tabulate(res.reset_index(), headers="keys", showindex=False, tablefmt="github"))
+res
+
+#%%
+zscores_intronless = (
+    feather_to_cluster_rep_matrix("../output/science_submission/zscore_by_cluster_rep.feather")
     .reindex(fbgns_no_intron)
     .dropna()
 )
 
-#%%
-sns.heatmap(zscores, xticklabels=True, yticklabels=False, cmap="viridis", vmin=-3, vmax=3)
+ax = sns.clustermap(
+    zscores_intronless,
+    col_cluster=False,
+    xticklabels=True,
+    yticklabels=False,
+    cmap="viridis",
+    vmin=-3,
+    vmax=3,
+    rasterized=True,
+)
+ax.ax_heatmap.set(xlabel="", ylabel="Intronless Genes")
+plt.savefig("../output/docs/x_escapers_and_intronless_genes_heatmap.svg", bbox_inches="tight")
+
+
+#%% [markdown]
+# ## Are intronless genes enriched in X chromosome escapers?
+
+#%% [markdown]
+# ### Intronless genes are depleted on the X chromosome.
 
 #%%
-# TODO add X chromosome analysis.
+# intronless genes across the genome
+intronless2chrom = fbgn2chrom.to_frame().query(
+    "FB_chrom == ['X', '2L', '2R', '3L', '3R', '4', 'Y']"
+)
+intronless2chrom["intronless"] = np.where(intronless2chrom.index.isin(fbgns_no_intron), True, False)
+
+ct = pd.crosstab(intronless2chrom.intronless, intronless2chrom.FB_chrom)
+res = run_chisq(ct).loc[(slice(None), ["observed", "adj std residual", "flag_sig"]), :]
+display(res)
+
+print(tabulate(res.reset_index(), headers="keys", showindex=False, tablefmt="github"))
+
+#%% [markdown]
+# ### X chromosome escapers are not enriched for intronless genes.
+
+#%% [markdown]
+# #### Main Effects Model Logit(intronless = cyte_biased + X chromosome)
+
+#%%
+# Main effects model
+model = smf.logit("intronless ~ cyte_bias + X", data=df.replace({True: 1, False: 0}))
+results = model.fit()
+plot_statsmodels_results(
+    "../output/docs/x_escapers_and_intronless_genes_main_effects.png", str(results.summary2())
+)
+display(results.summary2())
+
+np.exp(results.params).rename("Odds Ratio").to_frame()[results.pvalues <= 0.05]
+
+#%% [markdown]
+# #### Full Model Logit(intronless = cyte_biased + X chromosome + cyte_biased * X chromosome)
+
+#%%
+# FUll Model
+model = smf.logit("intronless ~ cyte_bias * X", data=df.replace({True: 1, False: 0}))
+results = model.fit()
+plot_statsmodels_results(
+    "../output/docs/x_escapers_and_intronless_genes_full.png", str(results.summary2())
+)
+display(results.summary2())
+
+np.exp(results.params).rename("Odds Ratio").to_frame()[results.pvalues <= 0.05]
+
+
+#%%

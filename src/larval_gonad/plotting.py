@@ -9,9 +9,6 @@ from .config import config
 
 # colormaps
 cluster_cmap = dict(zip(config["cluster_order"], config["colors"]["clusters"]))
-cluster_cmap_w_rep = dict(
-    zip(config["sel_cluster_order_w_rep"], config["colors"]["sel_clusters_w_rep"])
-)
 chrom_cmap = dict(zip(config["chrom_order"], config["colors"]["chrom"]))
 
 # I have a separate color scheme for boxplots, that does not contain Y.
@@ -172,3 +169,10 @@ def format_pval(ax, x, y, pvalue, **kwargs):
 
     ax.text(x, y, annotation, ha="center", **kwargs)
     return ax
+
+
+def plot_statsmodels_results(file: str, results: str):
+    plt.text(0.01, 0.05, results, {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
+    plt.axis('off')
+    plt.tight_layout()
+    plt.savefig(file)
