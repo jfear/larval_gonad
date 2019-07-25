@@ -28,11 +28,12 @@ rule all:
         ),
         '../output/neox-wf/raw_counts.feather',
         '../output/neox-wf/ortholog_annotation.feather',
-        '../output/neox-wf/muller_arm_assignment.feather',
-        '../output/neox-wf/muller_A.feather',
-        '../output/neox-wf/muller_D.feather',
-        '../output/neox-wf/muller_E.feather',
-        # '../output/neox-wf/muller_arm_movement_classes.feather',
+        expand(
+            '../output/neox-wf/{prefix}_muller_{suffix}.feather', 
+            prefix=['YO', 'FB'], 
+            suffix=['A', 'D', 'E']
+        )
+       # '../output/neox-wf/muller_arm_movement_classes.feather',
 
 
 rule download_strugill:
@@ -118,19 +119,32 @@ rule location_table:
     script: 'scripts/ortholog_annotation.py'
 
 
+rule fb_location_table:
+    params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
+    output: '../output/neox-wf/FB_ortholog_annotation.feather'
+    script: 'scripts/fb_ortholog_annotation.py'
+
+def _muller_arm_assignment(wildcards):
+    prefix = wildcards.prefix
+    return {
+        'YO': rules.location_table.output[0],
+        'FB': rules.fb_location_table.output[0],
+    }[prefix]
+
+
 rule muller_arm_assignment:
     input: 
         gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
-        orthologs = rules.location_table.output[0],
+        orthologs = _muller_arm_assignment,
         primary2secondary = '../references/primary2secondary_dmel_r6-24.pkl'
-    output: '../output/neox-wf/muller_arm_assignment.feather'
+    output: '../output/neox-wf/{prefix}_muller_arm_assignment.feather'
     script: 'scripts/muller_arm_assignment.py'
 
 
 rule muller_arm_movement_classes:
     input: rules.muller_arm_assignment.output[0]
     output: 
-        muller_a = '../output/neox-wf/muller_A.feather',
-        muller_d = '../output/neox-wf/muller_D.feather',
-        muller_e = '../output/neox-wf/muller_E.feather'
+        muller_a = '../output/neox-wf/{prefix}_muller_A.feather',
+        muller_d = '../output/neox-wf/{prefix}_muller_D.feather',
+        muller_e = '../output/neox-wf/{prefix}_muller_E.feather'
     script: 'scripts/muller_arms_classes.py'
