@@ -28,9 +28,10 @@ rule all:
         ),
         '../output/neox-wf/raw_counts.feather',
         '../output/neox-wf/ortholog_annotation.feather',
+        '../output/neox-wf/muller_arm_assignment.feather',
         expand(
-            '../output/neox-wf/{prefix}_muller_{suffix}.feather', 
-            prefix=['YO', 'FB'], 
+            '../output/neox-wf/{species}_muller_{suffix}.feather', 
+            species=['dpse', 'dwil'],
             suffix=['A', 'D', 'E']
         )
        # '../output/neox-wf/muller_arm_movement_classes.feather',
@@ -124,6 +125,7 @@ rule fb_location_table:
     output: '../output/neox-wf/FB_ortholog_annotation.feather'
     script: 'scripts/fb_ortholog_annotation.py'
 
+
 def _muller_arm_assignment(wildcards):
     prefix = wildcards.prefix
     return {
@@ -140,11 +142,18 @@ rule muller_arm_assignment:
     output: '../output/neox-wf/{prefix}_muller_arm_assignment.feather'
     script: 'scripts/muller_arm_assignment.py'
 
+rule combine_YO_FB:
+    input: 
+        yo = '../output/neox-wf/YO_muller_arm_assignment.feather',
+        fb = '../output/neox-wf/FB_muller_arm_assignment.feather',
+    output: '../output/neox-wf/muller_arm_assignment.feather'
+    script: 'scripts/combine_muller_arm_assignments.py'
+
 
 rule muller_arm_movement_classes:
-    input: rules.muller_arm_assignment.output[0]
+    input: rules.combine_YO_FB.output[0]
     output: 
-        muller_a = '../output/neox-wf/{prefix}_muller_A.feather',
-        muller_d = '../output/neox-wf/{prefix}_muller_D.feather',
-        muller_e = '../output/neox-wf/{prefix}_muller_E.feather'
+        muller_a = '../output/neox-wf/{species}_muller_A.feather',
+        muller_d = '../output/neox-wf/{species}_muller_D.feather',
+        muller_e = '../output/neox-wf/{species}_muller_E.feather'
     script: 'scripts/muller_arms_classes.py'
