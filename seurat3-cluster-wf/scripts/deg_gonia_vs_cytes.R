@@ -7,6 +7,7 @@ GENE_METADATA <- snakemake@input[["gene_annotation"]]
 
 GVC <- list(feather = snakemake@output[["gvcf"]], tsv = snakemake@output[["gvct"]])
 GVE <- list(feather = snakemake@output[["gvef"]], tsv = snakemake@output[["gvet"]])
+GVP <- list(feather = snakemake@output[["gvpf"]], tsv = snakemake@output[["gvpt"]])
 EVP <- list(feather = snakemake@output[["evpf"]], tsv = snakemake@output[["evpt"]])
 
 # Debug Settings
@@ -54,6 +55,9 @@ save_deg(gonia_vs_cytes, GVC)
 
 gonia_vs_eps <- find_markers(combined, "9", "5")
 save_deg(gonia_vs_eps, GVE)
+
+gonia_vs_ps <- find_markers(combined, "9", c("0", "2", "6"))
+save_deg(gonia_vs_ps, GVP)
 
 eps_vs_ps <- find_markers(combined, "5", c("0", "2", "6"))
 save_deg(eps_vs_ps, EVP)

@@ -19,7 +19,7 @@ rule targets:
         expand(
             "../output/seurat3-cluster-wf/combined_n{cnt}_{comparison}.{ext}",
             cnt=3,
-            comparison=["gonia_vs_cytes", "gonia_vs_eps", "eps_vs_ps"],
+            comparison=["gonia_vs_cytes", "gonia_vs_eps", "gonia_vs_ps", "eps_vs_ps"],
             ext=["feather", "tsv"]
         ),
         expand(
@@ -140,6 +140,8 @@ rule germline_deg:
         gvct = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.tsv",
         gvef = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.feather",
         gvet = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.tsv",
+        gvpf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.feather",
+        gvpt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.tsv",
         evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
         evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv"
     conda: "../envs/seurat3.yaml"
