@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import matplotlib.lines as lines
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -39,14 +40,11 @@ def main():
 
     ax1.set(xlabel="", ylabel="S2 Phospho CTD / Total Pol II\nNormalized Pixel Intensity")
     ax2.set(xlabel="", ylabel="S5 Phospho CTD / Total Pol II\nNormalized Pixel Intensity")
+    ax1.set_ylim(-.1, 2.2)
 
     # Add p-vals
-    whiskers = df.groupby(["chrom", "antibody"]).norm.apply(whisker_max)
-    s2 = get_pval(df, "S2")
-    add_whisker(0, 1, whiskers[("X", "S2")], whiskers[("A", "S2")], s2, ax1)
-
-    s5 = get_pval(df, "S5")
-    add_whisker(0, 1, whiskers[("X", "S5")], whiskers[("A", "S5")], s5, ax2)
+    add_pval(get_pval(df, "S2"), ax1)
+    add_pval(get_pval(df, "S5"), ax2)
 
     fig.savefig(OUTPUT_FILE, bbox_inches="tight")
 
@@ -69,20 +67,10 @@ def get_data():
     return pd.concat([s2, s5])
 
 
-def whisker_max(x):
-    lower, upper = np.quantile(x, [0.25, 0.75])
-    iqr = upper - lower
-    return upper + (1.5 * iqr)
-
-
-def add_whisker(x1, x2, w1, w2, pval, ax):
-    y_low = max(w1, w2) + 0.01 * max(w1, w2)
-    y_high = y_low + 0.1
-    x_mid = x1 + ((x2 - x1) / 2)
-    ax.plot([x1, x1], [y_low, y_high], c="lightgray")
-    ax.plot([x2, x2], [y_low, y_high], c="lightgray")
-    ax.plot([x1, x2], [y_high, y_high], c="lightgray")
-    ax.text(x_mid, y_high, pval, ha="center", va="bottom")
+def add_pval(pval, ax):
+    l1 = lines.Line2D([0.25, 0.75], [0.95, 0.95], color="k", transform=ax.transAxes)
+    ax.add_line(l1)
+    ax.text(0.5, 0.95, pval, transform=ax.transAxes)
     return ax
 
 
