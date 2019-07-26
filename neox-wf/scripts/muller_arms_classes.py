@@ -1,8 +1,8 @@
-"""Gene movement between D. mel and D. pse
+"""Gene movement between D. mel and a target species.
 
-Use orhtologous genes between D. mel and D. pse to figure out gene movement. Maps each gene
+Use orhtologous genes between D. mel and target species to figure out gene movement. Maps each gene
 to their corresponding Muller element and then determines if the genes have moved or become lost
-during evolution focusing on the Neo-X chromosome (D) in D. pse.
+during evolution focusing on the Neo-X chromosome (D) in [D. pse, D. wil, or D. per].
 
 Here we classify genes as:
 * Conserved
@@ -11,13 +11,13 @@ Here we classify genes as:
 * Lost
 
 """
-import numpy as np
 import pandas as pd
 
 INPUT_FILE = snakemake.input[0]
 OUTPUT_A = snakemake.output["muller_a"]
 OUTPUT_D = snakemake.output["muller_d"]
 OUTPUT_E = snakemake.output["muller_e"]
+TARGET_SPECIES = snakemake.wildcards["species"]
 
 # Debug settings
 # import os
@@ -27,12 +27,13 @@ OUTPUT_E = snakemake.output["muller_e"]
 # except:
 #     pass
 # INPUT_FILE = "../../output/neox-wf/muller_arm_assignment.feather"
+# TARGET_SPECIES = "dpse"
 
 
 def main():
     muller = pd.read_feather(INPUT_FILE).set_index("FBgn")
     muller_classes = pd.Series(index=muller.index)
-    other_species = ["dmel", "dvir", "dmoj", "dwil"]
+    other_species = [x for x in muller.columns if x != TARGET_SPECIES]
 
     # Muller arm is the same for all species
     _logic = muller.apply(lambda x: len(set(x)) == 1, axis=1)
@@ -47,18 +48,18 @@ def main():
     )
     muller_classes[_logic] = "recent_conserved"
 
-    # Gene Death: gene is present in all species but missing in D. pse
-    _logic = muller[other_species].notna().any(axis=1) & muller.dpse.isna()
+    # Gene Death: gene is present in all species but missing in target species
+    _logic = muller[other_species].notna().any(axis=1) & muller[TARGET_SPECIES].isna()
     muller_classes[_logic] = "gene_death"
 
-    # Moved: The gene is on a different arm in D. pse vs other species
+    # Moved: The gene is on a different arm in target species vs other species
     _logic = (
         # same in other species
         muller.apply(lambda x: len(set(x[other_species])) == 1, axis=1)
-        # different in D. dpse
-        & (muller.dmel != muller.dpse)
+        # different in target species
+        & (muller.dmel != muller[TARGET_SPECIES])
         # Ignore if the gene is there but on an unknown scaffold
-        & (muller.dpse != "unknown_scaffold")
+        & (muller[TARGET_SPECIES] != "unknown_scaffold")
     )
     muller_classes[_logic] = "moved"
 
@@ -79,10 +80,10 @@ def main():
 def classify_specific_arm(muller, muller_classes, arm="A"):
     df = muller_classes.copy()
     df.name = f"muller_{arm}"
-    # If gene was on in other species but moved off in D. pse
+    # If gene was on in other species but moved off in target species
     df.loc[(muller.dmel == arm) & (df == "moved")] = "moved_off"
-    # If gene was on another arm in other species but moved on in D. pse
-    df.loc[(muller.dpse == arm) & (df == "moved")] = "moved_on"
+    # If gene was on another arm in other species but moved on in target species
+    df.loc[(muller[TARGET_SPECIES] == arm) & (df == "moved")] = "moved_on"
     df = df.reindex(muller.query(f'dpse == "{arm}" | dmel == "{arm}"').index)
     return df.to_frame()
 
