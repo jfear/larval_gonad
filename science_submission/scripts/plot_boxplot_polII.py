@@ -70,7 +70,7 @@ def get_data():
 def add_pval(pval, ax):
     l1 = lines.Line2D([0.25, 0.75], [0.95, 0.95], color="k", transform=ax.transAxes)
     ax.add_line(l1)
-    ax.text(0.5, 0.95, pval, transform=ax.transAxes)
+    ax.text(0.5, 0.95, pval, ha="center", va="center", transform=ax.transAxes)
     return ax
 
 
