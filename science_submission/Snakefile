@@ -33,6 +33,7 @@ rule all:
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
+        "../output/science_submission/figures/plot-umap-panels-1.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
@@ -137,6 +138,18 @@ rule plot_umap:
         cluster_annot = config["cluster_annot"],
         cluster_order = config["cluster_order"]
     script: "scripts/plot_umap.py"
+
+
+rule plot_umap_panels:
+    input:
+        umap = "../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        gene_annot = "../references/gene_annotation_dmel_r6-24.feather",
+        norm = "../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/plot-umap-panels-{panelID}.svg"
+    params:
+        lit_genes = LIT_GENES,
+        file_pattern = '../output/science_submission/figures/plot-umap-panels-PANELID.svg'
+    script: "scripts/plot_umap_panels.py"
 
 
 rule plot_heatmap_all_lit_genes:
