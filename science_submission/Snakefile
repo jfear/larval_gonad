@@ -304,6 +304,21 @@ rule plot_boxplot_intronless_genes:
     script: "scripts/plot_boxplot_intronless_genes.py"
 
 
+rule plot_boxplot_demasculinization:
+    input:
+        #TODO: add bulk file
+        bulk='',
+        raw='../output/cellselection-wf/raw.feather',
+        norm='../output/seurat3-cluster-wf/combined_n3_normalized.feather',
+        cell_annotation='../output/seurat3-cluster-wf/combined_n3_metadata.feather',
+        gene_annotation='../references/gene_annotation_dmel_r6-24.feather'
+    params:
+        cluster_annot=config['cluster_annot'],
+        cluster_order=config['cluster_annot']
+    output:
+        pct_cells='../output/science_submission/figures/boxplot-demasculinization-pct-cells.svg',
+        norm_expression='../output/science_submission/figures/boxplot-demasculinization-norm-expression.svg'
+
 
 # rule plot_boxplot_expression_diversity:
 #     input:
