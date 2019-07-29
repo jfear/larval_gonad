@@ -33,7 +33,7 @@ rule all:
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
-        dynamic("../output/science_submission/figures/plot-umap-panels-{panelID}.svg"),
+        "../output/science_submission/figures/plot-umap-panels-1.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
@@ -147,7 +147,8 @@ rule plot_umap_panels:
         norm = "../output/seurat3-cluster-wf/combined_n3_normalized.feather"
     output: "../output/science_submission/figures/plot-umap-panels-{panelID}.svg"
     params:
-        lit_genes = LIT_GENES
+        lit_genes = LIT_GENES,
+        file_pattern = '../output/science_submission/figures/plot-umap-panels-PANELID.svg'
     script: "scripts/plot_umap_panels.py"
 
 

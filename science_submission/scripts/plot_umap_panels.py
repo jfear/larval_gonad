@@ -14,8 +14,8 @@ GENE_ANNOTATION = snakemake.input["gene_annot"]
 NORM_FILE = snakemake.input["norm"]
 
 LIT_GENES = snakemake.params["lit_genes"]
+FILE_PATTERN = snakemake.params["file_pattern"]
 
-OUTPUT_FILE = snakemake.output[0]
 
 # Debug settings
 # import os
@@ -33,16 +33,25 @@ OUTPUT_FILE = snakemake.output[0]
 
 def main():
     fbgns_of_interest = get_fbgns_of_interest()
-    fbgn2symbol = pd.read_feather(GENE_ANNOTATION).set_index("FBgn").gene_symbol
+    fbgn2symbol = (
+        pd.read_feather(GENE_ANNOTATION)
+        .set_index("FBgn")
+        .reindex(fbgns_of_interest)
+        .dropna()
+        .gene_symbol
+        .str.lower()
+        .sort_values()
+    )
+    fbgns_of_interest_sorted = fbgn2symbol.index.tolist()
 
     umap = pd.read_feather(UMAP).set_index("cell_id")
-    norm = get_normalized(NORM_FILE).join(umap)
+    norm = get_normalized(NORM_FILE, fbgns_of_interest_sorted).join(umap)
 
     plt.style.use("scripts/figure_styles.mplstyle")
     vmin, vmax = 0, 5
     cmap = sns.light_palette("blue", as_cmap=True)
 
-    for i, grp in enumerate(grouper(24, fbgns_of_interest)):
+    for i, grp in enumerate(grouper(18, fbgns_of_interest_sorted)):
         df = norm.query(f"FBgn == {grp}")
         g = sns.FacetGrid(df, col="gene_symbol", col_wrap=3)
         g.map(
@@ -63,7 +72,7 @@ def main():
         g.fig.subplots_adjust(right=0.92)
 
         # Define a new Axes where the colorbar will go
-        cax = g.fig.add_axes([0.95, .80, 0.02, 0.1])
+        cax = g.fig.add_axes([0.95, 0.80, 0.02, 0.1])
 
         # Get a mappable object with the same colormap as the data
         points = plt.scatter([], [], c=[], vmin=vmin, vmax=vmax, cmap=cmap)
@@ -71,18 +80,20 @@ def main():
         # Draw the colorbar
         g.fig.colorbar(points, cax=cax)
 
-        g.savefig(f"../../output/science_submission/figures/plot-umap-panels-{i}.svg")
-
+        g.savefig(FILE_PATTERN.replace("PANELID", str(i + 1)), bbox_inches="tight")
 
 
 def get_fbgns_of_interest():
     return list(set(flatten([value for key, value in LIT_GENES.items()])))
 
 
-def get_normalized(fname):
+def get_normalized(fname, target_fbgns):
     return (
         pd.read_feather(fname)
-        .set_index(["FBgn", "gene_symbol"])
+        .set_index("FBgn")
+        .reindex(target_fbgns)
+        .dropna()
+        .set_index("gene_symbol", append=True)
         .stack()
         .rename("norm")
         .reset_index(level=[0, 1])
