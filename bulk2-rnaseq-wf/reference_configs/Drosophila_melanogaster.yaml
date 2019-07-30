@@ -60,6 +60,16 @@ references:
         indexes:
           - 'salmon'
 
+    # rebuilt with a new version of salmon
+    r6-24_transcriptome_updated:
+      fasta:
+        url:
+          - 'ftp://ftp.flybase.net/releases/FB2018_05/dmel_r6.24/fasta/dmel-all-transcript-r6.24.fasta.gz'
+          - 'ftp://ftp.flybase.net/releases/FB2018_05/dmel_r6.24/fasta/dmel-all-ncRNA-r6.24.fasta.gz'
+        postprocess: 'lib.common.cat'
+        indexes:
+          - 'salmon'
+
     r6-24_and_ercc:
       gtf:
         url:

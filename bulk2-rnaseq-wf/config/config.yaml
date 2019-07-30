@@ -23,7 +23,7 @@ db:
   tag: "r6-24"
 
 salmon:
-  tag: "r6-24_transcriptome"
+  tag: "r6-24_transcriptome_updated"
 
 fastq_screen:
   - label: rRNA
