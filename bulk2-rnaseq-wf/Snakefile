@@ -39,7 +39,7 @@ wildcard_constraints:
 
 
 def wrapper_for(path):
-    return 'file:' + os.path.join('../lcdb-wf','wrappers', 'wrappers', path)
+    return 'file:' + os.path.join('../', 'wrappers', path)
 
 # ----------------------------------------------------------------------------
 # RULES
