@@ -1,9 +1,9 @@
 samplename	orig_filename	group	wellID	row	col	num_parts	sex	testis	ovary	fatbody	ercc
-A1_OCP	../data/rnaseq_samples/190201_run0711/Sample_A1_OCP_1/A1_OCP_1_S16_L002_R1_001.fastq.gz	OCP	A1	A	1		f	0	1	0	D
-A2_OCP	../data/rnaseq_samples/190201_run0711/Sample_A2_OCP_2/A2_OCP_2_S35_L003_R1_001.fastq.gz	OCP	A2	A	2		f	0	1	0	D
-A3_OCP	../data/rnaseq_samples/190201_run0711/Sample_A3_OCP_3/A3_OCP_3_S29_L003_R1_001.fastq.gz	OCP	A3	A	3		f	0	1	0	D
-A4_OCP	../data/rnaseq_samples/190201_run0711/Sample_A4_OCP_4/A4_OCP_4_S33_L003_R1_001.fastq.gz	OCP	A4	A	4		f	0	1	0	D
-A5_TCP	../data/rnaseq_samples/190201_run0711/Sample_A5_TCP_1/A5_TCP_1_S9_L001_R1_001.fastq.gz	TCP	A5	A	5		m	1	0	0	D
-A6_TCP	../data/rnaseq_samples/190201_run0711/Sample_A6_TCP_2/A6_TCP_2_S13_L002_R1_001.fastq.gz	TCP	A6	A	6		m	1	0	0	D
-A7_TCP	../data/rnaseq_samples/190201_run0711/Sample_A7_TCP_3/A7_TCP_3_S12_L001_R1_001.fastq.gz	TCP	A7	A	7		m	1	0	0	D
-A8_TCP	../data/rnaseq_samples/190201_run0711/Sample_A8_TCP_4/A8_TCP_4_S17_L002_R1_001.fastq.gz	TCP	A8	A	8		m	1	0	0	D
+A1_OCP	../data/rnaseq_samples/190201_run0711/Sample_A1_OCP_1/A1_OCP_1_S16_L002_R1_001.fastq.gz	OCP	A1	A	1	25	f	0	1	0	A
+A2_OCP	../data/rnaseq_samples/190201_run0711/Sample_A2_OCP_2/A2_OCP_2_S35_L003_R1_001.fastq.gz	OCP	A2	A	2	25	f	0	1	0	B
+A3_OCP	../data/rnaseq_samples/190201_run0711/Sample_A3_OCP_3/A3_OCP_3_S29_L003_R1_001.fastq.gz	OCP	A3	A	3	25	f	0	1	0	A
+A4_OCP	../data/rnaseq_samples/190201_run0711/Sample_A4_OCP_4/A4_OCP_4_S33_L003_R1_001.fastq.gz	OCP	A4	A	4	25	f	0	1	0	B
+A5_TCP	../data/rnaseq_samples/190201_run0711/Sample_A5_TCP_1/A5_TCP_1_S9_L001_R1_001.fastq.gz	TCP	A5	A	5	15	m	1	0	0	A
+A6_TCP	../data/rnaseq_samples/190201_run0711/Sample_A6_TCP_2/A6_TCP_2_S13_L002_R1_001.fastq.gz	TCP	A6	A	6	15	m	1	0	0	B
+A7_TCP	../data/rnaseq_samples/190201_run0711/Sample_A7_TCP_3/A7_TCP_3_S12_L001_R1_001.fastq.gz	TCP	A7	A	7	15	m	1	0	0	A
+A8_TCP	../data/rnaseq_samples/190201_run0711/Sample_A8_TCP_4/A8_TCP_4_S17_L002_R1_001.fastq.gz	TCP	A8	A	8	15	m	1	0	0	B
