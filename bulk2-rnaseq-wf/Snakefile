@@ -2,6 +2,7 @@ import sys
 
 sys.path.insert(0, srcdir('../lcdb-wf'))
 import os
+from pathlib import Path
 from textwrap import dedent
 import yaml
 import tempfile
