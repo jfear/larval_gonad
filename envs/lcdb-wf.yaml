@@ -157,6 +157,7 @@ dependencies:
   - jemalloc=5.2.0
   - jinja2=2.10.1
   - jmespath=0.9.4
+  - joblib=0.13.2
   - jpeg=9c
   - jsonschema=3.0.1
   - jupyter_core=4.4.0

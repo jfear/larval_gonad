@@ -1039,9 +1039,9 @@ rule tpm:
     run:
         from larval_gonad.normalization import tpm
 
-        raw = pd.read_csv(input.cnts, sep='\t')
+        raw = pd.read_csv(input.cnts, sep='\t').set_index('Geneid')
         lens = pd.read_csv(input.lens, sep='\t').set_index('Geneid')['length']
-        lens = lens.reindex(raw.Geneid)
+        lens = lens.reindex(raw.index)
 
         res = tpm(raw, lens).dropna()
         res.to_csv(output[0], sep='\t')
