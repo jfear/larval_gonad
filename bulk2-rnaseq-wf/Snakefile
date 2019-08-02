@@ -1000,7 +1000,7 @@ rule gene_counts_agg:
             dfs.append(df)
 
         data = pd.concat(dfs, axis=1, sort=True)
-        data.to_parquet(output[0])
+        data.to_csv(output[0], sep="\t")
 
 rule tpm:
     input:
@@ -1013,11 +1013,11 @@ rule tpm:
     run:
         from larval_gonad.normalization import tpm
 
-        raw = pd.read_parquet(input.cnts)
+        raw = pd.read_csv(input.cnts, sep='\t')
         lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn')['length']
         lens = lens.reindex(raw.index)
 
         res = tpm(raw, lens).dropna()
-        res.to_parquet(output[0])
+        res.to_csv(output[0], sep='\t')
 
 # vim: ft=python
