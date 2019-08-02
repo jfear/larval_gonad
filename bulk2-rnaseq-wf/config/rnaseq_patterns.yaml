@@ -1,5 +1,5 @@
 fastq: '../output/bulk2-rnaseq-wf/rnaseq_samples/{sample}/{sample}_R{n}.fastq.gz'
-gene_lengths: '../../references/gene_lengths_{organism}_{tag}.tsv'
+gene_lengths: '../references/gene_lengths_{organism}_{tag}.tsv'
 cutadapt: '../output/bulk2-rnaseq-wf/rnaseq_samples/{sample}/{sample}_R{n}.cutadapt.fastq.gz'
 bam: '../output/bulk2-rnaseq-wf/rnaseq_samples/{sample}/{sample}.cutadapt.bam'
 splice_sites: '../output/bulk2-rnaseq-wf/rnaseq_samples/known_splice_sites.txt'
