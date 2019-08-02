@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 #SBATCH --job-name="seq_larval"
 #SBATCH --partition="norm"
 #SBATCH --time=72:00:00
