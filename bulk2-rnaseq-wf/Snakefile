@@ -67,6 +67,10 @@ final_targets = utils.flatten((
     utils.flatten(c.targets['collectrnaseqmetrics']),
     utils.flatten(c.targets['bigwig']),
     utils.flatten(c.targets['downstream']),
+    utils.flatten(c.targets['intergenic']),
+    [c.targets['featurecounts_intergenic']],
+    [c.targets['agg_featurecounts']],
+    [c.targets['tpm_featurecounts']],
 ))
 
 # Special case: all samples are single-end
