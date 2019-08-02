@@ -429,6 +429,8 @@ rule featurecounts:
         bam=c.patterns['bam']
     output:
         counts='{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.{stranded}.txt'
+    wildcard_constraints:
+        stranded="s\d"
     log:
         '{sample_dir}/{sample}/{sample}.cutadapt.bam.featurecounts.{stranded}.txt.log'
     resources:
@@ -981,7 +983,7 @@ rule featurecounts_intergenic:
         '&> {log}'
 
 rule gene_counts_agg:
-    input: c.targets['featurecounts']
+    input: c.targets['featurecounts']['s2']
     output: c.targets['agg_featurecounts']
     resources:
              mem_gb = lambda wildcards, attempt: attempt * 1,
@@ -1002,7 +1004,7 @@ rule gene_counts_agg:
 rule tpm:
     input:
          cnts=rules.gene_counts_agg.output[0],
-         lens='../output/gene_ts_lengths.tsv'
+         lens='../references/gene_annotation_dmel_r6-24.tsv'
     output: c.targets['tpm_featurecounts']
     resources:
              mem_gb = lambda wildcards, attempt: attempt * 1,
@@ -1011,7 +1013,7 @@ rule tpm:
         from larval_gonad.normalization import tpm
 
         raw = pd.read_parquet(input.cnts)
-        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn').gene_ts_length
+        lens = pd.read_csv(input.lens, sep='\t').set_index('FBgn')['length']
         lens = lens.reindex(raw.index)
 
         res = tpm(raw, lens).dropna()
