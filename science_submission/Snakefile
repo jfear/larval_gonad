@@ -52,6 +52,7 @@ rule all:
         expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
         "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         "../output/science_submission/ptrap_scores.feather",
+        "../output/science_submission/figures/heatmap-ptrap-scores.svg",
 
         # Part 2
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
@@ -299,10 +300,12 @@ rule ptrap_scores:
 #     script: "scripts/plot_heatmap_ptrap_genes_w_rep.py"
 
 
-# rule plot_heatmap_ptrap_scores:
-#     input: rules.ptrap_scores.output[0]
-#     output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
-#     script: "scripts/plot_heatmap_ptrap_scores.py"
+rule plot_heatmap_ptrap_scores:
+    input: 
+        ptrap = rules.ptrap_scores.output[0],
+        gene_annot = "../references/gene_annotation_dmel_r6-24.feather"
+    output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
+    script: "scripts/plot_heatmap_ptrap_scores.py"
 
 ################################################################################
 # Part 2: Sex bias expression and MSCI
