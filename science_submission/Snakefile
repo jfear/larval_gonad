@@ -5,6 +5,8 @@ import os
 import yaml
 from pathlib import Path
 
+import pandas as pd
+
 from larval_gonad.config import read_config
 
 workdir: "."
@@ -29,6 +31,7 @@ rule all:
         "../output/science_submission/gene_locations.feather",
 
         # Part 1
+        '../output/science_submission/raw.tsv.gz',
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
@@ -93,7 +96,7 @@ rule gene_locs:
 
 rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
-    output: '../output/science_submission/raw.tsv'
+    output: '../output/science_submission/raw.tsv.gz'
     run:
         pd.read_feather(input[0]).to_csv(output[0], index=False)
 
