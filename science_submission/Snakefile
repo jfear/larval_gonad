@@ -32,6 +32,7 @@ rule all:
 
         # Part 1
         "../output/science_submission/scRNAseq_raw_counts.tsv.gz",
+        "../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz",
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
@@ -99,6 +100,11 @@ rule raw_to_tsv:
     output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
     run:
         pd.read_feather(input[0]).to_csv(output[0], index=False)
+
+
+rule seurat_normalized_to_tsv:
+    input: '../output/seurat3-cluster-wf/combined_n3_normalized.feather'
+    output: '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz'
     run:
         pd.read_feather(input[0]).to_csv(output[0], index=False)
 
