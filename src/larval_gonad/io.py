@@ -94,13 +94,14 @@ def decode_cell_names(iterable):
 def cellranger_umi(fname):
     with tables.open_file(fname, "r") as f:
         group = f.get_node("/")
-        cell_ids = getattr(group, "barcode_idx").read()
+        barcodes = getattr(group, "barcodes").read()
+        barcode_idx = getattr(group, "barcode_idx").read()
         umi = getattr(group, "umi").read()
         read_cnts = getattr(group, "count").read()
 
-    cell_names = decode_cell_names(cell_ids)
+    cell_ids = np.char.decode(barcodes[barcode_idx])
 
-    return pd.DataFrame(dict(cell_id=cell_names, umi=umi, read_cnt=read_cnts))
+    return pd.DataFrame(dict(cell_id=cell_ids, umi=umi, read_cnt=read_cnts))
 
 
 def cellranger_counts(fname, genome="matrix"):
