@@ -100,13 +100,16 @@ rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
     output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
     run:
-        pd.read_feather(input[0]).to_csv(output[0], index=False)
+        pd.read_feather(input[0]).to_csv(output[0], index=False, sep="\t")
 
 
 rule seurat_normalized_to_tsv:
     input: '../output/seurat3-cluster-wf/combined_n3_normalized.feather'
     output: '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz'
     run:
+        pd.read_feather(input[0]).drop("gene_symbol", axis=1).to_csv(output[0], index=False, sep="\t")
+
+
 rule raw_by_celltype_to_tsv:
     input: '../output/seurat3-cluster-wf/raw_by_cluster_rep.feather'
     output: '../output/science_submission/scRNAseq_raw_counts_by_celltype_rep.tsv.gz'
