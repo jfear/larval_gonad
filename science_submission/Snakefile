@@ -50,7 +50,7 @@ rule all:
         "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
         expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
-        # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
+        "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
 
         # Part 2
@@ -162,19 +162,10 @@ rule plot_barcode_ranks:
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
     input:
-         bulk="../output/bulk-rnaseq-wf/aggregation/tpm_gene_level_counts.parquet",
-         scrnaseq="../output/scrnaseq-wf/tpm_by_rep.parquet"
+         bulk="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+         scrnaseq="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather"
     output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
     script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
-
-
-# rule plot_heatmap_scRNAseq_cluster_corr:
-#     input: "../output/scrnaseq-wf/tpm.parquet"
-#     output: "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg"
-#     params:
-#           annotation=config["short_cluster_annot"],
-#           cluster_colors=config["colors"]["clusters"]
-#     script: "scripts/plot_heatmap_scRNAseq_cluster_corr.py"
 
 
 rule plot_cluster_legend:
