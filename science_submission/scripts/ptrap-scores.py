@@ -60,4 +60,4 @@ FBgn0010473,1,1,1,1,0,0,0,0,1,1
 FBgn0011725,1,1,1,1,0,0,0,0,0,0"""
 
 df = pd.read_csv(StringIO(dat), sep=',')
-df.to_parquet(oname)
+df.to_feather(oname)

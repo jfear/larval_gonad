@@ -51,7 +51,7 @@ rule all:
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
         expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
         "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
-        # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
+        "../output/science_submission/ptrap_scores.feather",
 
         # Part 2
         "../output/science_submission/figures/boxplot-autosome-ratio.svg",
@@ -288,9 +288,9 @@ rule plot_barplot_cell_per_cluster:
     script: "scripts/plot_barplot_cell_per_cluster.py"
 
 
-# rule ptrap_scores:
-#     output: "../output/science_submission/ptrap_scores.parquet"
-#     script: "scripts/ptrap-scores.py"
+rule ptrap_scores:
+    output: "../output/science_submission/ptrap_scores.feather"
+    script: "scripts/ptrap-scores.py"
 
 
 # rule plot_heatmap_ptrap_genes_w_rep:
