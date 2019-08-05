@@ -94,10 +94,6 @@ rule gene_locs:
 # Part 1: Clustering calling, annotation, and "validation"
 ################################################################################
 
-# rule ptrap_scores:
-#     output: "../output/science_submission/ptrap_scores.parquet"
-#     script: "scripts/ptrap-scores.py"
-
 rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
     output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
@@ -151,12 +147,7 @@ rule zscores_by_celltype_to_tsv:
         ).to_csv(output[0], sep="\t")
 
 
-rule plot_cluster_legend:
-    params:
-        cluster_colors=COLORS["clusters"],
-        legend_names = config["legend_names"]
-    output: "../output/science_submission/figures/cluster-legend.svg"
-    script: "scripts/plot_cluster_legend.py"
+# rule plot_barcode_ranks:
 
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
@@ -165,6 +156,23 @@ rule plot_heatmap_bulk_scRNAseq_w_rep:
          scrnaseq="../output/scrnaseq-wf/tpm_by_rep.parquet"
     output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
     script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
+
+
+# rule plot_heatmap_scRNAseq_cluster_corr:
+#     input: "../output/scrnaseq-wf/tpm.parquet"
+#     output: "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg"
+#     params:
+#           annotation=config["short_cluster_annot"],
+#           cluster_colors=config["colors"]["clusters"]
+#     script: "scripts/plot_heatmap_scRNAseq_cluster_corr.py"
+
+
+rule plot_cluster_legend:
+    params:
+        cluster_colors=COLORS["clusters"],
+        legend_names = config["legend_names"]
+    output: "../output/science_submission/figures/cluster-legend.svg"
+    script: "scripts/plot_cluster_legend.py"
 
 
 rule plot_umap:
@@ -202,19 +210,14 @@ rule plot_heatmap_all_lit_genes:
     script: "scripts/plot_heatmap_all_lit_genes.py"
 
 
-rule plot_barplot_cell_per_cluster_number:
-    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
-    output: "../output/science_submission/figures/barplot-cell-per-cluster-number.svg"
-    script: "scripts/plot_barplot_cell_per_cluster_number.py"
-
-
-rule plot_barplot_cell_per_cluster:
-    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
-    output: "../output/science_submission/figures/barplot-cell-per-cluster.svg"
+rule plot_heatmap_lit_gene_evidence:
+    input:
+         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         lit_evidence = '../data/external/lit_genes.tsv'
+    output: "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
     params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"]
-    script: "scripts/plot_barplot_cell_per_cluster.py"
+        cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_lit_evidence.py"
 
 
 rule plot_heatmap_all_genes:
@@ -269,28 +272,31 @@ rule plot_heatmap_multi_biomarkers:
     script: "scripts/plot_heatmap_multi_biomarkers.py"
 
 
-rule plot_heatmap_lit_gene_evidence:
-    input:
-         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         lit_evidence = '../data/external/lit_genes.tsv'
-    output: "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
+rule plot_barplot_cell_per_cluster_number:
+    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
+    output: "../output/science_submission/figures/barplot-cell-per-cluster-number.svg"
+    script: "scripts/plot_barplot_cell_per_cluster_number.py"
+
+
+rule plot_barplot_cell_per_cluster:
+    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
+    output: "../output/science_submission/figures/barplot-cell-per-cluster.svg"
     params:
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_lit_evidence.py"
+        cluster_annot = config["cluster_annot"],
+        cluster_order = config["cluster_order"]
+    script: "scripts/plot_barplot_cell_per_cluster.py"
 
 
-# rule plot_heatmap_scRNAseq_cluster_corr:
-#     input: "../output/scrnaseq-wf/tpm.parquet"
-#     output: "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg"
-#     params:
-#           annotation=config["short_cluster_annot"],
-#           cluster_colors=config["colors"]["clusters"]
-#     script: "scripts/plot_heatmap_scRNAseq_cluster_corr.py"
+# rule ptrap_scores:
+#     output: "../output/science_submission/ptrap_scores.parquet"
+#     script: "scripts/ptrap-scores.py"
+
 
 # rule plot_heatmap_ptrap_genes_w_rep:
 #     input: "../output/scrnaseq-wf/tpm_zscore_w_rep.parquet", rules.ptrap_scores.output[0]
 #     output: "../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg"
 #     script: "scripts/plot_heatmap_ptrap_genes_w_rep.py"
+
 
 # rule plot_heatmap_ptrap_scores:
 #     input: rules.ptrap_scores.output[0]
