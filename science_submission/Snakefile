@@ -31,7 +31,7 @@ rule all:
         "../output/science_submission/gene_locations.feather",
 
         # Part 1
-        '../output/science_submission/raw.tsv.gz',
+        "../output/science_submission/scRNAseq_raw_counts.tsv.gz",
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
@@ -96,7 +96,9 @@ rule gene_locs:
 
 rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
-    output: '../output/science_submission/raw.tsv.gz'
+    output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
+    run:
+        pd.read_feather(input[0]).to_csv(output[0], index=False)
     run:
         pd.read_feather(input[0]).to_csv(output[0], index=False)
 
