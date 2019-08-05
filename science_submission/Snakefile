@@ -34,6 +34,7 @@ rule all:
         "../output/science_submission/scRNAseq_raw_counts.tsv.gz",
         "../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz",
         "../output/science_submission/scRNAseq_raw_counts_by_celltype_rep.tsv.gz",
+        "../output/science_submission/scRNAseq_tpm_counts_by_celltype_rep.tsv.gz",
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
@@ -119,6 +120,19 @@ rule raw_by_celltype_to_tsv:
             index="FBgn",
             columns=["cluster", "rep"],
             values="UMI",
+            aggfunc="first"
+        ).to_csv(output[0], sep="\t")
+
+
+rule tpm_by_celltype_to_tsv:
+    input: '../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather'
+    output: '../output/science_submission/scRNAseq_tpm_counts_by_celltype_rep.tsv.gz'
+    run:
+        pd.pivot_table(
+            pd.read_feather(input[0]),
+            index="FBgn",
+            columns=["cluster", "rep"],
+            values="TPM",
             aggfunc="first"
         ).to_csv(output[0], sep="\t")
 
