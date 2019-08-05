@@ -26,32 +26,39 @@ COLORS = yaml.full_load(open("../config/colors.yaml"))
 
 rule all:
     input:
-        "../output/science_submission/intron_less_genes.pkl",
-        "../output/science_submission/non_coding_genes.pkl",
-        "../output/science_submission/background_fbgns.pkl",
         "../output/science_submission/gene_locations.feather",
+
+        # Part 1
         "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
         "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
         "../output/science_submission/figures/umap.svg",
         "../output/science_submission/figures/plot-umap-panels-1.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
-        "../output/science_submission/figures/boxplot-autosome-ratio.svg",
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg",
-        "../output/science_submission/figures/violin-total-umi.svg",
-        "../output/science_submission/figures/boxplot-y-genes.svg",
-        "../output/science_submission/figures/boxplot-total-umi.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
-        "../output/science_submission/figures/boxplot-polII.svg",
-        "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg",
-        "../output/science_submission/figures/boxplot-intronless_genes.svg",
         # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
+
+        # Part 2
+        "../output/science_submission/figures/boxplot-autosome-ratio.svg",
+        "../output/science_submission/figures/boxplot-y-genes.svg",
+        "../output/science_submission/figures/boxplot-total-umi.svg",
+        # "../output/science_submission/figures/violin-total-umi.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
-        # "../output/science_submission/figures/boxplot-total-umi.svg",
+
+        # Part 3
+        "../output/science_submission/figures/boxplot-polII.svg",
+
+        # Part 4
+        "../output/science_submission/intron_less_genes.pkl",
+        "../output/science_submission/non_coding_genes.pkl",
+        "../output/science_submission/background_fbgns.pkl",
+        "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg",
+        "../output/science_submission/figures/boxplot-intronless_genes.svg",
         # "../output/science_submission/figures/boxplot-expression-diversity.svg",
         # "../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg",
         # "../output/science_submission/figures/barplot_germline_deg.svg",
@@ -69,35 +76,6 @@ rule all:
 ################################################################################
 # Data Sets
 ################################################################################
-rule intron_less_genes:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
-    output: "../output/science_submission/intron_less_genes.pkl"
-    script: "scripts/intron_less_genes.py"
-
-
-rule non_coding_genes:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
-    output: "../output/science_submission/non_coding_genes.pkl"
-    script: "scripts/non_coding_genes.py"
-
-
-rule background:
-    input: "../output/cellselection-wf/raw.feather"
-    output: "../output/science_submission/background_fbgns.pkl"
-    run:
-        import pandas as pd
-        import pickle
-        fbgns = (
-            pd.read_feather(input[0])
-            .set_index("FBgn")
-            .sum(axis=1)
-            .pipe(lambda df: df[df > 0])
-            .index.values
-        )
-        with open(output[0], "wb") as fh:
-            pickle.dump(fbgns, fh)
-
-
 rule gene_locs:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
     params: chrom_order=config["chrom_order"]
@@ -105,13 +83,21 @@ rule gene_locs:
     script: "scripts/gene_locations.py"
 
 
+################################################################################
+# Part 1: Clustering calling, annotation, and "validation"
+################################################################################
+
 # rule ptrap_scores:
 #     output: "../output/science_submission/ptrap_scores.parquet"
 #     script: "scripts/ptrap-scores.py"
 
-################################################################################
-# Fig 1: Clustering calling, annotation, and "validation"
-################################################################################
+rule raw_to_tsv:
+    input: '../output/cellselection-wf/raw.feather'
+    output: '../output/science_submission/raw.tsv'
+    run:
+        pd.read_feather(input[0]).to_csv(output[0], index=False)
+
+
 rule plot_cluster_legend:
     params:
         cluster_colors=COLORS["clusters"],
@@ -259,7 +245,7 @@ rule plot_heatmap_lit_gene_evidence:
 #     script: "scripts/plot_heatmap_ptrap_scores.py"
 
 ################################################################################
-# Fig 2: Sex bias expression and MSCI
+# Part 2: Sex bias expression and MSCI
 ################################################################################
 
 rule plot_boxplot_autosome_ratio:
@@ -297,25 +283,6 @@ rule plot_boxplot_total_umi:
     params:
         cluster_colors = COLORS["clusters"]
     script: "scripts/plot_boxplot_total_umi.py"
-
-
-rule plot_heatmap_intronless_genes:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         intronless=rules.intron_less_genes.output[0]
-    output: "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg"
-    params: cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_intronless_genes.py"
-
-
-rule plot_boxplot_intronless_genes:
-    input: 
-        gonia_vs_cytes = '../output/seurat3-cluster-wf/combined_n3_gonia_vs_cytes.feather',
-        background=rules.background.output[0],
-        intronless=rules.intron_less_genes.output[0]
-    output: "../output/science_submission/figures/boxplot-intronless_genes.svg"
-    script: "scripts/plot_boxplot_intronless_genes.py"
-
 
 
 # rule plot_boxplot_expression_diversity:
@@ -396,8 +363,12 @@ rule plot_boxplot_intronless_genes:
 #     script: "scripts/plot_heatmap_msl_genes.py"
 
 ################################################################################
-# Fig 3: Chromosome territories and Pol II expression
+# Part 3: Chromosome territories and Pol II expression
 ################################################################################
+
+# rule paints_pixel:
+
+# rule pol2_pixel:
 
 rule plot_boxplot_polII:
     input: '../data/external/galletta/phos_over_tot_data_late_SC_only_061819.xlsx'
@@ -405,9 +376,56 @@ rule plot_boxplot_polII:
     script: "scripts/plot_boxplot_polII.py"
 
 ################################################################################
-# Fig 4: NeoX expression
+# Part 4: Gene Movement
 ################################################################################
-# # (A) DEG among germline
+
+rule non_coding_genes:
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
+    output: "../output/science_submission/non_coding_genes.pkl"
+    script: "scripts/non_coding_genes.py"
+
+
+rule background:
+    input: "../output/cellselection-wf/raw.feather"
+    output: "../output/science_submission/background_fbgns.pkl"
+    run:
+        import pandas as pd
+        import pickle
+        fbgns = (
+            pd.read_feather(input[0])
+            .set_index("FBgn")
+            .sum(axis=1)
+            .pipe(lambda df: df[df > 0])
+            .index.values
+        )
+        with open(output[0], "wb") as fh:
+            pickle.dump(fbgns, fh)
+
+
+rule intron_less_genes:
+    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
+    output: "../output/science_submission/intron_less_genes.pkl"
+    script: "scripts/intron_less_genes.py"
+
+
+rule plot_heatmap_intronless_genes:
+    input:
+         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+         intronless=rules.intron_less_genes.output[0]
+    output: "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg"
+    params: cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_intronless_genes.py"
+
+
+rule plot_boxplot_intronless_genes:
+    input: 
+        gonia_vs_cytes = '../output/seurat3-cluster-wf/combined_n3_gonia_vs_cytes.feather',
+        background=rules.background.output[0],
+        intronless=rules.intron_less_genes.output[0]
+    output: "../output/science_submission/figures/boxplot-intronless_genes.svg"
+    script: "scripts/plot_boxplot_intronless_genes.py"
+
+
 # rule plot_tsne_comparison:
 #     input:
 #          clusters=rules.clusters.output[0],
@@ -430,7 +448,6 @@ rule plot_boxplot_polII:
 #     output: "../output/science_submission/figures/barplot_germline_deg.svg"
 #     script: "scripts/plot_barplot_germline_deg.py"
 
-# # (B) GO analysis SP vs M1°
 # rule plot_bubble_germline_deg_GO_BP:
 #     input:
 #          deg="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
@@ -438,7 +455,6 @@ rule plot_boxplot_polII:
 #     output: "../output/science_submission/figures/bubble_germline_deg_GO_BP.svg"
 #     script: "scripts/plot_bubble_germline_deg_GO_BP.py"
 
-# # (E) X depleted male-biased expression
 # rule plot_barplot_bulk_demasculinization:
 #     input:
 #          deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv",
@@ -462,7 +478,6 @@ rule plot_boxplot_polII:
 #     output: "../output/science_submission/figures/barplot_m1_demasculinization.svg"
 #     script: "scripts/plot_barplot_m1_demasculinization.py"
 
-# # Supplemental Figures
 # rule plot_bubble_germline_deg_GO_MF:
 #     input:
 #          deg="../output/scrnaseq-wf/germcell_deg/gonia_vs_mid.tsv",
@@ -484,8 +499,15 @@ rule plot_boxplot_polII:
 #     script: "scripts/plot_scatter_bulk_deg.py"
 
 ################################################################################
-# Tables
+# Aggregated Metadata Tables
 ################################################################################
+
+# rule sample_metadata:
+
+# rule cell_metadata:
+
+# rule gene_metadata:
+
 
 # rule differential_expression_tables:
 #     input:
