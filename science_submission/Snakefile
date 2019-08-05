@@ -294,12 +294,6 @@ rule ptrap_scores:
     script: "scripts/ptrap-scores.py"
 
 
-# rule plot_heatmap_ptrap_genes_w_rep:
-#     input: "../output/scrnaseq-wf/tpm_zscore_w_rep.parquet", rules.ptrap_scores.output[0]
-#     output: "../output/science_submission/figures/heatmap-ptrap-genes-w-rep.svg"
-#     script: "scripts/plot_heatmap_ptrap_genes_w_rep.py"
-
-
 rule plot_heatmap_ptrap_scores:
     input: 
         ptrap = rules.ptrap_scores.output[0],
