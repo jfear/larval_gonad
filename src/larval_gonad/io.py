@@ -7,8 +7,6 @@ import re
 import scipy.sparse as sp_sparse
 import tables
 
-from .config import memory
-
 NUCS = ["A", "C", "G", "T"]
 NUCS_INVERSE = {"A": 0, "C": 1, "G": 2, "T": 3}
 
@@ -93,21 +91,19 @@ def decode_cell_names(iterable):
     return [mapper[x] for x in iterable]
 
 
-@memory.cache
 def cellranger_umi(fname):
     with tables.open_file(fname, "r") as f:
         group = f.get_node("/")
-        cell_ids = getattr(group, "barcode").read()
+        cell_ids = getattr(group, "barcode_idx").read()
         umi = getattr(group, "umi").read()
-        read_cnts = getattr(group, "reads").read()
+        read_cnts = getattr(group, "count").read()
 
     cell_names = decode_cell_names(cell_ids)
 
     return pd.DataFrame(dict(cell_id=cell_names, umi=umi, read_cnt=read_cnts))
 
 
-@memory.cache
-def cellranger_counts(fname, genome="dm6.16"):
+def cellranger_counts(fname, genome="matrix"):
     """Import cell ranger counts.
 
     Cell ranger stores it counts tables in a hdf5 formatted file. This reads
@@ -133,7 +129,7 @@ def cellranger_counts(fname, genome="dm6.16"):
         except tables.NoSuchNodeError:
             print("That genome does not exist in this file.")
             return None
-        gene_ids = getattr(group, "genes").read()
+        gene_ids = getattr(group, "features").read()
         barcodes = getattr(group, "barcodes").read()
         data = getattr(group, "data").read()
         indices = getattr(group, "indices").read()
