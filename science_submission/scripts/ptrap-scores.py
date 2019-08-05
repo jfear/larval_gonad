@@ -13,7 +13,7 @@ import pandas as pd
 oname = snakemake.output[0]
 
 # This data is from a spreadsheet that Miriam gave me. I had to add on FBgns
-dat = """FBgn,SP,E1°,M1°,L1°,C,EC,MC,LC,PC,TE
+dat = """FBgn,SP,EPS,MPS,LPS,C,ECY,MCY,LCY,PC,TE
 FBgn0026573,1,2,3,3,1,0,0,0,0,1
 FBgn0012037,1,2,2,2,1,2,2,2,1,1
 FBgn0011206,1,1,2,3,0,0,0,0,0,0
