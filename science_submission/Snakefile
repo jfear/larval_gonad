@@ -25,6 +25,8 @@ del LIT_GENES["hub"]
 
 COLORS = yaml.full_load(open("../config/colors.yaml"))
 
+wildcard_constraints: 
+    sample="testis\d"
 
 rule all:
     input:
@@ -47,6 +49,7 @@ rule all:
         "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
+        expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
         # "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         # "../output/science_submission/figures/heatmap-scRNAseq-cluster-corr.svg",
 
@@ -147,7 +150,14 @@ rule zscores_by_celltype_to_tsv:
         ).to_csv(output[0], sep="\t")
 
 
-# rule plot_barcode_ranks:
+rule plot_barcode_ranks:
+    input: 
+        cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
+        doublets = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
+        umi = '../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
+    output: '../output/science_submission/figures/barcode_rank_plot_{sample}.svg'
+    script: 'scripts/plot_barcode_rank.py'
+
 
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
