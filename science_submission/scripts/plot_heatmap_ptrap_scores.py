@@ -1,60 +1,84 @@
-"""Plot heatmap of protein trap genes.
+import matplotlib
 
-Plots a heatmap of protein trap scores. Protein traps were selected based on
-their presence in the biomarkers identified by Seurat. Protein traps were
-imaged and scored by multiple people and were summarized by Miriam into a score
-ranging from 0-10. There were no 10s so I scaled down to 0-8.
-"""
+matplotlib.use("Agg")
 
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, dendrogram
-import matplotlib as mpl
-mpl.use('Agg')
-from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from larval_gonad.config import config
-from larval_gonad.plotting import add_color_labels, flip_ticks
-from common import fbgn2symbol
+PTRAP_FILE = snakemake.input["ptrap"]
+GENE_ANNOTATION = snakemake.input["gene_annot"]
+OUTPUT_FILE = snakemake.output[0]
 
-mpl.style.use('scripts/paper_1c.mplstyle')
+# Debug Settings
+# import os
+# try:
+#     os.chdir(os.path.join(os.getcwd(), 'science_submission/scripts'))
+#     print(os.getcwd())
+# except:
+#     pass
+# PTRAP_FILE = '../../output/science_submission/ptrap_scores.feather'
+# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
 
 
-def plot_heatmap_ptrap_scores(axMain, axLabel=None, label_size=5, **kwargs):
-    ptrap_scores = pd.read_parquet('../output/science_submission/ptrap_scores.parquet')
-    ptrap_scores.index = ptrap_scores.index.droplevel(0)
+def main():
+    fbgn2symbol = (
+        pd.read_feather(GENE_ANNOTATION, columns=["FBgn", "gene_symbol"])
+        .set_index("FBgn")
+        .squeeze()
+    )
 
-    # calculate linkages
-    link = linkage(ptrap_scores.values, 'average')
+    df = pd.read_feather(PTRAP_FILE).groupby("FBgn").max().rename(fbgn2symbol)
+
+    # Cluster
+    link = linkage(df.values, "average")
     tree = dendrogram(link, no_plot=True)
-    leaves = tree['leaves']
+    leaves = tree["leaves"]
+    df_sorted = df.iloc[leaves, :]
 
     # plot
-    defaults = dict(yticklabels=True, xticklabels=False, vmin=0, vmax=8, rasterized=False, cmap='inferno',
-                    cbar_kws=dict(label='Arbitrary Score'))
+    plt.style.use("scripts/figure_styles.mplstyle")
+    fig = plt.figure(figsize=(4, 8))
+    gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
+    ax = fig.add_subplot(gs[0, 0])
+    cax = fig.add_subplot(gs[1, 0])
+    sns.heatmap(
+        df_sorted,
+        xticklabels=True,
+        yticklabels=True,
+        vmin=0,
+        vmax=3,
+        rasterized=True,
+        cmap="inferno",
+        ax=ax,
+        cbar_ax=cax,
+        cbar_kws=dict(
+            label="Protein Expression (Arbitrary Score)",
+            ticks=[0, 1, 2, 3],
+            orientation="horizontal",
+        ),
+        linewidths=.5,
+    )
 
-    defaults.update(kwargs)
+    # Clean up X axis
+    ax.set_xlabel("")
+    ax.xaxis.set_ticks_position("top")
+    ax.xaxis.set_tick_params(pad=0, length=2)
 
-    sns.heatmap(ptrap_scores.iloc[leaves], ax=axMain, **defaults)
+    # Clean up Y axis
+    ax.set_ylabel("")
+    ax.yaxis.set_tick_params(pad=0.1, length=2)
+    plt.setp(
+        ax.get_yticklabels(), fontstyle="italic", fontfamily="Helvetica", rotation=0, va="center"
+    )
 
-    if axLabel is not None:
-        add_color_labels(axLabel, s=label_size)
+    # Clean up color bar
+    cax.xaxis.set_tick_params(pad=0, length=2)
 
-    axMain.set_ylabel('')
+    fig.savefig(OUTPUT_FILE, bbox_inches="tight")
 
 
-if __name__ == '__main__':
-    fig = plt.figure(figsize=(8, 8))
-    gs = GridSpec(1, 2, width_ratios=[0.1, 1], hspace=0, wspace=0.2)
-    axMain = fig.add_subplot(gs[0, 1])
-    axCbar = fig.add_subplot(gs[0, 0])
-    plot_heatmap_ptrap_scores(axMain, label_size=10, cbar_ax=axCbar, xticklabels=True)
-
-    flip_ticks(axCbar)
-    flip_ticks(axMain, pos='right')
-    plt.setp(axMain.get_yticklabels(), rotation=0)
-
-    fig.suptitle('Protein Trap Scores')
-
-    fig.savefig(snakemake.output[0], bbox_inches='tight')
+if __name__ == "__main__":
+    main()
