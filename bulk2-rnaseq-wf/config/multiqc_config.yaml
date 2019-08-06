@@ -13,6 +13,8 @@ extra_fn_clean_exts:
   - '.fastq'
   - '.salmon'
   - '_R1'
+  - '_R2'
+  - '_bam_stat'
 
 
 # Modify the module search patterns to match what we're creating in the
@@ -22,12 +24,6 @@ extra_fn_clean_exts:
 sp:
   fastq_screen:
     fn: '*.screen.txt'
-  picard/rnaseqmetrics:
-    contents_re: '.*picard\.analysis\.[Rr]na[Ss]eq[Mm]etrics.*'
-    shared: true
-  picard/markdups:
-    contents_re: '.*picard\.sam\.[Dd]uplication[Mm]etrics.*'
-    shared: true
 
 
 # Ignore the rRNA files, which were just cluttering the tables. We're
@@ -71,7 +67,19 @@ module_order:
     - picard
     - rseqc
     - salmon
-    - featureCounts
+    - featureCounts:
+        name: 'featureCounts (unstranded)'
+        path_filters:
+            - '*.cutadapt.bam.featurecounts.s0.txt.summary'
+    - featureCounts:
+        name: 'featureCounts (sense)'
+        path_filters:
+            - '*.cutadapt.bam.featurecounts.s1.txt.summary'
+    - featureCounts:
+        name: 'featureCounts (antisense)'
+        path_filters:
+            - '*.cutadapt.bam.featurecounts.s2.txt.summary'
+
 
 # This organizes the FastQC general sample table columns so that the different
 # stages are right next to each other, making it easier to compare the effects
@@ -91,3 +99,12 @@ table_columns_placement:
     total_sequences: 22
     percent_duplicates: 32
     percent_gc: 42
+  featureCounts (unstranded):
+    percent_assigned: 100
+    Assigned: 106
+  featureCounts (sense):
+    percent_assigned: 101
+    Assigned: 107
+  featureCounts (antisense):
+    percent_assigned: 102
+    Assigned: 108
