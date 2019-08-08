@@ -18,19 +18,20 @@ sink(LOG, type="message")
 OUT_DIR <- normalizePath(dirname(OUTPUT_FILE))
 
 # Debug Settings
-# PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
-# CONFIG_DIR <- file.path(PROJ_DIR, "expression-atlas-wf/config")
-# DATA_DIR <- file.path(PROJ_DIR, "output/expression-atlas-wf")
-# REF_DIR <- file.path(PROJ_DIR, "references")
-# SAMPLE_TABLE <- file.path(CONFIG_DIR, "sampletable.tsv")
-# COUNTS_TABLE <- file.path(DATA_DIR, "rnaseq_aggregation/gene_level_counts.tsv")
-# GENE_ANNOTATION <- file.path(REF_DIR, "gene_annotation_dmel_r6-24.feather")
+# SAMPLE_TABLE <- "../config/sampletable.tsv"
+# COUNTS_TABLE <- "../../output/expression-atlas-wf/raw_counts.feather"
+# GENE_ANNOTATION <- "../../references/gene_annotation_dmel_r6-24.feather"
 
 # Load metadata
 sampletable <- read.csv(SAMPLE_TABLE, stringsAsFactors = FALSE, sep = "\t") %>%
-  filter(tissue = "gonad") %>%
+  filter(tissue == "gonad") %>%
+  filter(species == "Drosophila melanogaster") %>%
+  mutate(sn = samplename) %>%
+  tidyr::separate(sn, "species_abbrev", extra = "drop") %>%
+  mutate(sex = as.factor(sex)) %>%
+  mutate(species_abbrev = as.factor(species_abbrev)) %>%
   column_to_rownames("samplename")
-sampletable$sex <- as.factor(sampletable$sex)
+
 
 fbgn2symbol <- feather::read_feather(
   GENE_ANNOTATION,
@@ -45,7 +46,7 @@ raw_counts <- feather::read_feather(COUNTS_TABLE, columns = c("FBgn", row.names(
 
 
 # Explority Analysis
-dds <- DESeqDataSetFromMatrix(raw_counts[, row.names(sampletable)], colData = sampletable, design = ~sex)
+dds <- DESeqDataSetFromMatrix(raw_counts[, row.names(sampletable)], colData = sampletable, design = ~ sex*species_abbrev)
 dds <- estimateSizeFactors(dds)
 vsd <- vst(dds, blind = TRUE)
 print(sizeFactors(dds))
@@ -62,6 +63,7 @@ p <- pheatmap::pheatmap(sampleDistMatrix,
   clustering_distance_cols = sampleDists,
   col = colors
 )
+
 svg(file.path(OUT_DIR, "gonad_similarity.svg"), width=8, height=8)
 grid::grid.newpage()
 grid::grid.draw(p$gtable)
@@ -75,12 +77,21 @@ plotPCA(vsd, intgroup = "group") +
 ggsave(file.path(OUT_DIR, "gonad_pca.svg"), width=8, height=8)
 
 # Differential expression analysis
-dds <- DESeq(dds, betaPrior = FALSE, fitType = "local")
-res <- results(dds, contrast = c("group", "TCP", "OCP"), alpha = 0.01)
-head(res)
-summary(res)
+dds <- DESeq(dds, betaPrior = FALSE, fitType = "parametric")
 
-res.lfc <- lfcShrink(dds, contrast = c("group", "TCP", "OCP"), res = res, type = "normal")
+res_sex <- results(dds, contrast = c("sex", "male", "female"), alpha = 0.01)
+head(res_sex)
+summary(res_sex)
+
+res_species <- results(dds, contrast = c("species_abbrev", "w1118", "orgR"), alpha = 0.01)
+head(res_species)
+summary(res_species)
+
+res_interact <- results(dds, name = "sexmale.species_abbrevw1118", alpha = 0.01)
+head(res_interact)
+summary(res_interact)
+
+res.lfc <- lfcShrink(dds, contrast = c("sex", "male", "female"), res = res, type = "normal")
 head(res.lfc)
 summary(res.lfc)
 
