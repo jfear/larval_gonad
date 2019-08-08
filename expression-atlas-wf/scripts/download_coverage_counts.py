@@ -5,13 +5,13 @@ from tempfile import TemporaryDirectory
 
 URL = snakemake.params[0]
 OUTPUT_FILE = snakemake.output[0]
-TITLE = snakemake.wildcards["title"]
+SAMPLENAME = snakemake.wildcards["samplename"]
 
 
 def main():
     tmpdir = TemporaryDirectory()
-    gz = Path(tmpdir.name, f"{TITLE}.txt.gz")
-    counts = Path(tmpdir.name, f"{TITLE}.txt")
+    gz = Path(tmpdir.name, f"{SAMPLENAME}.txt.gz")
+    counts = Path(tmpdir.name, f"{SAMPLENAME}.txt")
 
     run(["curl", "-o", gz, URL])
     run(["gunzip", gz])

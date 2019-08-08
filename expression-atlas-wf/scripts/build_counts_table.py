@@ -9,24 +9,24 @@ OUTPUT_FILE = snakemake.output[0]
 
 # Debug settings
 # import os
-# os.chdir('neox-wf/scripts')
+# os.chdir('expression-atlas-wf/scripts')
 # COUNT_FILES = [
-#     '../../output/neox-wf/raw_counts/dana_AC_f_r1.tsv',
-#     '../../output/neox-wf/raw_counts/dana_AC_f_r2.tsv',
-#     '../../output/neox-wf/raw_counts/dana_AC_f_r3.tsv',
-#     '../../output/neox-wf/raw_counts/dper_AC_f_r1.tsv',
-#     '../../output/neox-wf/raw_counts/dper_AC_f_r2.tsv',
-#     '../../output/neox-wf/raw_counts/dper_AC_f_r3.tsv'
+#     '../../output/expression-atlas-wf/raw_counts/dana_AC_f_r1.tsv',
+#     '../../output/expression-atlas-wf/raw_counts/dana_AC_f_r2.tsv',
+#     '../../output/expression-atlas-wf/raw_counts/dana_AC_f_r3.tsv',
+#     '../../output/expression-atlas-wf/raw_counts/dper_AC_f_r1.tsv',
+#     '../../output/expression-atlas-wf/raw_counts/dper_AC_f_r2.tsv',
+#     '../../output/expression-atlas-wf/raw_counts/dper_AC_f_r3.tsv'
 # ]
 # ORTHROLOG_FILES = [
-#     '../../output/neox-wf/orthologs/dana.tsv',
-#     '../../output/neox-wf/orthologs/dmel.tsv',
-#     '../../output/neox-wf/orthologs/dmoj.tsv',
-#     '../../output/neox-wf/orthologs/dper.tsv',
-#     '../../output/neox-wf/orthologs/dpse.tsv',
-#     '../../output/neox-wf/orthologs/dvir.tsv',
-#     '../../output/neox-wf/orthologs/dwil.tsv',
-#     '../../output/neox-wf/orthologs/dyak.tsv'
+#     '../../output/expression-atlas-wf/orthologs/dana.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dmel.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dmoj.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dper.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dpse.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dvir.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dwil.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dyak.tsv'
 # ]
 
 

@@ -1,13 +1,10 @@
 import pandas as pd
 
-from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
-FTP = FTPRemoteProvider()
-
 from larval_gonad.config import read_config
 
 common_config = read_config('../config/common.yaml')
-sample_table = pd.read_csv('config/sampletable.tsv', sep='\t')
-sample_attrs = sample_table.title.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
+sample_table = pd.read_csv('../expression-atlas-wf/config/sampletable.tsv', sep='\t')
+sample_attrs = sample_table.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
 SPECIES = sample_attrs.species.unique().tolist()
 TISSUE = sample_attrs.tissue.unique().tolist()
 
@@ -18,23 +15,10 @@ rule all:
         '../output/neox-wf/sturgill_2007_mullerD.feather',
         '../output/neox-wf/sturgill_2007_mullerE.feather',
         expand(
-            '../output/neox-wf/GTF/{species}.gtf', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        ),
-        '../output/neox-wf/raw_counts.feather',
-        '../output/neox-wf/ortholog_annotation.feather',
-        '../output/neox-wf/muller_arm_assignment.feather',
-        expand(
             '../output/neox-wf/{species}_muller_{suffix}.feather', 
             species=['dpse', 'dwil'],
             suffix=['A', 'D', 'E']
         )
-       # '../output/neox-wf/muller_arm_movement_classes.feather',
 
 
 rule download_strugill:
@@ -52,106 +36,8 @@ rule sturgill_data_prep:
     script: 'scripts/parse_sturgill.py'
 
 
-rule download_annotation:
-    params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
-    output: '../output/neox-wf/GTF/{species}.gtf'
-    script: 'scripts/download_annotation.py'
-
-
-rule download_orthologs:
-    params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.ortholog.txt.tar.gz'
-    output: '../output/neox-wf/orthologs/{species}.tsv'
-    script: 'scripts/download_ortholog.py'
-
-
-def _download_coverage_counts(wildcards):
-    title = wildcards.title
-    gsm = sample_table.loc[sample_table.title == title, 'gsm'].values[0]
-    short = gsm[:7]
-    return f'ftp://ftp.ncbi.nlm.nih.gov/geo/samples/{short}nnn/{gsm}/suppl/{gsm}_{title}.htseq_reverse.HiSAT2.YO.txt.gz'
-
-
-rule download_coverage_counts:
-    params: _download_coverage_counts
-    output: '../output/neox-wf/raw_counts/{title}.tsv'
-    script: 'scripts/download_coverage_counts.py'
-
-
-rule coverage_table:
-    input: 
-        counts = expand(
-            '../output/neox-wf/raw_counts/{title}.tsv', 
-            title = sample_table.title.tolist(),
-        ),
-        orthologs = expand(
-            '../output/neox-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        )
-    output: '../output/neox-wf/raw_counts.feather'
-    script: 'scripts/build_counts_table.py'
-
-
-rule location_table:
-    input: 
-        orthologs = expand(
-            '../output/neox-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        ),
-        gtf = expand(
-            '../output/neox-wf/GTF/{species}.gtf', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        )
-    output: '../output/neox-wf/ortholog_annotation.feather'
-    script: 'scripts/ortholog_annotation.py'
-
-
-rule fb_location_table:
-    params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
-    output: '../output/neox-wf/FB_ortholog_annotation.feather'
-    script: 'scripts/fb_ortholog_annotation.py'
-
-
-def _muller_arm_assignment(wildcards):
-    prefix = wildcards.prefix
-    return {
-        'YO': rules.location_table.output[0],
-        'FB': rules.fb_location_table.output[0],
-    }[prefix]
-
-
-rule muller_arm_assignment:
-    input: 
-        gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
-        orthologs = _muller_arm_assignment,
-        primary2secondary = '../references/primary2secondary_dmel_r6-24.pkl'
-    output: '../output/neox-wf/{prefix}_muller_arm_assignment.feather'
-    script: 'scripts/muller_arm_assignment.py'
-
-rule combine_YO_FB:
-    input: 
-        yo = '../output/neox-wf/YO_muller_arm_assignment.feather',
-        fb = '../output/neox-wf/FB_muller_arm_assignment.feather',
-    output: '../output/neox-wf/muller_arm_assignment.feather'
-    script: 'scripts/combine_muller_arm_assignments.py'
-
-
 rule muller_arm_movement_classes:
-    input: rules.combine_YO_FB.output[0]
+    input: '../output/expression-atlas-wf/muller_arm_assignment.feather'
     output: 
         muller_a = '../output/neox-wf/{species}_muller_A.feather',
         muller_d = '../output/neox-wf/{species}_muller_D.feather',

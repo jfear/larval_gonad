@@ -26,7 +26,7 @@ TARGET_SPECIES = snakemake.wildcards["species"]
 #     print(os.getcwd())
 # except:
 #     pass
-# INPUT_FILE = "../../output/neox-wf/muller_arm_assignment.feather"
+# INPUT_FILE = "../../output/expression-atlas-wf/muller_arm_assignment.feather"
 # TARGET_SPECIES = "dpse"
 
 

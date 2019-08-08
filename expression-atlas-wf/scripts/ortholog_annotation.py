@@ -10,26 +10,26 @@ OUTPUT_FILE = snakemake.output[0]
 
 # Debug settings
 # import os
-# os.chdir('neox-wf/scripts')
+# os.chdir('expression-atlas-wf/scripts')
 # ORTHROLOG_FILES = [
-#     '../../output/neox-wf/orthologs/dana.tsv',
-#     '../../output/neox-wf/orthologs/dmel.tsv',
-#     '../../output/neox-wf/orthologs/dmoj.tsv',
-#     '../../output/neox-wf/orthologs/dper.tsv',
-#     '../../output/neox-wf/orthologs/dpse.tsv',
-#     '../../output/neox-wf/orthologs/dvir.tsv',
-#     '../../output/neox-wf/orthologs/dwil.tsv',
-#     '../../output/neox-wf/orthologs/dyak.tsv'
+#     '../../output/expression-atlas-wf/orthologs/dana.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dmel.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dmoj.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dper.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dpse.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dvir.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dwil.tsv',
+#     '../../output/expression-atlas-wf/orthologs/dyak.tsv'
 # ]
 # GTF_FILES = [
-#     '../../output/neox-wf/GTF/dana.gtf',
-#     '../../output/neox-wf/GTF/dmel.gtf',
-#     '../../output/neox-wf/GTF/dmoj.gtf',
-#     '../../output/neox-wf/GTF/dper.gtf',
-#     '../../output/neox-wf/GTF/dpse.gtf',
-#     '../../output/neox-wf/GTF/dvir.gtf',
-#     '../../output/neox-wf/GTF/dwil.gtf',
-#     '../../output/neox-wf/GTF/dyak.gtf'
+#     '../../output/expression-atlas-wf/GTF/dana.gtf',
+#     '../../output/expression-atlas-wf/GTF/dmel.gtf',
+#     '../../output/expression-atlas-wf/GTF/dmoj.gtf',
+#     '../../output/expression-atlas-wf/GTF/dper.gtf',
+#     '../../output/expression-atlas-wf/GTF/dpse.gtf',
+#     '../../output/expression-atlas-wf/GTF/dvir.gtf',
+#     '../../output/expression-atlas-wf/GTF/dwil.gtf',
+#     '../../output/expression-atlas-wf/GTF/dyak.gtf'
 # ]
 
 
