@@ -1,0 +1,521 @@
+samplename	GSM	BioSample	SRX	species	FBsp	dev_stage	tissue	sex	rep	plate	row	col
+dana_AC_f_r1	GSM2646960	SAMN07188058	SRX2877669	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	female	1	2	E	9
+dana_AC_f_r2	GSM2646961	SAMN07188057	SRX2877670	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	female	2	2	E	10
+dana_AC_f_r3	GSM2646962	SAMN07188325	SRX2877671	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	female	3	2	E	12
+dana_AC_m_r1	GSM2646963	SAMN07188324	SRX2877672	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	male	1	1	E	9
+dana_AC_m_r2	GSM2646964	SAMN07188323	SRX2877673	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	male	2	1	E	10
+dana_AC_m_r3	GSM2646965	SAMN07188322	SRX2877674	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	male	3	1	E	12
+dana_DG_f_r1	GSM2646966	SAMN07188321	SRX2877675	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	female	1	2	H	9
+dana_DG_f_r2	GSM2646967	SAMN07188320	SRX2877676	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	female	2	2	H	11
+dana_DG_f_r3	GSM2646968	SAMN07188319	SRX2877677	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	female	3	2	H	12
+dana_DG_m_r1	GSM2646969	SAMN07188318	SRX2877678	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	male	1	1	H	9
+dana_DG_m_r2	GSM2646970	SAMN07188317	SRX2877679	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	male	2	1	H	11
+dana_DG_m_r3	GSM2646971	SAMN07188311	SRX2877680	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	male	3	1	H	12
+dana_GO_f_r1	GSM2646972	SAMN07188310	SRX2877681	Drosophila ananassae	FBsp00000052	adult	gonad	female	1	2	F	9
+dana_GO_f_r2	GSM2646973	SAMN07188316	SRX2877682	Drosophila ananassae	FBsp00000052	adult	gonad	female	2	2	F	11
+dana_GO_f_r3	GSM2646974	SAMN07188315	SRX2877683	Drosophila ananassae	FBsp00000052	adult	gonad	female	3	2	F	12
+dana_GO_m_r1	GSM2646975	SAMN07188314	SRX2877684	Drosophila ananassae	FBsp00000052	adult	gonad	male	1	1	F	9
+dana_GO_m_r2	GSM2646976	SAMN07188313	SRX2877685	Drosophila ananassae	FBsp00000052	adult	gonad	male	2	1	F	10
+dana_GO_m_r3	GSM2646977	SAMN07188312	SRX2877686	Drosophila ananassae	FBsp00000052	adult	gonad	male	3	1	F	12
+dana_HD_f_r1	GSM2646978	SAMN07188309	SRX2877687	Drosophila ananassae	FBsp00000052	adult	head	female	1	2	B	9
+dana_HD_f_r2	GSM2646979	SAMN07188308	SRX2877688	Drosophila ananassae	FBsp00000052	adult	head	female	2	2	B	10
+dana_HD_f_r3	GSM2646980	SAMN07188307	SRX2877689	Drosophila ananassae	FBsp00000052	adult	head	female	3	2	B	12
+dana_HD_m_r1	GSM2646981	SAMN07188306	SRX2877690	Drosophila ananassae	FBsp00000052	adult	head	male	1	1	B	9
+dana_HD_m_r2	GSM2646982	SAMN07188305	SRX2877691	Drosophila ananassae	FBsp00000052	adult	head	male	2	1	B	10
+dana_HD_m_r3	GSM2646983	SAMN07188304	SRX2877692	Drosophila ananassae	FBsp00000052	adult	head	male	3	1	B	12
+dana_RE_f_r1	GSM2646984	SAMN07188303	SRX2877693	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	female	1	2	G	9
+dana_RE_f_r2	GSM2646985	SAMN07188302	SRX2877694	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	female	2	2	G	11
+dana_RE_f_r3	GSM2646986	SAMN07188301	SRX2877695	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	female	3	2	G	12
+dana_RE_m_r1	GSM2646987	SAMN07188300	SRX2877696	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	male	1	1	G	10
+dana_RE_m_r2	GSM2646988	SAMN07188299	SRX2877697	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	male	2	1	G	11
+dana_RE_m_r3	GSM2646989	SAMN07188298	SRX2877698	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	male	3	1	G	12
+dana_TX_f_r1	GSM2646990	SAMN07188297	SRX2877699	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	female	1	2	D	9
+dana_TX_f_r2	GSM2646991	SAMN07188296	SRX2877700	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	female	2	2	D	10
+dana_TX_f_r3	GSM2646992	SAMN07187898	SRX2877701	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	female	3	2	D	11
+dana_TX_m_r1	GSM2646993	SAMN07187897	SRX2877702	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	male	1	1	D	9
+dana_TX_m_r2	GSM2646994	SAMN07187896	SRX2877703	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	male	2	1	D	11
+dana_TX_m_r3	GSM2646995	SAMN07187895	SRX2877704	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	male	3	1	D	12
+dana_WB_f_r1	GSM2646996	SAMN07187894	SRX2877705	Drosophila ananassae	FBsp00000052	adult	whole body	female	1	2	A	9
+dana_WB_f_r2	GSM2646997	SAMN07187893	SRX2877706	Drosophila ananassae	FBsp00000052	adult	whole body	female	2	2	A	10
+dana_WB_f_r3	GSM2646998	SAMN07187892	SRX2877707	Drosophila ananassae	FBsp00000052	adult	whole body	female	3	2	A	12
+dana_WB_m_r1	GSM2646999	SAMN07187891	SRX2877708	Drosophila ananassae	FBsp00000052	adult	whole body	male	1	1	A	9
+dana_WB_m_r2	GSM2647000	SAMN07187890	SRX2877709	Drosophila ananassae	FBsp00000052	adult	whole body	male	2	1	A	10
+dana_WB_m_r3	GSM2647001	SAMN07187966	SRX2877710	Drosophila ananassae	FBsp00000052	adult	whole body	male	3	1	A	11
+dmoj_AC_f_r1	GSM2647002	SAMN07187965	SRX2877711	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	female	1	2	D	5
+dmoj_AC_f_r2	GSM2647003	SAMN07187964	SRX2877712	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	female	2	2	D	7
+dmoj_AC_f_r3	GSM2647004	SAMN07187963	SRX2877713	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	female	3	2	D	8
+dmoj_AC_m_r1	GSM2647005	SAMN07187962	SRX2877714	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	male	1	2	D	1
+dmoj_AC_m_r2	GSM2647006	SAMN07187961	SRX2877715	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	male	2	2	D	3
+dmoj_AC_m_r3	GSM2647007	SAMN07187960	SRX2877716	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	male	3	2	D	4
+dmoj_DG_f_r1	GSM2647008	SAMN07187959	SRX2877717	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	female	1	2	H	5
+dmoj_DG_f_r2	GSM2647009	SAMN07187958	SRX2877718	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	female	2	2	H	6
+dmoj_DG_f_r3	GSM2647010	SAMN07187957	SRX2877719	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	female	3	2	H	8
+dmoj_DG_m_r1	GSM2647011	SAMN07187956	SRX2877720	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	male	1	2	H	2
+dmoj_DG_m_r2	GSM2647012	SAMN07187955	SRX2877721	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	male	2	2	H	3
+dmoj_DG_m_r3	GSM2647013	SAMN07187954	SRX2877722	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	male	3	2	H	4
+dmoj_GO_f_r1	GSM2647014	SAMN07187953	SRX2877723	Drosophila mojavensis	FBsp00000160	adult	gonad	female	1	2	E	5
+dmoj_GO_f_r2	GSM2647015	SAMN07187952	SRX2877724	Drosophila mojavensis	FBsp00000160	adult	gonad	female	2	2	E	6
+dmoj_GO_f_r3	GSM2647016	SAMN07187951	SRX2877725	Drosophila mojavensis	FBsp00000160	adult	gonad	female	3	2	E	8
+dmoj_GO_m_r1	GSM2647017	SAMN07187950	SRX2877726	Drosophila mojavensis	FBsp00000160	adult	gonad	male	1	2	E	2
+dmoj_GO_m_r2	GSM2647018	SAMN07187949	SRX2877727	Drosophila mojavensis	FBsp00000160	adult	gonad	male	2	2	E	3
+dmoj_GO_m_r3	GSM2647019	SAMN07187948	SRX2877728	Drosophila mojavensis	FBsp00000160	adult	gonad	male	3	2	E	4
+dmoj_HD_f_r1	GSM2647020	SAMN07187947	SRX2877729	Drosophila mojavensis	FBsp00000160	adult	head	female	1	2	B	5
+dmoj_HD_f_r2	GSM2647021	SAMN07187946	SRX2877730	Drosophila mojavensis	FBsp00000160	adult	head	female	2	2	B	6
+dmoj_HD_f_r3	GSM2647022	SAMN07188430	SRX2877731	Drosophila mojavensis	FBsp00000160	adult	head	female	3	2	B	7
+dmoj_HD_m_r1	GSM2647023	SAMN07188429	SRX2877732	Drosophila mojavensis	FBsp00000160	adult	head	male	1	2	B	1
+dmoj_HD_m_r2	GSM2647024	SAMN07188428	SRX2877733	Drosophila mojavensis	FBsp00000160	adult	head	male	2	2	B	3
+dmoj_HD_m_r3	GSM2647025	SAMN07188427	SRX2877734	Drosophila mojavensis	FBsp00000160	adult	head	male	3	2	B	4
+dmoj_RE_f_r1	GSM2647026	SAMN07188426	SRX2877735	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	female	1	2	F	5
+dmoj_RE_f_r2	GSM2647027	SAMN07188425	SRX2877736	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	female	2	2	F	6
+dmoj_RE_f_r3	GSM2647028	SAMN07188424	SRX2877737	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	female	3	2	F	8
+dmoj_RE_m_r1	GSM2647029	SAMN07188420	SRX2877738	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	male	1	2	F	1
+dmoj_RE_m_r2	GSM2647030	SAMN07188419	SRX2877739	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	male	2	2	F	3
+dmoj_RE_m_r3	GSM2647031	SAMN07188418	SRX2877740	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	male	3	2	F	4
+dmoj_TX_f_r1	GSM2647032	SAMN07188417	SRX2877741	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	female	1	2	C	5
+dmoj_TX_f_r2	GSM2647033	SAMN07188423	SRX2877742	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	female	2	2	C	7
+dmoj_TX_f_r3	GSM2647034	SAMN07188422	SRX2877743	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	female	3	2	C	8
+dmoj_TX_m_r1	GSM2647035	SAMN07188421	SRX2877744	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	male	1	2	C	2
+dmoj_TX_m_r2	GSM2647036	SAMN07188416	SRX2877745	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	male	2	2	C	3
+dmoj_TX_m_r3	GSM2647037	SAMN07188415	SRX2877746	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	male	3	2	C	4
+dmoj_WB_f_r1	GSM2647038	SAMN07188414	SRX2877747	Drosophila mojavensis	FBsp00000160	adult	whole body	female	1	2	A	5
+dmoj_WB_f_r2	GSM2647039	SAMN07188413	SRX2877748	Drosophila mojavensis	FBsp00000160	adult	whole body	female	2	2	A	7
+dmoj_WB_f_r3	GSM2647040	SAMN07188412	SRX2877749	Drosophila mojavensis	FBsp00000160	adult	whole body	female	3	2	A	8
+dmoj_WB_m_r1	GSM2647041	SAMN07188411	SRX2877750	Drosophila mojavensis	FBsp00000160	adult	whole body	male	1	2	A	1
+dmoj_WB_m_r2	GSM2647042	SAMN07188410	SRX2877751	Drosophila mojavensis	FBsp00000160	adult	whole body	male	2	2	A	2
+dmoj_WB_m_r3	GSM2647043	SAMN07188487	SRX2877752	Drosophila mojavensis	FBsp00000160	adult	whole body	male	3	2	A	4
+dper_AC_f_r1	GSM2647044	SAMN07188486	SRX2877753	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	female	1	2	D	5
+dper_AC_f_r2	GSM2647045	SAMN07188485	SRX2877754	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	female	2	2	D	7
+dper_AC_f_r3	GSM2647046	SAMN07188484	SRX2877755	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	female	3	2	D	8
+dper_AC_m_r1	GSM2647047	SAMN07188483	SRX2877756	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	male	1	2	D	1
+dper_AC_m_r2	GSM2647048	SAMN07188482	SRX2877757	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	male	2	2	D	3
+dper_AC_m_r3	GSM2647049	SAMN07188481	SRX2877758	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	male	3	2	D	4
+dper_DG_f_r1	GSM2647050	SAMN07188480	SRX2877759	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	female	1	2	H	5
+dper_DG_f_r2	GSM2647051	SAMN07188479	SRX2877760	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	female	2	2	H	6
+dper_DG_f_r3	GSM2647052	SAMN07188478	SRX2877761	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	female	3	2	H	8
+dper_DG_m_r1	GSM2647053	SAMN07188477	SRX2877762	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	male	1	2	H	2
+dper_DG_m_r2	GSM2647054	SAMN07188448	SRX2877763	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	male	2	2	H	3
+dper_DG_m_r3	GSM2647055	SAMN07188447	SRX2877764	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	male	3	2	H	4
+dper_GO_f_r1	GSM2647056	SAMN07188531	SRX2877765	Drosophila persimilis	FBsp00000188	adult	gonad	female	1	2	E	5
+dper_GO_f_r2	GSM2647057	SAMN07188530	SRX2877766	Drosophila persimilis	FBsp00000188	adult	gonad	female	2	2	E	6
+dper_GO_f_r3	GSM2647058	SAMN07188529	SRX2877767	Drosophila persimilis	FBsp00000188	adult	gonad	female	3	2	E	8
+dper_GO_m_r1	GSM2647059	SAMN07188528	SRX2877768	Drosophila persimilis	FBsp00000188	adult	gonad	male	1	2	E	2
+dper_GO_m_r2	GSM2647060	SAMN07188527	SRX2877769	Drosophila persimilis	FBsp00000188	adult	gonad	male	2	2	E	3
+dper_GO_m_r3	GSM2647061	SAMN07188526	SRX2877770	Drosophila persimilis	FBsp00000188	adult	gonad	male	3	2	E	4
+dper_HD_f_r1	GSM2647062	SAMN07188525	SRX2877771	Drosophila persimilis	FBsp00000188	adult	head	female	1	2	B	5
+dper_HD_f_r2	GSM2647063	SAMN07188524	SRX2877772	Drosophila persimilis	FBsp00000188	adult	head	female	2	2	B	6
+dper_HD_f_r3	GSM2647064	SAMN07188523	SRX2877773	Drosophila persimilis	FBsp00000188	adult	head	female	3	2	B	7
+dper_HD_m_r1	GSM2647065	SAMN07188522	SRX2877774	Drosophila persimilis	FBsp00000188	adult	head	male	1	2	B	1
+dper_HD_m_r2	GSM2647066	SAMN07188521	SRX2877775	Drosophila persimilis	FBsp00000188	adult	head	male	2	2	B	3
+dper_HD_m_r3	GSM2647067	SAMN07188520	SRX2877776	Drosophila persimilis	FBsp00000188	adult	head	male	3	2	B	4
+dper_RE_f_r1	GSM2647068	SAMN07188519	SRX2877777	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	female	1	2	F	5
+dper_RE_f_r2	GSM2647069	SAMN07188518	SRX2877778	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	female	2	2	F	6
+dper_RE_f_r3	GSM2647070	SAMN07188517	SRX2877779	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	female	3	2	F	8
+dper_RE_m_r1	GSM2647071	SAMN07188516	SRX2877780	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	male	1	2	F	1
+dper_RE_m_r2	GSM2647072	SAMN07188515	SRX2877781	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	male	2	2	F	3
+dper_RE_m_r3	GSM2647073	SAMN07188514	SRX2877782	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	male	3	2	F	4
+dper_TX_f_r1	GSM2647074	SAMN07188513	SRX2877783	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	female	1	2	C	5
+dper_TX_f_r2	GSM2647075	SAMN07188512	SRX2877784	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	female	2	2	C	7
+dper_TX_f_r3	GSM2647076	SAMN07188511	SRX2877785	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	female	3	2	C	8
+dper_TX_m_r1	GSM2647077	SAMN07188510	SRX2877786	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	male	1	2	C	2
+dper_TX_m_r2	GSM2647078	SAMN07188509	SRX2877787	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	male	2	2	C	3
+dper_TX_m_r3	GSM2647079	SAMN07188508	SRX2877788	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	male	3	2	C	4
+dper_WB_f_r1	GSM2647080	SAMN07188507	SRX2877789	Drosophila persimilis	FBsp00000188	adult	whole body	female	1	2	A	5
+dper_WB_f_r2	GSM2647081	SAMN07188506	SRX2877790	Drosophila persimilis	FBsp00000188	adult	whole body	female	2	2	A	7
+dper_WB_f_r3	GSM2647082	SAMN07188505	SRX2877791	Drosophila persimilis	FBsp00000188	adult	whole body	female	3	2	A	8
+dper_WB_m_r1	GSM2647083	SAMN07188504	SRX2877792	Drosophila persimilis	FBsp00000188	adult	whole body	male	1	2	A	1
+dper_WB_m_r2	GSM2647084	SAMN07188503	SRX2877793	Drosophila persimilis	FBsp00000188	adult	whole body	male	2	2	A	2
+dper_WB_m_r3	GSM2647085	SAMN07188502	SRX2877794	Drosophila persimilis	FBsp00000188	adult	whole body	male	3	2	A	4
+dpse_AC_f_r1	GSM2647086	SAMN07188501	SRX2877795	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	female	1	1	D	5
+dpse_AC_f_r2	GSM2647087	SAMN07188500	SRX2877796	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	female	2	1	D	6
+dpse_AC_f_r3	GSM2647088	SAMN07188499	SRX2877797	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	female	3	1	D	7
+dpse_AC_m_r1	GSM2647089	SAMN07188498	SRX2877798	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	male	1	1	D	1
+dpse_AC_m_r2	GSM2647090	SAMN07188497	SRX2877799	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	male	2	1	D	3
+dpse_AC_m_r3	GSM2647091	SAMN07188491	SRX2877800	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	male	3	1	D	4
+dpse_DG_f_r1	GSM2647092	SAMN07188490	SRX2877801	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	female	1	1	H	6
+dpse_DG_f_r2	GSM2647093	SAMN07188496	SRX2877802	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	female	2	1	H	7
+dpse_DG_f_r3	GSM2647094	SAMN07188495	SRX2877803	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	female	3	1	H	8
+dpse_DG_m_r1	GSM2647095	SAMN07188494	SRX2877804	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	male	1	1	H	1
+dpse_DG_m_r2	GSM2647096	SAMN07188493	SRX2877805	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	male	2	1	H	2
+dpse_DG_m_r3	GSM2647097	SAMN07188492	SRX2877806	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	male	3	1	H	3
+dpse_GO_f_r1	GSM2647098	SAMN07188489	SRX2877807	Drosophila pseudoobscura	FBsp00000201	adult	gonad	female	1	1	E	5
+dpse_GO_f_r2	GSM2647099	SAMN07188488	SRX2877808	Drosophila pseudoobscura	FBsp00000201	adult	gonad	female	2	1	E	7
+dpse_GO_f_r3	GSM2647100	SAMN07188584	SRX2877809	Drosophila pseudoobscura	FBsp00000201	adult	gonad	female	3	1	E	8
+dpse_GO_m_r1	GSM2647101	SAMN07188583	SRX2877810	Drosophila pseudoobscura	FBsp00000201	adult	gonad	male	1	1	E	2
+dpse_GO_m_r2	GSM2647102	SAMN07188582	SRX2877811	Drosophila pseudoobscura	FBsp00000201	adult	gonad	male	2	1	E	3
+dpse_GO_m_r3	GSM2647103	SAMN07188581	SRX2877812	Drosophila pseudoobscura	FBsp00000201	adult	gonad	male	3	1	E	4
+dpse_HD_f_r1	GSM2647104	SAMN07188580	SRX2877813	Drosophila pseudoobscura	FBsp00000201	adult	head	female	1	1	B	5
+dpse_HD_f_r2	GSM2647105	SAMN07188579	SRX2877814	Drosophila pseudoobscura	FBsp00000201	adult	head	female	2	1	B	7
+dpse_HD_f_r3	GSM2647106	SAMN07188578	SRX2877815	Drosophila pseudoobscura	FBsp00000201	adult	head	female	3	1	B	8
+dpse_HD_m_r1	GSM2647107	SAMN07188577	SRX2877816	Drosophila pseudoobscura	FBsp00000201	adult	head	male	1	1	B	2
+dpse_HD_m_r2	GSM2647108	SAMN07188576	SRX2877817	Drosophila pseudoobscura	FBsp00000201	adult	head	male	2	1	B	3
+dpse_HD_m_r3	GSM2647109	SAMN07188575	SRX2877818	Drosophila pseudoobscura	FBsp00000201	adult	head	male	3	1	B	4
+dpse_RE_f_r1	GSM2647110	SAMN07188574	SRX2877819	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	female	1	1	F	5
+dpse_RE_f_r2	GSM2647111	SAMN07188573	SRX2877820	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	female	2	1	F	7
+dpse_RE_f_r3	GSM2647112	SAMN07188572	SRX2877821	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	female	3	1	F	8
+dpse_RE_m_r1	GSM2647113	SAMN07188571	SRX2877822	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	male	1	1	F	1
+dpse_RE_m_r2	GSM2647114	SAMN07188570	SRX2877823	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	male	2	1	F	2
+dpse_RE_m_r3	GSM2647115	SAMN07188569	SRX2877824	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	male	3	1	F	3
+dpse_TX_f_r1	GSM2647116	SAMN07188568	SRX2877825	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	female	1	1	C	6
+dpse_TX_f_r2	GSM2647117	SAMN07188567	SRX2877826	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	female	2	1	C	7
+dpse_TX_f_r3	GSM2647118	SAMN07188566	SRX2877827	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	female	3	1	C	8
+dpse_TX_m_r1	GSM2647119	SAMN07188565	SRX2877828	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	male	1	1	C	1
+dpse_TX_m_r2	GSM2647120	SAMN07188564	SRX2877829	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	male	2	1	C	3
+dpse_TX_m_r3	GSM2647121	SAMN07188563	SRX2877830	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	male	3	1	C	4
+dpse_WB_f_r1	GSM2647122	SAMN07188562	SRX2877831	Drosophila pseudoobscura	FBsp00000201	adult	whole body	female	1	1	A	5
+dpse_WB_f_r2	GSM2647123	SAMN07188561	SRX2877832	Drosophila pseudoobscura	FBsp00000201	adult	whole body	female	2	1	A	6
+dpse_WB_f_r3	GSM2647124	SAMN07188560	SRX2877833	Drosophila pseudoobscura	FBsp00000201	adult	whole body	female	3	1	A	8
+dpse_WB_m_r1	GSM2647125	SAMN07188559	SRX2877834	Drosophila pseudoobscura	FBsp00000201	adult	whole body	male	1	1	A	1
+dpse_WB_m_r2	GSM2647126	SAMN07188558	SRX2877835	Drosophila pseudoobscura	FBsp00000201	adult	whole body	male	2	1	A	2
+dpse_WB_m_r3	GSM2647127	SAMN07188557	SRX2877836	Drosophila pseudoobscura	FBsp00000201	adult	whole body	male	3	1	A	3
+dvir_AC_f_r1	GSM2647128	SAMN07188556	SRX2877837	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	female	1	1	D	5
+dvir_AC_f_r2	GSM2647129	SAMN07188555	SRX2877838	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	female	2	1	D	6
+dvir_AC_f_r3	GSM2647130	SAMN07188554	SRX2877839	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	female	3	1	D	7
+dvir_AC_m_r1	GSM2647131	SAMN07188553	SRX2877840	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	male	1	1	D	1
+dvir_AC_m_r2	GSM2647132	SAMN07188552	SRX2877841	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	male	2	1	D	3
+dvir_AC_m_r3	GSM2647133	SAMN07188551	SRX2877842	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	male	3	1	D	4
+dvir_DG_f_r1	GSM2647134	SAMN07188550	SRX2877843	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	female	1	1	H	6
+dvir_DG_f_r2	GSM2647135	SAMN07188549	SRX2877844	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	female	2	1	H	7
+dvir_DG_f_r3	GSM2647136	SAMN07188548	SRX2877845	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	female	3	1	H	8
+dvir_DG_m_r1	GSM2647137	SAMN07188547	SRX2877846	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	male	1	1	H	1
+dvir_DG_m_r2	GSM2647138	SAMN07188546	SRX2877847	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	male	2	1	H	2
+dvir_DG_m_r3	GSM2647139	SAMN07188545	SRX2877848	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	male	3	1	H	3
+dvir_GO_f_r1	GSM2647140	SAMN07188544	SRX2877849	Drosophila virilis	FBsp00000251	adult	gonad	female	1	1	E	5
+dvir_GO_f_r2	GSM2647141	SAMN07188543	SRX2877850	Drosophila virilis	FBsp00000251	adult	gonad	female	2	1	E	7
+dvir_GO_f_r3	GSM2647142	SAMN07188542	SRX2877851	Drosophila virilis	FBsp00000251	adult	gonad	female	3	1	E	8
+dvir_GO_m_r1	GSM2647143	SAMN07188541	SRX2877852	Drosophila virilis	FBsp00000251	adult	gonad	male	1	1	E	2
+dvir_GO_m_r2	GSM2647144	SAMN07188540	SRX2877853	Drosophila virilis	FBsp00000251	adult	gonad	male	2	1	E	3
+dvir_GO_m_r3	GSM2647145	SAMN07188539	SRX2877854	Drosophila virilis	FBsp00000251	adult	gonad	male	3	1	E	4
+dvir_HD_f_r1	GSM2647146	SAMN07188538	SRX2877855	Drosophila virilis	FBsp00000251	adult	head	female	1	1	B	5
+dvir_HD_f_r2	GSM2647147	SAMN07188537	SRX2877856	Drosophila virilis	FBsp00000251	adult	head	female	2	1	B	7
+dvir_HD_f_r3	GSM2647148	SAMN07188536	SRX2877857	Drosophila virilis	FBsp00000251	adult	head	female	3	1	B	8
+dvir_HD_m_r1	GSM2647149	SAMN07188535	SRX2877858	Drosophila virilis	FBsp00000251	adult	head	male	1	1	B	2
+dvir_HD_m_r2	GSM2647150	SAMN07188534	SRX2877859	Drosophila virilis	FBsp00000251	adult	head	male	2	1	B	3
+dvir_HD_m_r3	GSM2647151	SAMN07188533	SRX2877860	Drosophila virilis	FBsp00000251	adult	head	male	3	1	B	4
+dvir_RE_f_r1	GSM2647152	SAMN07188532	SRX2877861	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	female	1	1	F	5
+dvir_RE_f_r2	GSM2647153	SAMN07188631	SRX2877862	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	female	2	1	F	7
+dvir_RE_f_r3	GSM2647154	SAMN07188630	SRX2877863	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	female	3	1	F	8
+dvir_RE_m_r1	GSM2647155	SAMN07188629	SRX2877864	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	male	1	1	F	1
+dvir_RE_m_r2	GSM2647156	SAMN07188628	SRX2877865	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	male	2	1	F	2
+dvir_RE_m_r3	GSM2647157	SAMN07188627	SRX2877866	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	male	3	1	F	3
+dvir_TX_f_r1	GSM2647158	SAMN07188626	SRX2877867	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	female	1	1	C	6
+dvir_TX_f_r2	GSM2647159	SAMN07188625	SRX2877868	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	female	2	1	C	7
+dvir_TX_f_r3	GSM2647160	SAMN07188624	SRX2877869	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	female	3	1	C	8
+dvir_TX_m_r1	GSM2647161	SAMN07188623	SRX2877870	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	male	1	1	C	1
+dvir_TX_m_r2	GSM2647162	SAMN07188622	SRX2877871	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	male	2	1	C	3
+dvir_TX_m_r3	GSM2647163	SAMN07188621	SRX2877872	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	male	3	1	C	4
+dvir_WB_f_r1	GSM2647164	SAMN07188620	SRX2877873	Drosophila virilis	FBsp00000251	adult	whole body	female	1	1	A	5
+dvir_WB_f_r2	GSM2647165	SAMN07188619	SRX2877874	Drosophila virilis	FBsp00000251	adult	whole body	female	2	1	A	6
+dvir_WB_f_r3	GSM2647166	SAMN07188618	SRX2877875	Drosophila virilis	FBsp00000251	adult	whole body	female	3	1	A	8
+dvir_WB_m_r1	GSM2647167	SAMN07188617	SRX2877876	Drosophila virilis	FBsp00000251	adult	whole body	male	1	1	A	1
+dvir_WB_m_r2	GSM2647168	SAMN07188616	SRX2877877	Drosophila virilis	FBsp00000251	adult	whole body	male	2	1	A	2
+dvir_WB_m_r3	GSM2647169	SAMN07188615	SRX2877878	Drosophila virilis	FBsp00000251	adult	whole body	male	3	1	A	3
+dwil_AC_f_r1	GSM2647170	SAMN07188614	SRX2877879	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	female	1	2	E	9
+dwil_AC_f_r2	GSM2647171	SAMN07188613	SRX2877880	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	female	2	2	E	10
+dwil_AC_f_r3	GSM2647172	SAMN07188612	SRX2877881	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	female	3	2	E	12
+dwil_AC_m_r1	GSM2647173	SAMN07188611	SRX2877882	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	male	1	1	E	9
+dwil_AC_m_r2	GSM2647174	SAMN07188610	SRX2877883	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	male	2	1	E	10
+dwil_AC_m_r3	GSM2647175	SAMN07188609	SRX2877884	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	male	3	1	E	12
+dwil_DG_f_r1	GSM2647176	SAMN07188608	SRX2877885	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	female	1	2	H	9
+dwil_DG_f_r2	GSM2647177	SAMN07188607	SRX2877886	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	female	2	2	H	11
+dwil_DG_f_r3	GSM2647178	SAMN07188606	SRX2877887	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	female	3	2	H	12
+dwil_DG_m_r1	GSM2647179	SAMN07188605	SRX2877888	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	male	1	1	H	9
+dwil_DG_m_r2	GSM2647180	SAMN07188604	SRX2877889	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	male	2	1	H	11
+dwil_DG_m_r3	GSM2647181	SAMN07188603	SRX2877890	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	male	3	1	H	12
+dwil_GO_f_r1	GSM2647182	SAMN07188602	SRX2877891	Drosophila willistoni	FBsp00000253	adult	gonad	female	1	2	F	9
+dwil_GO_f_r2	GSM2647183	SAMN07188601	SRX2877892	Drosophila willistoni	FBsp00000253	adult	gonad	female	2	2	F	11
+dwil_GO_f_r3	GSM2647184	SAMN07188600	SRX2877893	Drosophila willistoni	FBsp00000253	adult	gonad	female	3	2	F	12
+dwil_GO_m_r1	GSM2647185	SAMN07188599	SRX2877894	Drosophila willistoni	FBsp00000253	adult	gonad	male	1	1	F	9
+dwil_GO_m_r2	GSM2647186	SAMN07188598	SRX2877895	Drosophila willistoni	FBsp00000253	adult	gonad	male	2	1	F	10
+dwil_GO_m_r3	GSM2647187	SAMN07188597	SRX2877896	Drosophila willistoni	FBsp00000253	adult	gonad	male	3	1	F	12
+dwil_HD_f_r1	GSM2647188	SAMN07188596	SRX2877897	Drosophila willistoni	FBsp00000253	adult	head	female	1	2	B	9
+dwil_HD_f_r2	GSM2647189	SAMN07188595	SRX2877898	Drosophila willistoni	FBsp00000253	adult	head	female	2	2	B	10
+dwil_HD_f_r3	GSM2647190	SAMN07188594	SRX2877899	Drosophila willistoni	FBsp00000253	adult	head	female	3	2	B	12
+dwil_HD_m_r1	GSM2647191	SAMN07188593	SRX2877900	Drosophila willistoni	FBsp00000253	adult	head	male	1	1	B	9
+dwil_HD_m_r2	GSM2647192	SAMN07188592	SRX2877901	Drosophila willistoni	FBsp00000253	adult	head	male	2	1	B	10
+dwil_HD_m_r3	GSM2647193	SAMN07188591	SRX2877902	Drosophila willistoni	FBsp00000253	adult	head	male	3	1	B	12
+dwil_RE_f_r1	GSM2647194	SAMN07188590	SRX2877903	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	female	1	2	G	9
+dwil_RE_f_r2	GSM2647195	SAMN07188589	SRX2877904	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	female	2	2	G	11
+dwil_RE_f_r3	GSM2647196	SAMN07188588	SRX2877905	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	female	3	2	G	12
+dwil_RE_m_r1	GSM2647197	SAMN07188587	SRX2877906	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	male	1	1	G	10
+dwil_RE_m_r2	GSM2647198	SAMN07188586	SRX2877907	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	male	2	1	G	11
+dwil_RE_m_r3	GSM2647199	SAMN07188585	SRX2877908	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	male	3	1	G	12
+dwil_TX_f_r1	GSM2647200	SAMN07188674	SRX2877909	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	female	1	2	D	9
+dwil_TX_f_r2	GSM2647201	SAMN07188673	SRX2877910	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	female	2	2	D	10
+dwil_TX_f_r3	GSM2647202	SAMN07188672	SRX2877911	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	female	3	2	D	11
+dwil_TX_m_r1	GSM2647203	SAMN07188671	SRX2877912	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	male	1	1	D	9
+dwil_TX_m_r2	GSM2647204	SAMN07188670	SRX2877913	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	male	2	1	D	11
+dwil_TX_m_r3	GSM2647205	SAMN07188669	SRX2877914	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	male	3	1	D	12
+dwil_WB_f_r1	GSM2647206	SAMN07188668	SRX2877915	Drosophila willistoni	FBsp00000253	adult	whole body	female	1	2	A	9
+dwil_WB_f_r2	GSM2647207	SAMN07188666	SRX2877916	Drosophila willistoni	FBsp00000253	adult	whole body	female	2	2	A	10
+dwil_WB_f_r3	GSM2647208	SAMN07188665	SRX2877917	Drosophila willistoni	FBsp00000253	adult	whole body	female	3	2	A	12
+dwil_WB_m_r1	GSM2647209	SAMN07188664	SRX2877918	Drosophila willistoni	FBsp00000253	adult	whole body	male	1	1	A	9
+dwil_WB_m_r2	GSM2647210	SAMN07188663	SRX2877919	Drosophila willistoni	FBsp00000253	adult	whole body	male	2	1	A	10
+dwil_WB_m_r3	GSM2647211	SAMN07188662	SRX2877920	Drosophila willistoni	FBsp00000253	adult	whole body	male	3	1	A	11
+dyak_AC_f_r1	GSM2647212	SAMN07188661	SRX2877921	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	female	1	2	E	9
+dyak_AC_f_r2	GSM2647213	SAMN07188667	SRX2877922	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	female	2	2	E	10
+dyak_AC_f_r3	GSM2647214	SAMN07188660	SRX2877923	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	female	3	2	E	12
+dyak_AC_m_r1	GSM2647215	SAMN07188659	SRX2877924	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	male	1	1	E	9
+dyak_AC_m_r2	GSM2647216	SAMN07188658	SRX2877925	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	male	2	1	E	10
+dyak_AC_m_r3	GSM2647217	SAMN07188657	SRX2877926	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	male	3	1	E	12
+dyak_DG_f_r1	GSM2647218	SAMN07188656	SRX2877927	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	female	1	2	H	9
+dyak_DG_f_r2	GSM2647219	SAMN07188655	SRX2877928	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	female	2	2	H	11
+dyak_DG_f_r3	GSM2647220	SAMN07188654	SRX2877929	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	female	3	2	H	12
+dyak_DG_m_r1	GSM2647221	SAMN07188653	SRX2877930	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	male	1	1	H	9
+dyak_DG_m_r2	GSM2647222	SAMN07188652	SRX2877931	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	male	2	1	H	11
+dyak_DG_m_r3	GSM2647223	SAMN07188651	SRX2877932	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	male	3	1	H	12
+dyak_GO_f_r1	GSM2647224	SAMN07188650	SRX2877933	Drosophila yakuba	FBsp00000254	adult	gonad	female	1	2	F	9
+dyak_GO_f_r2	GSM2647225	SAMN07188649	SRX2877934	Drosophila yakuba	FBsp00000254	adult	gonad	female	2	2	F	11
+dyak_GO_f_r3	GSM2647226	SAMN07188648	SRX2877935	Drosophila yakuba	FBsp00000254	adult	gonad	female	3	2	F	12
+dyak_GO_m_r1	GSM2647227	SAMN07188647	SRX2877936	Drosophila yakuba	FBsp00000254	adult	gonad	male	1	1	F	9
+dyak_GO_m_r2	GSM2647228	SAMN07188646	SRX2877937	Drosophila yakuba	FBsp00000254	adult	gonad	male	2	1	F	10
+dyak_GO_m_r3	GSM2647229	SAMN07188645	SRX2877938	Drosophila yakuba	FBsp00000254	adult	gonad	male	3	1	F	12
+dyak_HD_f_r1	GSM2647230	SAMN07188644	SRX2877939	Drosophila yakuba	FBsp00000254	adult	head	female	1	2	B	9
+dyak_HD_f_r2	GSM2647231	SAMN07188643	SRX2877940	Drosophila yakuba	FBsp00000254	adult	head	female	2	2	B	10
+dyak_HD_f_r3	GSM2647232	SAMN07188642	SRX2877941	Drosophila yakuba	FBsp00000254	adult	head	female	3	2	B	12
+dyak_HD_m_r1	GSM2647233	SAMN07188641	SRX2877942	Drosophila yakuba	FBsp00000254	adult	head	male	1	1	B	9
+dyak_HD_m_r2	GSM2647234	SAMN07187988	SRX2877943	Drosophila yakuba	FBsp00000254	adult	head	male	2	1	B	10
+dyak_HD_m_r3	GSM2647235	SAMN07187987	SRX2877944	Drosophila yakuba	FBsp00000254	adult	head	male	3	1	B	12
+dyak_RE_f_r1	GSM2647236	SAMN07187986	SRX2877945	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	female	1	2	G	9
+dyak_RE_f_r2	GSM2647237	SAMN07187985	SRX2877946	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	female	2	2	G	11
+dyak_RE_f_r3	GSM2647238	SAMN07187984	SRX2877947	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	female	3	2	G	12
+dyak_RE_m_r1	GSM2647239	SAMN07187983	SRX2877948	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	male	1	1	G	10
+dyak_RE_m_r2	GSM2647240	SAMN07187982	SRX2877949	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	male	2	1	G	11
+dyak_RE_m_r3	GSM2647241	SAMN07187981	SRX2877950	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	male	3	1	G	12
+dyak_TX_f_r1	GSM2647242	SAMN07187980	SRX2877951	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	female	1	2	D	9
+dyak_TX_f_r2	GSM2647243	SAMN07187979	SRX2877952	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	female	2	2	D	10
+dyak_TX_f_r3	GSM2647244	SAMN07187978	SRX2877953	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	female	3	2	D	11
+dyak_TX_m_r1	GSM2647245	SAMN07187977	SRX2877954	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	male	1	1	D	9
+dyak_TX_m_r2	GSM2647246	SAMN07187976	SRX2877955	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	male	2	1	D	11
+dyak_TX_m_r3	GSM2647247	SAMN07187975	SRX2877956	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	male	3	1	D	12
+dyak_WB_f_r1	GSM2647248	SAMN07187974	SRX2877957	Drosophila yakuba	FBsp00000254	adult	whole body	female	1	2	A	9
+dyak_WB_f_r2	GSM2647249	SAMN07187973	SRX2877958	Drosophila yakuba	FBsp00000254	adult	whole body	female	2	2	A	10
+dyak_WB_f_r3	GSM2647250	SAMN07187972	SRX2877959	Drosophila yakuba	FBsp00000254	adult	whole body	female	3	2	A	12
+dyak_WB_m_r1	GSM2647251	SAMN07187971	SRX2877960	Drosophila yakuba	FBsp00000254	adult	whole body	male	1	1	A	9
+dyak_WB_m_r2	GSM2647252	SAMN07187970	SRX2877961	Drosophila yakuba	FBsp00000254	adult	whole body	male	2	1	A	10
+dyak_WB_m_r3	GSM2647253	SAMN07187969	SRX2877962	Drosophila yakuba	FBsp00000254	adult	whole body	male	3	1	A	11
+orgR_AC_f_r1	GSM2647254	SAMN07187968	SRX2877963	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	1	2	D	5
+orgR_AC_f_r2	GSM2647255	SAMN07187967	SRX2877964	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	2	2	D	7
+orgR_AC_f_r3	GSM2647256	SAMN07188041	SRX2877965	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	3	2	D	8
+orgR_AC_m_r1	GSM2647257	SAMN07188040	SRX2877966	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	1	2	D	1
+orgR_AC_m_r2	GSM2647258	SAMN07188039	SRX2877967	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	2	2	D	3
+orgR_AC_m_r3	GSM2647259	SAMN07188038	SRX2877968	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	3	2	D	4
+orgR_DG_f_r1	GSM2647260	SAMN07188037	SRX2877969	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	1	2	H	5
+orgR_DG_f_r2	GSM2647261	SAMN07188036	SRX2877970	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	2	2	H	6
+orgR_DG_f_r3	GSM2647262	SAMN07188035	SRX2877971	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	3	2	H	8
+orgR_DG_m_r1	GSM2647263	SAMN07188034	SRX2877972	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	1	2	H	2
+orgR_DG_m_r2	GSM2647264	SAMN07188167	SRX2877973	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	2	2	H	3
+orgR_DG_m_r3	GSM2647265	SAMN07188166	SRX2877974	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	3	2	H	4
+orgR_GE_f_r1	GSM2647266	SAMN07188165	SRX2877975	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	1	2	G	6
+orgR_GE_f_r2	GSM2647267	SAMN07188164	SRX2877976	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	2	2	G	7
+orgR_GE_f_r3	GSM2647268	SAMN07188163	SRX2877977	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	3	2	G	8
+orgR_GE_m_r1	GSM2647269	SAMN07188162	SRX2877978	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	1	2	G	2
+orgR_GE_m_r2	GSM2647270	SAMN07188161	SRX2877979	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	2	2	G	3
+orgR_GE_m_r3	GSM2647271	SAMN07188160	SRX2877980	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	3	2	G	4
+orgR_GO_f_r1	GSM2647272	SAMN07188159	SRX2877981	Drosophila melanogaster	FBsp00000001	adult	gonad	female	1	2	E	5
+orgR_GO_f_r2	GSM2647273	SAMN07188158	SRX2877982	Drosophila melanogaster	FBsp00000001	adult	gonad	female	2	2	E	6
+orgR_GO_f_r3	GSM2647274	SAMN07188235	SRX2877983	Drosophila melanogaster	FBsp00000001	adult	gonad	female	3	2	E	8
+orgR_GO_m_r1	GSM2647275	SAMN07188234	SRX2877984	Drosophila melanogaster	FBsp00000001	adult	gonad	male	1	2	E	2
+orgR_GO_m_r2	GSM2647276	SAMN07188233	SRX2877985	Drosophila melanogaster	FBsp00000001	adult	gonad	male	2	2	E	3
+orgR_GO_m_r3	GSM2647277	SAMN07188232	SRX2877986	Drosophila melanogaster	FBsp00000001	adult	gonad	male	3	2	E	4
+orgR_HD_f_r1	GSM2647278	SAMN07188231	SRX2877987	Drosophila melanogaster	FBsp00000001	adult	head	female	1	2	B	5
+orgR_HD_f_r2	GSM2647279	SAMN07188230	SRX2877988	Drosophila melanogaster	FBsp00000001	adult	head	female	2	2	B	6
+orgR_HD_f_r3	GSM2647280	SAMN07188229	SRX2877989	Drosophila melanogaster	FBsp00000001	adult	head	female	3	2	B	7
+orgR_HD_m_r1	GSM2647281	SAMN07188228	SRX2877990	Drosophila melanogaster	FBsp00000001	adult	head	male	1	2	B	1
+orgR_HD_m_r2	GSM2647282	SAMN07188227	SRX2877991	Drosophila melanogaster	FBsp00000001	adult	head	male	2	2	B	3
+orgR_HD_m_r3	GSM2647283	SAMN07188226	SRX2877992	Drosophila melanogaster	FBsp00000001	adult	head	male	3	2	B	4
+orgR_RE_f_r1	GSM2647284	SAMN07188225	SRX2877993	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	1	2	F	5
+orgR_RE_f_r2	GSM2647285	SAMN07188224	SRX2877994	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	2	2	F	6
+orgR_RE_f_r3	GSM2647286	SAMN07188223	SRX2877995	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	3	2	F	8
+orgR_RE_m_r1	GSM2647287	SAMN07188222	SRX2877996	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	1	2	F	1
+orgR_RE_m_r2	GSM2647288	SAMN07188221	SRX2877997	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	2	2	F	3
+orgR_RE_m_r3	GSM2647289	SAMN07188220	SRX2877998	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	3	2	F	4
+orgR_TX_f_r1	GSM2647290	SAMN07188219	SRX2877999	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	1	2	C	5
+orgR_TX_f_r2	GSM2647291	SAMN07188218	SRX2878000	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	2	2	C	7
+orgR_TX_f_r3	GSM2647292	SAMN07188217	SRX2878001	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	3	2	C	8
+orgR_TX_m_r1	GSM2647293	SAMN07188216	SRX2878002	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	1	2	C	2
+orgR_TX_m_r2	GSM2647294	SAMN07188383	SRX2878003	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	2	2	C	3
+orgR_TX_m_r3	GSM2647295	SAMN07188382	SRX2878004	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	3	2	C	4
+orgR_WB_f_r1	GSM2647296	SAMN07188381	SRX2878005	Drosophila melanogaster	FBsp00000001	adult	whole body	female	1	2	A	5
+orgR_WB_f_r2	GSM2647297	SAMN07188380	SRX2878006	Drosophila melanogaster	FBsp00000001	adult	whole body	female	2	2	A	7
+orgR_WB_f_r3	GSM2647298	SAMN07188379	SRX2878007	Drosophila melanogaster	FBsp00000001	adult	whole body	female	3	2	A	8
+orgR_WB_m_r1	GSM2647299	SAMN07188378	SRX2878008	Drosophila melanogaster	FBsp00000001	adult	whole body	male	1	2	A	1
+orgR_WB_m_r2	GSM2647300	SAMN07188377	SRX2878009	Drosophila melanogaster	FBsp00000001	adult	whole body	male	2	2	A	2
+orgR_WB_m_r3	GSM2647301	SAMN07188376	SRX2878010	Drosophila melanogaster	FBsp00000001	adult	whole body	male	3	2	A	4
+w1118_AC_f_r1	GSM2647302	SAMN07188375	SRX2878011	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	1	1	D	5
+w1118_AC_f_r2	GSM2647303	SAMN07188374	SRX2878012	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	2	1	D	6
+w1118_AC_f_r3	GSM2647304	SAMN07188373	SRX2878013	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	3	1	D	7
+w1118_AC_m_r1	GSM2647305	SAMN07188372	SRX2878014	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	1	1	D	1
+w1118_AC_m_r2	GSM2647306	SAMN07188371	SRX2878015	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	2	1	D	3
+w1118_AC_m_r3	GSM2647307	SAMN07188370	SRX2878016	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	3	1	D	4
+w1118_DG_f_r1	GSM2647308	SAMN07188446	SRX2878017	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	1	1	H	6
+w1118_DG_f_r2	GSM2647309	SAMN07188445	SRX2878018	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	2	1	H	7
+w1118_DG_f_r3	GSM2647310	SAMN07188444	SRX2878019	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	3	1	H	8
+w1118_DG_m_r1	GSM2647311	SAMN07188443	SRX2878020	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	1	1	H	1
+w1118_DG_m_r2	GSM2647312	SAMN07188442	SRX2878021	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	2	1	H	2
+w1118_DG_m_r3	GSM2647313	SAMN07188441	SRX2878022	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	3	1	H	3
+w1118_GE_f_r1	GSM2647314	SAMN07188440	SRX2878023	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	1	1	G	5
+w1118_GE_f_r2	GSM2647315	SAMN07188439	SRX2878024	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	2	1	G	6
+w1118_GE_f_r3	GSM2647316	SAMN07188438	SRX2878025	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	3	1	G	8
+w1118_GE_m_r1	GSM2647317	SAMN07188437	SRX2878026	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	1	1	G	1
+w1118_GE_m_r2	GSM2647318	SAMN07188436	SRX2878027	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	2	1	G	2
+w1118_GE_m_r3	GSM2647319	SAMN07188435	SRX2878028	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	3	1	G	3
+w1118_GO_f_r1	GSM2647320	SAMN07188434	SRX2878029	Drosophila melanogaster	FBsp00000001	adult	gonad	female	1	1	E	5
+w1118_GO_f_r2	GSM2647321	SAMN07188433	SRX2878030	Drosophila melanogaster	FBsp00000001	adult	gonad	female	2	1	E	7
+w1118_GO_f_r3	GSM2647322	SAMN07188432	SRX2878031	Drosophila melanogaster	FBsp00000001	adult	gonad	female	3	1	E	8
+w1118_GO_m_r1	GSM2647323	SAMN07188431	SRX2878032	Drosophila melanogaster	FBsp00000001	adult	gonad	male	1	1	E	2
+w1118_GO_m_r2	GSM2647324	SAMN07188335	SRX2878033	Drosophila melanogaster	FBsp00000001	adult	gonad	male	2	1	E	3
+w1118_GO_m_r3	GSM2647325	SAMN07188334	SRX2878034	Drosophila melanogaster	FBsp00000001	adult	gonad	male	3	1	E	4
+w1118_HD_f_r1	GSM2647326	SAMN07188333	SRX2878035	Drosophila melanogaster	FBsp00000001	adult	head	female	1	1	B	5
+w1118_HD_f_r2	GSM2647327	SAMN07188332	SRX2878036	Drosophila melanogaster	FBsp00000001	adult	head	female	2	1	B	7
+w1118_HD_f_r3	GSM2647328	SAMN07188409	SRX2878037	Drosophila melanogaster	FBsp00000001	adult	head	female	3	1	B	8
+w1118_HD_m_r1	GSM2647329	SAMN07188408	SRX2878038	Drosophila melanogaster	FBsp00000001	adult	head	male	1	1	B	2
+w1118_HD_m_r2	GSM2647330	SAMN07188403	SRX2878039	Drosophila melanogaster	FBsp00000001	adult	head	male	2	1	B	3
+w1118_HD_m_r3	GSM2647331	SAMN07188402	SRX2878040	Drosophila melanogaster	FBsp00000001	adult	head	male	3	1	B	4
+w1118_RE_f_r1	GSM2647332	SAMN07188401	SRX2878041	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	1	1	F	5
+w1118_RE_f_r2	GSM2647333	SAMN07188407	SRX2878042	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	2	1	F	7
+w1118_RE_f_r3	GSM2647334	SAMN07188406	SRX2878043	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	3	1	F	8
+w1118_RE_m_r1	GSM2647335	SAMN07188405	SRX2878044	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	1	1	F	1
+w1118_RE_m_r2	GSM2647336	SAMN07188404	SRX2878045	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	2	1	F	2
+w1118_RE_m_r3	GSM2647337	SAMN07188400	SRX2878046	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	3	1	F	3
+w1118_TX_f_r1	GSM2647338	SAMN07188399	SRX2878047	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	1	1	C	6
+w1118_TX_f_r2	GSM2647339	SAMN07188398	SRX2878048	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	2	1	C	7
+w1118_TX_f_r3	GSM2647340	SAMN07188397	SRX2878049	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	3	1	C	8
+w1118_TX_m_r1	GSM2647341	SAMN07188396	SRX2878050	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	1	1	C	1
+w1118_TX_m_r2	GSM2647342	SAMN07188395	SRX2878051	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	2	1	C	3
+w1118_TX_m_r3	GSM2647343	SAMN07188394	SRX2878052	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	3	1	C	4
+w1118_WB_f_r1	GSM2647344	SAMN07188393	SRX2878053	Drosophila melanogaster	FBsp00000001	adult	whole body	female	1	1	A	5
+w1118_WB_f_r2	GSM2647345	SAMN07188392	SRX2878054	Drosophila melanogaster	FBsp00000001	adult	whole body	female	2	1	A	6
+w1118_WB_f_r3	GSM2647346	SAMN07188391	SRX2878055	Drosophila melanogaster	FBsp00000001	adult	whole body	female	3	1	A	8
+w1118_WB_m_r1	GSM2647347	SAMN07188390	SRX2878056	Drosophila melanogaster	FBsp00000001	adult	whole body	male	1	1	A	1
+w1118_WB_m_r2	GSM2647348	SAMN07188389	SRX2878057	Drosophila melanogaster	FBsp00000001	adult	whole body	male	2	1	A	2
+w1118_WB_m_r3	GSM2647349	SAMN07188388	SRX2878058	Drosophila melanogaster	FBsp00000001	adult	whole body	male	3	1	A	3
+dana_AC_f_r4	GSM2817213	SAMN07795285	SRX3291622	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	female	4	2	E	11
+dana_AC_m_r4	GSM2817214	SAMN07795284	SRX3291623	Drosophila ananassae	FBsp00000052	adult	abdomen without digestive or reproductive system	male	4	1	E	11
+dana_DG_f_r4	GSM2817215	SAMN07795283	SRX3291624	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	female	4	2	H	10
+dana_DG_m_r4	GSM2817216	SAMN07795282	SRX3291625	Drosophila ananassae	FBsp00000052	adult	digestive plus excretory system	male	4	1	H	10
+dana_GO_f_r4	GSM2817217	SAMN07795281	SRX3291626	Drosophila ananassae	FBsp00000052	adult	gonad	female	4	2	F	10
+dana_GO_m_r4	GSM2817218	SAMN07795280	SRX3291627	Drosophila ananassae	FBsp00000052	adult	gonad	male	4	1	F	11
+dana_HD_f_r4	GSM2817219	SAMN07795279	SRX3291628	Drosophila ananassae	FBsp00000052	adult	head	female	4	2	B	11
+dana_HD_m_r4	GSM2817220	SAMN07795278	SRX3291629	Drosophila ananassae	FBsp00000052	adult	head	male	4	1	B	11
+dana_RE_f_r4	GSM2817221	SAMN07795277	SRX3291630	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	female	4	2	G	10
+dana_RE_m_r4	GSM2817222	SAMN07795276	SRX3291631	Drosophila ananassae	FBsp00000052	adult	reproductive system without gonad	male	4	1	G	9
+dana_TX_f_r4	GSM2817223	SAMN07795286	SRX3291632	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	female	4	2	D	12
+dana_TX_m_r4	GSM2817224	SAMN07795287	SRX3291633	Drosophila ananassae	FBsp00000052	adult	thorax without digestive system	male	4	1	D	10
+dana_WB_f_r4	GSM2817225	SAMN07795054	SRX3291634	Drosophila ananassae	FBsp00000052	adult	whole body	female	4	2	A	11
+dana_WB_m_r4	GSM2817226	SAMN07795298	SRX3291635	Drosophila ananassae	FBsp00000052	adult	whole body	male	4	1	A	12
+dmoj_AC_f_r4	GSM2817227	SAMN07795297	SRX3291636	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	female	4	2	D	6
+dmoj_AC_m_r4	GSM2817228	SAMN07795296	SRX3291637	Drosophila mojavensis	FBsp00000160	adult	abdomen without digestive or reproductive system	male	4	2	D	2
+dmoj_DG_f_r4	GSM2817229	SAMN07795055	SRX3291638	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	female	4	2	H	7
+dmoj_DG_m_r4	GSM2817230	SAMN07795057	SRX3291639	Drosophila mojavensis	FBsp00000160	adult	digestive plus excretory system	male	4	2	H	1
+dmoj_GO_f_r4	GSM2817231	SAMN07795056	SRX3291640	Drosophila mojavensis	FBsp00000160	adult	gonad	female	4	2	E	7
+dmoj_GO_m_r4	GSM2817232	SAMN07795295	SRX3291641	Drosophila mojavensis	FBsp00000160	adult	gonad	male	4	2	E	1
+dmoj_HD_f_r4	GSM2817233	SAMN07795294	SRX3291642	Drosophila mojavensis	FBsp00000160	adult	head	female	4	2	B	8
+dmoj_HD_m_r4	GSM2817234	SAMN07795293	SRX3291643	Drosophila mojavensis	FBsp00000160	adult	head	male	4	2	B	2
+dmoj_RE_f_r4	GSM2817235	SAMN07795292	SRX3291644	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	female	4	2	F	7
+dmoj_RE_m_r4	GSM2817236	SAMN07795291	SRX3291645	Drosophila mojavensis	FBsp00000160	adult	reproductive system without gonad	male	4	2	F	2
+dmoj_TX_f_r4	GSM2817237	SAMN07795290	SRX3291646	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	female	4	2	C	6
+dmoj_TX_m_r4	GSM2817238	SAMN07795289	SRX3291647	Drosophila mojavensis	FBsp00000160	adult	thorax without digestive system	male	4	2	C	1
+dmoj_WB_f_r4	GSM2817239	SAMN07795288	SRX3291648	Drosophila mojavensis	FBsp00000160	adult	whole body	female	4	2	A	6
+dmoj_WB_m_r4	GSM2817240	SAMN07795071	SRX3291649	Drosophila mojavensis	FBsp00000160	adult	whole body	male	4	2	A	3
+dper_AC_f_r4	GSM2817241	SAMN07795070	SRX3291650	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	female	4	2	D	6
+dper_AC_m_r4	GSM2817242	SAMN07795069	SRX3291651	Drosophila persimilis	FBsp00000188	adult	abdomen without digestive or reproductive system	male	4	2	D	2
+dper_DG_f_r4	GSM2817243	SAMN07795068	SRX3291652	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	female	4	2	H	7
+dper_DG_m_r4	GSM2817244	SAMN07795067	SRX3291653	Drosophila persimilis	FBsp00000188	adult	digestive plus excretory system	male	4	2	H	1
+dper_GO_f_r4	GSM2817245	SAMN07795066	SRX3291654	Drosophila persimilis	FBsp00000188	adult	gonad	female	4	2	E	7
+dper_GO_m_r4	GSM2817246	SAMN07795065	SRX3291655	Drosophila persimilis	FBsp00000188	adult	gonad	male	4	2	E	1
+dper_HD_f_r4	GSM2817247	SAMN07795064	SRX3291656	Drosophila persimilis	FBsp00000188	adult	head	female	4	2	B	8
+dper_HD_m_r4	GSM2817248	SAMN07795063	SRX3291657	Drosophila persimilis	FBsp00000188	adult	head	male	4	2	B	2
+dper_RE_f_r4	GSM2817249	SAMN07795062	SRX3291658	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	female	4	2	F	7
+dper_RE_m_r4	GSM2817250	SAMN07795061	SRX3291659	Drosophila persimilis	FBsp00000188	adult	reproductive system without gonad	male	4	2	F	2
+dper_TX_f_r4	GSM2817251	SAMN07795060	SRX3291660	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	female	4	2	C	6
+dper_TX_m_r4	GSM2817252	SAMN07795059	SRX3291661	Drosophila persimilis	FBsp00000188	adult	thorax without digestive system	male	4	2	C	1
+dper_WB_f_r4	GSM2817253	SAMN07795058	SRX3291662	Drosophila persimilis	FBsp00000188	adult	whole body	female	4	2	A	6
+dper_WB_m_r4	GSM2817254	SAMN07795131	SRX3291663	Drosophila persimilis	FBsp00000188	adult	whole body	male	4	2	A	3
+dpse_AC_f_r4	GSM2817255	SAMN07795130	SRX3291664	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	female	4	1	D	8
+dpse_AC_m_r4	GSM2817256	SAMN07795125	SRX3291665	Drosophila pseudoobscura	FBsp00000201	adult	abdomen without digestive or reproductive system	male	4	1	D	2
+dpse_DG_f_r4	GSM2817257	SAMN07795124	SRX3291666	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	female	4	1	H	5
+dpse_DG_m_r4	GSM2817258	SAMN07795123	SRX3291667	Drosophila pseudoobscura	FBsp00000201	adult	digestive plus excretory system	male	4	1	H	4
+dpse_GO_f_r4	GSM2817259	SAMN07795122	SRX3291668	Drosophila pseudoobscura	FBsp00000201	adult	gonad	female	4	1	E	6
+dpse_GO_m_r4	GSM2817260	SAMN07795129	SRX3291669	Drosophila pseudoobscura	FBsp00000201	adult	gonad	male	4	1	E	1
+dpse_HD_f_r4	GSM2817261	SAMN07795128	SRX3291670	Drosophila pseudoobscura	FBsp00000201	adult	head	female	4	1	B	6
+dpse_HD_m_r4	GSM2817262	SAMN07795127	SRX3291671	Drosophila pseudoobscura	FBsp00000201	adult	head	male	4	1	B	1
+dpse_RE_f_r4	GSM2817263	SAMN07795126	SRX3291672	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	female	4	1	F	6
+dpse_RE_m_r4	GSM2817264	SAMN07795121	SRX3291673	Drosophila pseudoobscura	FBsp00000201	adult	reproductive system without gonad	male	4	1	F	4
+dpse_TX_f_r4	GSM2817265	SAMN07795120	SRX3291674	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	female	4	1	C	5
+dpse_TX_m_r4	GSM2817266	SAMN07795119	SRX3291675	Drosophila pseudoobscura	FBsp00000201	adult	thorax without digestive system	male	4	1	C	2
+dpse_WB_f_r4	GSM2817267	SAMN07795118	SRX3291676	Drosophila pseudoobscura	FBsp00000201	adult	whole body	female	4	1	A	7
+dpse_WB_m_r4	GSM2817268	SAMN07795117	SRX3291677	Drosophila pseudoobscura	FBsp00000201	adult	whole body	male	4	1	A	4
+dvir_AC_f_r4	GSM2817269	SAMN07795116	SRX3291678	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	female	4	1	D	8
+dvir_AC_m_r4	GSM2817270	SAMN07795115	SRX3291679	Drosophila virilis	FBsp00000251	adult	abdomen without digestive or reproductive system	male	4	1	D	2
+dvir_DG_f_r4	GSM2817271	SAMN07795114	SRX3291680	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	female	4	1	H	5
+dvir_DG_m_r4	GSM2817272	SAMN07795113	SRX3291681	Drosophila virilis	FBsp00000251	adult	digestive plus excretory system	male	4	1	H	4
+dvir_GO_f_r4	GSM2817273	SAMN07795112	SRX3291682	Drosophila virilis	FBsp00000251	adult	gonad	female	4	1	E	6
+dvir_GO_m_r4	GSM2817274	SAMN07795111	SRX3291683	Drosophila virilis	FBsp00000251	adult	gonad	male	4	1	E	1
+dvir_HD_f_r4	GSM2817275	SAMN07795110	SRX3291684	Drosophila virilis	FBsp00000251	adult	head	female	4	1	B	6
+dvir_HD_m_r4	GSM2817276	SAMN07795109	SRX3291685	Drosophila virilis	FBsp00000251	adult	head	male	4	1	B	1
+dvir_RE_f_r4	GSM2817277	SAMN07795108	SRX3291686	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	female	4	1	F	6
+dvir_RE_m_r4	GSM2817278	SAMN07795107	SRX3291687	Drosophila virilis	FBsp00000251	adult	reproductive system without gonad	male	4	1	F	4
+dvir_TX_f_r4	GSM2817279	SAMN07795106	SRX3291688	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	female	4	1	C	5
+dvir_TX_m_r4	GSM2817280	SAMN07795105	SRX3291689	Drosophila virilis	FBsp00000251	adult	thorax without digestive system	male	4	1	C	2
+dvir_WB_f_r4	GSM2817281	SAMN07795104	SRX3291690	Drosophila virilis	FBsp00000251	adult	whole body	female	4	1	A	7
+dvir_WB_m_r4	GSM2817282	SAMN07795103	SRX3291691	Drosophila virilis	FBsp00000251	adult	whole body	male	4	1	A	4
+dwil_AC_f_r4	GSM2817283	SAMN07795102	SRX3291692	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	female	4	2	E	11
+dwil_AC_m_r4	GSM2817284	SAMN07795053	SRX3291693	Drosophila willistoni	FBsp00000253	adult	abdomen without digestive or reproductive system	male	4	1	E	11
+dwil_DG_f_r4	GSM2817285	SAMN07795052	SRX3291694	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	female	4	2	H	10
+dwil_DG_m_r4	GSM2817286	SAMN07795159	SRX3291695	Drosophila willistoni	FBsp00000253	adult	digestive plus excretory system	male	4	1	H	10
+dwil_GO_f_r4	GSM2817287	SAMN07795158	SRX3291696	Drosophila willistoni	FBsp00000253	adult	gonad	female	4	2	F	10
+dwil_GO_m_r4	GSM2817288	SAMN07795157	SRX3291697	Drosophila willistoni	FBsp00000253	adult	gonad	male	4	1	F	11
+dwil_HD_f_r4	GSM2817289	SAMN07795156	SRX3291698	Drosophila willistoni	FBsp00000253	adult	head	female	4	2	B	11
+dwil_HD_m_r4	GSM2817290	SAMN07795155	SRX3291699	Drosophila willistoni	FBsp00000253	adult	head	male	4	1	B	11
+dwil_RE_f_r4	GSM2817291	SAMN07795154	SRX3291700	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	female	4	2	G	10
+dwil_RE_m_r4	GSM2817292	SAMN07795153	SRX3291701	Drosophila willistoni	FBsp00000253	adult	reproductive system without gonad	male	4	1	G	9
+dwil_TX_f_r4	GSM2817293	SAMN07795152	SRX3291702	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	female	4	2	D	12
+dwil_TX_m_r4	GSM2817294	SAMN07795151	SRX3291703	Drosophila willistoni	FBsp00000253	adult	thorax without digestive system	male	4	1	D	10
+dwil_WB_f_r4	GSM2817295	SAMN07795150	SRX3291704	Drosophila willistoni	FBsp00000253	adult	whole body	female	4	2	A	11
+dwil_WB_m_r4	GSM2817296	SAMN07795149	SRX3291705	Drosophila willistoni	FBsp00000253	adult	whole body	male	4	1	A	12
+dyak_AC_f_r4	GSM2817297	SAMN07795148	SRX3291706	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	female	4	2	E	11
+dyak_AC_m_r4	GSM2817298	SAMN07795147	SRX3291707	Drosophila yakuba	FBsp00000254	adult	abdomen without digestive or reproductive system	male	4	1	E	11
+dyak_DG_f_r4	GSM2817299	SAMN07795146	SRX3291708	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	female	4	2	H	10
+dyak_DG_m_r4	GSM2817300	SAMN07795145	SRX3291709	Drosophila yakuba	FBsp00000254	adult	digestive plus excretory system	male	4	1	H	10
+dyak_GO_f_r4	GSM2817301	SAMN07795144	SRX3291710	Drosophila yakuba	FBsp00000254	adult	gonad	female	4	2	F	10
+dyak_GO_m_r4	GSM2817302	SAMN07795143	SRX3291711	Drosophila yakuba	FBsp00000254	adult	gonad	male	4	1	F	11
+dyak_HD_f_r4	GSM2817303	SAMN07795142	SRX3291712	Drosophila yakuba	FBsp00000254	adult	head	female	4	2	B	11
+dyak_HD_m_r4	GSM2817304	SAMN07795141	SRX3291713	Drosophila yakuba	FBsp00000254	adult	head	male	4	1	B	11
+dyak_RE_f_r4	GSM2817305	SAMN07795140	SRX3291714	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	female	4	2	G	10
+dyak_RE_m_r4	GSM2817306	SAMN07795139	SRX3291715	Drosophila yakuba	FBsp00000254	adult	reproductive system without gonad	male	4	1	G	9
+dyak_TX_f_r4	GSM2817307	SAMN07795138	SRX3291716	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	female	4	2	D	12
+dyak_TX_m_r4	GSM2817308	SAMN07795137	SRX3291717	Drosophila yakuba	FBsp00000254	adult	thorax without digestive system	male	4	1	D	10
+dyak_WB_f_r4	GSM2817309	SAMN07795136	SRX3291718	Drosophila yakuba	FBsp00000254	adult	whole body	female	4	2	A	11
+dyak_WB_m_r4	GSM2817310	SAMN07795135	SRX3291719	Drosophila yakuba	FBsp00000254	adult	whole body	male	4	1	A	12
+orgR_AC_f_r4	GSM2817311	SAMN07795134	SRX3291720	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	4	2	D	6
+orgR_AC_m_r4	GSM2817312	SAMN07795133	SRX3291721	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	4	2	D	2
+orgR_DG_f_r4	GSM2817313	SAMN07795132	SRX3291722	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	4	2	H	7
+orgR_DG_m_r4	GSM2817314	SAMN07795101	SRX3291723	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	4	2	H	1
+orgR_GE_f_r4	GSM2817315	SAMN07795100	SRX3291724	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	4	2	G	5
+orgR_GE_m_r4	GSM2817316	SAMN07795099	SRX3291725	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	4	2	G	1
+orgR_GO_f_r4	GSM2817317	SAMN07795098	SRX3291726	Drosophila melanogaster	FBsp00000001	adult	gonad	female	4	2	E	7
+orgR_GO_m_r4	GSM2817318	SAMN07795097	SRX3291727	Drosophila melanogaster	FBsp00000001	adult	gonad	male	4	2	E	1
+orgR_HD_f_r4	GSM2817319	SAMN07795096	SRX3291728	Drosophila melanogaster	FBsp00000001	adult	head	female	4	2	B	8
+orgR_HD_m_r4	GSM2817320	SAMN07795095	SRX3291729	Drosophila melanogaster	FBsp00000001	adult	head	male	4	2	B	2
+orgR_RE_f_r4	GSM2817321	SAMN07795094	SRX3291730	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	4	2	F	7
+orgR_RE_m_r4	GSM2817322	SAMN07795093	SRX3291731	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	4	2	F	2
+orgR_TX_f_r4	GSM2817323	SAMN07795092	SRX3291732	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	4	2	C	6
+orgR_TX_m_r4	GSM2817324	SAMN07795091	SRX3291733	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	4	2	C	1
+orgR_WB_f_r4	GSM2817325	SAMN07795090	SRX3291734	Drosophila melanogaster	FBsp00000001	adult	whole body	female	4	2	A	6
+orgR_WB_m_r4	GSM2817326	SAMN07795089	SRX3291735	Drosophila melanogaster	FBsp00000001	adult	whole body	male	4	2	A	3
+w1118_AC_f_r4	GSM2817327	SAMN07795088	SRX3291736	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	female	4	1	D	8
+w1118_AC_m_r4	GSM2817328	SAMN07795087	SRX3291737	Drosophila melanogaster	FBsp00000001	adult	abdomen without digestive or reproductive system	male	4	1	D	2
+w1118_DG_f_r4	GSM2817329	SAMN07795086	SRX3291738	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	female	4	1	H	5
+w1118_DG_m_r4	GSM2817330	SAMN07795085	SRX3291739	Drosophila melanogaster	FBsp00000001	adult	digestive plus excretory system	male	4	1	H	4
+w1118_GE_f_r4	GSM2817331	SAMN07795084	SRX3291740	Drosophila melanogaster	FBsp00000001	adult	genitalia	female	4	1	G	7
+w1118_GE_m_r4	GSM2817332	SAMN07795083	SRX3291741	Drosophila melanogaster	FBsp00000001	adult	genitalia	male	4	1	G	4
+w1118_GO_f_r4	GSM2817333	SAMN07795082	SRX3291742	Drosophila melanogaster	FBsp00000001	adult	gonad	female	4	1	E	6
+w1118_GO_m_r4	GSM2817334	SAMN07795081	SRX3291743	Drosophila melanogaster	FBsp00000001	adult	gonad	male	4	1	E	1
+w1118_HD_f_r4	GSM2817335	SAMN07795080	SRX3291744	Drosophila melanogaster	FBsp00000001	adult	head	female	4	1	B	6
+w1118_HD_m_r4	GSM2817336	SAMN07795079	SRX3291745	Drosophila melanogaster	FBsp00000001	adult	head	male	4	1	B	1
+w1118_RE_f_r4	GSM2817337	SAMN07795078	SRX3291746	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	female	4	1	F	6
+w1118_RE_m_r4	GSM2817338	SAMN07795077	SRX3291747	Drosophila melanogaster	FBsp00000001	adult	reproductive system without gonad and genitalia	male	4	1	F	4
+w1118_TX_f_r4	GSM2817339	SAMN07795076	SRX3291748	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	female	4	1	C	5
+w1118_TX_m_r4	GSM2817340	SAMN07795075	SRX3291749	Drosophila melanogaster	FBsp00000001	adult	thorax without digestive system	male	4	1	C	2
+w1118_WB_f_r4	GSM2817341	SAMN07795074	SRX3291750	Drosophila melanogaster	FBsp00000001	adult	whole body	female	4	1	A	7
+w1118_WB_m_r4	GSM2817342	SAMN07795073	SRX3291751	Drosophila melanogaster	FBsp00000001	adult	whole body	male	4	1	A	4

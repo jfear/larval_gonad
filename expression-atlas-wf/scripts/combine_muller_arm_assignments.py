@@ -7,12 +7,12 @@ OUTPUT_FILE = snakemake.output[0]
 # Debug settings
 # import os
 # try:
-#     os.chdir(os.path.join(os.getcwd(), "neox-wf/scripts"))
+#     os.chdir(os.path.join(os.getcwd(), "expression-atlas-wf/scripts"))
 #     print(os.getcwd())
 # except:
 #     pass
-# YO_FILE = "../../output/neox-wf/YO_muller_arm_assignment.feather"
-# FB_FILE = "../../output/neox-wf/FB_muller_arm_assignment.feather"
+# YO_FILE = "../../output/expression-atlas-wf/YO_muller_arm_assignment.feather"
+# FB_FILE = "../../output/expression-atlas-wf/FB_muller_arm_assignment.feather"
 
 
 def main():

@@ -18,11 +18,11 @@ OUTPUT_FILE = snakemake.output[0]
 # Debug Settings
 # import os
 # try:
-#     os.chdir(os.path.join(os.getcwd(), "neox-wf/scripts"))
+#     os.chdir(os.path.join(os.getcwd(), "expression-atlas-wf/scripts"))
 #     print(os.getcwd())
 # except:
 #     pass
-# ORTHOLOGS = '../../output/neox-wf/ortholog_annotation.feather'
+# ORTHOLOGS = '../../output/expression-atlas-wf/ortholog_annotation.feather'
 # GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
 # PRIMARY_SECONDARY = '../../references/primary2secondary_dmel_r6-24.pkl'
 

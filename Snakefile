@@ -13,7 +13,8 @@ rule targets:
     input:
         f'references/{assembly}-all-{tag}.modFix.gtf',
         f'references/gene_annotation_{assembly}_{tag}.feather',
-        f'references/primary2secondary_{assembly}_{tag}.pkl'
+        f'references/primary2secondary_{assembly}_{tag}.pkl',
+        'expression-atlas-wf/config/sampletable.tsv'
 
 
 rule fix_gtf:
@@ -44,3 +45,9 @@ rule primary_secondary_fbgn_mapper:
     params: f"ftp://ftp.flybase.net/releases/FB{release_date}/precomputed_files/genes/fbgn_annotation_ID_fb_{release_date}.tsv.gz"
     output: f'references/primary2secondary_{assembly}_{tag}.pkl'
     script: 'scripts/primary_secondary_fbgn_mapper.py'
+
+
+rule generate_haiwang_sampletable:
+    output: 'expression-atlas-wf/config/sampletable.tsv'
+    params: 'GSE99574'
+    script: 'scripts/parse_geo_to_sampletable.py'
