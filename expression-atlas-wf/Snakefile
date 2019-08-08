@@ -26,6 +26,7 @@ rule all:
         '../output/expression-atlas-wf/muller_arm_assignment.feather',
         '../output/expression-atlas-wf/dmel_tau.feather',
         '../output/expression-atlas-wf/dmel_tsps.feather',
+        '../output/expression-atlas-wf/dmel_male_biased_expression.tsv'
 
 
 rule download_annotation:
@@ -143,3 +144,14 @@ rule tsps:
         gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
     output: '../output/expression-atlas-wf/dmel_tsps.feather'
     script: 'scripts/calculate_tsps.py'
+
+
+rule male_testis_biased_expression:
+    input: 
+        sample_table = 'config/sampletable.tsv',
+        counts_table = rules.coverage_table.output[0],
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
+    output: '../output/expression-atlas-wf/dmel_male_biased_expression.tsv'
+    log: '../output/expression-atlas-wf/dmel_male_biased_expression.log'
+    conda: "../envs/deseq2.yaml"
+    script: "scripts/dmel_testis_biased_expression.R"
