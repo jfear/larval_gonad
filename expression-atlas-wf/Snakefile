@@ -24,6 +24,7 @@ rule all:
         '../output/expression-atlas-wf/ortholog_annotation.feather',
         '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
         '../output/expression-atlas-wf/muller_arm_assignment.feather',
+        '../output/expression-atlas-wf/dmel_tau.feather',
 
 
 rule download_annotation:
@@ -123,3 +124,12 @@ rule combine_YO_FB:
         fb = '../output/expression-atlas-wf/FB_muller_arm_assignment.feather',
     output: '../output/expression-atlas-wf/muller_arm_assignment.feather'
     script: 'scripts/combine_muller_arm_assignments.py'
+
+
+rule tau:
+    input: 
+        counts = rules.coverage_table.output[0],
+        sampletable = 'config/sampletable.tsv',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+    output: '../output/expression-atlas-wf/dmel_tau.feather'
+    script: 'scripts/calculate_tau.py'
