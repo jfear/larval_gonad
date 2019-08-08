@@ -25,6 +25,7 @@ rule all:
         '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
         '../output/expression-atlas-wf/muller_arm_assignment.feather',
         '../output/expression-atlas-wf/dmel_tau.feather',
+        '../output/expression-atlas-wf/dmel_tsps.feather',
 
 
 rule download_annotation:
@@ -133,3 +134,12 @@ rule tau:
         gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
     output: '../output/expression-atlas-wf/dmel_tau.feather'
     script: 'scripts/calculate_tau.py'
+
+
+rule tsps:
+    input: 
+        counts = rules.coverage_table.output[0],
+        sampletable = 'config/sampletable.tsv',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+    output: '../output/expression-atlas-wf/dmel_tsps.feather'
+    script: 'scripts/calculate_tsps.py'
