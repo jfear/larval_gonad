@@ -136,14 +136,27 @@ rule germline_deg:
         html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
         gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: 
+        # SP vs Cytes
         gvcf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.feather",
         gvct = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.tsv",
+        # SP vs EPS
         gvef = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.feather",
         gvet = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.tsv",
+        # SP vs PS
         gvpf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.feather",
         gvpt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.tsv",
+        # EPS vs PS
         evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
-        evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv"
+        evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv",
+        # PS1 vs PS2
+        povptf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.feather",
+        povptt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.tsv",
+        # PS1 vs PS3
+        povprf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_three.feather",
+        povprt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_three.tsv",
+        # PS2 vs PS3
+        ptvprf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_two_vs_ps_three.feather",
+        ptvprt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_two_vs_ps_three.tsv"
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
