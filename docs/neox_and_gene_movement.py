@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from scipy.stats import fisher_exact, mannwhitneyu
+from scipy.stats import fisher_exact, mannwhitneyu, contingency
 from tabulate import tabulate
 from sklearn.metrics import adjusted_rand_score
 
@@ -25,7 +25,7 @@ except:
 
 #%%
 # Globals
-MULLER = "../output/neox-wf/muller_arm_assignment.feather"
+MULLER = "../output/expression-atlas-wf/muller_arm_assignment.feather"
 ORDER = ["conserved", "moved_on", "gene_death", "moved_off"]
 BOXPLOT_DEFAULTS = {"order": ORDER, "notch": True, "showfliers": False}
 
@@ -103,6 +103,14 @@ def run_mann(df, col):
     return pval
 
 
+def expected_freq(df):
+    return pd.DataFrame(
+        contingency.expected_freq(df),
+        index=df.index,
+        columns=df.columns
+    )
+
+
 def summarize(df, muller_arm: str, species: str, deg: str):
     # Plot percent of cells with cyte expression vs evolutionary status
     fname = f"../output/docs/neox_analysis_boxplot_{deg}_{species}_{muller_arm}.svg"
@@ -135,6 +143,8 @@ def summarize(df, muller_arm: str, species: str, deg: str):
     )
     _tabulate(ct_collapsed[["Selection Favor", "Selection Against"]])
 
+    _tabulate(expected_freq(ct_collapsed[["Selection Favor", "Selection Against"]]))
+
     # Fisher's Exact Test: collapsed groups
     print(f"Fisher's Exact Test: {fisher_exact(ct_collapsed, alternative='two-sided')[1]}")
 
@@ -143,12 +153,13 @@ def summarize(df, muller_arm: str, species: str, deg: str):
 # ## Compare Yang et al and FlyBase
 
 #%%
-muller_yang = pd.read_feather("../output/neox-wf/YO_muller_arm_assignment.feather").set_index(
-    "FBgn"
-)
-muller_flybase = pd.read_feather("../output/neox-wf/FB_muller_arm_assignment.feather").set_index(
-    "FBgn"
-)
+muller_yang = pd.read_feather(
+    "../output/expression-atlas-wf/YO_muller_arm_assignment.feather"
+).set_index("FBgn")
+
+muller_flybase = pd.read_feather(
+    "../output/expression-atlas-wf/FB_muller_arm_assignment.feather"
+).set_index("FBgn")
 
 muller_yang_and_flybase = muller_yang.join(
     muller_flybase, how="outer", lsuffix="_yo", rsuffix="_fb"
@@ -189,6 +200,47 @@ _df = pd.DataFrame(
 ).set_index("species")
 _tabulate(_df)
 
+#%%
+# Combined Counts
+_df = muller_flybase.copy()
+_df.update(muller_yang)
+_tabulate(_df.notnull().sum().rename("Number Orthologs").rename_axis("Species").to_frame())
+
+#%%
+# Number of genes per Muller element
+_df = muller_flybase.copy()
+_df.update(muller_yang)
+_tabulate(_df.apply(lambda x: x.value_counts()).T.fillna(0))
+
+#%%
+# Standard Deviation of the number of genes per muller element
+_df = muller_flybase.copy()
+_df.update(muller_yang)
+_tabulate(_df.apply(lambda x: x.value_counts()).T.fillna(0).std().rename("Std Dev").rename_axis("Muller Element").to_frame())
+
+#%% [markdown]
+# ## *D. pseduoobscura* Movement Classification
+
+#%%
+# Numbes by class
+_df = pd.concat([
+    pd.read_feather("../output/neox-wf/dpse_muller_A.feather").set_index('FBgn').squeeze().value_counts(),
+    pd.read_feather("../output/neox-wf/dpse_muller_D.feather").set_index('FBgn').squeeze().value_counts(),
+    pd.read_feather("../output/neox-wf/dpse_muller_E.feather").set_index('FBgn').squeeze().value_counts()
+], axis=1, sort=True)
+_tabulate(_df)
+
+#%% [markdown]
+# ## *D. willistoni* Movement Classification
+
+#%%
+# Numbes by class
+_df = pd.concat([
+    pd.read_feather("../output/neox-wf/dwil_muller_A.feather").set_index('FBgn').squeeze().value_counts(),
+    pd.read_feather("../output/neox-wf/dwil_muller_D.feather").set_index('FBgn').squeeze().value_counts(),
+    pd.read_feather("../output/neox-wf/dwil_muller_E.feather").set_index('FBgn').squeeze().value_counts()
+], axis=1, sort=True)
+_tabulate(_df)
 ################################################################################
 #%% [markdown]
 # ## Spermatogonia vs Primary Spermatocytes
@@ -214,7 +266,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -245,7 +297,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -283,7 +335,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -314,7 +366,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -352,7 +404,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -383,7 +435,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -421,7 +473,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
@@ -452,7 +504,7 @@ _df = (
         axis=1,
         sort=True,
     )
-    .reindex(["conserved", "recent_conserved", "moved_on", "gene_death", "moved_off", "other"])
+    .reindex(["conserved", "moved_on", "gene_death", "moved_off", "other"])
     .fillna(0)
 )
 _tabulate(_df)
