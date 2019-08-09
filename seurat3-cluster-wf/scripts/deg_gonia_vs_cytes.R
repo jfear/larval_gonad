@@ -72,4 +72,4 @@ ps_one_vs_ps_three <- find_markers(combined, "6", "0")
 save_deg(ps_one_vs_ps_three, POVPR)
 
 ps_two_vs_ps_three <- find_markers(combined, "2", "0")
-save_deg(ps_two_vs_ps_thee, PTVPR)
+save_deg(ps_two_vs_ps_three, PTVPR)
