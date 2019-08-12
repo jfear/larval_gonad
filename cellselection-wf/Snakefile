@@ -43,6 +43,8 @@ import pandas as pd
 from snakemake.shell import shell
 
 from larval_gonad.config import read_config
+from larval_gonad.io import pickle_dump
+
 
 configfile: 'config/config.yaml'
 common_config = read_config('../config/common.yaml')
@@ -79,7 +81,8 @@ rule targets:
         expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg', sample=SAMPLES),
         expand('../output/cellselection-wf/{sample}/matrix.mtx', sample=SAMPLES),
         "../output/cellselection-wf/raw.feather",
-        "../output/cellselection-wf/commonly_expressed.pkl"
+        "../output/cellselection-wf/expressed_genes.pkl",
+        "../output/cellselection-wf/commonly_expressed_genes.pkl",
 
 
 rule unzip_cellranger3:
@@ -329,11 +332,21 @@ rule raw:
     script: "scripts/raw_expression_matrix.py"
 
 
-rule commonly_expressed:
+rule expressed_genes:
     input: rules.raw.output[0]
-    output: '../output/cellselection-wf/commonly_expressed.pkl'
+    output: '../output/cellselection-wf/expressed_genes.pkl'
     run:
-        from larval_gonad.io import pickle_dump
+        df = (
+            pd.read_feather(input[0]).set_index("FBgn")
+            .pipe(lambda x: x[(x > 0).any(axis=1)])
+        )
+        pickle_dump(df.index.tolist(), output[0])
+
+
+rule commonly_expressed_genes:
+    input: rules.raw.output[0]
+    output: '../output/cellselection-wf/commonly_expressed_genes.pkl'
+    run:
         from larval_gonad.cell_selection import commonly_expressed
 
         df = pd.read_feather(input[0]).set_index("FBgn")
