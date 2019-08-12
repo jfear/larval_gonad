@@ -24,7 +24,7 @@ rule all:
         '../output/expression-atlas-wf/ortholog_annotation.feather',
         '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
         '../output/expression-atlas-wf/muller_arm_assignment.feather',
-        '../output/expression-atlas-wf/dmel_tau.feather',
+        '../output/expression-atlas-wf/dist_dmel_tau.svg',
         '../output/expression-atlas-wf/dmel_tsps.feather',
         '../output/expression-atlas-wf/dmel_male_biased_expression.tsv',
         '../output/expression-atlas-wf/dmel_testis_biased_expression.tsv'
@@ -138,6 +138,12 @@ rule tau:
     script: 'scripts/calculate_tau.py'
 
 
+rule plot_tau:
+    input: rules.tau.output[0]
+    output: '../output/expression-atlas-wf/dist_dmel_tau.svg'
+    script: './scripts/plot_dist_tau.py'
+
+
 rule tsps:
     input: 
         counts = rules.coverage_table.output[0],
@@ -157,6 +163,7 @@ rule dmel_testis_biased_expression:
     conda: "../envs/deseq2.yaml"
     script: "scripts/dmel_testis_biased_expression.R"
 
+
 rule dmel_male_biased_expression:
     input: 
         sample_table = 'config/sampletable.tsv',
@@ -166,3 +173,5 @@ rule dmel_male_biased_expression:
     log: '../output/expression-atlas-wf/dmel_male_biased_expression.log'
     conda: "../envs/deseq2.yaml"
     script: "scripts/dmel_male_biased_expression.R"
+
+
