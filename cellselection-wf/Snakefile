@@ -40,17 +40,18 @@ from itertools import chain
 from pathlib import Path
 
 import pandas as pd
-
 from snakemake.shell import shell
 
+from larval_gonad.config import read_config
+
 configfile: 'config/config.yaml'
-common_config = yaml.load(open('../config/common.yaml', 'rb').read())
+common_config = read_config('../config/common.yaml')
 ASSEMBLY = common_config['assembly']
 TAG = common_config['tag']
 
 SAMPLES = pd.read_csv('../config/scrnaseq-sampletable.tsv', sep='\t', index_col=0).index.tolist()
 
-localrules: unzip_cellranger3, barcode_to_cellid
+localrules: unzip_cellranger3, barcode_to_cellid, commonly_expressed
 
 
 rule targets:
@@ -78,6 +79,7 @@ rule targets:
         expand('../output/cellselection-wf/grid_search/{sample}/{sample}_heatmap_grid.svg', sample=SAMPLES),
         expand('../output/cellselection-wf/{sample}/matrix.mtx', sample=SAMPLES),
         "../output/cellselection-wf/raw.feather",
+        "../output/cellselection-wf/commonly_expressed.pkl"
 
 
 rule unzip_cellranger3:
@@ -325,3 +327,14 @@ rule raw:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: "scripts/raw_expression_matrix.py"
+
+
+rule commonly_expressed:
+    input: rules.raw.output[0]
+    output: '../output/cellselection-wf/commonly_expressed.pkl'
+    run:
+        from larval_gonad.io import pickle_dump
+        from larval_gonad.cell_selection import commonly_expressed
+
+        df = pd.read_feather(input[0]).set_index("FBgn")
+        pickle_dump(commonly_expressed(df), output[0])
