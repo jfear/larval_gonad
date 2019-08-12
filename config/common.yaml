@@ -74,10 +74,10 @@ cyst:
   - 'CY1'
   - 'CY2'
 chrom_order:
-  - chrX
-  - chr2L
-  - chr2R
-  - chr3L
-  - chr3R
-  - chr4
-  - chrY
+  - "X"
+  - "2L"
+  - "2R"
+  - "3L"
+  - "3R"
+  - "4"
+  - "Y"
