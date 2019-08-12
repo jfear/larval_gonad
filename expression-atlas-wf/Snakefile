@@ -210,5 +210,3 @@ rule dmel_male_biased_expression:
     log: '../output/expression-atlas-wf/dmel_male_biased_expression.log'
     conda: "../envs/deseq2.yaml"
     script: "scripts/dmel_male_biased_expression.R"
-
-
