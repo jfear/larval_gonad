@@ -215,7 +215,9 @@ rule combined_n3_clusters:
                 cluster = lambda x: pd.Categorical(
                     x.cluster.map(params['cluster_annot']), ordered=True, categories=params['cluster_order']
                 )
-            ).to_feather(output[0])
+            )
+            .assign(rep = lambda x: x.cell_id.str.extract("(rep\d)_.*", expand=False))
+            .to_feather(output[0])
         )
 
 
