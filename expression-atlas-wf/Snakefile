@@ -25,7 +25,7 @@ rule all:
         '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
         '../output/expression-atlas-wf/muller_arm_assignment.feather',
         '../output/expression-atlas-wf/dist_dmel_tau.svg',
-        '../output/expression-atlas-wf/dmel_tsps.feather',
+        '../output/expression-atlas-wf/dist_dmel_tsps.svg',
         '../output/expression-atlas-wf/dmel_male_biased_expression.tsv',
         '../output/expression-atlas-wf/dmel_testis_biased_expression.tsv'
 
@@ -151,6 +151,12 @@ rule tsps:
         gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
     output: '../output/expression-atlas-wf/dmel_tsps.feather'
     script: 'scripts/calculate_tsps.py'
+
+
+rule plot_tsps:
+    input: rules.tau.output[0]
+    output: '../output/expression-atlas-wf/dist_dmel_tsps.svg'
+    script: './scripts/plot_dist_tsps.py'
 
 
 rule dmel_testis_biased_expression:
