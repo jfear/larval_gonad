@@ -1,3 +1,12 @@
+"""Look for changes in X to Autosome ratios.
+
+There is some debate about if the X is meiotically silenced during
+spermiogenesis. Since we have cell type resolution we look at the patterns of
+X, 4th, and Y expression during germline development. This workflow calculate 
+autosome ratios at the individual cell level. We then use a permutation test
+to determine if ratios are significantly different across cell types.
+
+"""
 import os
 import yaml
 from pathlib import Path
@@ -20,7 +29,7 @@ AUTOSOMES = config['autosomes']
 rule targets:
     input:
         expand(
-            '../output/x-to-a-wf/permuted_autosome_ratio_pvalues_{fbgns}.feather',
+            '../output/x-to-a-wf/db/{fbgns}.dat',
             fbgns=[
                 'expressed',
                 'commonly_expressed',
@@ -72,3 +81,15 @@ rule permutation_test_autosome_ratios:
     input: rules.autosome_ratios_by_cell.output[0]
     output: '../output/x-to-a-wf/permuted_autosome_ratio_pvalues_{fbgns}.feather'
     script: 'scripts/permutation_test_autosome_ratios.py'
+
+
+rule shelve_results:
+    input: 
+        ratios = rules.autosome_ratios_by_cell.output[0],
+        pvalues = rules.permutation_test_autosome_ratios.output[0]
+    params: '../output/x-to-a-wf/db/{fbgns}',
+    output: 
+        '../output/x-to-a-wf/db/{fbgns}.dat',
+        '../output/x-to-a-wf/db/{fbgns}.dir',
+        '../output/x-to-a-wf/db/{fbgns}.bak'
+    script: 'scripts/shelve_results.py'
