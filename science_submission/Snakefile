@@ -31,15 +31,23 @@ wildcard_constraints:
 rule all:
     input:
         "../output/science_submission/gene_locations.feather",
-
         # Part 1
         "../output/science_submission/scRNAseq_raw_counts.tsv.gz",
         "../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz",
         "../output/science_submission/scRNAseq_raw_counts_by_celltype_rep.tsv.gz",
         "../output/science_submission/scRNAseq_tpm_counts_by_celltype_rep.tsv.gz",
         "../output/science_submission/scRNAseq_zscores_by_celltype_rep.tsv.gz",
-        "../output/science_submission/figures/heatmap-all-genes-w-rep.svg",
-        "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg",
+        expand(
+            "../output/science_submission/figures/zscore_heatmap_{gene_set}.svg",
+            gene_set=[
+                "expressed_genes", 
+                "commonly_expressed_genes", 
+                "lit_genes", 
+                "y_genes", 
+                "tau_genes", 
+                "tsps_genes",
+            ]
+        ),
         "../output/science_submission/figures/umap.svg",
         "../output/science_submission/figures/plot-umap-panels-1.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
@@ -98,6 +106,58 @@ rule gene_locs:
     output: "../output/science_submission/gene_locations.feather"
     script: "scripts/gene_locations.py"
 
+
+rule zscore_expressed_genes:
+    input:
+        zscores = '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        fbgns = '../output/cellselection-wf/expressed_genes.pkl'
+    output: '../output/science_submission/db/zscore_expressed_genes.dat'
+    script: "scripts/zscore_expressed_genes.py"
+
+
+rule zscore_commonly_expressed_genes:
+    input:
+        zscores = '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        fbgns = '../output/cellselection-wf/commonly_expressed_genes.pkl'
+    output: '../output/science_submission/db/zscore_commonly_expressed_genes.dat'
+    script: "scripts/zscore_commonly_expressed_genes.py"
+
+
+rule zscore_tau_genes:
+    input:
+        zscores = '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        fbgns = '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl'
+    output: '../output/science_submission/db/zscore_tau_genes.dat'
+    script: "scripts/zscore_tau_genes.py"
+
+
+rule zscore_tsps_genes:
+    input:
+        zscores = '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        fbgns = '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl'
+    output: '../output/science_submission/db/zscore_tsps_genes.dat'
+    script: "scripts/zscore_tsps_genes.py"
+
+
+rule zscore_lit_genes:
+    input:
+        zscores = '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
+    params: LIT_GENES
+    output: '../output/science_submission/db/zscore_lit_genes.dat'
+    script: "scripts/zscore_lit_genes.py"
+
+
+rule zscore_y_genes:
+    input:
+        zscores = '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
+        gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
+    output: '../output/science_submission/db/zscore_y_genes.dat'
+    script: "scripts/zscore_y_genes.py"
 
 ################################################################################
 # Part 1: Clustering calling, annotation, and "validation"
@@ -205,15 +265,11 @@ rule plot_umap_panels:
     script: "scripts/plot_umap_panels.py"
 
 
-rule plot_heatmap_all_lit_genes:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/figures/heatmap-all-lit-genes-w-rep.svg"
-    params:
-        lit_genes=LIT_GENES,
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_all_lit_genes.py"
+rule plot_zscore_heatmap:
+    input: "../output/science_submission/db/zscore_{gene_set}.dat"
+    output: "../output/science_submission/figures/zscore_heatmap_{gene_set}.svg"
+    params: COLORS['heatmap']
+    script: "scripts/plot_zscore_heatmap.py"
 
 
 rule plot_heatmap_lit_gene_evidence:
@@ -224,17 +280,6 @@ rule plot_heatmap_lit_gene_evidence:
     params:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_lit_evidence.py"
-
-
-rule plot_heatmap_all_genes:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/figures/heatmap-all-genes-w-rep.svg"
-    params:
-        lit_genes=LIT_GENES,
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_all_genes.py"
 
 
 rule plot_heatmap_biomarkers:
