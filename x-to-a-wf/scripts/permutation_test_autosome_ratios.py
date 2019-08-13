@@ -31,14 +31,16 @@ def main(snake):
             )
 
             results.append(
-                cluster,
-                summarize_permutation(perm_values_x),
-                summarize_permutation(perm_values_4),
-                summarize_permutation(perm_values_y),
+                (
+                    cluster,
+                    summarize_permutation(perm_values_x),
+                    summarize_permutation(perm_values_4),
+                    summarize_permutation(perm_values_y),
+                )
             )
 
     df = pd.DataFrame(
-        results, columns=["cluster", "perm_values_x", "perm_values_4", "perm_values_y"]
+        results, columns=["cluster", "x_to_a_ratio", "fourth_to_a_ratio", "y_to_a_ratio"]
     )
 
     pvalue = 1 - (
@@ -70,7 +72,7 @@ def summarize_permutation(perm_value: int, alpha=0.05) -> bool:
 
 
 if __name__ == "__main__":
-    snake = dict(input_file=snakemake.input[0], output_file=snakemake.output[0])
+    SNAKE = dict(input_file=snakemake.input[0], output_file=snakemake.output[0])
 
     # Debug Settings
     # import os
@@ -79,9 +81,9 @@ if __name__ == "__main__":
     #     print(os.getcwd())
     # except:
     #     pass
-    # snake = dict(
+    # SNAKE = dict(
     #     input_file="../../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
     #     output_file=''
     # )
 
-    main(snake)
+    main(SNAKE)

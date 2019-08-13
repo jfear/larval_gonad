@@ -19,7 +19,7 @@ def main(snake):
     clusters = pd.read_feather(snake["clusters"]).set_index("cell_id")
     num_genes_per_chrom = calculate_number_of_genes_per_chrom(annot, snake["autosomes"])
     agg_counts = aggregate_count_data_to_chrom(snake["raw"], annot, snake["chrom_order"])
-    ratios = calculate_ratios(agg_counts, num_genes_per_chrom)
+    ratios = calculate_ratios(agg_counts, num_genes_per_chrom, snake['autosomes'])
 
     ratios.join(clusters, how="inner").reset_index().to_feather(snake["output_file"])
 
@@ -65,7 +65,7 @@ def calculate_ratios(
 
 
 if __name__ == "__main__":
-    snake = dict(
+    SNAKE = dict(
         raw=snakemake.input["raw"],
         fbgn2chrom=snakemake.input["fbgn2chrom"],
         clusters=snakemake.input["clusters"],
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     #     pass
     # from larval_gonad.config import read_config
     # config = read_config("../../config/common.yaml")
-    # snake = dict(
+    # SNAKE = dict(
     #     raw="../../output/cellselection-wf/raw.feather"
     #     fbgn2chrom="../../output/x-to-a-wf/fbgn2chrom.pkl"
     #     clusters="../../output/seurat3-cluster-wf/combined_n3_clusters.feather"
@@ -94,4 +94,4 @@ if __name__ == "__main__":
     #     snake_output_file=''
     # )
 
-    main(snake)
+    main(SNAKE)
