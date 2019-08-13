@@ -26,7 +26,7 @@ def main():
 
     colors = sns.color_palette('viridis', n_colors=100)
 
-    plt.style.use("scripts/paper_1c.mplstyle")
+    plt.style.use("scripts/figure_styles.mplstyle")
     fig, ax = plt.subplots(figsize=(4, 9))
     sns.heatmap(
         evidence.iloc[:, :-1], 
