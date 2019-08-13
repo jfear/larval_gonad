@@ -75,7 +75,24 @@ def split_sex(df, sex):
     return sexed_df
 
 
-def tau(x):
+def tau(x: np.ndarray):
+    """Calculate the tissue specificity measure tau as in:
+
+    > Yanai, Itai, Hila Benjamin, Michael Shmoish, Vered Chalifa-Caspi, Maxim
+    > Shklar, Ron Ophir, Arren Bar-Even, et al. 2005. “Genome-Wide Midrange
+    > Transcription Profiles Reveal Expression Level Relationships in Human
+    > Tissue Specification.” Bioinformatics 21 (5): 650–59.
+
+    Example
+    -------
+    >>> tau(np.array([1, 1, 1]))
+    0.0
+    >>> tau(np.array([0, 0, 0]))
+    np.nan
+    >>> tau(np.array([1, 0, 0]))
+    1.0
+
+    """
     _max = x.max()
     if _max == 0:
         return np.nan

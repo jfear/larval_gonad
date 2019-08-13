@@ -56,17 +56,6 @@ def x_to_a(cluster, data=None, seurat_dir=None):
     return med_by_chrom / autosome_median
 
 
-@seurat_or_data
-def commonly_expressed(data=None, seurat_dir=None, read_cutoff=0):
-    """Create list of genes expressed in 1/3 of cells."""
-
-    if data is None:
-        data = norm_data(seurat_dir)
-
-    mask = (data > read_cutoff).sum(axis=1) > (data.shape[1] / 3)
-    return data.index[mask].tolist()
-
-
 def clean_pvalue(pval, use_text=True):
     if (pval < 0.0001) & use_text:
         pvalue = "P<0.0001"

@@ -1,0 +1,2 @@
+tau_cutoff: .4  # less than or equal
+tsps_cutoff: 1 # less than or equal

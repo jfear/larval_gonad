@@ -76,12 +76,29 @@ def split_sex(df, sex):
     return sexed_df
 
 
-def tsps(x):
+def tsps(x: np.ndarray):
+    """Calculate tissue specificity score as defined in:
+
+    > Ravasi, Timothy, Harukazu Suzuki, Carlo Vittorio Cannistraci, Shintaro
+    > Katayama, Vladimir B. Bajic, Kai Tan, Altuna Akalin, et al. 2010. “An
+    > Atlas of Combinatorial Transcriptional Regulation in Mouse and Man.” Cell
+    > 140 (5): 744–52.
+
+    Example
+    -------
+    >>> tsps(np.array([1, 1, 1]))
+    0.0
+    >>> tsps(np.array([0, 0, 0]))
+    np.nan
+    >>> tpss(np.array([1, 0, 0]))
+    1.5849625007211563
+
+    """
     if x.sum() == 0:
         return np.nan
     _n = x.shape[0]
     _q = np.array([1 / _n] * _n)
-    return entropy(x, _q, 2)
+    return entropy(x / x.sum(), _q, 2)
 
 
 if __name__ == "__main__":

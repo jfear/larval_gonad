@@ -1,5 +1,6 @@
 """Collection of io related items."""
 from collections import namedtuple
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -12,6 +13,16 @@ NUCS_INVERSE = {"A": 0, "C": 1, "G": 2, "T": 3}
 
 
 CellRangerCounts = namedtuple("CellRangerCounts", ["matrix", "gene_ids", "barcodes"])
+
+
+def pickle_dump(obj: object, file_name: str):
+    with open(file_name, 'wb') as handler:
+        pickle.dump(obj, handler)
+
+
+def pickle_load(file_name: str):
+    with open(file_name, 'rb') as handler:
+        return pickle.load(handler)
 
 
 def compress_seq(s: str):

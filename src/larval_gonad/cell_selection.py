@@ -117,3 +117,10 @@ def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
 
     if title is not None:
         ax.set_title(title)
+
+
+def commonly_expressed(df: pd.DataFrame, read_cutoff: int = 0):
+    """Create list of genes expressed in 1/3 of cells."""
+
+    mask = (df > read_cutoff).sum(axis=1) > (df.shape[1] / 3)
+    return df.index[mask].tolist()

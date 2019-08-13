@@ -1,15 +1,21 @@
+"""Permute autosome ratios and calculate p-value.
+
+Use a permutation test to calculate a p-values for comparing autosome ratios
+among clusters.
+
+1. Permute cluster ids 10,000 times
+2. Compare distributions of autosome ratios between permuted and observed values.
+3. Count the number of times observed values were more extreme than permuted values.
+4. Calculate p-value based on 3.
+
+"""
+import numpy as np
 import pandas as pd
 from scipy.stats import mannwhitneyu
 
-FNAME = snakemake.input[0]
-ONAME = snakemake.output[0]
 
-# Debug Settings
-# FNAME = "output/x-to-a-wf/autosome_ratios_by_cell.feather"
-
-
-def main():
-    ratios = pd.read_feather(FNAME).set_index("cell_id")
+def main(snake):
+    ratios = pd.read_feather(snake["input_file"]).set_index("cell_id")
     _ratios = ratios.copy()
 
     results = []
@@ -17,23 +23,67 @@ def main():
         _ratios["cluster"] = _ratios.cluster.sample(frac=1).values
         for cluster, dd in _ratios.groupby("cluster"):
             obs = ratios.query(f'cluster == "{cluster}"')
-            _, pval_x = mannwhitneyu(
-                obs.x_to_a_ratio, dd.x_to_a_ratio, alternative="less"
-            )
-            _, pval_4 = mannwhitneyu(
-                obs.fourth_to_a_ratio, dd.fourth_to_a_ratio, alternative="less"
-            )
-            _, pval_y = mannwhitneyu(
+
+            perm_values_x = run_mannwhitney(obs.x_to_a_ratio, dd.x_to_a_ratio)
+            perm_values_4 = run_mannwhitney(obs.fourth_to_a_ratio, dd.fourth_to_a_ratio)
+            perm_values_y = run_mannwhitney(
                 obs.y_to_a_ratio, dd.y_to_a_ratio, alternative="greater"
             )
-            results.append((cluster, pval_x <= 0.05, pval_4 <= 0.05, pval_y <= 0.05))
 
-    df = pd.DataFrame(results, columns=["cluster", "pval_x", "pval_4", "pval_y"])
-    pvals = 1 - df.groupby("cluster").mean().reindex(ratios.cluster.cat.categories).rename_axis('cluster')
-    pvals.reset_index().to_feather(ONAME)
+            results.append(
+                (
+                    cluster,
+                    summarize_permutation(perm_values_x),
+                    summarize_permutation(perm_values_4),
+                    summarize_permutation(perm_values_y),
+                )
+            )
+
+    df = pd.DataFrame(
+        results, columns=["cluster", "x_to_a_ratio", "fourth_to_a_ratio", "y_to_a_ratio"]
+    )
+
+    pvalue = 1 - (
+        df.groupby("cluster")
+        .apply(lambda x: x.mean())
+        .reindex(ratios.cluster.cat.categories)
+        .rename_axis("cluster")
+    )
+
+    pvalue.reset_index().to_feather(snake["output_file"])
+
+
+def run_mannwhitney(obs: np.ndarray, permuted: np.ndarray, alternative="less") -> int:
+    """Compare distributions of observed and permuted values."""
+    _obs = obs.dropna()
+    _permuted = permuted.dropna()
+    if len(_obs) == 0:
+        return np.nan
+
+    _, pval = mannwhitneyu(_obs, _permuted, alternative=alternative)
+    return pval
+
+
+def summarize_permutation(perm_value: int, alpha=0.05) -> bool:
+    """Determine the number of times the observed was more extreme."""
+    if np.isnan(perm_value):
+        return np.nan
+    return perm_value <= alpha
 
 
 if __name__ == "__main__":
-    main()
+    SNAKE = dict(input_file=snakemake.input[0], output_file=snakemake.output[0])
 
-pd.Series.cat
+    # Debug Settings
+    # import os
+    # try:
+    #     os.chdir(os.path.join(os.getcwd(), 'x-to-a-wf/scripts'))
+    #     print(os.getcwd())
+    # except:
+    #     pass
+    # SNAKE = dict(
+    #     input_file="../../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
+    #     output_file=''
+    # )
+
+    main(SNAKE)
