@@ -55,9 +55,14 @@ rule all:
         "../output/science_submission/figures/heatmap-ptrap-scores.svg",
 
         # Part 2
-        "../output/science_submission/figures/boxplot-autosome-ratio.svg",
-        "../output/science_submission/figures/boxplot-y-genes.svg",
-        "../output/science_submission/figures/boxplot-total-umi.svg",
+        expand(
+            "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg",
+            fbgns=config['gene_subsets'],
+            ratio_type=config['ratio_types']
+        ),
+        # "../output/science_submission/figures/boxplot-autosome-ratio.svg",
+        # "../output/science_submission/figures/boxplot-y-genes.svg",
+        # "../output/science_submission/figures/boxplot-total-umi.svg",
         # "../output/science_submission/figures/violin-total-umi.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
 
@@ -158,7 +163,6 @@ rule plot_barcode_ranks:
         umi = '../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
     output: '../output/science_submission/figures/barcode_rank_plot_{sample}.svg'
     script: 'scripts/plot_barcode_rank.py'
-
 
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:
@@ -304,15 +308,18 @@ rule plot_heatmap_ptrap_scores:
 ################################################################################
 # Part 2: Sex bias expression and MSCI
 ################################################################################
+def _get_gene_set_title(wildcards):
+    return config['gene_subset_titles'][wildcards.fbgns]
 
-rule plot_boxplot_autosome_ratio:
-    input:
-        ratios="../output/x-to-a-wf/autosome_ratios_by_cell.feather",
-        pvals="../output/x-to-a-wf/permuted_autosome_ratio_pvalues.feather"
-    output: "../output/science_submission/figures/boxplot-autosome-ratio.svg"
+
+rule plot_boxplot_autosome_ratios:
+    input: '../output/x-to-a-wf/db/{fbgns}.dat'
+    output: "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg"
     params:
-          cluster_colors=COLORS["clusters"]
-    script: "scripts/plot_boxplot_autosome_ratio.py"
+          cluster_colors=COLORS["clusters"],
+          cluster_order=config['cluster_order'],
+          title=_get_gene_set_title
+    script: "scripts/plot_boxplot_autosome_ratios.py"
 
 
 rule plot_boxplot_y_genes:
