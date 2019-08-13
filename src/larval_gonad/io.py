@@ -41,7 +41,7 @@ def shelve_dump(file_name: str, **kwargs):
             db[k] = v
 
 
-def shelve_load(file_name: str, **args):
+def shelve_load(file_name: str, *args):
     """Load a set of objects from a shelve.
 
     Parameters
