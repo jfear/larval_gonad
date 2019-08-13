@@ -37,7 +37,7 @@ def main():
     intron_less = load(open(INTRONLESS_GENES, "rb"))
     zscores = feather_to_cluster_rep_matrix(FNAME).reindex(intron_less).dropna()
 
-    plt.style.use("scripts/paper_1c.mplstyle")
+    plt.style.use("scripts/figure_styles.mplstyle")
     fig = plt.figure(figsize=(4, 8))
     gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
     ax = fig.add_subplot(gs[0, 0])

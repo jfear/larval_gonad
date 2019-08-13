@@ -211,3 +211,11 @@ legend_names:
  - 'Unknown 1 (U1)'
  - 'Unknown 2 (U2)'
  - 'Unknown 3 (U3'
+
+gene_subset_titles:
+  expressed: "All Genes"
+  commonly_expressed: "Commonly Expressed Genes"
+  tau: "Housekeeping Genes (τ)"
+  tsps: "Housekeeping Genes (TSPS)"
+  male: "Male-Biased Expressed Genes"
+  testis: "Testis-Biased Expressed Genes"

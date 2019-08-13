@@ -6,8 +6,9 @@ figure.dpi: 800
 figure.frameon: False
 figure.subplot.hspace: 0.1
 figure.subplot.wspace: 0.1
-figure.figsize: 8.0, 6.0
+figure.figsize: 4.0, 4.0
 
+savefig.bbox: tight
 savefig.pad_inches: 0
 
 font.size: 12
@@ -28,12 +29,13 @@ axes.grid.axis: y
 axes.spines.top: False
 axes.spines.right: False
 
-
 grid.linewidth: 0.5
 
-lines.linewidth: 1.5
+lines.linewidth: 1
 lines.markeredgewidth: 0.0
 lines.markersize: 6
+lines.color: gray
+lines.linestyle: --
 
 patch.linewidth: 0.5
 
@@ -44,7 +46,6 @@ xtick.major.size: 2
 ytick.major.pad: 1
 ytick.major.width: 0.5
 ytick.major.size: 2
-
 
 boxplot.boxprops.linewidth: 10.01
 boxplot.meanprops.linewidth: 10.01

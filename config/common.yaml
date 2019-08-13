@@ -9,70 +9,70 @@ release_date: "2018_05"
 fliersprops:
   alpha: .1
 cluster_annot:
-  "0": 'PS3'
-  "1": 'CY1'
-  "2": 'PS2'
-  "3": 'CY2'
-  "4": 'ECY'
-  "5": 'EPS'
-  "6": 'PS1'
-  "7": 'TE'
-  "8": 'PC'
-  "9": 'SP'
+  "0": "PS3"
+  "1": "CY1"
+  "2": "PS2"
+  "3": "CY2"
+  "4": "ECY"
+  "5": "EPS"
+  "6": "PS1"
+  "7": "TE"
+  "8": "PC"
+  "9": "SP"
 cluster_order:
-  - 'SP'
-  - 'EPS'
-  - 'PS1'
-  - 'PS2'
-  - 'PS3'
-  - 'ECY'
-  - 'CY1'
-  - 'CY2'
-  - 'TE'
-  - 'PC'
+  - "SP"
+  - "EPS"
+  - "PS1"
+  - "PS2"
+  - "PS3"
+  - "ECY"
+  - "CY1"
+  - "CY2"
+  - "TE"
+  - "PC"
 legend_names:
-  - 'Spermatogonia'
-  - 'Early Primary Spermatocyte'
-  - 'Primary Spermatocyte (1)'
-  - 'Primary Spermatocyte (2)'
-  - 'Primary Spermatocyte (2)'
-  - 'Early Somatic Cyst Cell'
-  - 'Somatic Cyst Cell (1)'
-  - 'Somatic Cyst Cell (2)'
-  - 'Terminal Epithelium'
-  - 'Pigment Cells'
+  - "Spermatogonia"
+  - "Early Primary Spermatocyte"
+  - "Primary Spermatocyte (1)"
+  - "Primary Spermatocyte (2)"
+  - "Primary Spermatocyte (2)"
+  - "Early Somatic Cyst Cell"
+  - "Somatic Cyst Cell (1)"
+  - "Somatic Cyst Cell (2)"
+  - "Terminal Epithelium"
+  - "Pigment Cells"
 cluster_types:
-  - 'germ'
-  - 'germ'
-  - 'germ'
-  - 'germ'
-  - 'germ'
-  - 'soma'
-  - 'soma'
-  - 'soma'
-  - 'soma'
-  - 'soma'
+  - "germ"
+  - "germ"
+  - "germ"
+  - "germ"
+  - "germ"
+  - "soma"
+  - "soma"
+  - "soma"
+  - "soma"
+  - "soma"
 germ:
-  - 'SP'
-  - 'EPS'
-  - 'PS1'
-  - 'PS1'
-  - 'PS1'
+  - "SP"
+  - "EPS"
+  - "PS1"
+  - "PS1"
+  - "PS1"
 soma:
-  - 'ECY'
-  - 'CY1'
-  - 'CY2'
-  - 'TE'
-  - 'PC'
+  - "ECY"
+  - "CY1"
+  - "CY2"
+  - "TE"
+  - "PC"
 spermatocytes:
-  - 'EPS'
-  - 'PS1'
-  - 'PS1'
-  - 'PS1'
+  - "EPS"
+  - "PS1"
+  - "PS1"
+  - "PS1"
 cyst:
-  - 'ECY'
-  - 'CY1'
-  - 'CY2'
+  - "ECY"
+  - "CY1"
+  - "CY2"
 chrom_order:
   - "X"
   - "2L"
@@ -86,3 +86,14 @@ autosomes:
   - "2R"
   - "3L"
   - "3R"
+gene_subsets:
+  - "expressed"
+  - "commonly_expressed"
+  - "tau"
+  - "tsps"
+  - "male"
+  - "testis"
+ratio_types:
+  - "x_to_a_ratio"
+  - "fourth_to_a_ratio"
+  - "y_to_a_ratio"
