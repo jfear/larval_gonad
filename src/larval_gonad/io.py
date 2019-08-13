@@ -1,4 +1,6 @@
 """Collection of io related items."""
+import os
+import shelve
 from collections import namedtuple
 import pickle
 
@@ -23,6 +25,36 @@ def pickle_dump(obj: object, file_name: str):
 def pickle_load(file_name: str):
     with open(file_name, 'rb') as handler:
         return pickle.load(handler)
+
+
+def shelve_dump(file_name: str, **kwargs):
+    """Save a set of objects to a shelve.
+
+    Parameters
+    ----------
+    file_name: The name of one of the files from a shelve.
+    **kwargs: Any number of key word arguments to save to the shelve.
+
+    """
+    with shelve.open(os.path.splitext(file_name)[0]) as db:
+        for k, v in kwargs.items():
+            db[k] = v
+
+
+def shelve_load(file_name: str, **args):
+    """Load a set of objects from a shelve.
+
+    Parameters
+    ----------
+    file_name: The name of one of the files from a shelve.
+    *args: Any number of keys to try to pull from the shelve.
+
+    """
+    res = {}
+    with shelve.open(os.path.splitext(file_name)[0]) as db:
+        for k in args:
+            res[k] = db.get(k, None)
+    return res
 
 
 def compress_seq(s: str):
