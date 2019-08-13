@@ -30,14 +30,7 @@ rule targets:
     input:
         expand(
             '../output/x-to-a-wf/db/{fbgns}.dat',
-            fbgns=[
-                'expressed',
-                'commonly_expressed',
-                'tau',
-                'tsps',
-                'male',
-                'testis'
-            ]
+            fbgns=config['gene_subsets']
         )
 
 
