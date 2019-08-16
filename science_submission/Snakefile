@@ -64,7 +64,7 @@ rule all:
 
         # Part 2
         expand(
-            '../output/science_submission/db/demasculinization.{fbgns}.dat',
+            '../output/science_submission/figures/barplot_demasculinization.{fbgns}.svg',
             fbgns=config['deg_subsets']
         ),
         expand(
@@ -435,6 +435,14 @@ rule munge_demasculinization_data:
         chrom_order=config['chrom_order']
     script: 'scripts/munge_demasculinization_data.py'
 
+
+rule plot_barplot_demasculinization:
+    input: rules.munge_demasculinization_data.output[0]
+    output: '../output/science_submission/figures/barplot_demasculinization.{fbgns}.svg'
+    params:
+        chrom_order=config['chrom_order'],
+        title=_get_gene_set_title
+    script: "scripts/plot_barplot_demasculinization.py"
 
 # rule plot_boxplot_expression_diversity:
 #     input:
