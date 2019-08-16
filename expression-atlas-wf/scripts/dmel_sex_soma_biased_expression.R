@@ -69,7 +69,7 @@ p <- pheatmap::pheatmap(sample_dist_matrix,
   col = colors
 )
 
-svg(file.path(OUT_DIR, "sex_similarity.svg"), width = 8, height = 8)
+svg(file.path(OUT_DIR, "soma_similarity.svg"), width = 8, height = 8)
 grid::grid.newpage()
 grid::grid.draw(p$gtable)
 dev.off()
@@ -83,7 +83,7 @@ plotPCA(vsd, intgroup = c("sex", "species_abbrev")) +
     vjust = 0.5
   ) +
   coord_fixed(ratio = 3)
-ggsave(file.path(OUT_DIR, "sex_pca.svg"), width = 8, height = 8)
+ggsave(file.path(OUT_DIR, "soma_pca.svg"), width = 8, height = 8)
 
 # Differential expression analysis
 dds <- DESeq(dds, betaPrior = FALSE, fitType = "parametric")
