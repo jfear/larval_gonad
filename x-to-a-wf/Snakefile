@@ -52,8 +52,8 @@ def _subset_of_genes_to_use(wildcards):
         'commonly_expressed': '../output/cellselection-wf/commonly_expressed_genes.pkl',
         'tau': '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
         'tsps': '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        'male': '../output/expression-atlas-wf/dmel_male_biased_fbgns.pkl',
-        'testis': '../output/expression-atlas-wf/dmel_testis_biased_fbgns.pkl',
+        'male': '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        'testis': '../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
     }[wildcards.fbgns]
 
 

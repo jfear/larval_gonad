@@ -33,12 +33,15 @@ rule all:
         '../output/expression-atlas-wf/dist_dmel_tsps.svg',
         '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
         '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_testis_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_ovary_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_male_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_male_soma_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_soma_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_ovary_gonad_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_ns_gonad_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_male_sex_soma_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_female_sex_soma_biased_fbgns.pkl',
+        '../output/expression-atlas-wf/dmel_ns_sex_soma_biased_fbgns.pkl',
 
 
 rule download_annotation:
@@ -208,12 +211,14 @@ rule dmel_gonad_biased_expression:
 rule dmel_gonad_biased_fbgns:
     input: rules.dmel_gonad_biased_expression.output[0]
     output: 
-        male='../output/expression-atlas-wf/dmel_testis_biased_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_ovary_biased_fbgns.pkl',
+        male='../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
+        female='../output/expression-atlas-wf/dmel_ovary_gonad_biased_fbgns.pkl',
+        ns='../output/expression-atlas-wf/dmel_ns_gonad_biased_fbgns.pkl',
     run:
         df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
+        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
 
 
 rule dmel_sex_biased_expression:
@@ -230,12 +235,14 @@ rule dmel_sex_biased_expression:
 rule dmel_sex_biased_fbgns:
     input: rules.dmel_sex_biased_expression.output[0]
     output: 
-        male='../output/expression-atlas-wf/dmel_male_biased_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_biased_fbgns.pkl',
+        male='../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        female='../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
+        ns='../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
     run:
         df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
+        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
 
 
 rule dmel_sex_soma_biased_expression:
@@ -252,9 +259,11 @@ rule dmel_sex_soma_biased_expression:
 rule dmel_sex_soma_biased_fbgns:
     input: rules.dmel_sex_soma_biased_expression.output[0]
     output: 
-        male='../output/expression-atlas-wf/dmel_male_soma_biased_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_soma_biased_fbgns.pkl',
+        male='../output/expression-atlas-wf/dmel_male_sex_soma_biased_fbgns.pkl',
+        female='../output/expression-atlas-wf/dmel_female_sex_soma_biased_fbgns.pkl',
+        ns='../output/expression-atlas-wf/dmel_ns_sex_soma_biased_fbgns.pkl',
     run:
         df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
+        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
