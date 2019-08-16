@@ -33,8 +33,6 @@ rule all:
         '../output/expression-atlas-wf/dist_dmel_tsps.svg',
         '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
         '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_male_biased_expression.tsv',
-        '../output/expression-atlas-wf/dmel_testis_biased_expression.tsv',
         '../output/expression-atlas-wf/dmel_testis_biased_fbgns.pkl',
         '../output/expression-atlas-wf/dmel_ovary_biased_fbgns.pkl',
         '../output/expression-atlas-wf/dmel_male_biased_fbgns.pkl',
@@ -194,19 +192,19 @@ rule dmel_tsps_fbgns:
         pickle_dump(df.query(f"female_tsps <= {params[0]}").index.tolist(), output['female'])
 
 
-rule dmel_testis_biased_expression:
+rule dmel_gonad_biased_expression:
     input: 
         sample_table = 'config/sampletable.tsv',
         counts_table = rules.coverage_table.output[0],
         gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
-    output: '../output/expression-atlas-wf/dmel_testis_biased_expression.tsv'
-    log: '../output/expression-atlas-wf/dmel_testis_biased_expression.log'
+    output: '../output/expression-atlas-wf/dmel_gonad_biased_expression.tsv'
+    log: '../output/expression-atlas-wf/dmel_gonad_biased_expression.log'
     conda: "../envs/deseq2.yaml"
-    script: "scripts/dmel_testis_biased_expression.R"
+    script: "scripts/dmel_gonad_biased_expression.R"
 
 
 rule dmel_gonad_biased_fbgns:
-    input: rules.dmel_testis_biased_expression.output[0]
+    input: rules.dmel_gonad_biased_expression.output[0]
     output: 
         male='../output/expression-atlas-wf/dmel_testis_biased_fbgns.pkl',
         female='../output/expression-atlas-wf/dmel_ovary_biased_fbgns.pkl',

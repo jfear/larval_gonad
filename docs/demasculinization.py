@@ -119,7 +119,7 @@ g.set(ylim=(0, 1))
 
 #%%
 m_v_f = (
-    pd.read_csv("../output/expression-atlas-wf/dmel_testis_biased_expression.tsv", sep="\t", index_col=0)
+    pd.read_csv("../output/expression-atlas-wf/dmel_gonad_biased_expression.tsv", sep="\t", index_col=0)
     .assign(bias="NS")
     .join(fbgn2chrom)
 )
