@@ -61,6 +61,9 @@ def _subset_of_genes_to_use(wildcards):
         'male_soma': '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
         'female_soma': '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
         'sex_soma_ns': '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
+        'larval_testis': '../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
+        'larval_ovary': '../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
+        'larval_gonad_ns': '../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
     }[wildcards.fbgns]
 
 
