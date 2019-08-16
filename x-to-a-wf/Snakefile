@@ -53,7 +53,14 @@ def _subset_of_genes_to_use(wildcards):
         'tau': '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
         'tsps': '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
         'male': '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        'female': '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
+        'sex_ns': '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
         'testis': '../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
+        'ovary': '../output/expression-atlas-wf/dmel_ovary_gonad_biased_fbgns.pkl',
+        'gonad_ns': '../output/expression-atlas-wf/dmel_ns_gonad_biased_fbgns.pkl',
+        'male_soma': '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        'female_soma': '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
+        'sex_soma_ns': '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
     }[wildcards.fbgns]
 
 
