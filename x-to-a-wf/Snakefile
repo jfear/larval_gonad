@@ -52,8 +52,18 @@ def _subset_of_genes_to_use(wildcards):
         'commonly_expressed': '../output/cellselection-wf/commonly_expressed_genes.pkl',
         'tau': '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
         'tsps': '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        'male': '../output/expression-atlas-wf/dmel_male_biased_fbgns.pkl',
-        'testis': '../output/expression-atlas-wf/dmel_testis_biased_fbgns.pkl',
+        'male': '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        'female': '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
+        'sex_ns': '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
+        'testis': '../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
+        'ovary': '../output/expression-atlas-wf/dmel_ovary_gonad_biased_fbgns.pkl',
+        'gonad_ns': '../output/expression-atlas-wf/dmel_ns_gonad_biased_fbgns.pkl',
+        'male_soma': '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
+        'female_soma': '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
+        'sex_soma_ns': '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
+        'larval_testis': '../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
+        'larval_ovary': '../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
+        'larval_gonad_ns': '../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
     }[wildcards.fbgns]
 
 

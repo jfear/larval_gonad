@@ -73,7 +73,11 @@ final_targets = utils.flatten((
     [c.targets['featurecounts_intergenic']],
     [c.targets['agg_intergenic_featurecounts']],
     [c.targets['ercc_annotation']],
-    ['../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv']
+    [
+        '../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
+        '../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
+        '../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
+    ],
 ))
 
 # Special case: all samples are single-end
@@ -1070,3 +1074,16 @@ rule differential_expression:
     log: '../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.log'
     conda: "../envs/deseq2.yaml"
     script: "scripts/testis_biased_expression.R"
+
+rule gonad_biased_fbgns:
+    input: rules.differential_expression.output[0]
+    output: 
+        male='../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
+        female='../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
+        ns='../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
+    run:
+        from larval_gonad.io import pickle_dump
+        df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
+        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
+        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
+        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
