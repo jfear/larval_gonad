@@ -17,10 +17,16 @@ def main():
     ax = sns.barplot(
         "chrom", "Proportion of Genes", data=df, order=SNAKE["chrom_order"][:-1], color="C0"
     )
-    pvals.query("chrom != 'Y'").apply(lambda x: format_pval(ax, x.x, x.y, x.qval), axis=1)
-    ax.set(ylim=(0, 1), title=SNAKE['title'])
-    
-    plt.savefig(SNAKE['output_file'])
+    pvals.query("chrom != 'Y'").apply(lambda x: add_to_plot(ax, x), axis=1)
+    ax.set(ylim=(0, 1), title=SNAKE["title"])
+
+    plt.savefig(SNAKE["output_file"])
+
+
+def add_to_plot(ax, row):
+    format_pval(ax, row.x, row.y, row.qval)
+    y_loc2 = row.y / 2
+    ax.text(row.x, y_loc2, f"{row.chrom_count:,.0f}", ha="center", fontsize=10)
 
 
 if __name__ == "__main__":

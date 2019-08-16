@@ -52,6 +52,7 @@ def main():
     )
     qval["x"] = range(qval.shape[0])
     qval["y"] = prop_biased_genes_on_per_chrom
+    qval = qval.join(num_biased_genes_per_chrom.rename("chrom_count")).dropna()
 
     # Save results
     shelve_dump(
