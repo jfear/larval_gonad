@@ -89,7 +89,7 @@ fbgn2chrom = pickle_load("../output/x-to-a-wf/fbgn2chrom.pkl")
 
 #%%
 m_v_f = (
-    pd.read_csv("../output/expression-atlas-wf/dmel_male_biased_expression.tsv", sep="\t", index_col=0)
+    pd.read_csv("../output/expression-atlas-wf/dmel_sex_biased_expression.tsv", sep="\t", index_col=0)
     .assign(bias="NS")
     .join(fbgn2chrom)
 )
