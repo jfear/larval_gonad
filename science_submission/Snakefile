@@ -64,6 +64,10 @@ rule all:
 
         # Part 2
         expand(
+            '../output/science_submission/figures/barplot_demasculinization.{fbgns}.svg',
+            fbgns=config['deg_subsets']
+        ),
+        expand(
             "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg",
             fbgns=config['gene_subsets'],
             ratio_type=config['ratio_types']
@@ -86,7 +90,6 @@ rule all:
         # "../output/science_submission/figures/boxplot-expression-diversity.svg",
         # "../output/science_submission/figures/boxplot-male-biased-expression-diversity.svg",
         # "../output/science_submission/figures/barplot_germline_deg.svg",
-        # "../output/science_submission/figures/barplot_bulk_demasculinization.svg",
         # "../output/science_submission/figures/barplot_sp_demasculinization.svg",
         # "../output/science_submission/figures/barplot_m1_demasculinization.svg",
         # "../output/science_submission/figures/scatter_bulk_deg.svg",
@@ -394,24 +397,6 @@ rule plot_boxplot_total_umi:
     script: "scripts/plot_boxplot_total_umi.py"
 
 
-rule plot_heatmap_intronless_genes:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         intronless=rules.intron_less_genes.output[0]
-    output: "../output/science_submission/figures/heatmap-intronless-genes-w-rep.svg"
-    params: cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_intronless_genes.py"
-
-
-rule plot_boxplot_intronless_genes:
-    input: 
-        gonia_vs_cytes = '../output/seurat3-cluster-wf/combined_n3_gonia_vs_cytes.feather',
-        background=rules.background.output[0],
-        intronless=rules.intron_less_genes.output[0]
-    output: "../output/science_submission/figures/boxplot-intronless_genes.svg"
-    script: "scripts/plot_boxplot_intronless_genes.py"
-
-
 rule plot_boxplot_demasculinization:
     input:
         #TODO: add bulk file
@@ -427,6 +412,36 @@ rule plot_boxplot_demasculinization:
         pct_cells='../output/science_submission/figures/boxplot-demasculinization-pct-cells.svg',
         norm_expression='../output/science_submission/figures/boxplot-demasculinization-norm-expression.svg'
 
+
+def _munge_demasculinization_data(wildcards):
+    gene_set = wildcards.fbgns
+    if gene_set in ["male", "female", "sex_ns"]:
+        return '../output/expression-atlas-wf/dmel_sex_biased_expression.tsv'
+    if gene_set in ["testis", "ovary", "gonad_ns"]:
+        return '../output/expression-atlas-wf/dmel_gonad_biased_expression.tsv'
+    if gene_set in ["male_soma", "female_soma", "sex_soma_ns"]:
+        return '../output/expression-atlas-wf/dmel_sex_soma_biased_expression.tsv'
+    if gene_set in ["larval_testis", "larval_ovary", "larval_gonad_ns"]:
+        return '../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv'
+
+
+rule munge_demasculinization_data:
+    input:
+        deg=_munge_demasculinization_data,
+        fbgn2chrom='../output/x-to-a-wf/fbgn2chrom.pkl'
+    output: '../output/science_submission/db/demasculinization.{fbgns}.dat'
+    params: 
+        chrom_order=config['chrom_order']
+    script: 'scripts/munge_demasculinization_data.py'
+
+
+rule plot_barplot_demasculinization:
+    input: rules.munge_demasculinization_data.output[0]
+    output: '../output/science_submission/figures/barplot_demasculinization.{fbgns}.svg'
+    params:
+        chrom_order=config['chrom_order'],
+        title=_get_gene_set_title
+    script: "scripts/plot_barplot_demasculinization.py"
 
 # rule plot_boxplot_expression_diversity:
 #     input:
@@ -597,13 +612,6 @@ rule plot_boxplot_intronless_genes:
 #          background=rules.background.output[0]
 #     output: "../output/science_submission/figures/bubble_germline_deg_GO_BP.svg"
 #     script: "scripts/plot_bubble_germline_deg_GO_BP.py"
-
-# rule plot_barplot_bulk_demasculinization:
-#     input:
-#          deg="../output/bulk-rnaseq-wf/deseq2_results_tcp_vs_ocp.tsv",
-#          fbgn2chrom="../output/x-to-a-wf/fbgn2chrom.parquet"
-#     output: "../output/science_submission/figures/barplot_bulk_demasculinization.svg"
-#     script: "scripts/plot_barplot_bulk_demasculinization.py"
 
 # rule plot_barplot_sp_demasculinization:
 #     input:
