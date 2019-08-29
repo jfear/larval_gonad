@@ -17,7 +17,7 @@ OUT_DIR <- normalizePath(dirname(OUTPUT_FILE))
 # Debug Settings
 # SAMPLE_TABLE <- "../config/sampletable.tsv"
 # COUNTS_TABLE <- "../../output/expression-atlas-wf/raw_counts.feather"
-# GENE_ANNOTATION <- "../../references/gene_annotation_dmel_r6-24.feather"
+# GENE_ANNOTATION <- "../../references/gene_annotation_dmel_r6-26.feather"
 
 # Load metadata
 sampletable <- read.csv(SAMPLE_TABLE, stringsAsFactors = FALSE, sep = "\t") %>%

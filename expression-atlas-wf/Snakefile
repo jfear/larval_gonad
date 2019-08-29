@@ -6,6 +6,7 @@ from larval_gonad.io import pickle_dump
 configfile: "config/config.yaml"
 
 common_config = read_config('../config/common.yaml')
+TAG = common_config['tag']
 sample_table = pd.read_csv('config/sampletable.tsv', sep='\t')
 sample_attrs = sample_table.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
 SPECIES = sample_attrs.species.unique().tolist()
@@ -128,9 +129,9 @@ def _muller_arm_assignment(wildcards):
 
 rule muller_arm_assignment:
     input: 
-        gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
+        gene_annotation = f'../references/gene_annotation_dmel_{TAG}.feather',
         orthologs = _muller_arm_assignment,
-        primary2secondary = '../references/primary2secondary_dmel_r6-24.pkl'
+        primary2secondary = f'../references/primary2secondary_dmel_{TAG}.pkl'
     output: '../output/expression-atlas-wf/{prefix}_muller_arm_assignment.feather'
     script: 'scripts/muller_arm_assignment.py'
 
@@ -147,7 +148,7 @@ rule tau:
     input: 
         counts = rules.coverage_table.output[0],
         sampletable = 'config/sampletable.tsv',
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather',
     output: '../output/expression-atlas-wf/dmel_tau.feather'
     script: 'scripts/calculate_tau.py'
 
@@ -174,7 +175,7 @@ rule tsps:
     input: 
         counts = rules.coverage_table.output[0],
         sampletable = 'config/sampletable.tsv',
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather',
     output: '../output/expression-atlas-wf/dmel_tsps.feather'
     script: 'scripts/calculate_tsps.py'
 
@@ -201,7 +202,7 @@ rule dmel_gonad_biased_expression:
     input: 
         sample_table = 'config/sampletable.tsv',
         counts_table = rules.coverage_table.output[0],
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
+        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather'
     output: '../output/expression-atlas-wf/dmel_gonad_biased_expression.tsv'
     log: '../output/expression-atlas-wf/dmel_gonad_biased_expression.log'
     conda: "../envs/deseq2.yaml"
@@ -225,7 +226,7 @@ rule dmel_sex_biased_expression:
     input: 
         sample_table = 'config/sampletable.tsv',
         counts_table = rules.coverage_table.output[0],
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
+        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather'
     output: '../output/expression-atlas-wf/dmel_sex_biased_expression.tsv'
     log: '../output/expression-atlas-wf/dmel_sex_biased_expression.log'
     conda: "../envs/deseq2.yaml"
@@ -249,7 +250,7 @@ rule dmel_sex_soma_biased_expression:
     input: 
         sample_table = 'config/sampletable.tsv',
         counts_table = rules.coverage_table.output[0],
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather'
+        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather'
     output: '../output/expression-atlas-wf/dmel_sex_soma_biased_expression.tsv'
     log: '../output/expression-atlas-wf/dmel_sex_soma_biased_expression.log'
     conda: "../envs/deseq2.yaml"
