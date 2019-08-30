@@ -4,7 +4,7 @@ library(dplyr)
 library(ggplot2)
 set.seed(42)
 
-SAMPLE_TABLE <- snakemake@input[["sample_table"]]
+SAMPLE_TABLE <- snakemake@input[["sampletable"]]
 COUNTS_TABLE <- snakemake@input[["counts_table"]]
 OUTPUT_FILE <- snakemake@output[[1]]
 SPECIES <- snakemake@wildcards[["species"]]
@@ -15,7 +15,7 @@ sink(LOG, type = "message")
 
 # Debug Settings
 # SAMPLE_TABLE <- "../config/sampletable.tsv"
-# COUNTS_TABLE <- "../../output/expression-atlas-wf/raw_counts.feather"
+# COUNTS_TABLE <- "../../output/expression-atlas-wf/w1118_counts.feather"
 # SPECIES <- "w1118"
 # TISSUE <- "GO"
 
@@ -29,12 +29,12 @@ sampletable <- read.csv(SAMPLE_TABLE, stringsAsFactors = FALSE, sep = "\t") %>%
 # Load count data
 raw_counts <- feather::read_feather(
   COUNTS_TABLE,
-  columns = c("FBgn", row.names(sampletable))
+  columns = c("YOgn", row.names(sampletable))
 ) %>%
   replace(is.na(.), 0) %>%
   filter(rowSums(select_if(., is.numeric)) != 0) %>%
-  arrange(FBgn) %>%
-  column_to_rownames("FBgn")
+  arrange(YOgn) %>%
+  column_to_rownames("YOgn")
 
 # Build deseq model
 dds <- DESeqDataSetFromMatrix(
@@ -47,7 +47,7 @@ dds <- DESeq(dds, betaPrior = FALSE)
 
 # get results
 res <- results(dds, name = "sex_m_vs_f", alpha = 0.01)
-print(summary(res))
+summary(res)
 
 res.lfc <- lfcShrink(
   dds,
@@ -56,7 +56,7 @@ res.lfc <- lfcShrink(
   type = "apeglm",
 )
 
-deg_res <- as.data.frame(res.lfc) %>% rownames_to_column("FBgn")
+deg_res <- as.data.frame(res.lfc) %>% rownames_to_column("YOgn")
 
 # Save results
 write.table(

@@ -14,7 +14,12 @@ sample2attrs = pd.concat([
     sampletable.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
 ], axis=1, sort=True).set_index("samplename")
 
-species2tissue = sample2attrs[['species', 'tissue']].drop_duplicates().set_index("species", drop=True)
+species2tissue = (
+    sample2attrs[['species', 'tissue']]
+    .drop_duplicates()
+    .set_index("species", drop=True)
+    .squeeze()
+)
 
 SPECIES = sample2attrs.species.unique().tolist()
 TISSUE = sample2attrs.tissue.unique().tolist()
@@ -32,7 +37,13 @@ rule all:
     input: 
         expand('../output/expression-atlas-wf/GTF/{species}.gtf', species=SPECIES_W_DMEL),
         expand('../output/expression-atlas-wf/orthologs/{species}.tsv', species=SPECIES_W_DMEL),
-        expand("../output/expression-atlas-wf/{species}_counts.feather", species=SPECIES)
+        expand("../output/expression-atlas-wf/{species}_counts.feather", species=SPECIES),
+        expand(
+            "../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv",
+            zip,
+            species=species2tissue.index.tolist(),
+            tissue=species2tissue.values.tolist(),
+        )
         # '../output/expression-atlas-wf/raw_counts.feather',
         # '../output/expression-atlas-wf/ortholog_annotation.feather',
         # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
@@ -45,6 +56,7 @@ rule all:
         # '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
         # '../output/expression-atlas-wf/sex_biased_expression.feather',
 
+### Download data
 
 rule download_annotation:
     params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
@@ -71,6 +83,8 @@ rule download_coverage_counts:
     script: 'scripts/download_coverage_counts.py'
 
 
+### Differential expression
+
 def _species_counts_table(wildcards):
     return expand(
         '../output/expression-atlas-wf/raw_counts/{samplename}.tsv',
@@ -82,6 +96,16 @@ rule species_counts_table:
     input: _species_counts_table
     output: "../output/expression-atlas-wf/{species}_counts.feather"
     script: "scripts/species_counts_table.py"
+
+
+rule sex_bias_expression:
+    input:
+        sampletable = 'config/sampletable.tsv',
+        counts_table = rules.species_counts_table.output[0]
+    output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
+    log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
+    conda: "../envs/deseq2.yaml"
+    script: 'scripts/sex_bias_expression.R'
 
 
 rule ortholog_annotation:
@@ -139,107 +163,97 @@ rule combine_YO_FB:
     script: 'scripts/combine_muller_arm_assignments.py'
 
 
-rule tau:
-    input: 
-        counts = rules.coverage_table.output[0],
-        sampletable = 'config/sampletable.tsv',
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
-    output: '../output/expression-atlas-wf/dmel_tau.feather'
-    script: 'scripts/calculate_tau.py'
+# rule tau:
+#     input: 
+#         counts = rules.coverage_table.output[0],
+#         sampletable = 'config/sampletable.tsv',
+#         gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+#     output: '../output/expression-atlas-wf/dmel_tau.feather'
+#     script: 'scripts/calculate_tau.py'
 
 
-rule plot_tau:
-    input: rules.tau.output[0]
-    output: '../output/expression-atlas-wf/dist_dmel_tau.svg'
-    script: './scripts/plot_dist_tau.py'
+# rule plot_tau:
+#     input: rules.tau.output[0]
+#     output: '../output/expression-atlas-wf/dist_dmel_tau.svg'
+#     script: './scripts/plot_dist_tau.py'
 
 
-rule dmel_tau_fbgns:
-    input: rules.tau.output[0]
-    output: 
-        male='../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
-    params: config['tau_cutoff']
-    run:
-        df = pd.read_feather(input[0]).set_index("FBgn")
-        pickle_dump(df.query(f"male_tau <= {params[0]}").index.tolist(), output['male'])
-        pickle_dump(df.query(f"female_tau <= {params[0]}").index.tolist(), output['female'])
+# rule dmel_tau_fbgns:
+#     input: rules.tau.output[0]
+#     output: 
+#         male='../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
+#         female='../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
+#     params: config['tau_cutoff']
+#     run:
+#         df = pd.read_feather(input[0]).set_index("FBgn")
+#         pickle_dump(df.query(f"male_tau <= {params[0]}").index.tolist(), output['male'])
+#         pickle_dump(df.query(f"female_tau <= {params[0]}").index.tolist(), output['female'])
 
 
-rule tsps:
-    input: 
-        counts = rules.coverage_table.output[0],
-        sampletable = 'config/sampletable.tsv',
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
-    output: '../output/expression-atlas-wf/dmel_tsps.feather'
-    script: 'scripts/calculate_tsps.py'
+# rule tsps:
+#     input: 
+#         counts = rules.coverage_table.output[0],
+#         sampletable = 'config/sampletable.tsv',
+#         gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+#     output: '../output/expression-atlas-wf/dmel_tsps.feather'
+#     script: 'scripts/calculate_tsps.py'
 
 
-rule plot_tsps:
-    input: rules.tsps.output[0]
-    output: '../output/expression-atlas-wf/dist_dmel_tsps.svg'
-    script: './scripts/plot_dist_tsps.py'
+# rule plot_tsps:
+#     input: rules.tsps.output[0]
+#     output: '../output/expression-atlas-wf/dist_dmel_tsps.svg'
+#     script: './scripts/plot_dist_tsps.py'
 
 
-rule dmel_tsps_fbgns:
-    input: rules.tsps.output[0]
-    output: 
-        male='../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
-    params: config['tsps_cutoff']
-    run:
-        df = pd.read_feather(input[0]).set_index("FBgn")
-        pickle_dump(df.query(f"male_tsps <= {params[0]}").index.tolist(), output['male'])
-        pickle_dump(df.query(f"female_tsps <= {params[0]}").index.tolist(), output['female'])
+# rule dmel_tsps_fbgns:
+#     input: rules.tsps.output[0]
+#     output: 
+#         male='../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
+#         female='../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
+#     params: config['tsps_cutoff']
+#     run:
+#         df = pd.read_feather(input[0]).set_index("FBgn")
+#         pickle_dump(df.query(f"male_tsps <= {params[0]}").index.tolist(), output['male'])
+#         pickle_dump(df.query(f"female_tsps <= {params[0]}").index.tolist(), output['female'])
 
 
-rule sex_bias_expression:
-    input:
-        sampletable = 'config/sampletable.tsv',
-        counts_table = rules.coverage_table.output[0]
-    output: '../output/expression-atlas-wf/sex_bias_{species}_{tissue}.tsv'
-    log: '../output/expression-atlas-wf/sex_bias_{species}_{tissue}.log'
-    conda: "../envs/deseq2.yaml"
-    script: 'scripts/sex_bias_expression.R'
+# rule sex_biased_fbgns:
+#     input: rules.sex_bias_expression.output[0]
+#     output: 
+#         male='../output/expression-atlas-wf/sex_biased_male_{species}_{tissue}_fbgns.pkl',
+#         female='../output/expression-atlas-wf/sex_biased_female_{species}_{tissue}_fbgns.pkl',
+#         ns='../output/expression-atlas-wf/sex_biased_ns_{species}_{tissue}_fbgns.pkl',
+#     run:
+#         df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
+#         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
+#         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
+#         pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
 
 
-rule sex_biased_fbgns:
-    input: rules.sex_bias_expression.output[0]
-    output: 
-        male='../output/expression-atlas-wf/sex_biased_male_{species}_{tissue}_fbgns.pkl',
-        female='../output/expression-atlas-wf/sex_biased_female_{species}_{tissue}_fbgns.pkl',
-        ns='../output/expression-atlas-wf/sex_biased_ns_{species}_{tissue}_fbgns.pkl',
-    run:
-        df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
-        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
+# def _sex_biased_fbgns(wildcards):
+#     return list(flatten([
+#         expand(
+#             '../output/expression-atlas-wf/sex_biased_male_{species}_{tissue}_fbgns.pkl',
+#             zip,
+#             species=sample_attrs.species.tolist(),
+#             tissue=sample_attrs.tissue.tolist(),
+#         ),
+#         expand(
+#             '../output/expression-atlas-wf/sex_biased_female_{species}_{tissue}_fbgns.pkl',
+#             zip,
+#             species=sample_attrs.species.tolist(),
+#             tissue=sample_attrs.tissue.tolist(),
+#         ),
+#         expand(
+#             '../output/expression-atlas-wf/sex_biased_ns_{species}_{tissue}_fbgns.pkl',
+#             zip,
+#             species=sample_attrs.species.tolist(),
+#             tissue=sample_attrs.tissue.tolist(),
+#         ),
+#     ]))
 
 
-def _sex_biased_fbgns(wildcards):
-    return list(flatten([
-        expand(
-            '../output/expression-atlas-wf/sex_biased_male_{species}_{tissue}_fbgns.pkl',
-            zip,
-            species=sample_attrs.species.tolist(),
-            tissue=sample_attrs.tissue.tolist(),
-        ),
-        expand(
-            '../output/expression-atlas-wf/sex_biased_female_{species}_{tissue}_fbgns.pkl',
-            zip,
-            species=sample_attrs.species.tolist(),
-            tissue=sample_attrs.tissue.tolist(),
-        ),
-        expand(
-            '../output/expression-atlas-wf/sex_biased_ns_{species}_{tissue}_fbgns.pkl',
-            zip,
-            species=sample_attrs.species.tolist(),
-            tissue=sample_attrs.tissue.tolist(),
-        ),
-    ]))
-
-
-rule sex_biased_summary_table:
-    input: _sex_biased_fbgns
-    output: '../output/expression-atlas-wf/sex_biased_expression.feather'
-    script: 'scripts/sex_biased_summary_table.py'
+# rule sex_biased_summary_table:
+#     input: _sex_biased_fbgns
+#     output: '../output/expression-atlas-wf/sex_biased_expression.feather'
+#     script: 'scripts/sex_biased_summary_table.py'
