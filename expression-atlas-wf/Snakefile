@@ -60,7 +60,7 @@ rule download_orthologs:
 
 def _download_coverage_counts(wildcards):
     samplename = wildcards.samplename
-    gsm = sample_table.loc[sample_table.samplename == samplename, 'GSM'].values[0]
+    gsm = sampletable.loc[sampletable.samplename == samplename, 'GSM'].values[0]
     short = gsm[:7]
     return f'ftp://ftp.ncbi.nlm.nih.gov/geo/samples/{short}nnn/{gsm}/suppl/{gsm}_{samplename}.htseq_reverse.HiSAT2.YO.txt.gz'
 
@@ -75,7 +75,7 @@ rule coverage_table:
     input: 
         counts = expand(
             '../output/expression-atlas-wf/raw_counts/{samplename}.tsv', 
-            samplename = sample_table.samplename.tolist(),
+            samplename = sampletable.samplename.tolist(),
         ),
         orthologs = expand(
             '../output/expression-atlas-wf/orthologs/{species}.tsv', 
@@ -201,7 +201,7 @@ rule dmel_tsps_fbgns:
 
 rule sex_bias_expression:
     input:
-        sample_table = 'config/sampletable.tsv',
+        sampletable = 'config/sampletable.tsv',
         counts_table = rules.coverage_table.output[0]
     output: '../output/expression-atlas-wf/sex_bias_{species}_{tissue}.tsv'
     log: '../output/expression-atlas-wf/sex_bias_{species}_{tissue}.log'
