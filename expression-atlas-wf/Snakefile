@@ -8,39 +8,43 @@ from larval_gonad.io import pickle_dump
 configfile: "config/config.yaml"
 
 common_config = read_config('../config/common.yaml')
-sample_table = pd.read_csv('config/sampletable.tsv', sep='\t')
-sample_attrs = (
-    sample_table
-    .samplename
-    .str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
-    .drop(["sex", "rep"], axis=1)
-    .drop_duplicates()
-)
-SPECIES = sample_attrs.species.unique().tolist()
-TISSUE = sample_attrs.tissue.unique().tolist()
+sampletable = pd.read_csv('config/sampletable.tsv', sep='\t')
+sample2attrs = pd.concat([
+    sampletable.samplename,
+    sampletable.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
+], axis=1, sort=True).set_index("samplename")
 
-rule all:
-    input: 
-        expand(
-            '../output/expression-atlas-wf/GTF/{species}.gtf', 
+species2tissue = sample2attrs[['species', 'tissue']].drop_duplicates().set_index("species", drop=True)
+
+SPECIES = sample2attrs.species.unique().tolist()
+TISSUE = sample2attrs.tissue.unique().tolist()
+SAMPLES = sample2attrs.index.values.tolist()
+
             # remove w1118 and orgR and replace with dmel
-            species=[
+SPECIES_W_DMEL = [
                 sp
                 for sp in SPECIES
                 if sp.startswith("d")
             ] + ['dmel']
-        ),
-        '../output/expression-atlas-wf/raw_counts.feather',
-        '../output/expression-atlas-wf/ortholog_annotation.feather',
-        '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
-        '../output/expression-atlas-wf/muller_arm_assignment.feather',
-        '../output/expression-atlas-wf/dist_dmel_tau.svg',
-        '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
-        '../output/expression-atlas-wf/dist_dmel_tsps.svg',
-        '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
-        '../output/expression-atlas-wf/sex_biased_expression.feather',
+
+
+rule all:
+    input: 
+        expand('../output/expression-atlas-wf/GTF/{species}.gtf', species=SPECIES_W_DMEL),
+        expand('../output/expression-atlas-wf/orthologs/{species}.tsv', species=SPECIES_W_DMEL),
+        expand("../output/expression-atlas-wf/{species}_counts.feather", species=SPECIES)
+        # '../output/expression-atlas-wf/raw_counts.feather',
+        # '../output/expression-atlas-wf/ortholog_annotation.feather',
+        # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
+        # '../output/expression-atlas-wf/muller_arm_assignment.feather',
+        # '../output/expression-atlas-wf/dist_dmel_tau.svg',
+        # '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
+        # '../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
+        # '../output/expression-atlas-wf/dist_dmel_tsps.svg',
+        # '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
+        # '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
+        # '../output/expression-atlas-wf/sex_biased_expression.feather',
+
 
 rule download_annotation:
     params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
