@@ -19,7 +19,7 @@ def munge(file_name):
 
 if __name__ == "__main__":
     SNAKE = dict(input=snakemake.input, output=snakemake.output[0])
-
+    
     # Debug settings
     # import os
     # try:

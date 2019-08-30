@@ -9,7 +9,6 @@ Capture key metadata from GTF file:
 import pandas as pd
 
 from larval_gonad.io import GffRow
-from larval_gonad.debug import snakemake_debug
 
 
 def main():
@@ -39,6 +38,8 @@ if __name__ == "__main__":
     DEBUG = False
 
     if DEBUG:
+        from larval_gonad.debug import snakemake_debug
+
         snakemake = snakemake_debug(
             workdir="expression-atlas-wf", input="../output/expression-atlas-wf/GTF/dana.gtf"
         )

@@ -6,25 +6,10 @@ Muller elements. We assign chromosome arm based on the consensus from D.
 melanogaster.
 
 """
-import pickle
 import numpy as np
 import pandas as pd
 
-ORTHOLOGS = snakemake.input["orthologs"]
-GENE_ANNOTATION = snakemake.input["gene_annotation"]
-PRIMARY_SECONDARY = snakemake.input['primary2secondary']
-OUTPUT_FILE = snakemake.output[0]
-
-# Debug Settings
-# import os
-# try:
-#     os.chdir(os.path.join(os.getcwd(), "expression-atlas-wf/scripts"))
-#     print(os.getcwd())
-# except:
-#     pass
-# ORTHOLOGS = '../../output/expression-atlas-wf/ortholog_annotation.feather'
-# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
-# PRIMARY_SECONDARY = '../../references/primary2secondary_dmel_r6-24.pkl'
+from larval_gonad.io import pickle_load
 
 DMEL_MULLER = {"X": "A", "2L": "B", "2R": "C", "3L": "D", "3R": "E", "4": "F"}
 DPSE_MULLER = {"XL": "A", "4": "B", "3": "C", "XR": "D", "2": "E", "5": "F"}
@@ -32,17 +17,16 @@ DPSE_MULLER = {"XL": "A", "4": "B", "3": "C", "XR": "D", "2": "E", "5": "F"}
 
 def main():
     fbgn2muller = (
-        pd.read_feather(GENE_ANNOTATION, columns=["FBgn", "FB_chrom"])
+        pd.read_feather(snakemake.input["gene_annotation"], columns=["FBgn", "FB_chrom"])
         .set_index("FBgn")
         .squeeze()
-        .map(lambda x: DMEL_MULLER.get(x, 'unknown_scaffold'))
+        .map(lambda x: DMEL_MULLER.get(x, "unknown_scaffold"))
         .rename("muller")
     )
 
-    with open(PRIMARY_SECONDARY, 'rb') as fh:
-        primary2secondary = pickle.load(fh)
+    primary2secondary = pickle_load(snakemake.input["primary2secondary"])
 
-    orthologs = pd.read_feather(ORTHOLOGS).set_index("FBgn")
+    orthologs = pd.read_feather(snakemake.input["orthologs"]).set_index("FBgn")
 
     # update to current reference FBgns
     orthologs.index = orthologs.index.map(primary2secondary)
@@ -58,42 +42,49 @@ def main():
     dpse_consensus = orthologs.groupby("dpse").apply(consensus_muller).rename("muller")
     dpse_fbgn2consensus = orthologs.dpse.map(dpse_consensus).rename("consensus")
 
-    dpse_sanity = pd.concat([dpse_fbgn2annotated, dpse_fbgn2consensus], axis=1).dropna(subset=['annotated'])
+    dpse_sanity = pd.concat([dpse_fbgn2annotated, dpse_fbgn2consensus], axis=1).dropna(
+        subset=["annotated"]
+    )
 
     # Assure that dpse annotation and consensus are identical
     assert (dpse_sanity.annotated.fillna("NAN") == dpse_sanity.consensus.fillna("NAN")).all()
 
     # Get muller for other samples
-    dvir_muller = orthologs.dvir.map(
-        orthologs.groupby("dvir").apply(consensus_muller).rename("muller")
-    )
-    dmoj_muller = orthologs.dmoj.map(
-        orthologs.groupby("dmoj").apply(consensus_muller).rename("muller")
-    )
-    dwil_muller = orthologs.dwil.map(
-        orthologs.groupby("dwil").apply(consensus_muller).rename("muller")
-    )
+    others = [
+        orthologs[x].map(orthologs.groupby(x).apply(consensus_muller).rename("muller"))
+        for x in orthologs.columns
+        if (x != "dmel") & (x != "dpse") & (x != "muller")
+    ]
 
     df_muller = pd.concat(
-        [
-            orthologs.muller.rename("dmel"),
-            dpse_fbgn2consensus.rename("dpse"),
-            dvir_muller,
-            dmoj_muller,
-            dwil_muller,
-        ],
-        axis=1,
+        [orthologs.muller.rename("dmel"), dpse_fbgn2consensus.rename("dpse"), *others], axis=1
     )
 
-    df_muller.reset_index().to_feather(OUTPUT_FILE)
+    df_muller.reset_index().to_feather(snakemake.output[0])
 
 
 def consensus_muller(x):
     if x.shape[0] > 20:
         return x.muller.value_counts().idxmax()
     else:
-        return 'unknown_scaffold'
+        return "unknown_scaffold"
 
 
 if __name__ == "__main__":
+    DEBUG = False
+
+    if DEBUG:
+        from larval_gonad.debug import snakemake_debug
+        from larval_gonad.config import read_config
+
+        config = read_config("../../config/common.yaml")
+        tag = config["tag"]
+        snakemake = snakemake_debug(
+            workdir="expression-atlas-wf",
+            input={
+                "orthologs": "../output/expression-atlas-wf/ortholog_annotation.feather",
+                "gene_annotation": f"../references/gene_annotation_dmel_{tag}.feather",
+                "primary2secondary": f"../references/primary2secondary_dmel_{tag}.pkl",
+            },
+        )
     main()

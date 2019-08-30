@@ -27,32 +27,20 @@ def get_samplename(file_name):
     return Path(file_name).stem
 
 
-def debug():
-    import os
-    from larval_gonad.config import read_config
-    from larval_gonad.mock import MockSnake
-
-    try:
-        os.chdir(os.path.join(os.getcwd(), "expression-atlas-wf"))
-        print(os.getcwd())
-    except:
-        pass
-
-    config = read_config("../config/common.yaml")
-    tag = config["tag"]
-    snakemake = MockSnake(
-        input=[
-            "../output/expression-atlas-wf/raw_counts/dana_AC_f_r1.tsv",
-            "../output/expression-atlas-wf/raw_counts/dana_AC_m_r1.tsv",
-            "../output/expression-atlas-wf/raw_counts/dana_DG_f_r1.tsv",
-            "../output/expression-atlas-wf/raw_counts/dana_DG_f_r3.tsv",
-        ]
-    )
-    return snakemake
-
-
-# snakemake = debug()
-
-
 if __name__ == "__main__":
+    DEBUG = False
+
+    if DEBUG:
+        from larval_gonad.debug import snakemake_debug
+
+        snakemake = snakemake_debug(
+            workdir="expression-atlas-wf",
+            input=[
+                "../output/expression-atlas-wf/raw_counts/dana_AC_f_r1.tsv",
+                "../output/expression-atlas-wf/raw_counts/dana_AC_m_r1.tsv",
+                "../output/expression-atlas-wf/raw_counts/dana_DG_f_r1.tsv",
+                "../output/expression-atlas-wf/raw_counts/dana_DG_f_r3.tsv",
+            ],
+        )
+
     main()

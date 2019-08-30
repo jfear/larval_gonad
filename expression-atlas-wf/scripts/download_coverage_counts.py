@@ -3,19 +3,15 @@ from pathlib import Path
 from subprocess import run
 from tempfile import TemporaryDirectory
 
-URL = snakemake.params[0]
-OUTPUT_FILE = snakemake.output[0]
-SAMPLENAME = snakemake.wildcards["samplename"]
-
 
 def main():
     tmpdir = TemporaryDirectory()
-    gz = Path(tmpdir.name, f"{SAMPLENAME}.txt.gz")
-    counts = Path(tmpdir.name, f"{SAMPLENAME}.txt")
+    gz = Path(tmpdir.name, f"{snakemake.wildcards.samplename}.txt.gz")
+    counts = Path(tmpdir.name, f"{snakemake.wildcards.samplename}.txt")
 
-    run(["curl", "-o", gz, URL])
+    run(["curl", "-o", gz, snakemake.params[0]])
     run(["gunzip", gz])
-    shutil.copyfile(counts, OUTPUT_FILE)
+    shutil.copyfile(counts, snakemake.output[0])
     tmpdir.cleanup()
 
 
