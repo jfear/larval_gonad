@@ -208,6 +208,7 @@ rule sex_bias_expression:
     conda: "../envs/deseq2.yaml"
     script: 'scripts/sex_bias_expression.R'
 
+
 rule sex_biased_fbgns:
     input: rules.sex_bias_expression.output[0]
     output: 
@@ -242,6 +243,7 @@ def _sex_biased_fbgns(wildcards):
             tissue=sample_attrs.tissue.tolist(),
         ),
     ]))
+
 
 rule sex_biased_summary_table:
     input: _sex_biased_fbgns
