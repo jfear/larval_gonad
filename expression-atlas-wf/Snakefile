@@ -1,5 +1,6 @@
 from more_itertools import flatten
 import pandas as pd
+from snakemake.rules import expand
 
 from larval_gonad.config import read_config
 from larval_gonad.io import pickle_dump
