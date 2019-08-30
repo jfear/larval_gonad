@@ -71,6 +71,18 @@ rule download_coverage_counts:
     script: 'scripts/download_coverage_counts.py'
 
 
+def _species_counts_table(wildcards):
+    return expand(
+        '../output/expression-atlas-wf/raw_counts/{samplename}.tsv',
+        samplename=sample2attrs.query(f'species == "{wildcards.species}"').index.tolist()
+    )
+
+rule species_counts_table:
+    input: _species_counts_table
+    output: "../output/expression-atlas-wf/{species}_counts.feather"
+    script: "scripts/species_counts_table.py"
+
+
 rule coverage_table:
     input: 
         counts = expand(
