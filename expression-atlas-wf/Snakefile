@@ -77,29 +77,11 @@ def _species_counts_table(wildcards):
         samplename=sample2attrs.query(f'species == "{wildcards.species}"').index.tolist()
     )
 
+
 rule species_counts_table:
     input: _species_counts_table
     output: "../output/expression-atlas-wf/{species}_counts.feather"
     script: "scripts/species_counts_table.py"
-
-
-rule coverage_table:
-    input: 
-        counts = expand(
-            '../output/expression-atlas-wf/raw_counts/{samplename}.tsv', 
-            samplename = sampletable.samplename.tolist(),
-        ),
-        orthologs = expand(
-            '../output/expression-atlas-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        )
-    output: '../output/expression-atlas-wf/raw_counts.feather'
-    script: 'scripts/build_counts_table.py'
 
 
 rule ortholog_annotation:
