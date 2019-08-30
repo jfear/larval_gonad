@@ -90,7 +90,7 @@ rule coverage_table:
     script: 'scripts/build_counts_table.py'
 
 
-rule location_table:
+rule ortholog_annotation:
     input: 
         orthologs = expand(
             '../output/expression-atlas-wf/orthologs/{species}.tsv', 
@@ -123,7 +123,7 @@ rule fb_location_table:
 def _muller_arm_assignment(wildcards):
     prefix = wildcards.prefix
     return {
-        'YO': rules.location_table.output[0],
+        'YO': rules.ortholog_annotation.output[0],
         'FB': rules.fb_location_table.output[0],
     }[prefix]
 
