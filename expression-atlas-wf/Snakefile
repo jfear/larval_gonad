@@ -106,7 +106,6 @@ rule muller_arm_assignment:
     script: 'scripts/muller_arm_assignment.py'
 
 
-
 ### Differential expression
 
 def _species_counts_table(wildcards):
@@ -130,30 +129,6 @@ rule sex_bias_expression:
     log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
     conda: "../envs/deseq2.yaml"
     script: 'scripts/sex_bias_expression.R'
-
-
-rule ortholog_annotation:
-    input: 
-        orthologs = expand(
-            '../output/expression-atlas-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        ),
-        gtf = expand(
-            '../output/expression-atlas-wf/GTF/{species}.gtf', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        )
-    output: '../output/expression-atlas-wf/ortholog_annotation.feather'
-    script: 'scripts/ortholog_annotation.py'
 
 
 rule fb_location_table:
