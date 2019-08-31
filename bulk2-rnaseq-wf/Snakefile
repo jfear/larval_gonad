@@ -10,6 +10,8 @@ import pandas as pd
 from lib import common, cluster_specific, utils, helpers, aligners
 from lib.patterns_targets import RNASeqConfig
 
+from larval_gonad.config import read_config
+
 # ----------------------------------------------------------------------------
 #
 # Search for the string "NOTE:" to look for points of configuration that might
@@ -32,6 +34,8 @@ shell.prefix(
 shell.executable('/bin/bash')
 
 config = common.load_config(config)
+common_config = read_config("../config/common.yaml")
+TAG = common_config['tag']
 
 c = RNASeqConfig(config, config.get('patterns', 'config/rnaseq_patterns.yaml'))
 
@@ -1068,9 +1072,12 @@ rule differential_expression:
         sample_table = 'config/sampletable.tsv',
         counts_table = rules.gene_counts_agg.output[0],
         intergenic_counts_table = rules.intergenic_counts_agg.output[0],
-        gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
+        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather',
         ercc_annot = '../references/ercc_annotation.tsv'
     output: '../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 4,
+        time_hr=lambda wildcards, attempt: attempt * 2
     log: '../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.log'
     conda: "../envs/deseq2.yaml"
     script: "scripts/testis_biased_expression.R"
@@ -1081,6 +1088,9 @@ rule gonad_biased_fbgns:
         male='../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
         female='../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
         ns='../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 1,
+        time_hr=lambda wildcards, attempt: attempt * 1
     run:
         from larval_gonad.io import pickle_dump
         df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
