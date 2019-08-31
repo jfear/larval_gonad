@@ -26,17 +26,14 @@ TISSUE = sample2attrs.tissue.unique().tolist()
 SAMPLES = sample2attrs.index.values.tolist()
 
             # remove w1118 and orgR and replace with dmel
-SPECIES_W_DMEL = [
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
+SPECIES_WO_DMEL = [sp for sp in SPECIES if sp.startswith("d")]
+SPECIES_W_DMEL = SPECIES_WO_DMEL + ['dmel']
 
 
 rule all:
     input: 
         expand('../output/expression-atlas-wf/GTF/{species}.gtf', species=SPECIES_W_DMEL),
-        expand('../output/expression-atlas-wf/orthologs/{species}.tsv', species=SPECIES_W_DMEL),
+        expand('../output/expression-atlas-wf/{species}_YOgn_to_dmel_ortholog.pkl', species=SPECIES_W_DMEL),
         expand("../output/expression-atlas-wf/{species}_counts.feather", species=SPECIES),
         expand(
             "../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv",
@@ -85,10 +82,17 @@ rule download_coverage_counts:
 
 
 ### Differential expression
+
 rule yogn_to_metadata:
     input: rules.download_annotation.output[0]
     output: '../output/expression-atlas-wf/{species}_YOgn_metadata.feather'
     script: "scripts/yogn_to_metadata.py"
+
+
+rule yogn_to_dmel_ortholog:
+    input: rules.download_orthologs.output[0]
+    output: '../output/expression-atlas-wf/{species}_YOgn_to_dmel_ortholog.pkl'
+    script: "scripts/yogn_to_dmel_ortholog.py"
 
 
 def _species_counts_table(wildcards):
