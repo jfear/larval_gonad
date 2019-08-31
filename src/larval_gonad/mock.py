@@ -13,12 +13,15 @@ class MockSnake:
         self.config = config or {}
         self.rulename = "mock"
 
-    def make_namedlist(self, item):
+    def make_namedlist(self, item, first_lvl=True):
         if isinstance(item, list):
             return Namedlist(item)
         elif isinstance(item, dict):
-            return Namedlist(fromdict={k: self.make_namedlist(v) for k, v in item.items()})
+            return Namedlist(fromdict={k: self.make_namedlist(v, False) for k, v in item.items()})
         elif isinstance(item, str):
-            return Namedlist([item])
+            if first_lvl:
+                return Namedlist([item])
+            else:
+                return item
 
         return Namedlist([])
