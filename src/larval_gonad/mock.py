@@ -18,7 +18,7 @@ class MockSnake:
             return Namedlist(item)
         elif isinstance(item, dict):
             return Namedlist(fromdict={k: self.make_namedlist(v, False) for k, v in item.items()})
-        elif isinstance(item, str):
+        elif isinstance(item, (str, int, float)):
             if first_lvl:
                 return Namedlist([item])
             else:
