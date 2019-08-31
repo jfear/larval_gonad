@@ -36,14 +36,20 @@ SPECIES_W_DMEL = SPECIES_WO_DMEL + ['dmel']
 
 rule all:
     input: 
-        expand('../output/expression-atlas-wf/{species}_YOgn_to_muller.pkl', species=SPECIES_W_DMEL),
-        expand("../output/expression-atlas-wf/{species}_counts.feather", species=SPECIES),
+        expand('../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl', species=SPECIES_W_DMEL),
+        expand("../output/expression-atlas-wf/aggregated_counts_table/{species}.feather", species=SPECIES),
         expand(
             "../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv",
             zip,
             species=species2tissue.index.tolist(),
             tissue=species2tissue.values.tolist(),
         ),
+        expand(
+            '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat',
+            zip,
+            species=species2tissue.index.tolist(),
+            tissue=species2tissue.values.tolist(),
+        )
         # '../output/expression-atlas-wf/raw_counts.feather',
         # '../output/expression-atlas-wf/ortholog_annotation.feather',
         # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
@@ -86,13 +92,13 @@ rule download_coverage_counts:
 
 rule yogn_to_metadata:
     input: rules.download_annotation.output[0]
-    output: '../output/expression-atlas-wf/{species}_YOgn_metadata.feather'
+    output: '../output/expression-atlas-wf/YOgn_metadata/{species}.feather'
     script: "scripts/yogn_to_metadata.py"
 
 
 rule yogn_to_dmel_ortholog:
     input: rules.download_orthologs.output[0]
-    output: '../output/expression-atlas-wf/{species}_YOgn_to_dmel_ortholog.pkl'
+    output: '../output/expression-atlas-wf/YOgn_to_dmel_ortholog/{species}.pkl'
     script: "scripts/yogn_to_dmel_ortholog.py"
 
 
@@ -102,11 +108,11 @@ rule muller_arm_assignment:
         orthologs=rules.yogn_to_dmel_ortholog.output[0],
         gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
         primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
-    output: '../output/expression-atlas-wf/{species}_YOgn_to_muller.pkl'
+    output: '../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl'
     script: 'scripts/muller_arm_assignment.py'
 
 
-### Differential expression
+### Sex Biased Expression
 
 def _species_counts_table(wildcards):
     return expand(
@@ -117,7 +123,7 @@ def _species_counts_table(wildcards):
 
 rule species_counts_table:
     input: _species_counts_table
-    output: "../output/expression-atlas-wf/{species}_counts.feather"
+    output: "../output/expression-atlas-wf/aggregated_counts_table/{species}.feather"
     script: "scripts/species_counts_table.py"
 
 
@@ -130,6 +136,24 @@ rule sex_bias_expression:
     conda: "../envs/deseq2.yaml"
     script: 'scripts/sex_bias_expression.R'
 
+
+def _sex_bias_by_muller(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.muller_arm_assignment.output[0].format(species=species)
+
+
+rule sex_bias_by_muller:
+    input: 
+        muller=_sex_bias_by_muller,
+        deg=rules.sex_bias_expression.output[0]
+    params: alpha=config['alpha']
+    output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
+    script: "scripts/sex_bias_by_muller.py"
+
+
+##################
 
 rule fb_location_table:
     params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
