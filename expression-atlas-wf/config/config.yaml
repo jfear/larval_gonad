@@ -1,2 +1,3 @@
 tau_cutoff: .5  # less than or equal
 tsps_cutoff: 1 # less than or equal
+alpha: 0.01
