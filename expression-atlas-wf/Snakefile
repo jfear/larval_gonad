@@ -5,9 +5,11 @@ from snakemake.rules import expand
 from larval_gonad.config import read_config
 from larval_gonad.io import pickle_dump
 
+# Config information
 configfile: "config/config.yaml"
-
 common_config = read_config('../config/common.yaml')
+
+# Sample Information
 sampletable = pd.read_csv('config/sampletable.tsv', sep='\t')
 sample2attrs = pd.concat([
     sampletable.samplename,
@@ -21,6 +23,8 @@ species2tissue = (
     .squeeze()
 )
 
+# Useful globals
+TAG = common_config['tag']
 SPECIES = sample2attrs.species.unique().tolist()
 TISSUE = sample2attrs.tissue.unique().tolist()
 SAMPLES = sample2attrs.index.values.tolist()
@@ -32,8 +36,7 @@ SPECIES_W_DMEL = SPECIES_WO_DMEL + ['dmel']
 
 rule all:
     input: 
-        expand('../output/expression-atlas-wf/GTF/{species}.gtf', species=SPECIES_W_DMEL),
-        expand('../output/expression-atlas-wf/{species}_YOgn_to_dmel_ortholog.pkl', species=SPECIES_W_DMEL),
+        expand('../output/expression-atlas-wf/{species}_YOgn_to_muller.pkl', species=SPECIES_W_DMEL),
         expand("../output/expression-atlas-wf/{species}_counts.feather", species=SPECIES),
         expand(
             "../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv",
@@ -41,7 +44,6 @@ rule all:
             species=species2tissue.index.tolist(),
             tissue=species2tissue.values.tolist(),
         ),
-        expand('../output/expression-atlas-wf/{species}_YOgn_metadata.feather', species=SPECIES_W_DMEL)
         # '../output/expression-atlas-wf/raw_counts.feather',
         # '../output/expression-atlas-wf/ortholog_annotation.feather',
         # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
@@ -80,8 +82,7 @@ rule download_coverage_counts:
     output: '../output/expression-atlas-wf/raw_counts/{samplename}.tsv'
     script: 'scripts/download_coverage_counts.py'
 
-
-### Differential expression
+### Prep metadata
 
 rule yogn_to_metadata:
     input: rules.download_annotation.output[0]
@@ -94,6 +95,19 @@ rule yogn_to_dmel_ortholog:
     output: '../output/expression-atlas-wf/{species}_YOgn_to_dmel_ortholog.pkl'
     script: "scripts/yogn_to_dmel_ortholog.py"
 
+
+rule muller_arm_assignment:
+    input: 
+        yogn_annot=rules.yogn_to_metadata.output[0],
+        orthologs=rules.yogn_to_dmel_ortholog.output[0],
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
+    output: '../output/expression-atlas-wf/{species}_YOgn_to_muller.pkl'
+    script: 'scripts/muller_arm_assignment.py'
+
+
+
+### Differential expression
 
 def _species_counts_table(wildcards):
     return expand(
@@ -146,23 +160,6 @@ rule fb_location_table:
     params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
     output: '../output/expression-atlas-wf/FB_ortholog_annotation.feather'
     script: 'scripts/fb_ortholog_annotation.py'
-
-
-def _muller_arm_assignment(wildcards):
-    prefix = wildcards.prefix
-    return {
-        'YO': rules.ortholog_annotation.output[0],
-        'FB': rules.fb_location_table.output[0],
-    }[prefix]
-
-
-rule muller_arm_assignment:
-    input: 
-        gene_annotation = '../references/gene_annotation_dmel_r6-24.feather',
-        orthologs = _muller_arm_assignment,
-        primary2secondary = '../references/primary2secondary_dmel_r6-24.pkl'
-    output: '../output/expression-atlas-wf/{prefix}_muller_arm_assignment.feather'
-    script: 'scripts/muller_arm_assignment.py'
 
 
 rule combine_YO_FB:
