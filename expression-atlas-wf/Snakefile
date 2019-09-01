@@ -49,7 +49,8 @@ rule all:
             zip,
             species=species2tissue.index.tolist(),
             tissue=species2tissue.values.tolist(),
-        )
+        ),
+        expand('../output/expression-atlas-wf/tau/{species}.feather', species=SPECIES)
         # '../output/expression-atlas-wf/raw_counts.feather',
         # '../output/expression-atlas-wf/ortholog_annotation.feather',
         # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
@@ -62,8 +63,10 @@ rule all:
         # '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
         # '../output/expression-atlas-wf/sex_biased_expression.feather',
 
-### Download data
 
+################################################################################
+# Download data
+################################################################################
 rule download_annotation:
     params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
     output: '../output/expression-atlas-wf/GTF/{species}.gtf'
@@ -88,8 +91,10 @@ rule download_coverage_counts:
     output: '../output/expression-atlas-wf/raw_counts/{samplename}.tsv'
     script: 'scripts/download_coverage_counts.py'
 
-### Prep metadata
 
+################################################################################
+# Prep metadata
+################################################################################
 rule yogn_to_metadata:
     input: rules.download_annotation.output[0]
     output: '../output/expression-atlas-wf/YOgn_metadata/{species}.feather'
@@ -112,8 +117,9 @@ rule muller_arm_assignment:
     script: 'scripts/muller_arm_assignment.py'
 
 
-### Sex Biased Expression
-
+################################################################################
+# Sex Biased Expression
+################################################################################
 def _species_counts_table(wildcards):
     return expand(
         '../output/expression-atlas-wf/raw_counts/{samplename}.tsv',
@@ -137,7 +143,7 @@ rule sex_bias_expression:
     script: 'scripts/sex_bias_expression.R'
 
 
-def _sex_bias_by_muller(wildcards):
+def _muller_arm_assignment_species_translate(wildcards):
     species = wildcards.species
     if (species == "w1118") | (species == "orgR"):
         species = "dmel"
@@ -146,36 +152,45 @@ def _sex_bias_by_muller(wildcards):
 
 rule sex_bias_by_muller:
     input: 
-        muller=_sex_bias_by_muller,
+        muller=_muller_arm_assignment_species_translate,
         deg=rules.sex_bias_expression.output[0]
     params: alpha=config['alpha']
     output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
     script: "scripts/sex_bias_by_muller.py"
 
 
-##################
+################################################################################
+# Identify Housekeeping Genes
+################################################################################
+def _yogn_to_metadata_species_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.yogn_to_metadata.output[0].format(species=species)
 
-rule fb_location_table:
-    params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
-    output: '../output/expression-atlas-wf/FB_ortholog_annotation.feather'
-    script: 'scripts/fb_ortholog_annotation.py'
 
-
-rule combine_YO_FB:
+rule tau:
     input: 
-        yo = '../output/expression-atlas-wf/YO_muller_arm_assignment.feather',
-        fb = '../output/expression-atlas-wf/FB_muller_arm_assignment.feather',
-    output: '../output/expression-atlas-wf/muller_arm_assignment.feather'
-    script: 'scripts/combine_muller_arm_assignments.py'
+        counts=rules.species_counts_table.output[0],
+        metadata=_yogn_to_metadata_species_translate
+    output: '../output/expression-atlas-wf/tau/{species}.feather'
+    script: 'scripts/calculate_tau.py'
 
 
-# rule tau:
+# rule fb_location_table:
+#     params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
+#     output: '../output/expression-atlas-wf/FB_ortholog_annotation.feather'
+#     script: 'scripts/fb_ortholog_annotation.py'
+
+
+# rule combine_YO_FB:
 #     input: 
-#         counts = rules.coverage_table.output[0],
-#         sampletable = 'config/sampletable.tsv',
-#         gene_annot = '../references/gene_annotation_dmel_r6-24.feather',
-#     output: '../output/expression-atlas-wf/dmel_tau.feather'
-#     script: 'scripts/calculate_tau.py'
+#         yo = '../output/expression-atlas-wf/YO_muller_arm_assignment.feather',
+#         fb = '../output/expression-atlas-wf/FB_muller_arm_assignment.feather',
+#     output: '../output/expression-atlas-wf/muller_arm_assignment.feather'
+#     script: 'scripts/combine_muller_arm_assignments.py'
+
+
 
 
 # rule plot_tau:
