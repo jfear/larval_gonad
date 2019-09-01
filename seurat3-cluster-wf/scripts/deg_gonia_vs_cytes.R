@@ -15,7 +15,7 @@ PTVPR <- list(feather = snakemake@output[["ptvprf"]], tsv = snakemake@output[["p
 
 # Debug Settings
 # ROBJ <- "../../output/seurat3-cluster-wf/combined_n3.Robj"
-# GENE_METADATA <- "../../references/gene_annotation_dmel_r6-24.feather"
+# GENE_METADATA <- "../../references/gene_annotation_dmel_r6-26.feather"
 # GVC <- list(feather = "/tmp/test.feather", tsv = "/tmp/test.tsv")
 
 # Load Gene Metadata
