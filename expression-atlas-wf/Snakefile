@@ -54,6 +54,10 @@ rule all:
         expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=SPECIES),
         '../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
         '../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl',
+        expand('../output/expression-atlas-wf/tsps/{species}.feather', species=SPECIES),
+        expand('../output/expression-atlas-wf/tsps_housekeeping/{species}.svg', species=SPECIES),
+        '../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl',
+        '../output/expression-atlas-wf/tsps_housekeeping/female_fbgns.pkl',
         # '../output/expression-atlas-wf/raw_counts.feather',
         # '../output/expression-atlas-wf/ortholog_annotation.feather',
         # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
@@ -212,6 +216,41 @@ rule dmel_tau_housekeeping:
         male='../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
         female='../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl'
     script: 'scripts/dmel_tau_housekeeping.py'
+
+
+rule tsps:
+    input: 
+        counts=rules.species_counts_table.output[0],
+        metadata=_yogn_to_metadata_dmel_translate
+    output: '../output/expression-atlas-wf/tsps/{species}.feather'
+    script: 'scripts/calculate_tsps.py'
+
+
+rule tsps_housekeeping_fbgns:
+    input: rules.tau.output[0]
+    params: config['tsps_cutoff']
+    output: 
+        male='../output/expression-atlas-wf/tsps_housekeeping/{species}_male.pkl',
+        female='../output/expression-atlas-wf/tsps_housekeeping/{species}_female.pkl',
+        svg='../output/expression-atlas-wf/tsps_housekeeping/{species}.svg'
+    script: "scripts/tsps_housekeeping_yogns.py"
+
+
+rule dmel_tsps_housekeeping:
+    input: 
+        male=expand(
+            rules.tsps_housekeeping_fbgns.output.male,
+            species=["w1118", "orgR"]
+        ),
+        female=expand(
+            rules.tsps_housekeeping_fbgns.output.female,
+            species=["w1118", "orgR"]
+        ),
+        annot=expand(rules.yogn_to_dmel_ortholog.output[0], species="dmel")
+    output: 
+        male='../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl',
+        female='../output/expression-atlas-wf/tsps_housekeeping/female_fbgns.pkl'
+    script: 'scripts/dmel_tsps_housekeeping.py'
 
 
 # rule fb_location_table:
