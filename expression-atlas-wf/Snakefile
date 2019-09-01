@@ -50,7 +50,10 @@ rule all:
             species=species2tissue.index.tolist(),
             tissue=species2tissue.values.tolist(),
         ),
-        expand('../output/expression-atlas-wf/tau/{species}.feather', species=SPECIES)
+        expand('../output/expression-atlas-wf/tau/{species}.feather', species=SPECIES),
+        expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=SPECIES),
+        '../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
+        '../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl',
         # '../output/expression-atlas-wf/raw_counts.feather',
         # '../output/expression-atlas-wf/ortholog_annotation.feather',
         # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
@@ -101,10 +104,24 @@ rule yogn_to_metadata:
     script: "scripts/yogn_to_metadata.py"
 
 
+def _yogn_to_metadata_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.yogn_to_metadata.output[0].format(species=species)
+
+
 rule yogn_to_dmel_ortholog:
     input: rules.download_orthologs.output[0]
     output: '../output/expression-atlas-wf/YOgn_to_dmel_ortholog/{species}.pkl'
     script: "scripts/yogn_to_dmel_ortholog.py"
+
+
+def _yogn_to_dmel_ortholog_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.yogn_to_dmel_ortholog.output[0].format(species=species)
 
 
 rule muller_arm_assignment:
@@ -115,6 +132,13 @@ rule muller_arm_assignment:
         primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
     output: '../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl'
     script: 'scripts/muller_arm_assignment.py'
+
+
+def _muller_arm_assignment_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.muller_arm_assignment.output[0].format(species=species)
 
 
 ################################################################################
@@ -143,16 +167,9 @@ rule sex_bias_expression:
     script: 'scripts/sex_bias_expression.R'
 
 
-def _muller_arm_assignment_species_translate(wildcards):
-    species = wildcards.species
-    if (species == "w1118") | (species == "orgR"):
-        species = "dmel"
-    return rules.muller_arm_assignment.output[0].format(species=species)
-
-
 rule sex_bias_by_muller:
     input: 
-        muller=_muller_arm_assignment_species_translate,
+        muller=_muller_arm_assignment_dmel_translate,
         deg=rules.sex_bias_expression.output[0]
     params: alpha=config['alpha']
     output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
@@ -162,19 +179,39 @@ rule sex_bias_by_muller:
 ################################################################################
 # Identify Housekeeping Genes
 ################################################################################
-def _yogn_to_metadata_species_translate(wildcards):
-    species = wildcards.species
-    if (species == "w1118") | (species == "orgR"):
-        species = "dmel"
-    return rules.yogn_to_metadata.output[0].format(species=species)
-
-
 rule tau:
     input: 
         counts=rules.species_counts_table.output[0],
-        metadata=_yogn_to_metadata_species_translate
+        metadata=_yogn_to_metadata_dmel_translate
     output: '../output/expression-atlas-wf/tau/{species}.feather'
     script: 'scripts/calculate_tau.py'
+
+
+rule tau_housekeeping_fbgns:
+    input: rules.tau.output[0]
+    params: config['tau_cutoff']
+    output: 
+        male='../output/expression-atlas-wf/tau_housekeeping/{species}_male.pkl',
+        female='../output/expression-atlas-wf/tau_housekeeping/{species}_female.pkl',
+        svg='../output/expression-atlas-wf/tau_housekeeping/{species}.svg'
+    script: "scripts/tau_housekeeping_yogns.py"
+
+
+rule dmel_tau_housekeeping:
+    input: 
+        male=expand(
+            rules.tau_housekeeping_fbgns.output.male,
+            species=["w1118", "orgR"]
+        ),
+        female=expand(
+            rules.tau_housekeeping_fbgns.output.female,
+            species=["w1118", "orgR"]
+        ),
+        annot=expand(rules.yogn_to_dmel_ortholog.output[0], species="dmel")
+    output: 
+        male='../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
+        female='../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl'
+    script: 'scripts/dmel_tau_housekeeping.py'
 
 
 # rule fb_location_table:
@@ -189,26 +226,6 @@ rule tau:
 #         fb = '../output/expression-atlas-wf/FB_muller_arm_assignment.feather',
 #     output: '../output/expression-atlas-wf/muller_arm_assignment.feather'
 #     script: 'scripts/combine_muller_arm_assignments.py'
-
-
-
-
-# rule plot_tau:
-#     input: rules.tau.output[0]
-#     output: '../output/expression-atlas-wf/dist_dmel_tau.svg'
-#     script: './scripts/plot_dist_tau.py'
-
-
-# rule dmel_tau_fbgns:
-#     input: rules.tau.output[0]
-#     output: 
-#         male='../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
-#         female='../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
-#     params: config['tau_cutoff']
-#     run:
-#         df = pd.read_feather(input[0]).set_index("FBgn")
-#         pickle_dump(df.query(f"male_tau <= {params[0]}").index.tolist(), output['male'])
-#         pickle_dump(df.query(f"female_tau <= {params[0]}").index.tolist(), output['female'])
 
 
 # rule tsps:
