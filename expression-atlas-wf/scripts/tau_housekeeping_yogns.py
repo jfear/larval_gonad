@@ -20,6 +20,7 @@ def main():
     # Plot distribution
     ax = tau.plot.kde()
     ax.axvline(snakemake.params[0], color="k", ls="--")
+    ax.set(xlim=(-1.5, 1.5))
     plt.savefig(snakemake.output.svg)
 
     # Housekeeping genes
