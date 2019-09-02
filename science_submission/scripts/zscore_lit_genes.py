@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # from larval_gonad.config import read_config
     # snake = dict(
     #     zscores="../../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
-    #     gene_annot="../../references/gene_annotation_dmel_r6-24.feather",
+    #     gene_annot="../../references/gene_annotation_dmel_r6-26.feather",
     #     output_file="",
     #     lit_genes=read_config("../../config/literature_genes.yaml")
     # )

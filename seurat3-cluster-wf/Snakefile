@@ -208,6 +208,9 @@ rule combined_n3_clusters:
     params: 
         cluster_annot = common_config['cluster_annot'],
         cluster_order = common_config['cluster_order']
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 8,
+        time_hr=lambda wildcards, attempt: attempt * 2
     run: 
         (
             pd.read_feather(input[0], columns=['cell_id', 'cluster'])

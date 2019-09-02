@@ -16,8 +16,7 @@ sample_table = pd.read_csv('./config/sampletable.tsv', sep='\t', index_col=0)
 
 rule targets:
     input:
-        f'../references/{assembly}-all-{tag}.modFix.gtf',
-        f'../references/{assembly}{tag}/star/SA',
+        f'../references/cellranger2/{assembly}{tag}/star/SA',
         expand('{outdir}/{sample}/outs/possorted_genome_bam.bam', outdir=config['outdir'], sample=sample_table.index.values),
         expand('{outdir}/{sample}/outs/possorted_genome_bam.bam_counts', outdir=config['outdir'], sample=sample_table.index.values),
 
@@ -27,9 +26,9 @@ rule cellranger_mkref:
         gtf = Path(f'../references/{assembly}-all-{tag}.modFix.gtf').absolute().as_posix(),
         fasta = Path(f'../lcdb-references/{assembly}/{tag}/fasta/{assembly}_{tag}.fasta').absolute().as_posix()
     output:
-        fasta=f'../references/{assembly}{tag}/fasta/genome.fa',
-        gtf=f'../references/{assembly}{tag}/genes/genes.gtf',
-        star=f'../references/{assembly}{tag}/star/SA'
+        fasta=f'../references/cellranger2/{assembly}{tag}/fasta/genome.fa',
+        gtf=f'../references/cellranger2/{assembly}{tag}/genes/genes.gtf',
+        star=f'../references/cellranger2/{assembly}{tag}/star/SA'
     params:
         assembly=assembly,
         tag=tag
@@ -38,7 +37,7 @@ rule cellranger_mkref:
         mem_gb=lambda wildcards, attempt: attempt * 8,
         time_hr=lambda wildcards, attempt: attempt * 4
     shell:"""
-        cd ../references/ && \
+        cd ../references/cellranger2 && \
         rm -r {params.assembly}{params.tag}/ && \
         $HOME/opt/cellranger-2.1.1/cellranger mkref \
             --genome={params.assembly}{params.tag} \
@@ -56,7 +55,7 @@ rule cellranger:
     output:
         '{outdir}/{sample}/outs/possorted_genome_bam.bam'
     params:
-        refdir = Path(f'../references/{assembly}{tag}').absolute().as_posix(),
+        refdir = Path(f'../references/cellranger2/{assembly}{tag}').absolute().as_posix(),
         outdir = config['outdir']
     threads: 16
     resources:

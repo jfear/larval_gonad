@@ -27,7 +27,7 @@ FILE_PATTERN = snakemake.params["file_pattern"]
 # UMAP = '../../output/seurat3-cluster-wf/combined_n3_umap.feather'
 # import yaml
 # LIT_GENES = yaml.safe_load(open('../../config/literature_genes.yaml'))
-# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
+# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-26.feather'
 # NORM_FILE = '../../output/seurat3-cluster-wf/combined_n3_normalized.feather'
 
 

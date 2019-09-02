@@ -10,20 +10,20 @@ organism: "dmel"
 
 aligner:
   index: "hisat2"
-  tag: "r6-24_and_ercc"
+  tag: "r6-26_and_ercc"
 
 rrna:
   index: "bowtie2"
   tag: "rRNA"
 
 gtf:
-  tag: "r6-24_and_ercc"
+  tag: "r6-26_and_ercc"
 
 db:
-  tag: "r6-24"
+  tag: "r6-26"
 
 salmon:
-  tag: "r6-24_transcriptome_updated"
+  tag: "r6-26_transcriptome"
 
 fastq_screen:
   - label: rRNA
@@ -34,7 +34,7 @@ fastq_screen:
     tag: default
   - label: Fly
     organism: dmel
-    tag: r6-24
+    tag: r6-26
   - label: Mouse
     organism: mouse
     tag: gencode_m18

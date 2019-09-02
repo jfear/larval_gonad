@@ -23,7 +23,7 @@ os.chdir('notebook')
 
 #%%
 fbgn2symbol = (
-    pd.read_feather('../references/gene_annotation_dmel_r6-24.feather', columns=['FBgn', 'gene_symbol'])
+    pd.read_feather('../references/gene_annotation_dmel_r6-26.feather', columns=['FBgn', 'gene_symbol'])
     .set_index('FBgn').squeeze()
 )
 
@@ -36,7 +36,7 @@ brians_list = pd.read_csv('../data/external/galletta/trail_list_20190705.txt', s
 #%%
 ## TPM By Cluster
 def make_tpm():
-    fbgn2length = pd.read_feather('../references/gene_annotation_dmel_r6-24.feather', columns=['FBgn', 'length']).set_index('FBgn').squeeze()
+    fbgn2length = pd.read_feather('../references/gene_annotation_dmel_r6-26.feather', columns=['FBgn', 'length']).set_index('FBgn').squeeze()
 
     raw = (
         pd.read_feather('../output/science_submission/raw_by_cluster_rep.feather')
@@ -53,7 +53,7 @@ tpm = make_tpm()
 
 ## RPKM By Cluster
 def make_rpkm():
-    fbgn2length = pd.read_feather('../references/gene_annotation_dmel_r6-24.feather', columns=['FBgn', 'length']).set_index('FBgn').squeeze()
+    fbgn2length = pd.read_feather('../references/gene_annotation_dmel_r6-26.feather', columns=['FBgn', 'length']).set_index('FBgn').squeeze()
 
     raw = (
         pd.read_feather('../output/science_submission/raw_by_cluster_rep.feather')

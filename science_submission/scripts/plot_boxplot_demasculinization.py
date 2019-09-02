@@ -34,7 +34,7 @@ OVARY_BIASED_FILE = snakemake.output["ovary"]
 #     pass
 # BULK_DEG = '../../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv'
 # TPM = '../../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather'
-# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
+# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-26.feather'
 # import yaml
 # CLUSTER_COLORS = yaml.full_load(open("../../config/colors.yaml"))['clusters']
 

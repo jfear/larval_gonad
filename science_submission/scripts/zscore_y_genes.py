@@ -53,7 +53,7 @@ if __name__ == "__main__":
     #     pass
     # snake = dict(
     #     zscores="../../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
-    #     gene_annot="../../references/gene_annotation_dmel_r6-24.feather",
+    #     gene_annot="../../references/gene_annotation_dmel_r6-26.feather",
     #     output_file="",
     # )
 
