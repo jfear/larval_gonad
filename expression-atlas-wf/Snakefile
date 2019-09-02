@@ -39,6 +39,10 @@ rule all:
             '../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{tissue}.dat',
             zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
         ),
+        expand(
+            '../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{tissue}.dat',
+            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
+        ),
         expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=config["species_order"]),
         expand('../output/expression-atlas-wf/tau_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
         expand('../output/expression-atlas-wf/tsps_housekeeping/{species}.svg', species=config["species_order"]),
@@ -183,6 +187,19 @@ rule sex_bias_by_muller_all_genes:
     # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
     output: '../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{tissue}.dat'
     script: "scripts/sex_bias_by_muller_all_genes.py"
+
+# Same as rules.sex_bias_by_muller except aggregates autsomes to only tests for
+# X and 4th.
+rule sex_bias_by_muller_x_and_4th:
+    input: 
+        muller=_muller_arm_assignment_dmel_translate,
+        deg=rules.sex_bias_expression.output[0]
+    params: alpha=config['alpha']
+    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
+    output: '../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{tissue}.dat'
+    script: "scripts/sex_bias_by_muller_x_and_4th.py"
+
+
 
 ################################################################################
 # Identify Housekeeping Genes
