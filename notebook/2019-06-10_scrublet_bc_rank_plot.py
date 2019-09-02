@@ -9,8 +9,8 @@ plt.rcParams['figure.figsize'] = (8, 8)
 
 #%%
 SAMPLE = 'testis1'
-MTX = 'output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/matrix.mtx'
-CELL_IDS = 'output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-24/cell_ids.tsv'
+MTX = 'output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-26/matrix.mtx'
+CELL_IDS = 'output/cellranger-wf/testis1/outs/raw_gene_bc_matrices/dmelr6-26/cell_ids.tsv'
 CELL_CALLS = 'output/cellselection-wf/testis1_combined_cell_calls.feather'
 DOUBLETS = 'output/cellselection-wf/testis1_scrublet_dublets.txt'
 
