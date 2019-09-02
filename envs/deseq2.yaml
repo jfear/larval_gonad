@@ -11,6 +11,7 @@ dependencies:
   - backcall=0.1.0
   - binutils_impl_linux-64=2.31.1
   - binutils_linux-64=2.31.1
+  - bioconductor-apeglm=1.4.1
   - bioconductor-annotate=1.60.1
   - bioconductor-annotationdbi=1.44.0
   - bioconductor-biobase=2.42.0

@@ -1,79 +1,64 @@
+"""Calculate tsps for each YOgn by sex.
+
+I am calculating tsps for each YOgn by sex separately. A score of ≥1 is highly
+tissue specific and a score of 0 is a housekeeping gene. NaN values are genes 
+that were not expressed.
+
+"""
+import os
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy
 
 from larval_gonad.normalization import tpm
 
-COUNTS_FILE = snakemake.input["counts"]
-SAMPLETABLE_FILE = snakemake.input["sampletable"]
-GENE_ANNOT = snakemake.input["gene_annot"]
-OUTPUT_FILE = snakemake.output[0]
-
-# Debug Settings
-# import os
-# try:
-#     os.chdir(os.path.join(os.getcwd(), 'expression-atlas-wf/scripts'))
-#     print(os.getcwd())
-# except:
-#     pass
-# COUNTS_FILE = '../../output/expression-atlas-wf/raw_counts.feather'
-# SAMPLETABLE_FILE = '../config/sampletable.tsv'
-# GENE_ANNOT = '../../references/gene_annotation_dmel_r6-26.feather'
-
 
 def main():
-    df = read_counts_data()
+    # Read in counts and aggregate by gene*tissue*sex
+    cnts = pd.read_feather(snakemake.input.counts).set_index("YOgn")
+    agg_cnts = aggregate_counts_by_sex_tissue(cnts)
 
-    male_tpm = split_and_normalize(df, "male")
-    female_tpm = split_and_normalize(df, "female")
+    # TPM normalize counts
+    gene_lengths = get_gene_lengths(snakemake.input.metadata)
+    norm_cnts = tpm(agg_cnts, gene_lengths).dropna()
 
-    df_tsps = pd.concat(
+    # Calculate tsps scores for males and females
+    tsps_scores = pd.concat(
         [
-            male_tpm.apply(tsps, axis=1).rename("male_tsps"),
-            female_tpm.apply(tsps, axis=1).rename("female_tsps"),
+            norm_cnts["m"].apply(tsps, axis=1).rename("male"),
+            norm_cnts["f"].apply(tsps, axis=1).rename("female"),
         ],
         axis=1,
         sort=True,
-    ).rename_axis("FBgn")
-
-    df_tsps.reset_index().to_feather(OUTPUT_FILE)
-
-
-def read_counts_data():
-    sampletable = (
-        pd.read_csv(
-            SAMPLETABLE_FILE, sep="\t", usecols=["samplename", "species", "tissue", "sex", "rep"]
-        )
-        .query("species == 'Drosophila melanogaster'")
-        .set_index("samplename")
-        .drop("species", axis=1)
     )
 
-    df = (
-        pd.read_feather(COUNTS_FILE, columns=["FBgn"] + sampletable.index.tolist())
-        .set_index("FBgn")
-        .dropna()
-        .pipe(lambda x: x[x.sum(axis=1) > 0])
-        .T.join(sampletable[["tissue", "sex"]])
-        .groupby(["tissue", "sex"])
-        .sum()
+    tsps_scores.reset_index().to_feather(snakemake.output[0])
+
+
+def aggregate_counts_by_sex_tissue(cnts):
+    metadata = cnts.columns.str.extract(
+        r"(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)"
+    )
+    metadata.index = cnts.columns
+    metadata.index.name = "samplename"
+
+    return (
+        cnts.reset_index()
+        .melt(id_vars="YOgn", var_name="samplename", value_name="cnt")
+        .merge(metadata, left_on="samplename", right_index=True)
+        .groupby(["YOgn", "tissue", "sex"])
+        .cnt.sum()
+        .unstack(level=[-1, -2])
     )
 
-    return df
 
-
-def split_and_normalize(df, sex):
-    fbgn2length = (
-        pd.read_feather(GENE_ANNOT, columns=["FBgn", "length"]).set_index("FBgn").squeeze()
+def get_gene_lengths(file_name):
+    return (
+        pd.read_feather(file_name)
+        .set_index("YOgn")
+        .assign(gene_length=lambda df: df.end.astype(int) - df.start.astype(int))
+        .gene_length
     )
-    split_df = split_sex(df, sex)
-    return tpm(split_df, fbgn2length).dropna()
-
-
-def split_sex(df, sex):
-    sexed_df = df.loc[(slice(None), sex), :].T
-    sexed_df.columns = sexed_df.columns.droplevel(-1)
-    return sexed_df
 
 
 def tsps(x: np.ndarray):
@@ -90,7 +75,7 @@ def tsps(x: np.ndarray):
     0.0
     >>> tsps(np.array([0, 0, 0]))
     np.nan
-    >>> tpss(np.array([1, 0, 0]))
+    >>> tsps(np.array([1, 0, 0]))
     1.5849625007211563
 
     """
@@ -102,4 +87,15 @@ def tsps(x: np.ndarray):
 
 
 if __name__ == "__main__":
+    if os.getenv("SNAKE_DEBUG", False):
+        from larval_gonad.debug import snakemake_debug
+
+        snakemake = snakemake_debug(
+            workdir="expression-atlas-wf",
+            input=dict(
+                counts="../output/expression-atlas-wf/aggregated_counts_table/orgR.feather",
+                metadata="../output/expression-atlas-wf/YOgn_metadata/dmel.feather",
+            ),
+        )
+
     main()

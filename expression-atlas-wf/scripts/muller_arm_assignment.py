@@ -1,99 +1,73 @@
-"""Determine chromosome consensus for scaffolds.
+"""Creates a YOgn to Muller arm mapping.
 
-We want to include the out groups D. willistoni, D. virilis, and D.
-mojavensus in our analysis. However, genes are assigned to scaffolds and not
-Muller elements. We assign chromosome arm based on the consensus from D.
-melanogaster.
+Uses majority rule of D. melanogaster orthologs to assign scaffolds to
+muller elements.
 
 """
-import pickle
-import numpy as np
+import os
 import pandas as pd
+from larval_gonad.io import pickle_load, pickle_dump
 
-ORTHOLOGS = snakemake.input["orthologs"]
-GENE_ANNOTATION = snakemake.input["gene_annotation"]
-PRIMARY_SECONDARY = snakemake.input['primary2secondary']
-OUTPUT_FILE = snakemake.output[0]
-
-# Debug Settings
-# import os
-# try:
-#     os.chdir(os.path.join(os.getcwd(), "expression-atlas-wf/scripts"))
-#     print(os.getcwd())
-# except:
-#     pass
-# ORTHOLOGS = '../../output/expression-atlas-wf/ortholog_annotation.feather'
-# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-26.feather'
-# PRIMARY_SECONDARY = '../../references/primary2secondary_dmel_r6-26.pkl'
-
-DMEL_MULLER = {"X": "A", "2L": "B", "2R": "C", "3L": "D", "3R": "E", "4": "F"}
-DPSE_MULLER = {"XL": "A", "4": "B", "3": "C", "XR": "D", "2": "E", "5": "F"}
+MULLER = {"X": "A", "2L": "B", "2R": "C", "3L": "D", "3R": "E", "4": "F", "Y": "Y"}
+UNK = "unknown_scaffold"
 
 
 def main():
+    # Muller arm assignment for dmel
     fbgn2muller = (
-        pd.read_feather(GENE_ANNOTATION, columns=["FBgn", "FB_chrom"])
+        pd.read_feather(snakemake.input.gene_annot)
         .set_index("FBgn")
-        .squeeze()
-        .map(lambda x: DMEL_MULLER.get(x, 'unknown_scaffold'))
+        .FB_chrom.map(MULLER)
+        .dropna()
         .rename("muller")
     )
 
-    with open(PRIMARY_SECONDARY, 'rb') as fh:
-        primary2secondary = pickle.load(fh)
+    # Ortholog map from YO to updated dmel FBgn
+    fbgn_updater = pickle_load(snakemake.input.primary2secondary)
+    orthologs = {
+        k: fbgn_updater[v]
+        for k, v in pickle_load(snakemake.input.orthologs).items()
+        if v in fbgn_updater
+    }
 
-    orthologs = pd.read_feather(ORTHOLOGS).set_index("FBgn")
-
-    # update to current reference FBgns
-    orthologs.index = orthologs.index.map(primary2secondary)
-
-    # update dmel chromosome based on the annotation
-    orthologs = orthologs[~orthologs.index.isnull()].join(fbgn2muller)
-
-    # Sanity check our consensus method with dpse annotation from FlyBase
-    dpse_fbgn2annotated = (
-        orthologs.dpse.str.extract("([a-zA-Z0-9]+)").squeeze().map(DPSE_MULLER).rename("annotated")
+    # Scaffold map to Muller element
+    metadata = pd.read_feather(snakemake.input.yogn_annot)
+    scaffold_to_muller = (
+        metadata.loc[:, ["YOgn", "chrom"]]
+        .assign(FBgn=lambda df: df.YOgn.map(orthologs))
+        .query("FBgn == FBgn")
+        .merge(fbgn2muller, on="FBgn")
+        .groupby("chrom")
+        .apply(consensus_muller)
+        .to_dict()
     )
 
-    dpse_consensus = orthologs.groupby("dpse").apply(consensus_muller).rename("muller")
-    dpse_fbgn2consensus = orthologs.dpse.map(dpse_consensus).rename("consensus")
+    # YOgn to Muller
+    yogn2muller = metadata.set_index("YOgn").chrom.map(scaffold_to_muller).fillna(UNK).to_dict()
 
-    dpse_sanity = pd.concat([dpse_fbgn2annotated, dpse_fbgn2consensus], axis=1).dropna(subset=['annotated'])
-
-    # Assure that dpse annotation and consensus are identical
-    assert (dpse_sanity.annotated.fillna("NAN") == dpse_sanity.consensus.fillna("NAN")).all()
-
-    # Get muller for other samples
-    dvir_muller = orthologs.dvir.map(
-        orthologs.groupby("dvir").apply(consensus_muller).rename("muller")
-    )
-    dmoj_muller = orthologs.dmoj.map(
-        orthologs.groupby("dmoj").apply(consensus_muller).rename("muller")
-    )
-    dwil_muller = orthologs.dwil.map(
-        orthologs.groupby("dwil").apply(consensus_muller).rename("muller")
-    )
-
-    df_muller = pd.concat(
-        [
-            orthologs.muller.rename("dmel"),
-            dpse_fbgn2consensus.rename("dpse"),
-            dvir_muller,
-            dmoj_muller,
-            dwil_muller,
-        ],
-        axis=1,
-    )
-
-    df_muller.reset_index().to_feather(OUTPUT_FILE)
+    pickle_dump(yogn2muller, snakemake.output[0])
 
 
 def consensus_muller(x):
     if x.shape[0] > 20:
         return x.muller.value_counts().idxmax()
     else:
-        return 'unknown_scaffold'
+        return UNK
 
 
 if __name__ == "__main__":
+    if os.getenv("SNAKE_DEBUG", False):
+        from larval_gonad.debug import snakemake_debug
+
+        snakemake = snakemake_debug(
+            workdir="expression-atlas-wf",
+            input=dict(
+                orthologs="../output/expression-atlas-wf/dana_YOgn_to_dmel_ortholog.pkl",
+                yogn_annot="../output/expression-atlas-wf/dana_YOgn_metadata.feather",
+                gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+                primary2secondary="../references/primary2secondary_dmel_r6-26.pkl",
+            ),
+            wildcards=dict(species="dana"),
+        )
+
     main()

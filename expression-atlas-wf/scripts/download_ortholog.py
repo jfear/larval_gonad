@@ -1,23 +1,20 @@
+"""Downloads ortholog tables from GEO."""
 import shutil
 from pathlib import Path
 from subprocess import run
 from tempfile import TemporaryDirectory
 
-URL = snakemake.params[0]
-OUTPUT_FILE = snakemake.output[0]
-SPECIES = snakemake.wildcards["species"]
-
 
 def main():
     tmpdir = TemporaryDirectory()
-    gz = Path(tmpdir.name, f"{SPECIES}.tar.gz")
-    tar = Path(tmpdir.name, f"{SPECIES}.tar")
-    ortho = Path(tmpdir.name, f"{SPECIES}.ortholog.txt")
+    gz = Path(tmpdir.name, f"{snakemake.wildcards.species}.tar.gz")
+    tar = Path(tmpdir.name, f"{snakemake.wildcards.species}.tar")
+    ortho = Path(tmpdir.name, f"{snakemake.wildcards.species}.ortholog.txt")
 
-    run(["curl", "-o", gz, URL])
+    run(["curl", "-o", gz, snakemake.params[0]])
     run(["gunzip", gz])
     run(["tar", "--directory", tmpdir.name, "-xf", tar])
-    shutil.copyfile(ortho, OUTPUT_FILE)
+    shutil.copyfile(ortho, snakemake.output[0])
     tmpdir.cleanup()
 
 

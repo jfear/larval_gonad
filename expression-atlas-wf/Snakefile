@@ -1,50 +1,49 @@
+from more_itertools import flatten
 import pandas as pd
+from snakemake.rules import expand
 
 from larval_gonad.config import read_config
 from larval_gonad.io import pickle_dump
 
+# Config information
 configfile: "config/config.yaml"
-
 common_config = read_config('../config/common.yaml')
-TAG = common_config['tag']
-sample_table = pd.read_csv('config/sampletable.tsv', sep='\t')
-sample_attrs = sample_table.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
-SPECIES = sample_attrs.species.unique().tolist()
-TISSUE = sample_attrs.tissue.unique().tolist()
 
+# Sample Information
+sampletable = pd.read_csv('config/sampletable.tsv', sep='\t')
+sample2attrs = pd.concat([
+    sampletable.samplename,
+    sampletable.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
+], axis=1, sort=True).set_index("samplename")
+
+species2tissue = (
+    sample2attrs[['species', 'tissue']]
+    .drop_duplicates()
+    .set_index("species", drop=True)
+    .squeeze()
+)
+
+# Useful globals
+TAG = common_config['tag']
+TISSUE = sample2attrs.tissue.unique().tolist()
+SAMPLES = sample2attrs.index.values.tolist()
 
 rule all:
     input: 
+        "../output/expression-atlas-wf/aggregated_muller_table.feather",
         expand(
-            '../output/expression-atlas-wf/GTF/{species}.gtf', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
+            '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat',
+            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
         ),
-        '../output/expression-atlas-wf/raw_counts.feather',
-        '../output/expression-atlas-wf/ortholog_annotation.feather',
-        '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
-        '../output/expression-atlas-wf/muller_arm_assignment.feather',
-        '../output/expression-atlas-wf/dist_dmel_tau.svg',
-        '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
-        '../output/expression-atlas-wf/dist_dmel_tsps.svg',
-        '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_ovary_gonad_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_ns_gonad_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_male_sex_soma_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_female_sex_soma_biased_fbgns.pkl',
-        '../output/expression-atlas-wf/dmel_ns_sex_soma_biased_fbgns.pkl',
+        expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=config["species_order"]),
+        expand('../output/expression-atlas-wf/tau_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
+        expand('../output/expression-atlas-wf/tsps_housekeeping/{species}.svg', species=config["species_order"]),
+        expand('../output/expression-atlas-wf/tsps_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
 
 
+################################################################################
+# Download data
+################################################################################
 rule download_annotation:
     params: 'ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE99nnn/GSE99574/suppl/GSE99574_{species}.YO.annotation.tar.gz'
     output: '../output/expression-atlas-wf/GTF/{species}.gtf'
@@ -59,7 +58,7 @@ rule download_orthologs:
 
 def _download_coverage_counts(wildcards):
     samplename = wildcards.samplename
-    gsm = sample_table.loc[sample_table.samplename == samplename, 'GSM'].values[0]
+    gsm = sampletable.loc[sampletable.samplename == samplename, 'GSM'].values[0]
     short = gsm[:7]
     return f'ftp://ftp.ncbi.nlm.nih.gov/geo/samples/{short}nnn/{gsm}/suppl/{gsm}_{samplename}.htseq_reverse.HiSAT2.YO.txt.gz'
 
@@ -70,201 +69,178 @@ rule download_coverage_counts:
     script: 'scripts/download_coverage_counts.py'
 
 
-rule coverage_table:
-    input: 
-        counts = expand(
-            '../output/expression-atlas-wf/raw_counts/{samplename}.tsv', 
-            samplename = sample_table.samplename.tolist(),
-        ),
-        orthologs = expand(
-            '../output/expression-atlas-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        )
-    output: '../output/expression-atlas-wf/raw_counts.feather'
-    script: 'scripts/build_counts_table.py'
+################################################################################
+# Prep metadata
+################################################################################
+rule yogn_to_metadata:
+    input: rules.download_annotation.output[0]
+    output: '../output/expression-atlas-wf/YOgn_metadata/{species}.feather'
+    script: "scripts/yogn_to_metadata.py"
 
 
-rule location_table:
-    input: 
-        orthologs = expand(
-            '../output/expression-atlas-wf/orthologs/{species}.tsv', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        ),
-        gtf = expand(
-            '../output/expression-atlas-wf/GTF/{species}.gtf', 
-            # remove w1118 and orgR and replace with dmel
-            species=[
-                sp
-                for sp in SPECIES
-                if sp.startswith("d")
-            ] + ['dmel']
-        )
-    output: '../output/expression-atlas-wf/ortholog_annotation.feather'
-    script: 'scripts/ortholog_annotation.py'
+def _yogn_to_metadata_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.yogn_to_metadata.output[0].format(species=species)
 
 
-rule fb_location_table:
-    params: "ftp://ftp.flybase.net/releases/FB2018_05/precomputed_files/orthologs/dmel_orthologs_in_drosophila_species_fb_2018_05.tsv.gz"
-    output: '../output/expression-atlas-wf/FB_ortholog_annotation.feather'
-    script: 'scripts/fb_ortholog_annotation.py'
+rule yogn_to_dmel_ortholog:
+    input: rules.download_orthologs.output[0]
+    # pickle: dict
+    output: '../output/expression-atlas-wf/YOgn_to_dmel_ortholog/{species}.pkl'
+    script: "scripts/yogn_to_dmel_ortholog.py"
 
 
-def _muller_arm_assignment(wildcards):
-    prefix = wildcards.prefix
-    return {
-        'YO': rules.location_table.output[0],
-        'FB': rules.fb_location_table.output[0],
-    }[prefix]
+def _yogn_to_dmel_ortholog_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.yogn_to_dmel_ortholog.output[0].format(species=species)
 
 
 rule muller_arm_assignment:
     input: 
-        gene_annotation = f'../references/gene_annotation_dmel_{TAG}.feather',
-        orthologs = _muller_arm_assignment,
-        primary2secondary = f'../references/primary2secondary_dmel_{TAG}.pkl'
-    output: '../output/expression-atlas-wf/{prefix}_muller_arm_assignment.feather'
+        yogn_annot=rules.yogn_to_metadata.output[0],
+        orthologs=rules.yogn_to_dmel_ortholog.output[0],
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
+    # pickle: dict
+    output: '../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl'
     script: 'scripts/muller_arm_assignment.py'
 
 
-rule combine_YO_FB:
+def _muller_arm_assignment_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.muller_arm_assignment.output[0].format(species=species)
+
+
+rule fbgn_to_muller:
     input: 
-        yo = '../output/expression-atlas-wf/YO_muller_arm_assignment.feather',
-        fb = '../output/expression-atlas-wf/FB_muller_arm_assignment.feather',
-    output: '../output/expression-atlas-wf/muller_arm_assignment.feather'
-    script: 'scripts/combine_muller_arm_assignments.py'
+        muller=rules.muller_arm_assignment.output[0],
+        ortholog=rules.yogn_to_dmel_ortholog.output[0]
+    # pickle: pd.Series
+    output: temp("../output/expression-atlas-wf/FBgn_to_muller_{species}.pkl")
+    script: "scripts/FBgn_to_muller.py"
 
 
+rule aggregated_muller_table:
+    input: expand(rules.fbgn_to_muller.output[0], species=config["species_order_w_dmel"])
+    params: species=config['species_order_w_dmel']
+    output: "../output/expression-atlas-wf/aggregated_muller_table.feather"
+    script: "scripts/aggregated_muller_table.py"
+
+
+################################################################################
+# Sex Biased Expression
+################################################################################
+def _species_counts_table(wildcards):
+    return expand(
+        '../output/expression-atlas-wf/raw_counts/{samplename}.tsv',
+        samplename=sample2attrs.query(f'species == "{wildcards.species}"').index.tolist()
+    )
+
+
+rule species_counts_table:
+    input: _species_counts_table
+    output: "../output/expression-atlas-wf/aggregated_counts_table/{species}.feather"
+    script: "scripts/species_counts_table.py"
+
+
+rule sex_bias_expression:
+    input:
+        sampletable = 'config/sampletable.tsv',
+        counts_table = rules.species_counts_table.output[0]
+    output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
+    log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
+    conda: "../envs/deseq2.yaml"
+    script: 'scripts/sex_bias_expression.R'
+
+
+rule sex_bias_by_muller:
+    input: 
+        muller=_muller_arm_assignment_dmel_translate,
+        deg=rules.sex_bias_expression.output[0]
+    params: alpha=config['alpha']
+    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
+    output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
+    script: "scripts/sex_bias_by_muller.py"
+
+
+################################################################################
+# Identify Housekeeping Genes
+################################################################################
 rule tau:
     input: 
-        counts = rules.coverage_table.output[0],
-        sampletable = 'config/sampletable.tsv',
-        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather',
-    output: '../output/expression-atlas-wf/dmel_tau.feather'
+        counts=rules.species_counts_table.output[0],
+        metadata=_yogn_to_metadata_dmel_translate
+    output: '../output/expression-atlas-wf/tau/{species}.feather'
     script: 'scripts/calculate_tau.py'
 
 
-rule plot_tau:
+rule tau_housekeeping_fbgns:
     input: rules.tau.output[0]
-    output: '../output/expression-atlas-wf/dist_dmel_tau.svg'
-    script: './scripts/plot_dist_tau.py'
-
-
-rule dmel_tau_fbgns:
-    input: rules.tau.output[0]
-    output: 
-        male='../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
     params: config['tau_cutoff']
-    run:
-        df = pd.read_feather(input[0]).set_index("FBgn")
-        pickle_dump(df.query(f"male_tau <= {params[0]}").index.tolist(), output['male'])
-        pickle_dump(df.query(f"female_tau <= {params[0]}").index.tolist(), output['female'])
+    # pickle: list
+    output: 
+        male='../output/expression-atlas-wf/tau_housekeeping/{species}_male.pkl',
+        female='../output/expression-atlas-wf/tau_housekeeping/{species}_female.pkl',
+        svg='../output/expression-atlas-wf/tau_housekeeping/{species}.svg'
+    script: "scripts/tau_housekeeping_yogns.py"
+
+
+rule dmel_tau_housekeeping:
+    input: 
+        male=expand(
+            rules.tau_housekeeping_fbgns.output.male,
+            species=["w1118", "orgR"]
+        ),
+        female=expand(
+            rules.tau_housekeeping_fbgns.output.female,
+            species=["w1118", "orgR"]
+        ),
+        annot=expand(rules.yogn_to_dmel_ortholog.output[0], species="dmel")
+    # pickle: list
+    output: 
+        male='../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
+        female='../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl'
+    script: 'scripts/dmel_tau_housekeeping.py'
 
 
 rule tsps:
     input: 
-        counts = rules.coverage_table.output[0],
-        sampletable = 'config/sampletable.tsv',
-        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather',
-    output: '../output/expression-atlas-wf/dmel_tsps.feather'
+        counts=rules.species_counts_table.output[0],
+        metadata=_yogn_to_metadata_dmel_translate
+    output: '../output/expression-atlas-wf/tsps/{species}.feather'
     script: 'scripts/calculate_tsps.py'
 
 
-rule plot_tsps:
-    input: rules.tsps.output[0]
-    output: '../output/expression-atlas-wf/dist_dmel_tsps.svg'
-    script: './scripts/plot_dist_tsps.py'
-
-
-rule dmel_tsps_fbgns:
-    input: rules.tsps.output[0]
-    output: 
-        male='../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
+rule tsps_housekeeping_fbgns:
+    input: rules.tau.output[0]
     params: config['tsps_cutoff']
-    run:
-        df = pd.read_feather(input[0]).set_index("FBgn")
-        pickle_dump(df.query(f"male_tsps <= {params[0]}").index.tolist(), output['male'])
-        pickle_dump(df.query(f"female_tsps <= {params[0]}").index.tolist(), output['female'])
-
-
-rule dmel_gonad_biased_expression:
-    input: 
-        sample_table = 'config/sampletable.tsv',
-        counts_table = rules.coverage_table.output[0],
-        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather'
-    output: '../output/expression-atlas-wf/dmel_gonad_biased_expression.tsv'
-    log: '../output/expression-atlas-wf/dmel_gonad_biased_expression.log'
-    conda: "../envs/deseq2.yaml"
-    script: "scripts/dmel_gonad_biased_expression.R"
-
-
-rule dmel_gonad_biased_fbgns:
-    input: rules.dmel_gonad_biased_expression.output[0]
+    # pickle: list
     output: 
-        male='../output/expression-atlas-wf/dmel_testis_gonad_biased_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_ovary_gonad_biased_fbgns.pkl',
-        ns='../output/expression-atlas-wf/dmel_ns_gonad_biased_fbgns.pkl',
-    run:
-        df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
-        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
+        male='../output/expression-atlas-wf/tsps_housekeeping/{species}_male.pkl',
+        female='../output/expression-atlas-wf/tsps_housekeeping/{species}_female.pkl',
+        svg='../output/expression-atlas-wf/tsps_housekeeping/{species}.svg'
+    script: "scripts/tsps_housekeeping_yogns.py"
 
 
-rule dmel_sex_biased_expression:
+rule dmel_tsps_housekeeping:
     input: 
-        sample_table = 'config/sampletable.tsv',
-        counts_table = rules.coverage_table.output[0],
-        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather'
-    output: '../output/expression-atlas-wf/dmel_sex_biased_expression.tsv'
-    log: '../output/expression-atlas-wf/dmel_sex_biased_expression.log'
-    conda: "../envs/deseq2.yaml"
-    script: "scripts/dmel_sex_biased_expression.R"
-
-
-rule dmel_sex_biased_fbgns:
-    input: rules.dmel_sex_biased_expression.output[0]
+        male=expand(
+            rules.tsps_housekeeping_fbgns.output.male,
+            species=["w1118", "orgR"]
+        ),
+        female=expand(
+            rules.tsps_housekeeping_fbgns.output.female,
+            species=["w1118", "orgR"]
+        ),
+        annot=expand(rules.yogn_to_dmel_ortholog.output[0], species="dmel")
+    # pickle: list
     output: 
-        male='../output/expression-atlas-wf/dmel_male_sex_biased_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_sex_biased_fbgns.pkl',
-        ns='../output/expression-atlas-wf/dmel_ns_sex_biased_fbgns.pkl',
-    run:
-        df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
-        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
-
-
-rule dmel_sex_soma_biased_expression:
-    input: 
-        sample_table = 'config/sampletable.tsv',
-        counts_table = rules.coverage_table.output[0],
-        gene_annot = f'../references/gene_annotation_dmel_{TAG}.feather'
-    output: '../output/expression-atlas-wf/dmel_sex_soma_biased_expression.tsv'
-    log: '../output/expression-atlas-wf/dmel_sex_soma_biased_expression.log'
-    conda: "../envs/deseq2.yaml"
-    script: "scripts/dmel_sex_soma_biased_expression.R"
-
-
-rule dmel_sex_soma_biased_fbgns:
-    input: rules.dmel_sex_soma_biased_expression.output[0]
-    output: 
-        male='../output/expression-atlas-wf/dmel_male_sex_soma_biased_fbgns.pkl',
-        female='../output/expression-atlas-wf/dmel_female_sex_soma_biased_fbgns.pkl',
-        ns='../output/expression-atlas-wf/dmel_ns_sex_soma_biased_fbgns.pkl',
-    run:
-        df = pd.read_csv(input[0], sep='\t').set_index("FBgn")
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
-        pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
-        pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
+        male='../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl',
+        female='../output/expression-atlas-wf/tsps_housekeeping/female_fbgns.pkl'
+    script: 'scripts/dmel_tsps_housekeeping.py'
