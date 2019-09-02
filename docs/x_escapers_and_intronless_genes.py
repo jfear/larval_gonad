@@ -36,7 +36,7 @@ background = pickle.load(open("../output/science_submission/background_fbgns.pkl
 # Get list of X chromosome genes
 fbgn2chrom = (
     pd.read_feather(
-        "../references/gene_annotation_dmel_r6-24.feather", columns=["FBgn", "FB_chrom"]
+        "../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "FB_chrom"]
     )
     .set_index("FBgn")
     .squeeze()
