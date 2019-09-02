@@ -45,7 +45,7 @@ PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
 DATA_DIR <- file.path(PROJ_DIR, paste0("output/cellselection-wf/", SAMPLE))
 OUTDIR <- file.path(PROJ_DIR, "output/monocle3-cluster-wf")
 
-GENE_ANNOTATION <- file.path(PROJ_DIR, "references/gene_annotation_dmel_r6-24.feather")
+GENE_ANNOTATION <- file.path(PROJ_DIR, "references/gene_annotation_dmel_r6-26.feather")
 LITERATURE_GENES <- file.path(PROJ_DIR, "config/literature_genes.yaml")
 ```
 
