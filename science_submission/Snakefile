@@ -11,8 +11,9 @@ from larval_gonad.config import read_config
 
 workdir: "."
 configfile: "config/config.yaml"
-
 config.update(read_config("../config/common.yaml"))
+atlas_config = read_config("../expression-atlas-wf/config/config.yaml")
+colors_config = read_config("../config/colors.yaml")
 
 SAMPLES = ["testis1", "testis2", "testis3"]
 
@@ -29,6 +30,90 @@ wildcard_constraints:
     sample="testis\d"
 
 rule all:
+    input:
+        expand(
+            "../output/science_submission/demas/{tissue}_{type}.svg", 
+            tissue=["WB", "GO", "AC", "HD"], 
+            type=["expressed_genes", "all_genes", "x_and_4th"]
+        ),
+
+
+################################################################################
+# Fig 1 Demasculinization
+################################################################################
+
+# Panel A: Demasculinization across species and tissues.
+rule demas_by_species_expressed_genes:
+    input: expand("../output/expression-atlas-wf/sex_bias_by_muller/{species}_{{tissue}}.dat", species=atlas_config["species_order"])
+    params: 
+        species=atlas_config["species_order"],
+        pattern=lambda wildcards: f"../output/expression-atlas-wf/sex_bias_by_muller/{{species}}_{wildcards.tissue}.dat",
+        colors=["blue", "lightgray", "red"]
+    output: "../output/science_submission/demas/{tissue}_expressed_genes.svg"
+    script: "scripts/demas_by_species_by_tissue.py"
+
+
+rule demas_by_species_all_genes:
+    input: expand("../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{{tissue}}.dat", species=atlas_config["species_order"])
+    params: 
+        species=atlas_config["species_order"],
+        pattern=lambda wildcards: f"../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{{species}}_{wildcards.tissue}.dat",
+        colors=["blue", "lightgray", "red"]
+    output: "../output/science_submission/demas/{tissue}_all_genes.svg"
+    script: "scripts/demas_by_species_by_tissue.py"
+
+
+rule demas_by_species_x_and_4th:
+    input: expand("../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{{tissue}}.dat", species=atlas_config["species_order"])
+    params: 
+        species=atlas_config["species_order"],
+        pattern=lambda wildcards: f"../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{{species}}_{wildcards.tissue}.dat",
+        colors=["blue", "lightgray", "red"]
+    output: "../output/science_submission/demas/{tissue}_x_and_4th.svg"
+    script: "scripts/demas_by_species_by_tissue.py"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################################################
+
+
+
+
+rule all_old:
     input:
         "../output/science_submission/gene_locations.feather",
         # Part 1
