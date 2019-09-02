@@ -23,7 +23,7 @@ rule targets:
 
 rule cellranger_mkref:
     input:
-        gtf = Path(f'../lcdb-references/{assembly}/{tag}/gtf/{assembly}_{tag}.gtf').absolute().as_posix(),
+        gtf = Path(f'../references/{assembly}-all-{tag}.modFix.gtf').absolute().as_posix(),
         fasta = Path(f'../lcdb-references/{assembly}/{tag}/fasta/{assembly}_{tag}.fasta').absolute().as_posix()
     output:
         fasta=f'../references/cellranger3/{assembly}{tag}/fasta/genome.fa',

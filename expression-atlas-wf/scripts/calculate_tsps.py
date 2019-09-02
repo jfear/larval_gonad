@@ -18,7 +18,7 @@ OUTPUT_FILE = snakemake.output[0]
 #     pass
 # COUNTS_FILE = '../../output/expression-atlas-wf/raw_counts.feather'
 # SAMPLETABLE_FILE = '../config/sampletable.tsv'
-# GENE_ANNOT = '../../references/gene_annotation_dmel_r6-24.feather'
+# GENE_ANNOT = '../../references/gene_annotation_dmel_r6-26.feather'
 
 
 def main():

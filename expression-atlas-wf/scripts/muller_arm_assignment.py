@@ -23,8 +23,8 @@ OUTPUT_FILE = snakemake.output[0]
 # except:
 #     pass
 # ORTHOLOGS = '../../output/expression-atlas-wf/ortholog_annotation.feather'
-# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
-# PRIMARY_SECONDARY = '../../references/primary2secondary_dmel_r6-24.pkl'
+# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-26.feather'
+# PRIMARY_SECONDARY = '../../references/primary2secondary_dmel_r6-26.pkl'
 
 DMEL_MULLER = {"X": "A", "2L": "B", "2R": "C", "3L": "D", "3R": "E", "4": "F"}
 DPSE_MULLER = {"XL": "A", "4": "B", "3": "C", "XR": "D", "2": "E", "5": "F"}

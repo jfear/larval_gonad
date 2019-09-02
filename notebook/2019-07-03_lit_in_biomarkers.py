@@ -6,7 +6,7 @@ import os
 os.chdir('notebook')
 
 fbgn2symbol = (
-    pd.read_feather('../references/gene_annotation_dmel_r6-24.feather', columns=['FBgn', 'gene_symbol'])
+    pd.read_feather('../references/gene_annotation_dmel_r6-26.feather', columns=['FBgn', 'gene_symbol'])
     .set_index('FBgn')
     .to_dict()['gene_symbol']
 )

@@ -17,7 +17,7 @@ except:
 # import gene annotations and lit genes
 config = read_config('../config/common.yaml')
 lit_genes = list(flatten(read_config('../config/literature_genes.yaml').values()))
-fbgn2symbol = pd.read_feather("../references/gene_annotation_dmel_r6-24.feather", columns=["FBgn", "gene_symbol"]).set_index("FBgn").squeeze()
+fbgn2symbol = pd.read_feather("../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "gene_symbol"]).set_index("FBgn").squeeze()
 
 #%%
 # import biomarkers and filter for alpha <= 0.01

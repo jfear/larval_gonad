@@ -18,7 +18,7 @@ ONAME = snakemake.output[0]
 # Debug Settings
 # FNAME = 'output/science_submission/tpm_by_cluster_rep.feather'
 # METADATA = 'output/seurat3-cluster-wf/combined_n3_metadata.feather'
-# GENE_METADATA = 'references/gene_annotation_dmel_r6-24.feather'
+# GENE_METADATA = 'references/gene_annotation_dmel_r6-26.feather'
 # import yaml
 # config = yaml.safe_load(open('config/common.yaml'))
 # CLUSTER_COLORS = yaml.full_load(open('config/colors.yaml'))['clusters']

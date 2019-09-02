@@ -23,7 +23,7 @@ ONAME = snakemake.output[0]
 
 # Debug settings
 # FNAME = "output/science_submission/zscore_by_cluster_rep.feather"
-# GENE_METADATA = "references/gene_annotation_dmel_r6-24.feather"
+# GENE_METADATA = "references/gene_annotation_dmel_r6-26.feather"
 # CMAP = "viridis"
 
 

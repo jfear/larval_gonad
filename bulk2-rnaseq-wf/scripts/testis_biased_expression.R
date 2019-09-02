@@ -25,7 +25,7 @@ OUT_DIR <- normalizePath(dirname(OUTPUT_FILE))
 # SAMPLE_TABLE <- file.path(CONFIG_DIR, "sampletable.tsv")
 # COUNTS_TABLE <- file.path(DATA_DIR, "rnaseq_aggregation/gene_level_counts.tsv")
 # INTERGENIC_COUNTS_TABLE <- file.path(DATA_DIR, "rnaseq_aggregation/intergenic_counts.tsv")
-# GENE_ANNOTATION <- file.path(REF_DIR, "gene_annotation_dmel_r6-24.feather")
+# GENE_ANNOTATION <- file.path(REF_DIR, "gene_annotation_dmel_r6-26.feather")
 # ERCC_ANNOTATION <- file.path(REF_DIR, "ercc_annotation.tsv")
 
 # Load metadata
