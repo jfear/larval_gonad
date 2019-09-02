@@ -47,13 +47,13 @@ def shelve_load(file_name: str, *args):
     Parameters
     ----------
     file_name: The name of one of the files from a shelve.
-    *args: Any number of keys to try to pull from the shelve.
+    *args: depreciated, does nothing.
 
     """
     res = {}
     with shelve.open(os.path.splitext(file_name)[0]) as db:
-        for k in args:
-            res[k] = db.get(k, None)
+        for k, v in db.items():
+            res[k] = v
     return res
 
 
