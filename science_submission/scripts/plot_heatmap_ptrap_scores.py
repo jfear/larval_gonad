@@ -20,7 +20,7 @@ OUTPUT_FILE = snakemake.output[0]
 # except:
 #     pass
 # PTRAP_FILE = '../../output/science_submission/ptrap_scores.feather'
-# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-24.feather'
+# GENE_ANNOTATION = '../../references/gene_annotation_dmel_r6-26.feather'
 
 
 def main():
