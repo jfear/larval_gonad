@@ -25,50 +25,20 @@ species2tissue = (
 
 # Useful globals
 TAG = common_config['tag']
-SPECIES = sample2attrs.species.unique().tolist()
 TISSUE = sample2attrs.tissue.unique().tolist()
 SAMPLES = sample2attrs.index.values.tolist()
 
-            # remove w1118 and orgR and replace with dmel
-SPECIES_WO_DMEL = [sp for sp in SPECIES if sp.startswith("d")]
-SPECIES_W_DMEL = SPECIES_WO_DMEL + ['dmel']
-
-
 rule all:
     input: 
-        expand('../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl', species=SPECIES_W_DMEL),
-        expand("../output/expression-atlas-wf/aggregated_counts_table/{species}.feather", species=SPECIES),
-        expand(
-            "../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv",
-            zip,
-            species=species2tissue.index.tolist(),
-            tissue=species2tissue.values.tolist(),
-        ),
+        "../output/expression-atlas-wf/aggregated_muller_table.feather",
         expand(
             '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat',
-            zip,
-            species=species2tissue.index.tolist(),
-            tissue=species2tissue.values.tolist(),
+            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
         ),
-        expand('../output/expression-atlas-wf/tau/{species}.feather', species=SPECIES),
-        expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=SPECIES),
-        '../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
-        '../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl',
-        expand('../output/expression-atlas-wf/tsps/{species}.feather', species=SPECIES),
-        expand('../output/expression-atlas-wf/tsps_housekeeping/{species}.svg', species=SPECIES),
-        '../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl',
-        '../output/expression-atlas-wf/tsps_housekeeping/female_fbgns.pkl',
-        # '../output/expression-atlas-wf/raw_counts.feather',
-        # '../output/expression-atlas-wf/ortholog_annotation.feather',
-        # '../output/expression-atlas-wf/FB_ortholog_annotation.feather',
-        # '../output/expression-atlas-wf/muller_arm_assignment.feather',
-        # '../output/expression-atlas-wf/dist_dmel_tau.svg',
-        # '../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl',
-        # '../output/expression-atlas-wf/dmel_female_tau_fbgns.pkl',
-        # '../output/expression-atlas-wf/dist_dmel_tsps.svg',
-        # '../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl',
-        # '../output/expression-atlas-wf/dmel_female_tsps_fbgns.pkl',
-        # '../output/expression-atlas-wf/sex_biased_expression.feather',
+        expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=config["species_order"]),
+        expand('../output/expression-atlas-wf/tau_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
+        expand('../output/expression-atlas-wf/tsps_housekeeping/{species}.svg', species=config["species_order"]),
+        expand('../output/expression-atlas-wf/tsps_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
 
 
 ################################################################################
@@ -117,6 +87,7 @@ def _yogn_to_metadata_dmel_translate(wildcards):
 
 rule yogn_to_dmel_ortholog:
     input: rules.download_orthologs.output[0]
+    # pickle: dict
     output: '../output/expression-atlas-wf/YOgn_to_dmel_ortholog/{species}.pkl'
     script: "scripts/yogn_to_dmel_ortholog.py"
 
@@ -134,6 +105,7 @@ rule muller_arm_assignment:
         orthologs=rules.yogn_to_dmel_ortholog.output[0],
         gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
         primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
+    # pickle: dict
     output: '../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl'
     script: 'scripts/muller_arm_assignment.py'
 
@@ -143,6 +115,22 @@ def _muller_arm_assignment_dmel_translate(wildcards):
     if (species == "w1118") | (species == "orgR"):
         species = "dmel"
     return rules.muller_arm_assignment.output[0].format(species=species)
+
+
+rule fbgn_to_muller:
+    input: 
+        muller=rules.muller_arm_assignment.output[0],
+        ortholog=rules.yogn_to_dmel_ortholog.output[0]
+    # pickle: pd.Series
+    output: temp("../output/expression-atlas-wf/FBgn_to_muller_{species}.pkl")
+    script: "scripts/FBgn_to_muller.py"
+
+
+rule aggregated_muller_table:
+    input: expand(rules.fbgn_to_muller.output[0], species=config["species_order_w_dmel"])
+    params: species=config['species_order_w_dmel']
+    output: "../output/expression-atlas-wf/aggregated_muller_table.feather"
+    script: "scripts/aggregated_muller_table.py"
 
 
 ################################################################################
@@ -176,6 +164,7 @@ rule sex_bias_by_muller:
         muller=_muller_arm_assignment_dmel_translate,
         deg=rules.sex_bias_expression.output[0]
     params: alpha=config['alpha']
+    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
     output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
     script: "scripts/sex_bias_by_muller.py"
 
@@ -194,6 +183,7 @@ rule tau:
 rule tau_housekeeping_fbgns:
     input: rules.tau.output[0]
     params: config['tau_cutoff']
+    # pickle: list
     output: 
         male='../output/expression-atlas-wf/tau_housekeeping/{species}_male.pkl',
         female='../output/expression-atlas-wf/tau_housekeeping/{species}_female.pkl',
@@ -212,6 +202,7 @@ rule dmel_tau_housekeeping:
             species=["w1118", "orgR"]
         ),
         annot=expand(rules.yogn_to_dmel_ortholog.output[0], species="dmel")
+    # pickle: list
     output: 
         male='../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl',
         female='../output/expression-atlas-wf/tau_housekeeping/female_fbgns.pkl'
@@ -229,6 +220,7 @@ rule tsps:
 rule tsps_housekeeping_fbgns:
     input: rules.tau.output[0]
     params: config['tsps_cutoff']
+    # pickle: list
     output: 
         male='../output/expression-atlas-wf/tsps_housekeeping/{species}_male.pkl',
         female='../output/expression-atlas-wf/tsps_housekeeping/{species}_female.pkl',
@@ -247,15 +239,8 @@ rule dmel_tsps_housekeeping:
             species=["w1118", "orgR"]
         ),
         annot=expand(rules.yogn_to_dmel_ortholog.output[0], species="dmel")
+    # pickle: list
     output: 
         male='../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl',
         female='../output/expression-atlas-wf/tsps_housekeeping/female_fbgns.pkl'
     script: 'scripts/dmel_tsps_housekeeping.py'
-
-
-# rule combine_YO_FB:
-#     input: 
-#         yo = '../output/expression-atlas-wf/YO_muller_arm_assignment.feather',
-#         fb = '../output/expression-atlas-wf/FB_muller_arm_assignment.feather',
-#     output: '../output/expression-atlas-wf/muller_arm_assignment.feather'
-#     script: 'scripts/combine_muller_arm_assignments.py'

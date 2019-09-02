@@ -1,3 +1,22 @@
 tau_cutoff: .5  # less than or equal
 tsps_cutoff: 1 # less than or equal
 alpha: 0.01
+species_order_w_dmel:
+  - dmel
+  - dyak 
+  - dana 
+  - dpse 
+  - dper 
+  - dwil 
+  - dmoj 
+  - dvir 
+species_order:
+  - w1118
+  - orgR
+  - dyak 
+  - dana 
+  - dpse 
+  - dper 
+  - dwil 
+  - dmoj 
+  - dvir 
