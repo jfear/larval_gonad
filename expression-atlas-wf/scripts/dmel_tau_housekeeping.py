@@ -1,3 +1,8 @@
+"""D. mel housekeeping genes based on tau.
+
+Uses the intersection of w1118 and orgR to create a list of
+D. mel housekeeping genes.
+"""
 import os
 from functools import partial
 import pandas as pd

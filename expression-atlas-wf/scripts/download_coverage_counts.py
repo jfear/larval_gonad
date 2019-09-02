@@ -1,3 +1,4 @@
+"""Downloads coverage counts from GEO."""
 import shutil
 from pathlib import Path
 from subprocess import run

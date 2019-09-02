@@ -1,3 +1,4 @@
+"""Downloads GTF files form GEO."""
 import shutil
 from pathlib import Path
 from subprocess import run
