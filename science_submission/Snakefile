@@ -36,6 +36,7 @@ rule all:
             tissue=["WB", "GO", "AC", "HD"], 
             type=["expressed_genes", "all_genes", "x_and_4th"]
         ),
+        "../output/science_submission/demas/demas_by_species_panel.svg",
 
 
 ################################################################################
@@ -72,6 +73,14 @@ rule demas_by_species_x_and_4th:
     output: "../output/science_submission/demas/{tissue}_x_and_4th.svg"
     script: "scripts/demas_by_species_by_tissue.py"
 
+
+rule demas_by_species_panel:
+    input:
+        wb='../output/science_submission/demas/WB_x_and_4th.svg',
+        go='../output/science_submission/demas/GO_x_and_4th.svg',
+        ac='../output/science_submission/demas/AC_x_and_4th.svg'
+    output: "../output/science_submission/demas/demas_by_species_panel.svg"
+    script: "scripts/demas_by_species_panel.py"
 
 
 
