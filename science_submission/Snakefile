@@ -30,59 +30,12 @@ wildcard_constraints:
     sample="testis\d"
 
 rule all:
-    input:
-        expand(
-            "../output/science_submission/demas/{tissue}_{type}.svg", 
-            tissue=["WB", "GO", "AC", "HD"], 
-            type=["expressed_genes", "all_genes", "x_and_4th"]
-        ),
-        "../output/science_submission/demas/demas_by_species_panel.svg",
+    input: ''
 
 
 ################################################################################
-# Fig 1 Demasculinization
+# Fig 1 scRNA-Seq
 ################################################################################
-
-# Panel A: Demasculinization across species and tissues.
-rule demas_by_species_expressed_genes:
-    input: expand("../output/expression-atlas-wf/sex_bias_by_muller/{species}_{{tissue}}.dat", species=atlas_config["species_order"])
-    params: 
-        species=atlas_config["species_order"],
-        pattern=lambda wildcards: f"../output/expression-atlas-wf/sex_bias_by_muller/{{species}}_{wildcards.tissue}.dat",
-        colors=["blue", "lightgray", "red"]
-    output: "../output/science_submission/demas/{tissue}_expressed_genes.svg"
-    script: "scripts/demas_by_species_by_tissue.py"
-
-
-rule demas_by_species_all_genes:
-    input: expand("../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{{tissue}}.dat", species=atlas_config["species_order"])
-    params: 
-        species=atlas_config["species_order"],
-        pattern=lambda wildcards: f"../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{{species}}_{wildcards.tissue}.dat",
-        colors=["blue", "lightgray", "red"]
-    output: "../output/science_submission/demas/{tissue}_all_genes.svg"
-    script: "scripts/demas_by_species_by_tissue.py"
-
-
-rule demas_by_species_x_and_4th:
-    input: expand("../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{{tissue}}.dat", species=atlas_config["species_order"])
-    params: 
-        species=atlas_config["species_order"],
-        pattern=lambda wildcards: f"../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{{species}}_{wildcards.tissue}.dat",
-        colors=["blue", "lightgray", "red"]
-    output: "../output/science_submission/demas/{tissue}_x_and_4th.svg"
-    script: "scripts/demas_by_species_by_tissue.py"
-
-
-rule demas_by_species_panel:
-    input:
-        wb='../output/science_submission/demas/WB_x_and_4th.svg',
-        go='../output/science_submission/demas/GO_x_and_4th.svg',
-        ac='../output/science_submission/demas/AC_x_and_4th.svg'
-    output: "../output/science_submission/demas/demas_by_species_panel.svg"
-    script: "scripts/demas_by_species_panel.py"
-
-
 
 
 
