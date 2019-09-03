@@ -48,7 +48,7 @@ def plot(df, species, ax):
     plt.setp(ax.get_xticklabels(), rotation=0)
     ax.set(title=species, xlabel="", ylim=(0, 1))
     ax.legend_ = None
-    sns.despine(ax=ax, left=True)
+    sns.despine(ax=ax, left=True, bottom=True)
     return ax
 
 
