@@ -14,22 +14,22 @@ from larval_gonad.plotting import format_pval
 
 
 def main():
-    fig, axes = plt.subplots(1, len(snakemake.params.species), sharey=True, figsize=(8, 2))
-    for species, ax in zip(snakemake.params.species, axes.flat):
-        df, male, female = get_data(species)
-        plot(df, species, ax)
-        add_pval(male, ax)
-        add_pval(female, ax)
+    species = snakemake.wildcards.species
+    tissue = snakemake.wildcards.tissue
 
-    for ax in axes.flat[1:]:
-        ax.yaxis.set_visible(False)
+    df, male, female = get_data(snakemake.input[0])
+
+    fig, ax = plt.subplots(figsize=plt.figaspect(2))
+    plot(df, ax, f"{species} ({tissue})", snakemake.params.colors)
+    add_pval(male, ax)
+    add_pval(female, ax)
 
     plt.savefig(snakemake.output[0])
 
 
-def get_data(species):
+def get_data(file_name: str):
     """Loads shelve and get data ready for plotting"""
-    db = shelve_load(snakemake.params.pattern.format(species=species))
+    db = shelve_load(file_name)
     df = db["data"]
     male = db["male_qval"].fillna(1)  # If p-vals are NaN set to 1
     female = db["female_qval"].fillna(1)
@@ -40,13 +40,13 @@ def get_data(species):
     return df, male, female
 
 
-def plot(df, species, ax):
+def plot(df, ax, title, colors):
     """Make main plot"""
     df.plot.bar(
-        stacked=True, ax=ax, color=snakemake.params.colors, width=0.9, edgecolor="k", linewidth=0.2
+        stacked=True, ax=ax, color=colors, width=0.9, edgecolor="k", linewidth=0.2
     )
     plt.setp(ax.get_xticklabels(), rotation=0)
-    ax.set(title=species, xlabel="", ylim=(0, 1))
+    ax.set(title=title, xlabel="", ylim=(0, 1))
     ax.legend_ = None
     sns.despine(ax=ax, left=True, bottom=True)
     return ax
@@ -65,12 +65,12 @@ if __name__ == "__main__":
 
         snakemake = snakemake_debug(
             workdir="science_submission",
-            input=[],
+            input='../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/dana_AC.dat',
             params=dict(
-                species=["w1118", "orgR", "dana", "dwil", "dyak"],
-                pattern="../output/expression-atlas-wf/sex_bias_by_muller/{species}_WB.dat",
                 colors=["blue", "lightgray", "red"],
             ),
+            wildcards=dict(species="dana", tissue="AC")
         )
+        plt.style.use("../config/figure_styles.mplstyle")
 
     main()
