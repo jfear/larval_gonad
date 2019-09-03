@@ -81,6 +81,7 @@ final_targets = utils.flatten((
         '../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
         '../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
         '../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
+        "../output/bulk2-rnaseq-wf/testis_bias_by_muller_x_and_4th.dat"
     ],
 ))
 
@@ -912,7 +913,6 @@ rule symlink_bigwigs:
 ################################################################################
 # MY CUSTOM RULES
 ################################################################################
-
 rule intergenic:
     input:
          db=c.refdict[c.organism][config['db']['tag']]['gtf'] + '.db'
@@ -955,6 +955,7 @@ rule intergenic:
         bed = complement.each(interName).saveas(output.bed)
         bed.each(interGFF).saveas(output.gtf)
 
+
 rule featurecounts_intergenic:
     input:
         annotation = c.patterns['intergenic']['gtf'],
@@ -971,6 +972,7 @@ rule featurecounts_intergenic:
         '-o {output.counts} '
         '{input.bam} '
         '&> {log}'
+
 
 rule gene_counts_agg:
     input: c.targets['featurecounts']['s2']
@@ -991,6 +993,7 @@ rule gene_counts_agg:
         data = pd.concat(dfs, axis=1, sort=True)
         data.to_csv(output[0], sep="\t")
 
+
 rule intergenic_counts_agg:
     input: c.targets['featurecounts_intergenic']
     output: c.targets['agg_intergenic_featurecounts']
@@ -1009,6 +1012,7 @@ rule intergenic_counts_agg:
 
         data = pd.concat(dfs, axis=1, sort=True)
         data.to_csv(output[0], sep="\t")
+
 
 rule gene_lengths:
     input: c.refdict[c.organism][config['gtf']['tag']]['gtf']
@@ -1036,6 +1040,7 @@ rule gene_lengths:
         with open(output[0], 'w') as fh:
             fh.write('\n'.join(res) + "\n")
 
+
 rule ercc_annotation:
     output: c.targets['ercc_annotation']
     resources:
@@ -1048,6 +1053,7 @@ rule ercc_annotation:
             .rename_axis('ercc_id')
             .to_csv(output[0], sep='\t')
         )
+
 
 rule tpm:
     input:
@@ -1067,6 +1073,7 @@ rule tpm:
         res = tpm(raw, lens).dropna()
         res.to_csv(output[0], sep='\t')
 
+
 rule differential_expression:
     input:
         sample_table = 'config/sampletable.tsv',
@@ -1081,6 +1088,7 @@ rule differential_expression:
     log: '../output/bulk2-rnaseq-wf/deg/bulk_testis_vs_ovary.log'
     conda: "../envs/deseq2.yaml"
     script: "scripts/testis_biased_expression.R"
+
 
 rule gonad_biased_fbgns:
     input: rules.differential_expression.output[0]
@@ -1097,3 +1105,15 @@ rule gonad_biased_fbgns:
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange > 0").index.tolist(), output['male'])
         pickle_dump(df.query(f"padj <= 0.01 & log2FoldChange < 0").index.tolist(), output['female'])
         pickle_dump(df.query(f"padj > 0.01").index.tolist(), output['ns'])
+
+
+rule testis_bias_by_muller_x_and_4th:
+    input: 
+        deg=rules.differential_expression.output[0],
+        annot=f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: alpha=0.01
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 1,
+        time_hr=lambda wildcards, attempt: attempt * 1
+    output: "../output/bulk2-rnaseq-wf/testis_bias_by_muller_x_and_4th.dat"
+    script: "scripts/testis_bias_by_muller_x_and_4th.py"
