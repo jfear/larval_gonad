@@ -173,6 +173,24 @@ def format_pval(ax, x, y, pvalue, **kwargs):
     return ax
 
 
+def add_pval(x, y, pval, ax, **kwargs):
+    """Loops over and adds formatted p-value to plot.
+    
+    Parameters
+    ----------
+    x : array-like
+        A list of x locations.
+    y : array-like
+        A list of y locations.
+    pval : array-like
+        A list of p-values or q-values for plotting.
+    ax : plt.Axes
+        The axes to add formatted p-values.
+    """
+    for x_i, y_i, pval_i in zip(x, y, pval):
+        format_pval(ax, x_i, y_i, pval_i, **kwargs)
+
+
 def plot_statsmodels_results(file: str, results: str):
     plt.text(0.01, 0.05, results, {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
     plt.axis('off')
