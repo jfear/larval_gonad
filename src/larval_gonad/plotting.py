@@ -159,17 +159,22 @@ def dechr(ax, axis=0):
         ax.set_yticklabels(labels)
 
 
-def format_pval(ax, x, y, pvalue, **kwargs):
+def pval_to_string(pvalue):
     if pvalue <= 0.001:
-        annotation = "***"
+        return "***"
     elif pvalue <= 0.01:
-        annotation = "**"
+        return "**"
     elif pvalue <= 0.05:
-        annotation = "*"
-    else:
+        return "*"
+    return "NS"
+
+
+def format_pval(ax, x, y, pvalue, **kwargs):
+    pval_string = pval_to_string(pvalue)
+    if pval_string == "NS":
         return ax
 
-    ax.text(x, y, annotation, ha="center", **kwargs)
+    ax.text(x, y, pval_string, ha="center", **kwargs)
     return ax
 
 
