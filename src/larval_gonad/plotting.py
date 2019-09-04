@@ -173,7 +173,7 @@ def format_pval(ax, x, y, pvalue, **kwargs):
     return ax
 
 
-def add_pval(x, y, pval, ax, **kwargs):
+def add_pvals(x, y, pval, ax, **kwargs):
     """Loops over and adds formatted p-value to plot.
     
     Parameters
