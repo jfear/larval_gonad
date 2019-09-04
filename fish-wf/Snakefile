@@ -1,0 +1,25 @@
+from larval_gonad.config import read_config
+
+common_config = read_config("../config/common.yaml")
+colors = read_config("../config/colors.yaml")
+
+rule all:
+    input: 
+        "../output/fish-wf/chrom_volume.svg",
+        "../output/fish-wf/sphericity.svg"
+
+
+rule chrom_volume:
+    input: "../data/external/miriam/oligopaint_volumes.csv"
+    output: "../output/fish-wf/chrom_volume.svg"
+    params:
+        colors=['red', 'grey']
+    script: "scripts/fish_volume_boxplot.py"
+
+
+rule sphericity:
+    input: "../data/external/miriam/oligopaint_sphere.csv"
+    output: "../output/fish-wf/sphericity.svg"
+    params:
+        colors=['red', 'grey']
+    script: "scripts/fish_sphere_boxplot.py"
