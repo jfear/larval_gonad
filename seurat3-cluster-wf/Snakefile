@@ -158,12 +158,6 @@ rule germline_deg:
         # PS1 vs PS2
         povptf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.feather",
         povptt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.tsv",
-        # PS1 vs PS3
-        povprf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_three.feather",
-        povprt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_three.tsv",
-        # PS2 vs PS3
-        ptvprf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_two_vs_ps_three.feather",
-        ptvprt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_two_vs_ps_three.tsv"
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
