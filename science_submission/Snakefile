@@ -11,8 +11,9 @@ from larval_gonad.config import read_config
 
 workdir: "."
 configfile: "config/config.yaml"
-
 config.update(read_config("../config/common.yaml"))
+atlas_config = read_config("../expression-atlas-wf/config/config.yaml")
+colors_config = read_config("../config/colors.yaml")
 
 SAMPLES = ["testis1", "testis2", "testis3"]
 
@@ -29,6 +30,52 @@ wildcard_constraints:
     sample="testis\d"
 
 rule all:
+    input: ''
+
+
+################################################################################
+# Fig 1 scRNA-Seq
+################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################################################
+
+
+
+
+rule all_old:
     input:
         "../output/science_submission/gene_locations.feather",
         # Part 1

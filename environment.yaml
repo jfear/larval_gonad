@@ -218,6 +218,7 @@ dependencies:
   - snappy=1.1.7
   - sqlite=3.28.0
   - statsmodels=0.10.1
+  - svgutils=0.3.1
   - tabulate=0.8.3
   - terminado=0.8.2
   - testpath=0.4.2
