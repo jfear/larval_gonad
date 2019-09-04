@@ -1,0 +1,9 @@
+rule all:
+    input: '../output/polII-wf/s2_and_s5_boxplot.svg'
+
+
+rule plot_boxplot_polII:
+    input: '../data/external/galletta/phos_over_tot_data_late_SC_only_061819.xlsx'
+    output: "../output/polII-wf/s2_and_s5_boxplot.svg"
+    params: colors=["red", "grey"]
+    script: "scripts/plot_boxplot_polII.py"

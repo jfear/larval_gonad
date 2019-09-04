@@ -125,9 +125,6 @@ rule all_old:
         # "../output/science_submission/figures/violin-total-umi.svg",
         # "../output/science_submission/figures/heatmap-y-genes.svg",
 
-        # Part 3
-        "../output/science_submission/figures/boxplot-polII.svg",
-
         # Part 4
         "../output/science_submission/intron_less_genes.pkl",
         "../output/science_submission/non_coding_genes.pkl",
@@ -566,19 +563,6 @@ rule plot_barplot_demasculinization:
 #           msl_genes=config["msl_genes"],
 #           cmap=config["colors"]["heatmap"]
 #     script: "scripts/plot_heatmap_msl_genes.py"
-
-################################################################################
-# Part 3: Chromosome territories and Pol II expression
-################################################################################
-
-# rule paints_pixel:
-
-# rule pol2_pixel:
-
-rule plot_boxplot_polII:
-    input: '../data/external/galletta/phos_over_tot_data_late_SC_only_061819.xlsx'
-    output: "../output/science_submission/figures/boxplot-polII.svg"
-    script: "scripts/plot_boxplot_polII.py"
 
 ################################################################################
 # Part 4: Gene Movement
