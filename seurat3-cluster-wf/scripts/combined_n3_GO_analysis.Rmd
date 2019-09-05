@@ -64,11 +64,11 @@ background <- read_feather("combined_n3_normalized.feather") %>% pull(FBgn)
 lit_genes <- yaml::yaml.load_file(file.path(PROJ_DIR, "config/literature_genes.yaml"))
 ```
 
-## Spermatogonia (SP)
+## Spermatogonia (G)
 
 ### Biolgoical Process
 ```{r sp, fig.width=10, fig.height=10}
-res <- gogo("9", biomarkers, background)
+res <- gogo("6", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -77,11 +77,11 @@ gl <- lit_genes[["gonia"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-## Early Primary Spermatocytes (EPS)
+## Early Primary Spermatocytes (P1)
 
 ### Biolgoical Process
 ```{r eps, fig.width=10, fig.height=10}
-res <- gogo("5", biomarkers, background)
+res <- gogo("4", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -90,11 +90,11 @@ gl <- lit_genes[["spermatocytes"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-## Primary Spermatocytes (PS)
+## Primary Spermatocytes 
 
-### Biolgoical Process (PS1)
+### Biolgoical Process (P2)
 ```{r ps1, fig.width=10, fig.height=10}
-res <- gogo("6", biomarkers, background)
+res <- gogo("2", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -103,9 +103,9 @@ gl <- lit_genes[["spermatocytes"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-### Biolgoical Process (PS2)
+### Biolgoical Process (P3)
 ```{r ps2, fig.width=10, fig.height=10}
-res <- gogo("2", biomarkers, background)
+res <- gogo("0", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -114,59 +114,57 @@ gl <- lit_genes[["spermatocytes"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-### Biolgoical Process (PS3)
-```{r ps3, fig.width=10, fig.height=10}
-res <- gogo("0", biomarkers, background)
-dotplot(res, showCategory = 20)
-```
+## Cyst Cells
 
-```{r pct_lit_ps3, echo=TRUE}
-gl <- lit_genes[["spermatocytes"]]
-print(sum(gl %in% res@gene) / length(gl))
-```
-
-## Early Cyst Cells (ECY)
-
-### Biolgoical Process
-```{r ecy, fig.width=10, fig.height=10}
-res <- gogo("4", biomarkers, background)
-dotplot(res, showCategory = 20)
-```
-
-```{r pct_lit_ecy, echo=TRUE}
-gl <- lit_genes[["cysc"]]
-print(sum(gl %in% res@gene) / length(gl))
-```
-
-## Cyst Cells (CY)
-
-### Biolgoical Process (CY1)
-```{r cy1, fig.width=10, fig.height=10}
+### Biolgoical Process (C1)
+```{r c1, fig.width=10, fig.height=10}
 res <- gogo("1", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
-```{r pct_lit_cy1, echo=TRUE}
+```{r pct_lit_c1, echo=TRUE}
 gl <- lit_genes[["cysc"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-### Biolgoical Process (CY2)
-```{r cy2, fig.width=10, fig.height=10}
-res <- gogo("3", biomarkers, background)
+### Biolgoical Process (C2)
+```{r c2, fig.width=10, fig.height=10}
+res <- gogo("5", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
-```{r pct_lit_cy2, echo=TRUE}
+```{r pct_lit_c2, echo=TRUE}
 gl <- lit_genes[["cysc"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-## Terminal Epithelium (TE)
+### Biolgoical Process (C3)
+```{r c3, fig.width=10, fig.height=10}
+res <- gogo("8", biomarkers, background)
+dotplot(res, showCategory = 20)
+```
+
+```{r pct_lit_c3, echo=TRUE}
+gl <- lit_genes[["cysc"]]
+print(sum(gl %in% res@gene) / length(gl))
+```
+
+### Biolgoical Process (C4)
+```{r c4, fig.width=10, fig.height=10}
+res <- gogo("7", biomarkers, background)
+dotplot(res, showCategory = 20)
+```
+
+```{r pct_lit_c4, echo=TRUE}
+gl <- lit_genes[["cysc"]]
+print(sum(gl %in% res@gene) / length(gl))
+```
+
+## Terminal Epithelium (T)
 
 ### Biolgoical Process
 ```{r te, fig.width=10, fig.height=10}
-res <- gogo("7", biomarkers, background)
+res <- gogo("3", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -175,11 +173,11 @@ gl <- lit_genes[["te"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-## Pigment Cells (PC)
+## Pigment Cells (P)
 
 ### Biolgoical Process
 ```{r pc, fig.width=10, fig.height=10}
-res <- gogo("8", biomarkers, background)
+res <- gogo("9", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 

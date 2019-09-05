@@ -10,8 +10,6 @@ GVE <- list(feather = snakemake@output[["gvef"]], tsv = snakemake@output[["gvet"
 GVP <- list(feather = snakemake@output[["gvpf"]], tsv = snakemake@output[["gvpt"]])
 EVP <- list(feather = snakemake@output[["evpf"]], tsv = snakemake@output[["evpt"]])
 POVPT <- list(feather = snakemake@output[["povptf"]], tsv = snakemake@output[["povptt"]])
-POVPR <- list(feather = snakemake@output[["povprf"]], tsv = snakemake@output[["povprt"]])
-PTVPR <- list(feather = snakemake@output[["ptvprf"]], tsv = snakemake@output[["ptvprt"]])
 
 # Debug Settings
 # ROBJ <- "../../output/seurat3-cluster-wf/combined_n3.Robj"
@@ -53,23 +51,17 @@ save_deg <- function(df, output_names) {
     )
 }
 
-gonia_vs_cytes <- find_markers(combined, "9", c("0", "2", "5", "6"))
+gonia_vs_cytes <- find_markers(combined, "6", c("0", "2", "4"))
 save_deg(gonia_vs_cytes, GVC)
 
-gonia_vs_eps <- find_markers(combined, "9", "5")
+gonia_vs_eps <- find_markers(combined, "6", "4")
 save_deg(gonia_vs_eps, GVE)
 
-gonia_vs_ps <- find_markers(combined, "9", c("0", "2", "6"))
+gonia_vs_ps <- find_markers(combined, "9", c("0", "2"))
 save_deg(gonia_vs_ps, GVP)
 
-eps_vs_ps <- find_markers(combined, "5", c("0", "2", "6"))
+eps_vs_ps <- find_markers(combined, "4", c("0", "2"))
 save_deg(eps_vs_ps, EVP)
 
-ps_one_vs_ps_two <- find_markers(combined, "6", "2")
+ps_one_vs_ps_two <- find_markers(combined, "2", "0")
 save_deg(ps_one_vs_ps_two, POVPT)
-
-ps_one_vs_ps_three <- find_markers(combined, "6", "0")
-save_deg(ps_one_vs_ps_three, POVPR)
-
-ps_two_vs_ps_three <- find_markers(combined, "2", "0")
-save_deg(ps_two_vs_ps_three, PTVPR)
