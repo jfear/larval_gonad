@@ -10,6 +10,7 @@ ASSEMBLY = common_config["assembly"]
 TAG = common_config["tag"]
 SAMPLES = ["testis1", "testis2", "testis3", "testis4"]
 
+
 rule targets:
     input: 
         "../output/seurat3-cluster-wf/testis1_individual.html",
@@ -51,6 +52,7 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done"
 
 
 rule testis1:
@@ -281,3 +283,14 @@ rule plot_umap:
     output: "../output/seurat3-cluster-wf/{sample}_figures/umap_panel.svg",
     params: colors = colors_config["clusters"],
     script: "scripts/plot_umap.py"
+    
+
+rule feature_plot:
+    input: 
+        zscores=rules.cell_zscore.output[0],
+        umap=rules.dump_robj.output.umap.format(sample="combined_n3"),
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: 
+        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done"
+    script: "scripts/feature_plot.py"
