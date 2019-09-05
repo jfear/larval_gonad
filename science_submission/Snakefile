@@ -95,8 +95,6 @@ rule all_old:
                 "tsps_genes",
             ]
         ),
-        "../output/science_submission/figures/umap.svg",
-        "../output/science_submission/figures/plot-umap-panels-1.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/cluster-legend.svg",
@@ -140,7 +138,6 @@ rule all_old:
         # "../output/science_submission/figures/bubble_germline_deg_GO_BP.svg",
         # "../output/science_submission/figures/bubble_germline_deg_GO_MF.svg",
         # "../output/science_submission/figures/bubble_germline_deg_GO_CC.svg",
-        # "../output/science_submission/figures/tsne_comparison.svg",
         # "../output/science_submission/results_table.xlsx"
 
 
@@ -286,30 +283,6 @@ rule plot_cluster_legend:
         legend_names = config["legend_names"]
     output: "../output/science_submission/figures/cluster-legend.svg"
     script: "scripts/plot_cluster_legend.py"
-
-
-rule plot_umap:
-    input:
-        umap = "../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
-    output: "../output/science_submission/figures/umap.svg"
-    params:
-        cluster_colors = COLORS["clusters"],
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"]
-    script: "scripts/plot_umap.py"
-
-
-rule plot_umap_panels:
-    input:
-        umap = "../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        gene_annot = "../references/gene_annotation_dmel_r6-26.feather",
-        norm = "../output/seurat3-cluster-wf/combined_n3_normalized.feather"
-    output: "../output/science_submission/figures/plot-umap-panels-{panelID}.svg"
-    params:
-        lit_genes = LIT_GENES,
-        file_pattern = '../output/science_submission/figures/plot-umap-panels-PANELID.svg'
-    script: "scripts/plot_umap_panels.py"
 
 
 rule plot_zscore_heatmap:
@@ -614,17 +587,6 @@ rule plot_boxplot_intronless_genes:
     output: "../output/science_submission/figures/boxplot-intronless_genes.svg"
     script: "scripts/plot_boxplot_intronless_genes.py"
 
-
-# rule plot_tsne_comparison:
-#     input:
-#          clusters=rules.clusters.output[0],
-#          tsne=rules.tsne.output[0],
-#     params:
-#           colors=config["colors"]["clusters"],
-#           cluster_order=config["short_cluster_order"],
-#           annotation=config["short_cluster_annot"]
-#     output: "../output/science_submission/figures/tsne_comparison.svg"
-#     script: "scripts/plot_tsne_comparison.py"
 
 # rule plot_barplot_germline_deg:
 #     input:
