@@ -1,0 +1,10 @@
+rule all: 
+    input: ''
+
+
+rule recluster_germ_cells:
+    input: 
+        robj="../output/seurat3-cluster-wf/combined_n3.Robj",
+        lit_genes = "../config/literature_genes.yaml"
+        gene_annot = "../references/gene_annotation_dmel_r6-26.feather"
+    params: germ_clusters=[6, 4, 2, 0]
