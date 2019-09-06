@@ -98,7 +98,6 @@ rule all_old:
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/cluster-legend.svg",
-        "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
         expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
         "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
@@ -298,20 +297,6 @@ rule plot_heatmap_lit_gene_evidence:
     params:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_lit_evidence.py"
-
-
-rule plot_heatmap_biomarkers:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg"
-    params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"],
-        lit_genes = LIT_GENES,
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_biomarkers.py"
 
 
 rule plot_barplot_cell_per_cluster_number:
