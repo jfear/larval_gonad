@@ -22,20 +22,37 @@ ASSEMBLY = config["assembly"]
 TAG = config["tag"]
 
 LIT_GENES = read_config("../config/literature_genes.yaml")
-del LIT_GENES["hub"]
-
+PTRAP_GENES = read_config("../config/ptrap_genes.yaml")
 COLORS = yaml.full_load(open("../config/colors.yaml"))
 
 wildcard_constraints: 
     sample="testis\d"
 
 rule all:
-    input: ''
+    input: 
+        expand("../output/science_submission/figures/lit_genes_panel_{group}.svg", group=LIT_GENES.keys()),
+        expand("../output/science_submission/figures/ptrap_genes_panel_{group}.svg", group=PTRAP_GENES.keys()),
 
 
 ################################################################################
-# Fig 1 scRNA-Seq
+# Part 1: scRNA-Seq intron, cluster, annotate, and validate
 ################################################################################
+rule lit_gene_umap_panel:
+    input: f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: 
+        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
+        genes=lambda wildcards: LIT_GENES[wildcards.group]
+    output: "../output/science_submission/figures/lit_genes_panel_{group}.svg"
+    script: "scripts/umap_gene_panels.py"
+
+
+rule ptrap_gene_umap_panel:
+    input: f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: 
+        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
+        genes=lambda wildcards: PTRAP_GENES[wildcards.group]
+    output: "../output/science_submission/figures/ptrap_genes_panel_{group}.svg"
+    script: "scripts/umap_gene_panels.py"
 
 
 
@@ -98,9 +115,6 @@ rule all_old:
         "../output/science_submission/figures/barplot-cell-per-cluster.svg",
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/cluster-legend.svg",
-        "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg",
-        "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg",
-        "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
         expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
         "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
@@ -300,47 +314,6 @@ rule plot_heatmap_lit_gene_evidence:
     params:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_lit_evidence.py"
-
-
-rule plot_heatmap_biomarkers:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/science_submission/figures/heatmap-biomarkers-w-rep.svg"
-    params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"],
-        lit_genes = LIT_GENES,
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_biomarkers.py"
-
-
-rule plot_heatmap_unique_biomarkers:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/science_submission/figures/heatmap-unique-biomarkers-w-rep.svg"
-    params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"],
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_unique_biomarkers.py"
-
-
-rule plot_heatmap_multi_biomarkers:
-    input:
-         zscores='../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather',
-         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/science_submission/figures/heatmap-multi-biomarkers-w-rep.svg"
-    params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"],
-        cluster_types = config["cluster_types"],
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_multi_biomarkers.py"
 
 
 rule plot_barplot_cell_per_cluster_number:

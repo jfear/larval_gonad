@@ -218,7 +218,7 @@ lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
 
 ```{r heatmap_gonia, fig.width=8, fig.height=16}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["gonia"]]) %>%
+    filter(FBgn %in% c(lit_genes[["SP"]], lit_genes[["SP_ES"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features.plot = lg, use.raw = TRUE, point.size.use = .1, nCol = 3)
@@ -237,7 +237,7 @@ FeaturePlot(
 
 ```{r heatmap_spermatocytes, fig.width=8, fig.height=16}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["spermatocytes"]]) %>%
+    filter(FBgn %in% c(lit_genes[["ES"]], lit_genes[["PS"]], lit_genes[["LS"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features.plot = lg, use.raw = TRUE, point.size.use = .1, nCol = 3)
@@ -256,7 +256,7 @@ FeaturePlot(
 
 ```{r heatmap_cysc, fig.width=8, fig.height=16}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["cysc"]]) %>%
+    filter(FBgn %in% c(lit_genes[["EC"]], lit_genes[["CY"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features.plot = lg, use.raw = TRUE, point.size.use = .1, nCol = 3)
@@ -275,7 +275,7 @@ FeaturePlot(
 
 ```{r heatmap_te, fig.width=8, fig.height=9}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["te"]]) %>%
+    filter(FBgn %in% lit_genes[["TE"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features.plot = lg, use.raw = TRUE, point.size.use = .1, nCol = 3)
@@ -294,7 +294,7 @@ FeaturePlot(
 
 ```{r heatmap_pc, fig.width=8, fig.height=4}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["pigment"]]) %>%
+    filter(FBgn %in% lit_genes[["PC"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features.plot = lg, use.raw = TRUE, point.size.use = .1)
@@ -313,7 +313,7 @@ FeaturePlot(
 
 ```{r heatmap_hub, fig.width=8, fig.height=10}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["hub"]]) %>%
+    filter(FBgn %in% lit_genes[["H"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features.plot = lg, use.raw = TRUE, point.size.use = .1, nCol = 2)

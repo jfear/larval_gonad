@@ -73,7 +73,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_sp, echo=TRUE}
-gl <- lit_genes[["gonia"]]
+gl <- lit_genes[["SP"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -86,7 +86,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_eps, echo=TRUE}
-gl <- lit_genes[["spermatocytes"]]
+gl <- c(lit_genes[["SP_ES"]], lit_genes[["ES"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -99,7 +99,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_ps1, echo=TRUE}
-gl <- lit_genes[["spermatocytes"]]
+gl <- c(lit_genes[["PS"]], lit_genes[["LS"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -110,7 +110,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_ps2, echo=TRUE}
-gl <- lit_genes[["spermatocytes"]]
+gl <- c(lit_genes[["PS"]], lit_genes[["LS"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -123,7 +123,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_c1, echo=TRUE}
-gl <- lit_genes[["cysc"]]
+gl <- c(lit_genes[["EC"]], lit_genes[["CY"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -134,7 +134,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_c2, echo=TRUE}
-gl <- lit_genes[["cysc"]]
+gl <- c(lit_genes[["EC"]], lit_genes[["CY"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -145,7 +145,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_c3, echo=TRUE}
-gl <- lit_genes[["cysc"]]
+gl <- c(lit_genes[["EC"]], lit_genes[["CY"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -156,7 +156,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_c4, echo=TRUE}
-gl <- lit_genes[["cysc"]]
+gl <- c(lit_genes[["EC"]], lit_genes[["CY"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -169,7 +169,7 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_te, echo=TRUE}
-gl <- lit_genes[["te"]]
+gl <- lit_genes[["TE"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
@@ -182,6 +182,6 @@ dotplot(res, showCategory = 20)
 ```
 
 ```{r pct_lit_pc, echo=TRUE}
-gl <- lit_genes[["pigment"]]
+gl <- lit_genes[["PC"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```

@@ -10,6 +10,7 @@ ASSEMBLY = common_config["assembly"]
 TAG = common_config["tag"]
 SAMPLES = ["testis1", "testis2", "testis3", "testis4"]
 
+
 rule targets:
     input: 
         "../output/seurat3-cluster-wf/testis1_individual.html",
@@ -19,6 +20,7 @@ rule targets:
         "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
         "../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
         "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+        "../output/seurat3-cluster-wf/zscore_by_cell.feather",
         expand("../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather", cnt=[3, 4]),
         expand(
             "../output/seurat3-cluster-wf/combined_n{cnt}_{comparison}.{ext}",
@@ -50,6 +52,10 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
+        "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
 
 
 rule testis1:
@@ -267,6 +273,12 @@ rule zscore:
     script: "scripts/zscore.py"
 
 
+rule cell_zscore:
+    input: rules.dump_robj.output.norm.format(sample="combined_n3")
+    output: "../output/seurat3-cluster-wf/zscore_by_cell.feather"
+    script: "scripts/cell_zscore.py"
+
+
 rule plot_umap:
     input:
         umap=rules.dump_robj.output.umap,
@@ -274,3 +286,56 @@ rule plot_umap:
     output: "../output/seurat3-cluster-wf/{sample}_figures/umap_panel.svg",
     params: colors = colors_config["clusters"],
     script: "scripts/plot_umap.py"
+    
+
+rule feature_plot:
+    input: 
+        zscores=rules.cell_zscore.output[0],
+        umap=rules.dump_robj.output.umap.format(sample="combined_n3"),
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: 
+        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done"
+    script: "scripts/feature_plot.py"
+
+
+rule all_biomarkers:
+    input: 
+        biomarkers=rules.biomarkers.output.feather.format(cnt="3"),
+        clusters=rules.combined_n3_clusters.output[0],
+        zscore=rules.zscore.output[0],
+        lit_genes="../config/literature_genes.yaml"
+    params: 
+        color=colors_config['heatmap'],
+        cluster_annot=common_config['cluster_annot'],
+        cluster_order=common_config['cluster_order'],
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg"
+    script: "scripts/all_biomarkers.py"
+
+
+rule unique_biomarkers:
+    input: 
+        biomarkers=rules.biomarkers.output.feather.format(cnt="3"),
+        clusters=rules.combined_n3_clusters.output[0],
+        zscore=rules.zscore.output[0],
+        lit_genes="../config/literature_genes.yaml"
+    params: 
+        color=colors_config['heatmap'],
+        cluster_annot=common_config['cluster_annot'],
+        cluster_order=common_config['cluster_order'],
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg"
+    script: "scripts/unique_biomarkers.py"
+
+
+rule multi_biomarkers:
+    input: 
+        biomarkers=rules.biomarkers.output.feather.format(cnt="3"),
+        clusters=rules.combined_n3_clusters.output[0],
+        zscore=rules.zscore.output[0],
+        lit_genes="../config/literature_genes.yaml"
+    params: 
+        color=colors_config['heatmap'],
+        cluster_annot=common_config['cluster_annot'],
+        cluster_order=common_config['cluster_order'],
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg"
+    script: "scripts/multi_biomarkers.py"
