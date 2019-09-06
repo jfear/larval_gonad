@@ -53,6 +53,7 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
+        "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done",
         "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
@@ -339,3 +340,12 @@ rule multi_biomarkers:
         cluster_order=common_config['cluster_order'],
     output: "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg"
     script: "scripts/multi_biomarkers.py"
+
+
+rule lit_gene_expression_patterns:
+    input: 
+        norm=rules.dump_robj.output.norm.format(sample="combined_n3"),
+        clusters=rules.combined_n3_clusters.output[0]
+    params: pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done"
+    script: "scripts/expression_patterns.py"
