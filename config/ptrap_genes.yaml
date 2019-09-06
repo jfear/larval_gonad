@@ -1,6 +1,6 @@
 ptrap1:
-  - FBgn0037015   # cmpy
-  - FBgn0083981   # RunxA
+  # - FBgn0037015   # cmpy
+  # - FBgn0083981   # RunxA
   - FBgn0005633   # fln
   - FBgn0004575   # Syn
   - FBgn0027598   # cindr
