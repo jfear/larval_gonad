@@ -49,6 +49,14 @@ PS:               # 1º spermatocytes
   - FBgn0034435   # fest
   - FBgn0037751   # topi
 
+spermatids:
+  - FBgn0038225   # soti
+  - FBgn0037460   # sowi
+  - FBgn0031367   # c-cup
+  - FBgn0037502   # wa-cup
+  - FBgn0030840   # p-cup
+  - FBgn0031142   # r-cup
+
 LS:               # late 1º spermatocytes
   - FBgn0041102   # ocn
 
