@@ -53,6 +53,7 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
+        "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
 
