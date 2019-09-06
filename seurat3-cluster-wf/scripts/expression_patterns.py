@@ -9,6 +9,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from larval_gonad.io import safe_gene_name
+
 
 def main():
     norm = pd.read_feather(snakemake.input.norm).set_index(["FBgn", "gene_symbol"])
@@ -21,7 +23,7 @@ def main():
         ax.set_title(idx[1], fontstyle="italic")
         ax.set(xlabel="", ylabel="Normalized Expression (by cell)")
 
-        plt.savefig(snakemake.params.pattern.format(FBgn=idx[0], symbol=idx[1]))
+        plt.savefig(snakemake.params.pattern.format(FBgn=idx[0], symbol=safe_gene_name(idx[1])))
         plt.close()
 
 
