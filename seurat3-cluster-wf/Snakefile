@@ -54,6 +54,7 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
 
 
 rule testis1:
@@ -309,3 +310,17 @@ rule unique_biomarkers:
         cluster_order=common_config['cluster_order'],
     output: "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg"
     script: "scripts/unique_biomarkers.py"
+
+
+rule multi_biomarkers:
+    input: 
+        biomarkers=rules.biomarkers.output.feather.format(cnt="3"),
+        clusters=rules.combined_n3_clusters.output[0],
+        zscore=rules.zscore.output[0],
+        lit_genes="../config/literature_genes.yaml"
+    params: 
+        color=colors_config['heatmap'],
+        cluster_annot=common_config['cluster_annot'],
+        cluster_order=common_config['cluster_order'],
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg"
+    script: "scripts/multi_biomarkers.py"
