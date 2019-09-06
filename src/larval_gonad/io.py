@@ -17,6 +17,19 @@ NUCS_INVERSE = {"A": 0, "C": 1, "G": 2, "T": 3}
 CellRangerCounts = namedtuple("CellRangerCounts", ["matrix", "gene_ids", "barcodes"])
 
 
+def safe_gene_name(symbol):
+    """Normalize gene symbols for use as file names."""
+    return (
+        symbol.replace("(", "")
+        .replace(")", "")
+        .replace(":", "")
+        .replace("&", "")
+        .replace("|", "")
+        .replace(".", "")
+        .replace(" ", "")
+    )
+
+
 def pickle_dump(obj: object, file_name: str):
     with open(file_name, 'wb') as handler:
         pickle.dump(obj, handler)
