@@ -9,6 +9,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from larval_gonad.io import safe_gene_name
+
 
 def main():
     zscores = pd.read_feather(snakemake.input.zscores).set_index("FBgn")
@@ -18,7 +20,7 @@ def main():
         .set_index("FBgn")
         .reindex(zscores.index)
         .squeeze()
-        .str.replace(":|\(|\)|\.", "")
+        .apply(safe_gene_name)
     )
 
     umap = pd.read_feather(snakemake.input.umap).set_index("cell_id")
