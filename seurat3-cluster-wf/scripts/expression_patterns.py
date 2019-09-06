@@ -22,6 +22,7 @@ def main():
         ax.set(xlabel="", ylabel="Normalized Expression (by cell)")
 
         plt.savefig(snakemake.params.pattern.format(FBgn=idx[0], symbol=idx[1]))
+        plt.close()
 
 
 if __name__ == "__main__":
