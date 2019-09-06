@@ -31,12 +31,12 @@ def safe_gene_name(symbol):
 
 
 def pickle_dump(obj: object, file_name: str):
-    with open(file_name, 'wb') as handler:
+    with open(file_name, "wb") as handler:
         pickle.dump(obj, handler)
 
 
 def pickle_load(file_name: str):
-    with open(file_name, 'rb') as handler:
+    with open(file_name, "rb") as handler:
         return pickle.load(handler)
 
 
