@@ -1,5 +1,10 @@
 import pandas as pd
 import seaborn as sns
+
+from larval_gonad.config import read_config
+common_config = read_config("../config/common.yaml")
+TAG = common_config["tag"]
+
 cluster_order = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
 cluster_annot = {x: x for x in cluster_order}
 colors = sns.color_palette("husl", n_colors=9)
@@ -53,4 +58,13 @@ rule plot_umap:
     output: "../output/germ-trajectory-wf/umap_panel.svg",
     script: "../seurat3-cluster-wf/scripts/plot_umap.py"
     
+
+rule gene_projections:
+    input: 
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap=rules.recluster_germ_cells.output.umap,
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather"
+    output: "../output/germ-trajectory-wf/gene_projections/{symbol}_{FBgn}.svg"
+    script: "../seurat3-cluster-wf/scripts/individual_gene_feature_plot.py"
+
 
