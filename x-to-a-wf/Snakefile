@@ -113,3 +113,20 @@ rule boxplot_autosome_ratios:
     script: "scripts/boxplot_autosome_ratios.py"
 
 
+# rule plot_boxplot_y_genes:
+#     input:
+#         tpm='../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather',
+#         metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+#         gene_metadata=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+#     output: "../output/science_submission/figures/boxplot-y-genes.svg"
+#     params:
+#         cluster_colors=color_config["clusters"]
+#     script: "scripts/plot_boxplot_y_genes.py"
+
+
+# rule plot_boxplot_total_umi:
+#     input: '../output/seurat3-cluster-wf/raw_by_cluster_rep.feather'
+#     output: "../output/science_submission/figures/boxplot-total-umi.svg"
+#     params:
+#         cluster_colors = color_config["clusters"]
+#     script: "scripts/plot_boxplot_total_umi.py"
