@@ -27,7 +27,7 @@ rule targets:
             cnt=3,
             comparison=[
                 "gonia_vs_cytes", "gonia_vs_eps", "gonia_vs_ps", "eps_vs_ps", 
-                "ps_one_vs_ps_two"
+                "eps_vs_mps", "eps_vs_lps", "mps_vs_lps"
             ],
             ext=["feather", "tsv"]
         ),
