@@ -1,11 +1,16 @@
 import pandas as pd
+import seaborn as sns
 cluster_order = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
 cluster_annot = {x: x for x in cluster_order}
+colors = sns.color_palette("husl", n_colors=9)
+
+
 rule all: 
     input:
         "../output/germ-trajectory-wf/umap.feather",
         "../output/germ-trajectory-wf/clusters.feather",
         "../output/germ-trajectory-wf/biomarkers.feather",
+        "../output/germ-trajectory-wf/umap_panel.svg",
 
 
 rule recluster_germ_cells:
@@ -39,4 +44,13 @@ rule annot_clusters:
             .to_feather(output[0])
         )
 
+
+rule plot_umap:
+    input:
+        umap=rules.recluster_germ_cells.output.umap,
+        clusters=rules.annot_clusters.output[0]
+    params: colors = colors,
+    output: "../output/germ-trajectory-wf/umap_panel.svg",
+    script: "../seurat3-cluster-wf/scripts/plot_umap.py"
+    
 
