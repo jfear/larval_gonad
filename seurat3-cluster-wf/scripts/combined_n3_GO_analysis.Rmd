@@ -67,7 +67,7 @@ lit_genes <- yaml::yaml.load_file(file.path(PROJ_DIR, "config/literature_genes.y
 ## Spermatogonia (G)
 
 ### Biolgoical Process
-```{r sp, fig.width=10, fig.height=10}
+```{r g, fig.width=10, fig.height=10}
 res <- gogo("6", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
@@ -77,7 +77,7 @@ gl <- lit_genes[["SP"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-## Early Primary Spermatocytes (P1)
+## Early Primary Spermatocytes (EPS)
 
 ### Biolgoical Process
 ```{r eps, fig.width=10, fig.height=10}
@@ -92,9 +92,9 @@ print(sum(gl %in% res@gene) / length(gl))
 
 ## Primary Spermatocytes 
 
-### Biolgoical Process (P2)
-```{r ps1, fig.width=10, fig.height=10}
-res <- gogo("2", biomarkers, background)
+### Biolgoical Process (MPS)
+```{r mps, fig.width=10, fig.height=10}
+res <- gogo("0", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -103,9 +103,9 @@ gl <- c(lit_genes[["PS"]], lit_genes[["LS"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-### Biolgoical Process (P3)
-```{r ps2, fig.width=10, fig.height=10}
-res <- gogo("0", biomarkers, background)
+### Biolgoical Process (LPS)
+```{r lps, fig.width=10, fig.height=10}
+res <- gogo("2", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 

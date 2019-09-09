@@ -27,7 +27,7 @@ rule targets:
             cnt=3,
             comparison=[
                 "gonia_vs_cytes", "gonia_vs_eps", "gonia_vs_ps", "eps_vs_ps", 
-                "ps_one_vs_ps_two"
+                "eps_vs_mps", "eps_vs_lps", "mps_vs_lps"
             ],
             ext=["feather", "tsv"]
         ),
@@ -52,8 +52,8 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
-        "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
-        "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done",
+        # "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
+        # "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done",
         "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
@@ -164,14 +164,20 @@ rule germline_deg:
         # EPS vs PS
         evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
         evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv",
-        # PS1 vs PS2
-        povptf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.feather",
-        povptt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.tsv",
+        # EPS vs MPS
+        evmf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.feather",
+        evmt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.tsv",
+        # EPS vs LPS
+        evlf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.feather",
+        evlt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.tsv",
+        # MPS vs LPS
+        mvlf = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.feather",
+        mvlt = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.tsv",
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: "scripts/deg_gonia_vs_cytes.R"
+    script: "scripts/germline_deg.R"
 
 
 def _params(wildcards):
@@ -242,12 +248,9 @@ rule combined_n3_GO:
 
 rule raw_agg:
     input:
-        raw = "../output/cellselection-wf/raw.feather",
-        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+        raw="../output/cellselection-wf/raw.feather",
+        clusters=rules.combined_n3_clusters.output[0]
     output: "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather"
-    params:
-        cluster_annot = common_config["cluster_annot"],
-        cluster_order = common_config["cluster_order"],
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
@@ -280,6 +283,9 @@ rule cell_zscore:
     script: "scripts/cell_zscore.py"
 
 
+################################################################################
+# Plots
+################################################################################
 rule plot_umap:
     input:
         umap=rules.dump_robj.output.umap,
@@ -298,6 +304,15 @@ rule feature_plot:
         pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg"
     output: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done"
     script: "scripts/feature_plot.py"
+
+
+rule lit_gene_expression_patterns:
+    input: 
+        norm=rules.dump_robj.output.norm.format(sample="combined_n3"),
+        clusters=rules.combined_n3_clusters.output[0]
+    params: pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done"
+    script: "scripts/expression_patterns.py"
 
 
 rule all_biomarkers:
@@ -342,10 +357,25 @@ rule multi_biomarkers:
     script: "scripts/multi_biomarkers.py"
 
 
-rule lit_gene_expression_patterns:
-    input: 
-        norm=rules.dump_robj.output.norm.format(sample="combined_n3"),
-        clusters=rules.combined_n3_clusters.output[0]
-    params: pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg"
-    output: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done"
-    script: "scripts/expression_patterns.py"
+rule boxplot_total_umi:
+    input: rules.raw_agg.output[0]
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg"
+    params: cluster_colors=colors_config["clusters"]
+    script: "scripts/boxplot_total_umi.py"
+
+
+def _y_genes(wildcards):
+    return (
+        pd.read_feather(f"../references/gene_annotation_dmel_{TAG}.feather")
+        .query("FB_chrom == 'Y'")
+        .FBgn.tolist()
+    )
+
+
+rule boxplot_total_umi_y_genes:
+    input: rules.raw_agg.output[0]
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg"
+    params: 
+        cluster_colors=colors_config["clusters"],
+        fbgns=_y_genes
+    script: "scripts/boxplot_total_umi_y_genes.py"
