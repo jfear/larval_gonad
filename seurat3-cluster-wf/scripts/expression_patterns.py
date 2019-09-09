@@ -26,6 +26,7 @@ def main():
         plt.savefig(snakemake.params.pattern.format(FBgn=idx[0], symbol=safe_gene_name(idx[1])))
         plt.close()
 
+    Path(snakemake.output[0]).touch()
 
 if __name__ == "__main__":
     if os.getenv("SNAKE_DEBUG", False):
