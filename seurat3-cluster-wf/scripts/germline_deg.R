@@ -9,12 +9,9 @@ GVC <- list(feather = snakemake@output[["gvcf"]], tsv = snakemake@output[["gvct"
 GVE <- list(feather = snakemake@output[["gvef"]], tsv = snakemake@output[["gvet"]])
 GVP <- list(feather = snakemake@output[["gvpf"]], tsv = snakemake@output[["gvpt"]])
 EVP <- list(feather = snakemake@output[["evpf"]], tsv = snakemake@output[["evpt"]])
-POVPT <- list(feather = snakemake@output[["povptf"]], tsv = snakemake@output[["povptt"]])
-
-# Debug Settings
-# ROBJ <- "../../output/seurat3-cluster-wf/combined_n3.Robj"
-# GENE_METADATA <- "../../references/gene_annotation_dmel_r6-26.feather"
-# GVC <- list(feather = "/tmp/test.feather", tsv = "/tmp/test.tsv")
+EVM <- list(feather = snakemake@output[["evmf"]], tsv = snakemake@output[["evmt"]])
+EVL <- list(feather = snakemake@output[["evlf"]], tsv = snakemake@output[["evlt"]])
+MVL <- list(feather = snakemake@output[["mvlf"]], tsv = snakemake@output[["mvlt"]])
 
 # Load Gene Metadata
 fbgn2symbol <- feather::read_feather(GENE_METADATA, columns = c("FBgn", "gene_symbol"))
@@ -63,5 +60,11 @@ save_deg(gonia_vs_ps, GVP)
 eps_vs_ps <- find_markers(combined, "4", c("0", "2"))
 save_deg(eps_vs_ps, EVP)
 
-ps_one_vs_ps_two <- find_markers(combined, "2", "0")
-save_deg(ps_one_vs_ps_two, POVPT)
+eps_vs_mps <- find_markers(combined, "4", "2")
+save_deg(eps_vs_mps, EVM)
+
+eps_vs_lps <- find_markers(combined, "4", "0")
+save_deg(eps_vs_mps, EVL)
+
+mps_vs_lps <- find_markers(combined, "2", "0")
+save_deg(mps_vs_lps, MVL)

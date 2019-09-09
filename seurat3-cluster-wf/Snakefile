@@ -164,14 +164,20 @@ rule germline_deg:
         # EPS vs PS
         evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
         evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv",
-        # PS1 vs PS2
-        povptf = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.feather",
-        povptt = "../output/seurat3-cluster-wf/combined_n{cnt}_ps_one_vs_ps_two.tsv",
+        # EPS vs MPS
+        evmf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.feather",
+        evmt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.tsv",
+        # EPS vs LPS
+        evlf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.feather",
+        evlt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.tsv",
+        # MPS vs LPS
+        mvlf = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.feather",
+        mvlt = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.tsv",
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
-    script: "scripts/deg_gonia_vs_cytes.R"
+    script: "scripts/germline_deg.R"
 
 
 def _params(wildcards):
