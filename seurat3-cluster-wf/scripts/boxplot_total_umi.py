@@ -18,6 +18,11 @@ def main():
         .reset_index()
     )
 
+    # If FBgns provided then subset dataset
+    fbgns = snakemake.params.get("fbgns", False)
+    if fbgns:
+        df = df.loc[df.FBgn.isin(fbgns), :]
+
     ax = sns.boxplot(
         "cluster",
         "UMI",
@@ -27,7 +32,8 @@ def main():
         linewidth=0.5,
         showfliers=False,
     )
-    ax.set(xlabel="", ylabel="Total UMI Per Cell (Log10)", yscale="symlog")
+    title = snakemake.params.get("title", "")
+    ax.set(xlabel="", ylabel="Total UMI Per Cell (Log10)", title=title, yscale="symlog")
 
     fig.savefig(snakemake.output[0])
 
@@ -42,7 +48,10 @@ if __name__ == "__main__":
         snakemake = snakemake_debug(
             workdir="seurat3-cluster-wf",
             input="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
-            params=dict(cluster_colors=colors_config["clusters"]),
+            params=dict(
+                cluster_colors=colors_config["clusters"],
+                # fbgns=["FBgn0002962", "FBgn0003525"]
+            ),
         )
 
     plt.style.use("../config/figure_styles.mplstyle")
