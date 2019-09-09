@@ -15,6 +15,7 @@ from larval_gonad.config import read_config
 
 workdir: '.'
 configfile: '../config/common.yaml'
+ASSEMBLY = config['assembly']
 TAG = config['tag']
 
 color_config = read_config("../config/colors.yaml")
@@ -95,6 +96,7 @@ rule shelve_results:
         '../output/x-to-a-wf/db/{fbgns}.dir',
         '../output/x-to-a-wf/db/{fbgns}.bak'
     script: 'scripts/shelve_results.py'
+
 
 ################################################################################
 # Plots
