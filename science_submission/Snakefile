@@ -30,8 +30,10 @@ wildcard_constraints:
 
 rule all:
     input: 
-        expand("../output/science_submission/figures/lit_genes_panel_{group}.svg", group=LIT_GENES.keys()),
-        expand("../output/science_submission/figures/ptrap_genes_panel_{group}.svg", group=PTRAP_GENES.keys()),
+        expand("../output/science_submission/figures/lit_genes_umap_panel_{group}.svg", group=LIT_GENES.keys()),
+        expand("../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg", group=PTRAP_GENES.keys()),
+        expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
+        expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
 
 
 ################################################################################
@@ -42,8 +44,17 @@ rule lit_gene_umap_panel:
     params: 
         pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
         genes=lambda wildcards: LIT_GENES[wildcards.group]
-    output: "../output/science_submission/figures/lit_genes_panel_{group}.svg"
-    script: "scripts/umap_gene_panels.py"
+    output: "../output/science_submission/figures/lit_genes_umap_panel_{group}.svg"
+    script: "scripts/gene_panels.py"
+
+
+rule lit_gene_expression_patterns_panel:
+    input: f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: 
+        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg",
+        genes=lambda wildcards: LIT_GENES[wildcards.group]
+    output: "../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg"
+    script: "scripts/gene_panels.py"
 
 
 rule ptrap_gene_umap_panel:
@@ -51,9 +62,17 @@ rule ptrap_gene_umap_panel:
     params: 
         pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
         genes=lambda wildcards: PTRAP_GENES[wildcards.group]
-    output: "../output/science_submission/figures/ptrap_genes_panel_{group}.svg"
-    script: "scripts/umap_gene_panels.py"
+    output: "../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg"
+    script: "scripts/gene_panels.py"
 
+
+rule ptrap_gene_expression_patterns_panel:
+    input: f"../references/gene_annotation_dmel_{TAG}.feather"
+    params: 
+        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg",
+        genes=lambda wildcards: PTRAP_GENES[wildcards.group]
+    output: "../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg"
+    script: "scripts/gene_panels.py"
 
 
 
