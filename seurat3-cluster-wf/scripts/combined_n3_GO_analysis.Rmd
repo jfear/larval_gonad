@@ -77,7 +77,7 @@ gl <- lit_genes[["SP"]]
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-## Early Primary Spermatocytes (P1)
+## Early Primary Spermatocytes (EPS)
 
 ### Biolgoical Process
 ```{r eps, fig.width=10, fig.height=10}
@@ -92,9 +92,9 @@ print(sum(gl %in% res@gene) / length(gl))
 
 ## Primary Spermatocytes 
 
-### Biolgoical Process (P2)
+### Biolgoical Process (MPS)
 ```{r ps1, fig.width=10, fig.height=10}
-res <- gogo("2", biomarkers, background)
+res <- gogo("0", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 
@@ -103,9 +103,9 @@ gl <- c(lit_genes[["PS"]], lit_genes[["LS"]])
 print(sum(gl %in% res@gene) / length(gl))
 ```
 
-### Biolgoical Process (P3)
+### Biolgoical Process (LPS)
 ```{r ps2, fig.width=10, fig.height=10}
-res <- gogo("0", biomarkers, background)
+res <- gogo("2", biomarkers, background)
 dotplot(res, showCategory = 20)
 ```
 

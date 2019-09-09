@@ -10,9 +10,9 @@ fliersprops:
   alpha: .1
 
 cluster_annot:
-  "0": "LPS"
+  "0": "MPS"
   "1": "C1"
-  "2": "MPS"
+  "2": "LPS"
   "3": "T"
   "4": "EPS"
   "5": "C2"

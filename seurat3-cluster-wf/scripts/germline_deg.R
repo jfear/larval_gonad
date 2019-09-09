@@ -60,11 +60,11 @@ save_deg(gonia_vs_ps, GVP)
 eps_vs_ps <- find_markers(combined, "4", c("0", "2"))
 save_deg(eps_vs_ps, EVP)
 
-eps_vs_mps <- find_markers(combined, "4", "2")
+eps_vs_mps <- find_markers(combined, "4", "0")
 save_deg(eps_vs_mps, EVM)
 
-eps_vs_lps <- find_markers(combined, "4", "0")
+eps_vs_lps <- find_markers(combined, "4", "2")
 save_deg(eps_vs_mps, EVL)
 
-mps_vs_lps <- find_markers(combined, "2", "0")
+mps_vs_lps <- find_markers(combined, "0", "2")
 save_deg(mps_vs_lps, MVL)
