@@ -54,3 +54,12 @@ rule plot_umap:
     script: "../seurat3-cluster-wf/scripts/plot_umap.py"
     
 
+rule gene_projections:
+    input: 
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap=rules.recluster_germ_cells.output.umap,
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather"
+    output: "../output/germ-trajectory-wf/gene_projections/{symbol}_{FBgn}.svg"
+    script: "../seurat3-cluster-wf/scripts/individual_gene_feature_plot.py"
+
+
