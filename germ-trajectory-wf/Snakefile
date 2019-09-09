@@ -1,3 +1,6 @@
+import pandas as pd
+cluster_order = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+cluster_annot = {x: x for x in cluster_order}
 rule all: 
     input:
         "../output/germ-trajectory-wf/umap.feather",
@@ -13,6 +16,27 @@ rule recluster_germ_cells:
     conda: "../envs/seurat3.yaml"
     output: 
         umap="../output/germ-trajectory-wf/umap.feather",
-        metadata="../output/germ-trajectory-wf/clusters.feather",
+        metadata="../output/germ-trajectory-wf/metadata.feather",
         biomarkers="../output/germ-trajectory-wf/biomarkers.feather",
     script: "scripts/seurat3_recluster.R"
+
+
+rule annot_clusters:
+    input: rules.recluster_germ_cells.output.metadata
+    output: "../output/germ-trajectory-wf/clusters.feather"
+    params: 
+        cluster_annot = cluster_annot,
+        cluster_order = cluster_order
+    run: 
+        (
+            pd.read_feather(input[0], columns=['cell_id', 'cluster'])
+            .assign(
+                cluster = lambda x: pd.Categorical(
+                    x.cluster.map(params['cluster_annot']), ordered=True, categories=params['cluster_order']
+                )
+            )
+            .assign(rep = lambda x: x.cell_id.str.extract("(rep\d)_.*", expand=False))
+            .to_feather(output[0])
+        )
+
+
