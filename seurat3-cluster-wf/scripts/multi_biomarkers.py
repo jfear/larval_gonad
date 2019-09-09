@@ -85,7 +85,7 @@ def collapse_cluster(biomarkers):
                 x.group,
                 ordered=True,
                 categories=[
-                    "G|P1",
+                    "G|EPS",
                     "Spermatocytes",
                     "Germline",
                     "Germline and Somatic",
@@ -99,18 +99,18 @@ def collapse_cluster(biomarkers):
 
 
 def group_logic(x):
-    if x == "G|P1":
-        return "G|P1"
+    if x == "G|EPS":
+        return "G|EPS"
     elif (
-        (x == "G|P1|P2|P3")
-        | (x == "G|P1|P2")
-        | (x == "G|P1|P3")
-        | (x == "G|P2|P3")
-        | (x == "G|P2")
-        | (x == "G|P3")
+        (x == "G|EPS|MPS|LPS")
+        | (x == "G|EPS|MPS")
+        | (x == "G|EPS|LPS")
+        | (x == "G|MPS|LPS")
+        | (x == "G|MPS")
+        | (x == "G|LPS")
     ):
         return "Germline"
-    elif (x == "P1|P2|P3") | (x == "P1|P2") | (x == "P1|P3") | (x == "P2|P3"):
+    elif (x == "EPS|MPS|LPS") | (x == "EPS|MPS") | (x == "EPS|LPS") | (x == "MPS|LPS"):
         return "Spermatocytes"
     elif (
         (x == "C1|C2|C3|C4")
@@ -126,7 +126,7 @@ def group_logic(x):
         | (x == "C3|C4")
     ):
         return "Cyst Cells"
-    elif (("G" in x) | ("P1" in x) | ("P2" in x) | ("P3" in x)) & (
+    elif (("G" in x) | ("EPS" in x) | ("MPS" in x) | ("LPS" in x)) & (
         ("C1" in x) | ("C2" in x) | ("C3" in x) | ("P" in x) | ("T" in x)
     ):
         return "Germline and Somatic"
