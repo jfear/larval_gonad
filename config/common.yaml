@@ -2,45 +2,49 @@ author: Justin M Fear
 email: justin.m.fear@gmail.com
 project: Larval Gonad
 git: https://github.com/jfear/larval_gonad
-#references_dir: <path to references> defaults to environmental variable
 assembly: dmel
 tag: r6-26
 release_date: "2019_01"
+
 fliersprops:
   alpha: .1
+
 cluster_annot:
-  "0": "P3"
+  "0": "LPS"
   "1": "C1"
-  "2": "P2"
+  "2": "MPS"
   "3": "T"
-  "4": "P1"
+  "4": "EPS"
   "5": "C2"
   "6": "G"
   "7": "C4"
   "8": "C3"
   "9": "P"
+
 cluster_order:
   - "G"
-  - "P1"
-  - "P2"
-  - "P3"
+  - "EPS"
+  - "MPS"
+  - "LPS"
   - "C1"
   - "C2"
   - "C3"
   - "C4"
   - "T"
   - "P"
+
 legend_names:
   - "Spermatogonia (G)"
-  - "Early Primary Spermatocyte (P1)"
-  - "Later Primary Spermatocyte (P2)"
-  - "Later Primary Spermatocyte (P3)"
+  - "Early Primary Spermatocyte (EPS)"
+  - "Mid Primary Spermatocyte (MPS)"
+  - "Later Primary Spermatocyte (LPS)"
   - "Cyst Cell (C1)"
   - "Cyst Cell (C2)"
   - "Cyst Cell (C3)"
   - "Cyst Cell (C4)"
   - "Terminal Epithelium (T)"
   - "Pigment Cells (P)"
+
 cluster_types:
   - "germ"
   - "germ"
@@ -52,11 +56,13 @@ cluster_types:
   - "soma"
   - "soma"
   - "soma"
+
 germ:
   - "G"
-  - "P1"
-  - "P2"
-  - "P3"
+  - "EPS"
+  - "MPS"
+  - "LPS"
+
 soma:
   - "C1"
   - "C2"
@@ -64,14 +70,18 @@ soma:
   - "C4"
   - "T"
   - "P"
+
 spermatocytes:
-  - "P1"
-  - "P2"
-  - "P3"
+  - "EPS"
+  - "MPS"
+  - "LPS"
+
 cyst:
   - "C1"
   - "C2"
   - "C3"
+  - "C4"
+
 chrom_order:
   - "X"
   - "2L"
@@ -80,11 +90,13 @@ chrom_order:
   - "3R"
   - "4"
   - "Y"
+
 autosomes:
   - "2L"
   - "2R"
   - "3L"
   - "3R"
+
 gene_subsets:
   - "expressed"
   - "commonly_expressed"
@@ -134,6 +146,7 @@ deg_subsets:
   - "larval_testis"
   - "larval_ovary"
   - "larval_gonad_ns"
+
 ratio_types:
   - "x_to_a_ratio"
   - "fourth_to_a_ratio"
