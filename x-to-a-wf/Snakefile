@@ -8,22 +8,16 @@ to determine if ratios are significantly different across cell types.
 
 """
 import os
-import yaml
-from pathlib import Path
 
 import pandas as pd
 
 from larval_gonad.config import read_config
-from larval_gonad.io import pickle_load
 
 workdir: '.'
 configfile: '../config/common.yaml'
-
-REFERENCES_DIR = os.environ.get('REFERENCES_DIR', config.get('REFERENCES_DIR', ''))
-ASSEMBLY = config['assembly']
 TAG = config['tag']
-CHROMS = config['chrom_order']
-AUTOSOMES = config['autosomes']
+
+color_config = read_config("../config/colors.yaml")
 
 
 rule targets:
@@ -31,7 +25,12 @@ rule targets:
         expand(
             '../output/x-to-a-wf/db/{fbgns}.dat',
             fbgns=config['gene_subsets']
-        )
+        ),
+        expand(
+            "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg",
+            fbgns=config['gene_subsets'],
+            ratio_type=config['ratio_types']
+        ),
 
 
 rule fbgn2chrom:
@@ -96,3 +95,21 @@ rule shelve_results:
         '../output/x-to-a-wf/db/{fbgns}.dir',
         '../output/x-to-a-wf/db/{fbgns}.bak'
     script: 'scripts/shelve_results.py'
+
+################################################################################
+# Plots
+################################################################################
+def _get_gene_set_title(wildcards):
+    return config['gene_subset_titles'][wildcards.fbgns]
+
+
+rule boxplot_autosome_ratios:
+    input: rules.shelve_results.output[0]
+    output: "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg"
+    params:
+          cluster_colors=color_config["clusters"],
+          cluster_order=config['cluster_order'],
+          title=_get_gene_set_title
+    script: "scripts/boxplot_autosome_ratios.py"
+
+
