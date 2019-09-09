@@ -52,8 +52,8 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
-        "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
-        "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done",
+        # "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done",
+        # "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done",
         "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
@@ -248,12 +248,9 @@ rule combined_n3_GO:
 
 rule raw_agg:
     input:
-        raw = "../output/cellselection-wf/raw.feather",
-        metadata = "../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+        raw="../output/cellselection-wf/raw.feather",
+        clusters=rules.combined_n3_clusters.output[0]
     output: "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather"
-    params:
-        cluster_annot = common_config["cluster_annot"],
-        cluster_order = common_config["cluster_order"],
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
