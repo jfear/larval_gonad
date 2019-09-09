@@ -9,7 +9,7 @@ TAG = common_config["tag"]
 
 lit_genes = read_config("../config/literature_genes.yaml")
 
-cluster_order = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+cluster_order = ["3", "8", "5", "0", "6", "1", "4", "7", "2"]
 cluster_annot = {x: x for x in cluster_order}
 colors = sns.color_palette("husl", n_colors=9)
 
