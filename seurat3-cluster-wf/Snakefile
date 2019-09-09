@@ -280,6 +280,9 @@ rule cell_zscore:
     script: "scripts/cell_zscore.py"
 
 
+################################################################################
+# Plots
+################################################################################
 rule plot_umap:
     input:
         umap=rules.dump_robj.output.umap,
@@ -298,6 +301,15 @@ rule feature_plot:
         pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg"
     output: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/done"
     script: "scripts/feature_plot.py"
+
+
+rule lit_gene_expression_patterns:
+    input: 
+        norm=rules.dump_robj.output.norm.format(sample="combined_n3"),
+        clusters=rules.combined_n3_clusters.output[0]
+    params: pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done"
+    script: "scripts/expression_patterns.py"
 
 
 rule all_biomarkers:
@@ -342,10 +354,8 @@ rule multi_biomarkers:
     script: "scripts/multi_biomarkers.py"
 
 
-rule lit_gene_expression_patterns:
-    input: 
-        norm=rules.dump_robj.output.norm.format(sample="combined_n3"),
-        clusters=rules.combined_n3_clusters.output[0]
-    params: pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg"
-    output: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/done"
-    script: "scripts/expression_patterns.py"
+rule boxplot_total_umi:
+    input: rules.raw_agg.output[0]
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg"
+    params: cluster_colors=colors_config["clusters"]
+    script: "scripts/boxplot_total_umi.py"
