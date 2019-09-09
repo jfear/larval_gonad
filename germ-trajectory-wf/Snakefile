@@ -2,8 +2,12 @@ import pandas as pd
 import seaborn as sns
 
 from larval_gonad.config import read_config
+from larval_gonad.io import safe_gene_name
+
 common_config = read_config("../config/common.yaml")
 TAG = common_config["tag"]
+
+lit_genes = read_config("../config/literature_genes.yaml")
 
 cluster_order = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
 cluster_annot = {x: x for x in cluster_order}
@@ -16,6 +20,7 @@ rule all:
         "../output/germ-trajectory-wf/clusters.feather",
         "../output/germ-trajectory-wf/biomarkers.feather",
         "../output/germ-trajectory-wf/umap_panel.svg",
+        expand("../output/germ-trajectory-wf/lit_genes_umap_panel_{group}.svg", group=["SP", "SP_ES", "ES", "PS", "LS", "spermatids"]),
 
 
 rule recluster_germ_cells:
@@ -68,3 +73,22 @@ rule gene_projections:
     script: "../seurat3-cluster-wf/scripts/individual_gene_feature_plot.py"
 
 
+def _lit_gene_umap_panel(wildcards):
+    fbgn2symbol = (
+        pd.read_feather(f"../references/gene_annotation_dmel_{TAG}.feather", columns=["FBgn", "gene_symbol"])
+        .set_index("FBgn").squeeze()
+    )
+    fbgns = lit_genes[wildcards.group]
+    symbols = [safe_gene_name(fbgn2symbol[fbgn]) for fbgn in fbgns]
+    return expand(
+        rules.gene_projections.output[0],
+        zip,
+        symbol=symbols,
+        FBgn=fbgns
+    )
+
+
+rule lit_gene_umap_panel:
+    input: _lit_gene_umap_panel
+    output: "../output/germ-trajectory-wf/lit_genes_umap_panel_{group}.svg"
+    script: "scripts/gene_panels.py"
