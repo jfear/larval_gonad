@@ -140,21 +140,6 @@ rule all_old:
         "../output/science_submission/ptrap_scores.feather",
         "../output/science_submission/figures/heatmap-ptrap-scores.svg",
 
-        # Part 2
-        expand(
-            '../output/science_submission/figures/barplot_demasculinization.{fbgns}.svg',
-            fbgns=config['deg_subsets']
-        ),
-        expand(
-            "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg",
-            fbgns=config['gene_subsets'],
-            ratio_type=config['ratio_types']
-        ),
-        # "../output/science_submission/figures/boxplot-autosome-ratio.svg",
-        # "../output/science_submission/figures/boxplot-y-genes.svg",
-        # "../output/science_submission/figures/boxplot-total-umi.svg",
-        # "../output/science_submission/figures/violin-total-umi.svg",
-        # "../output/science_submission/figures/heatmap-y-genes.svg",
 
         # Part 4
         "../output/science_submission/intron_less_genes.pkl",
