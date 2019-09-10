@@ -115,8 +115,9 @@ rule barcode_to_cellid:
     script: 'scripts/barcode_to_cellid.py'
 
 
+################################################################################
 # STEP 1
-
+################################################################################
 def _dropletutils(wildcards):
     return expand(config['data_pattern'][config['cellranger'][0]],
         sample=wildcards.sample,
@@ -170,8 +171,9 @@ rule summary:
     script: 'scripts/summary.R'
 
 
+################################################################################
 # STEP 2
-
+################################################################################
 rule scrublet:
     input:
         cell_ids = lambda wildcards: expand(
@@ -206,8 +208,9 @@ rule scrublet:
     script: 'scripts/scrublet.py'
 
 
+################################################################################
 # STEP 3 + 4
-
+################################################################################
 rule data_distribution:
     input: 
         mtx = lambda wildcards: expand(
@@ -278,8 +281,9 @@ rule grid_search_summary:
     script: 'scripts/grid_search_summary.py'
 
 
+################################################################################
 # Save filtered dataset
-
+################################################################################
 rule save_filtered_cell_matrix:
     input:
         cell_ids = lambda wildcards: expand(
@@ -351,3 +355,8 @@ rule commonly_expressed_genes:
 
         df = pd.read_feather(input[0]).set_index("FBgn")
         pickle_dump(commonly_expressed(df), output[0])
+
+
+################################################################################
+# Plots
+################################################################################
