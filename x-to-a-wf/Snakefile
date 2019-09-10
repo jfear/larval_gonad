@@ -28,7 +28,7 @@ rule targets:
             fbgns=config['gene_subsets']
         ),
         expand(
-            "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg",
+            "../output/x-to-a-wf/figures/boxplot.{fbgns}.{ratio_type}.svg",
             fbgns=config['gene_subsets'],
             ratio_type=config['ratio_types']
         ),
@@ -107,7 +107,7 @@ def _get_gene_set_title(wildcards):
 
 rule boxplot_autosome_ratios:
     input: rules.shelve_results.output[0]
-    output: "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg"
+    output: "../output/x-to-a-wf/figures/boxplot.{fbgns}.{ratio_type}.svg"
     params:
           cluster_color=color_config["clusters"],
           cluster_order=config['cluster_order'],
