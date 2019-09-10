@@ -35,7 +35,7 @@ def main():
     title = snakemake.params.get("title", "")
     ax.set(xlabel="", ylabel="Total UMI Per Cell (Log10)", title=title, yscale="symlog")
 
-    fig.savefig(snakemake.output[0])
+    plt.savefig(snakemake.output[0])
 
 
 if __name__ == "__main__":
