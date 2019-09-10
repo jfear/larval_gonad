@@ -417,4 +417,4 @@ rule boxplot_total_umi_y_genes:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 8,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: "scripts/boxplot_total_umi_y_genes.py"
+    script: "scripts/boxplot_total_umi.py"
