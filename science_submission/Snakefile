@@ -135,7 +135,6 @@ rule all_old:
         "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
-        expand("../output/science_submission/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
         "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
         "../output/science_submission/ptrap_scores.feather",
         "../output/science_submission/figures/heatmap-ptrap-scores.svg",
@@ -277,14 +276,6 @@ rule zscores_by_celltype_to_tsv:
             aggfunc="first"
         ).to_csv(output[0], sep="\t")
 
-
-rule plot_barcode_ranks:
-    input: 
-        cell_calls = '../output/cellselection-wf/{sample}_combined_cell_calls.feather',
-        doublets = '../output/cellselection-wf/{sample}_scrublet_dublets.txt',
-        umi = '../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
-    output: '../output/science_submission/figures/barcode_rank_plot_{sample}.svg'
-    script: 'scripts/plot_barcode_rank.py'
 
 
 rule plot_heatmap_bulk_scRNAseq_w_rep:

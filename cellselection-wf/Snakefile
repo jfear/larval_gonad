@@ -83,6 +83,7 @@ rule targets:
         "../output/cellselection-wf/raw.feather",
         "../output/cellselection-wf/expressed_genes.pkl",
         "../output/cellselection-wf/commonly_expressed_genes.pkl",
+        expand("../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
 
 
 rule unzip_cellranger3:
@@ -115,8 +116,9 @@ rule barcode_to_cellid:
     script: 'scripts/barcode_to_cellid.py'
 
 
+################################################################################
 # STEP 1
-
+################################################################################
 def _dropletutils(wildcards):
     return expand(config['data_pattern'][config['cellranger'][0]],
         sample=wildcards.sample,
@@ -170,8 +172,9 @@ rule summary:
     script: 'scripts/summary.R'
 
 
+################################################################################
 # STEP 2
-
+################################################################################
 rule scrublet:
     input:
         cell_ids = lambda wildcards: expand(
@@ -206,8 +209,9 @@ rule scrublet:
     script: 'scripts/scrublet.py'
 
 
+################################################################################
 # STEP 3 + 4
-
+################################################################################
 rule data_distribution:
     input: 
         mtx = lambda wildcards: expand(
@@ -278,8 +282,9 @@ rule grid_search_summary:
     script: 'scripts/grid_search_summary.py'
 
 
+################################################################################
 # Save filtered dataset
-
+################################################################################
 rule save_filtered_cell_matrix:
     input:
         cell_ids = lambda wildcards: expand(
@@ -335,6 +340,9 @@ rule raw:
 rule expressed_genes:
     input: rules.raw.output[0]
     output: '../output/cellselection-wf/expressed_genes.pkl'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     run:
         df = (
             pd.read_feather(input[0]).set_index("FBgn")
@@ -346,8 +354,26 @@ rule expressed_genes:
 rule commonly_expressed_genes:
     input: rules.raw.output[0]
     output: '../output/cellselection-wf/commonly_expressed_genes.pkl'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     run:
         from larval_gonad.cell_selection import commonly_expressed
 
         df = pd.read_feather(input[0]).set_index("FBgn")
         pickle_dump(commonly_expressed(df), output[0])
+
+
+################################################################################
+# Plots
+################################################################################
+rule plot_barcode_ranks:
+    input: 
+        cell_calls=rules.summary.output.cell_calls,
+        doublets=rules.scrublet.output.doublets,
+        umi='../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 32,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    output: '../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg'
+    script: 'scripts/barcode_rank_plot.py'
