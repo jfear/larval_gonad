@@ -58,7 +58,7 @@ def run_mannwhitney(obs: np.ndarray, permuted: np.ndarray, alternative="less") -
     """Compare distributions of observed and permuted values."""
     _obs = obs.dropna()
     _permuted = permuted.dropna()
-    if len(_obs) == 0:
+    if (len(_obs) == 0) | (_obs.sum() == 0):
         return np.nan
 
     _, pval = mannwhitneyu(_obs, _permuted, alternative=alternative)
