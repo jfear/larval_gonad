@@ -340,6 +340,9 @@ rule raw:
 rule expressed_genes:
     input: rules.raw.output[0]
     output: '../output/cellselection-wf/expressed_genes.pkl'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     run:
         df = (
             pd.read_feather(input[0]).set_index("FBgn")
@@ -351,6 +354,9 @@ rule expressed_genes:
 rule commonly_expressed_genes:
     input: rules.raw.output[0]
     output: '../output/cellselection-wf/commonly_expressed_genes.pkl'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
     run:
         from larval_gonad.cell_selection import commonly_expressed
 
@@ -366,5 +372,8 @@ rule plot_barcode_ranks:
         cell_calls=rules.summary.output.cell_calls,
         doublets=rules.scrublet.output.doublets,
         umi='../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 32,
+        time_hr=lambda wildcards, attempt: attempt * 2
     output: '../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg'
     script: 'scripts/barcode_rank_plot.py'
