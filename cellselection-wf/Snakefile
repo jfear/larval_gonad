@@ -367,4 +367,4 @@ rule plot_barcode_ranks:
         doublets=rules.scrublet.output.doublets,
         umi='../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
     output: '../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg'
-    script: 'scripts/plot_barcode_rank.py'
+    script: 'scripts/barcode_rank_plot.py'
