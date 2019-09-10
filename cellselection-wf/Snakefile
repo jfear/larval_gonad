@@ -83,6 +83,7 @@ rule targets:
         "../output/cellselection-wf/raw.feather",
         "../output/cellselection-wf/expressed_genes.pkl",
         "../output/cellselection-wf/commonly_expressed_genes.pkl",
+        expand("../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
 
 
 rule unzip_cellranger3:
@@ -360,3 +361,10 @@ rule commonly_expressed_genes:
 ################################################################################
 # Plots
 ################################################################################
+rule plot_barcode_ranks:
+    input: 
+        cell_calls=rules.summary.output.cell_calls,
+        doublets=rules.scrublet.output.doublets,
+        umi='../output/cellranger3-wf/{sample}/outs/molecule_info.h5'
+    output: '../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg'
+    script: 'scripts/plot_barcode_rank.py'
