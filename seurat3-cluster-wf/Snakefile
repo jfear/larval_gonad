@@ -57,7 +57,9 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
-        "../output/seurat3-cluster-wf/combined_n3_figures/barplot-cell-per-cluster.svg"
+        "../output/seurat3-cluster-wf/combined_n3_figures/barplot-cell-per-cluster.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi_y_genes.svg"
 
 
 rule testis1:
@@ -408,7 +410,7 @@ def _y_genes(wildcards):
 
 rule boxplot_total_umi_y_genes:
     input: rules.raw_agg.output[0]
-    output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi_y_genes.svg"
     params: 
         cluster_colors=colors_config["clusters"],
         fbgns=_y_genes
