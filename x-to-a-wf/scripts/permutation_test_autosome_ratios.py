@@ -9,13 +9,14 @@ among clusters.
 4. Calculate p-value based on 3.
 
 """
+import os
 import numpy as np
 import pandas as pd
 from scipy.stats import mannwhitneyu
 
 
-def main(snake):
-    ratios = pd.read_feather(snake["input_file"]).set_index("cell_id")
+def main():
+    ratios = pd.read_feather(snakemake.input[0]).set_index("cell_id")
     _ratios = ratios.copy()
 
     results = []
@@ -50,7 +51,7 @@ def main(snake):
         .rename_axis("cluster")
     )
 
-    pvalue.reset_index().to_feather(snake["output_file"])
+    pvalue.reset_index().to_feather(snakemake.output[0])
 
 
 def run_mannwhitney(obs: np.ndarray, permuted: np.ndarray, alternative="less") -> int:
@@ -72,18 +73,12 @@ def summarize_permutation(perm_value: int, alpha=0.05) -> bool:
 
 
 if __name__ == "__main__":
-    SNAKE = dict(input_file=snakemake.input[0], output_file=snakemake.output[0])
+    if os.getenv("SNAKE_DEBUG", False):
+        from larval_gonad.debug import snakemake_debug
 
-    # Debug Settings
-    # import os
-    # try:
-    #     os.chdir(os.path.join(os.getcwd(), 'x-to-a-wf/scripts'))
-    #     print(os.getcwd())
-    # except:
-    #     pass
-    # SNAKE = dict(
-    #     input_file="../../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
-    #     output_file=''
-    # )
+        snakemake = snakemake_debug(
+            workdir="x-to-a-wf",
+            input="../output/x-to-a-wf/autosome_ratios_larval_ovary_by_cell.feather",
+        )
 
-    main(SNAKE)
+    main()
