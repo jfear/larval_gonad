@@ -109,7 +109,7 @@ rule boxplot_autosome_ratios:
     input: rules.shelve_results.output[0]
     output: "../output/science_submission/figures/boxplot.{fbgns}.{ratio_type}.svg"
     params:
-          cluster_colors=color_config["clusters"],
+          cluster_color=color_config["clusters"],
           cluster_order=config['cluster_order'],
           title=_get_gene_set_title
     script: "scripts/boxplot_autosome_ratios.py"
