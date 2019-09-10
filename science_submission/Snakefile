@@ -131,8 +131,6 @@ rule all_old:
                 "tsps_genes",
             ]
         ),
-        "../output/science_submission/figures/barplot-cell-per-cluster.svg",
-        "../output/science_submission/figures/barplot-cell-per-cluster-number.svg",
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
         "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg",
@@ -310,20 +308,6 @@ rule plot_heatmap_lit_gene_evidence:
         cmap=COLORS["heatmap"]
     script: "scripts/plot_heatmap_lit_evidence.py"
 
-
-rule plot_barplot_cell_per_cluster_number:
-    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
-    output: "../output/science_submission/figures/barplot-cell-per-cluster-number.svg"
-    script: "scripts/plot_barplot_cell_per_cluster_number.py"
-
-
-rule plot_barplot_cell_per_cluster:
-    input: "../output/seurat3-cluster-wf/combined_n3_metadata.feather"
-    output: "../output/science_submission/figures/barplot-cell-per-cluster.svg"
-    params:
-        cluster_annot = config["cluster_annot"],
-        cluster_order = config["cluster_order"]
-    script: "scripts/plot_barplot_cell_per_cluster.py"
 
 
 rule ptrap_scores:
