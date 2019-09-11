@@ -62,6 +62,11 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi_y_genes.svg"
 
 
+################################################################################
+# Clustering
+################################################################################
+
+## Individual Samples
 rule testis1:
     input:
         rmd = "scripts/testis1_individual.Rmd"
@@ -110,6 +115,7 @@ rule testis4:
     script: "../scripts/rscript.py"
 
 
+## Merged Samples
 rule merge_3reps:
     input: 
         rmd = "scripts/combined_n3.Rmd",
@@ -134,53 +140,6 @@ rule merge_4reps:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
     script: "../scripts/rscript.py"
-
-
-rule biomarkers:
-    input: 
-        html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
-        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: 
-        tsv = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.tsv",
-        feather = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather"
-    conda: "../envs/seurat3.yaml"
-    resources:
-        mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 6
-    script: "scripts/combined_biomarkers.R"
-
-
-rule germline_deg:
-    input: 
-        html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
-        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: 
-        # SP vs Cytes
-        gvcf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.feather",
-        gvct = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.tsv",
-        # SP vs EPS
-        gvef = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.feather",
-        gvet = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.tsv",
-        # SP vs PS
-        gvpf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.feather",
-        gvpt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.tsv",
-        # EPS vs PS
-        evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
-        evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv",
-        # EPS vs MPS
-        evmf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.feather",
-        evmt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.tsv",
-        # EPS vs LPS
-        evlf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.feather",
-        evlt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.tsv",
-        # MPS vs LPS
-        mvlf = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.feather",
-        mvlt = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.tsv",
-    conda: "../envs/seurat3.yaml"
-    resources:
-        mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 6
-    script: "scripts/germline_deg.R"
 
 
 def _params(wildcards):
@@ -249,6 +208,59 @@ rule combined_n3_GO:
     script: "../scripts/rscript.py"
 
 
+################################################################################
+# Differential Expression
+################################################################################
+rule biomarkers:
+    input: 
+        html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: 
+        tsv = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.tsv",
+        feather = "../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather"
+    conda: "../envs/seurat3.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: "scripts/combined_biomarkers.R"
+
+
+rule germline_deg:
+    input: 
+        html = "../output/seurat3-cluster-wf/combined_n{cnt}.html",
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: 
+        # SP vs Cytes
+        gvcf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.feather",
+        gvct = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_cytes.tsv",
+        # SP vs EPS
+        gvef = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.feather",
+        gvet = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_eps.tsv",
+        # SP vs PS
+        gvpf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.feather",
+        gvpt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.tsv",
+        # EPS vs PS
+        evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
+        evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv",
+        # EPS vs MPS
+        evmf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.feather",
+        evmt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_mps.tsv",
+        # EPS vs LPS
+        evlf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.feather",
+        evlt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_lps.tsv",
+        # MPS vs LPS
+        mvlf = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.feather",
+        mvlt = "../output/seurat3-cluster-wf/combined_n{cnt}_mps_vs_lps.tsv",
+    conda: "../envs/seurat3.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: "scripts/germline_deg.R"
+
+
+################################################################################
+# Aggregate and Normalize Counts
+################################################################################
 rule raw_agg:
     input:
         raw="../output/cellselection-wf/raw.feather",
