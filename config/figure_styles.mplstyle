@@ -20,7 +20,7 @@ ytick.labelsize: 10.0
 legend.fontsize: 12.0
 
 font.family: sans-serif
-font.sans-serif: Arial, Helvetica, DejaVu Sans, sans-serif
+font.sans-serif: Helvetica, Arial, DejaVu Sans, sans-serif
 
 axes.labelpad: 2.0
 axes.titlepad: 2.0
