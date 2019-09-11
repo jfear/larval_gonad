@@ -33,7 +33,11 @@ rule all:
         expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
         expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
         "../output/science_submission/figures/cluster-legend.svg",
-        "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
+        "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
+        expand(
+            "../output/science_submission/figures/{fbgns}_biased_chrom_location.svg",
+            fbgns=['gonia', 'cyte']
+        )
 
 
 ################################################################################
@@ -104,6 +108,12 @@ rule plot_heatmap_ptrap_scores:
     output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
     script: "scripts/plot_heatmap_ptrap_scores.py"
 
+rule plot_deg_chrom_locs:
+    input: 
+        deg="../output/seurat3-cluster-wf/combined_n3_{fbgns}_biased.pkl",
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/science_submission/figures/{fbgns}_biased_chrom_location.svg"
+    script: "scripts/plot_locations.py"
 
 
 
