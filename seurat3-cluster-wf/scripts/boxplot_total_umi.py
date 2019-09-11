@@ -55,5 +55,8 @@ if __name__ == "__main__":
         )
 
     plt.style.use("../config/figure_styles.mplstyle")
+    plt.rcParams.update({
+        'figure.figsize': (4, 2)
+    })
 
     main()

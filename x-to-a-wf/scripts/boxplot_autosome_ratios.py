@@ -33,9 +33,9 @@ def main():
         data=df,
         palette=snakemake.params.cluster_color,
         order=snakemake.params.cluster_order,
+        notch=True
     )
-    ax.axhline(1)
-    ax.set(xlabel="Cluster ", ylabel=ylabel, title=snakemake.params.title, ylim=(0, 3))
+    ax.set(xlabel="Cluster ", ylabel=ylabel, title=snakemake.params.title)
     add_pvals(pvals.x, pvals.y, pvals.pvalue, ax)
 
     plt.savefig(snakemake.output[0])
@@ -61,5 +61,8 @@ if __name__ == "__main__":
         )
 
     plt.style.use("../config/figure_styles.mplstyle")
+    plt.rcParams.update({
+        'figure.figsize': (4, 2)
+    })
 
     main()
