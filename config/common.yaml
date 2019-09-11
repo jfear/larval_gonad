@@ -35,9 +35,9 @@ cluster_order:
 
 legend_names:
   - "Spermatogonia (G)"
-  - "Early Primary Spermatocyte (EPS)"
-  - "Mid Primary Spermatocyte (MPS)"
-  - "Later Primary Spermatocyte (LPS)"
+  - "Early Primary Spermatocyte (E1°)"
+  - "Mid Primary Spermatocyte (M1°)"
+  - "Later Primary Spermatocyte (L1°)"
   - "Cyst Cell (C1)"
   - "Cyst Cell (C2)"
   - "Cyst Cell (C3)"
