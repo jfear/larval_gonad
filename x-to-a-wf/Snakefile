@@ -64,6 +64,8 @@ def _subset_of_genes_to_use(wildcards):
         'larval_testis': '../output/bulk2-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl',
         'larval_ovary': '../output/bulk2-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
         'larval_gonad_ns': '../output/bulk2-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
+        'gonia': "../output/seurat3-cluster-wf/combined_n3_gonia_biased.pkl",
+        'cyte': "../output/seurat3-cluster-wf/combined_n3_cyte_biased.pkl",
     }[wildcards.fbgns]
 
 

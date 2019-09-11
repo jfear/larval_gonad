@@ -114,6 +114,8 @@ gene_subsets:
   - "larval_testis"
   - "larval_ovary"
   - "larval_gonad_ns"
+  - "gonia"
+  - "cyte"
 
 gene_subset_titles:
   expressed: "All Genes"
@@ -132,6 +134,8 @@ gene_subset_titles:
   larval_testis: "Larval Testis-Biased Expressed Genes"
   larval_ovary: "Larval Ovary-Biased Expressed Genes"
   larval_gonad_ns: "Larval Non-Gonad-Biased Expressed Genes"
+  gonia: "Gonia-Biased (SP vs Cytes)"
+  cyte: "Cyte-Biased (SP vs Cytes)"
 
 deg_subsets:
   - "male"
