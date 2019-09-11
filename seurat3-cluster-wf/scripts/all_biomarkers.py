@@ -30,7 +30,7 @@ def main():
     zscore_ordered, groups = kmeans_cluster(zscore)
     biomarkers_w_groups = add_groups_to_biomarkers(zscore_ordered.index, groups, biomarkers)
 
-    fig = plt.figure(figsize=plt.figaspect(2))
+    fig = plt.figure()
     gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
@@ -126,7 +126,7 @@ def add_annotations(ax, biomarkers, lit_genes, cols=30):
     xloc_odd, xloc_even = (-5, cols + cols * 0.01)
     for i, (clus, dd) in enumerate(biomarkers.groupby("group")):
         loc, mid = take_step(loc, dd.shape[0])
-        txt = f"({dd.shape[0]:,})"
+        txt = f"{dd.shape[0]:,} genes"
         txt += check_for_lit_genes(dd, lit_genes)
 
         if i % 2 == 0:
@@ -175,5 +175,12 @@ if __name__ == "__main__":
         )
 
     plt.style.use("../config/figure_styles.mplstyle")
+    plt.rcParams.update({
+        'figure.figsize': (2.5, 4),
+        'font.size': 8.0,
+        'axes.titlesize': 8.0,
+        'axes.labelsize': 8.0,
+        'xtick.labelsize': 8.0,
+    })
 
     main()

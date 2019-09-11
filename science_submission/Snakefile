@@ -10,9 +10,7 @@ import pandas as pd
 from larval_gonad.config import read_config
 
 workdir: "."
-configfile: "config/config.yaml"
-config.update(read_config("../config/common.yaml"))
-atlas_config = read_config("../expression-atlas-wf/config/config.yaml")
+configfile: "../config/common.yaml"
 colors_config = read_config("../config/colors.yaml")
 
 SAMPLES = ["testis1", "testis2", "testis3"]
@@ -34,11 +32,20 @@ rule all:
         expand("../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg", group=PTRAP_GENES.keys()),
         expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
         expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
+        "../output/science_submission/figures/cluster-legend.svg"
 
 
 ################################################################################
 # Part 1: scRNA-Seq intron, cluster, annotate, and validate
 ################################################################################
+rule plot_cluster_legend:
+    params:
+        cluster_colors=COLORS["clusters"],
+        legend_names=config["legend_names"]
+    output: "../output/science_submission/figures/cluster-legend.svg"
+    script: "scripts/plot_cluster_legend.py"
+
+
 rule lit_gene_umap_panel:
     input: f"../references/gene_annotation_dmel_{TAG}.feather"
     params: 
@@ -219,14 +226,6 @@ rule plot_heatmap_bulk_scRNAseq_w_rep:
          scrnaseq="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather"
     output: "../output/science_submission/figures/heatmap-bulk-scRNAseq-w-rep.svg"
     script: "scripts/plot_heatmap_bulk_scRNAseq_w_rep.py"
-
-
-rule plot_cluster_legend:
-    params:
-        cluster_colors=COLORS["clusters"],
-        legend_names = config["legend_names"]
-    output: "../output/science_submission/figures/cluster-legend.svg"
-    script: "scripts/plot_cluster_legend.py"
 
 
 rule plot_zscore_heatmap:
