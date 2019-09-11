@@ -32,7 +32,8 @@ rule all:
         expand("../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg", group=PTRAP_GENES.keys()),
         expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
         expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
-        "../output/science_submission/figures/cluster-legend.svg"
+        "../output/science_submission/figures/cluster-legend.svg",
+        "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
 
 
 ################################################################################
@@ -82,6 +83,26 @@ rule ptrap_gene_expression_patterns_panel:
     script: "scripts/gene_panels.py"
 
 
+rule plot_heatmap_lit_gene_evidence:
+    input:
+         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv'
+    output: "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
+    params: cmap=COLORS["heatmap"]
+    script: "scripts/plot_heatmap_lit_evidence.py"
+
+
+rule ptrap_scores:
+    output: "../output/science_submission/ptrap_scores.feather"
+    script: "scripts/ptrap-scores.py"
+
+
+rule plot_heatmap_ptrap_scores:
+    input: 
+        ptrap = rules.ptrap_scores.output[0],
+        gene_annot = "../references/gene_annotation_dmel_r6-26.feather"
+    output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
+    script: "scripts/plot_heatmap_ptrap_scores.py"
 
 
 
@@ -234,29 +255,6 @@ rule plot_zscore_heatmap:
     params: COLORS['heatmap']
     script: "scripts/plot_zscore_heatmap.py"
 
-
-rule plot_heatmap_lit_gene_evidence:
-    input:
-         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         lit_evidence = '../data/external/lit_genes.tsv'
-    output: "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
-    params:
-        cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_lit_evidence.py"
-
-
-
-rule ptrap_scores:
-    output: "../output/science_submission/ptrap_scores.feather"
-    script: "scripts/ptrap-scores.py"
-
-
-rule plot_heatmap_ptrap_scores:
-    input: 
-        ptrap = rules.ptrap_scores.output[0],
-        gene_annot = "../references/gene_annotation_dmel_r6-26.feather"
-    output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
-    script: "scripts/plot_heatmap_ptrap_scores.py"
 
 ################################################################################
 # Part 2: Sex bias expression and MSCI
