@@ -9,70 +9,42 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from larval_gonad.io import pickle_load
+
 CHROMS = ["X", "2L", "2R", "3L", "3R", "4", "Y"]
+COLORS = ["red", "C4", "C4", "gray", "gray", "cyan", "C2"]
 
 def main():
-    expressed = np.log1p(get_fbgns_expressed_in_G_and_LPS())
-    fbgn2chrom = get_fbgn2chrom()
-    tidy = make_tidy(expressed, fbgn2chrom)
-    ma = make_ma_data(expressed, fbgn2chrom)
+    # Gene lists
+    biased = pickle_load(snakemake.input.biased)
 
-    g = sns.FacetGrid(ma, col="chrom", col_order=CHROMS, hue="direction", col_wrap=4)
-    g.map(plt.scatter, "M", "A", s=8)
+    # Data
+    fbgn2chrom = pd.read_feather(snakemake.input.gene_annot, columns=['FBgn', 'FB_chrom']).set_index("FBgn").squeeze().rename("chrom")
+    tpm = get_data(snakemake.wildcards.direction).join(fbgn2chrom)
+    tpm_biased, tpm_not_biased = split_by_bias(tpm, biased)
 
-    fig, axes = plt.subplots(len(CHROMS), 1, figsize=(8, 12))
-    for ax, (chrom, dd) in zip(axes.flat, tidy.groupby("chrom")):
-        g = dd.query("cluster == 'G'").TPM.sort_values()
-        lps = dd.query("cluster == 'LPS'").TPM.sort_values()
-        ax.step(g, np.arange(g.shape[0]), label="G")
-        ax.step(lps, np.arange(lps.shape[0]), label="LPS")
-        ax.legend()
-        ax.set_title(chrom)
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    sns.boxplot("chrom", "TPM", data=tpm_biased, notch=True, order=CHROMS, palette=COLORS, ax=ax1)
+    ax1.set(title=f"{snakemake.wildcards.direction}-Biased", xlabel="")
+    sns.boxplot("chrom", "TPM", data=tpm_not_biased, notch=True, order=CHROMS, palette=COLORS, ax=ax2)
+    ax2.set(title=f"{snakemake.wildcards.direction}-Expressed Not Biased", xlabel="")
+
+    fig.savefig(snakemake.output[0])
 
 
-def get_fbgns_expressed_in_G_and_LPS():
-    df = (
+def get_data(cluster):
+    return (
         pd.read_feather(snakemake.input.tpm)
-        .groupby(["FBgn", "cluster"])
-        .TPM.mean()
-        .unstack()
-        .loc[:, ["G", "LPS"]]
-    )
-    df.columns = df.columns.tolist()
-    return df
-    return df[(df >= 10).all(axis=1)]
-
-
-def get_fbgn2chrom():
-    return (
-        pd.read_feather(snakemake.input.gene_annot, columns=["FBgn", "FB_chrom"])
+        .query(f"cluster == '{cluster}'")
+        .drop("cluster", axis=1)
         .set_index("FBgn")
-        .squeeze()
-        .rename("chrom")
-        .pipe(lambda x: x[x.isin(CHROMS)])
     )
 
+def split_by_bias(tpm, fbgns):
+    tpm_bias = tpm[tpm.index.isin(fbgns)]
+    tpm_not_bias = tpm[~tpm.index.isin(fbgns)]
+    return tpm_bias, tpm_not_bias
 
-def make_tidy(expressed, fbgn2chrom):
-    return (
-        expressed
-        .reset_index()
-        .melt(id_vars="FBgn", var_name="cluster", value_name="TPM")
-        .set_index("FBgn")
-        .sort_index()
-        .join(fbgn2chrom)
-    )
-
-
-def make_ma_data(expressed, fbgn2chrom):
-    return (
-        expressed
-        .assign(M=lambda x: x.mean(axis=1))
-        .assign(A=lambda x: x.G - x.LPS)
-        .assign(direction=lambda x: np.where(x.A > 0, "G", "LPS"))
-        .loc[:, ["M", "A", "direction"]]
-        .join(fbgn2chrom)
-    )
 
 
 if __name__ == "__main__":
@@ -87,8 +59,12 @@ if __name__ == "__main__":
             workdir="science_submission",
             input=dict(
                 tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+                biased="../output/seurat3-cluster-wf/germline_deg/GvLPS_G_biased.pkl",
                 gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
             ),
+            wildcards=dict(direction="G")
         )
+
+    plt.style.use("../config/figure_styles.mplstyle")
 
     main()

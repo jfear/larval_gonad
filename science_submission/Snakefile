@@ -42,6 +42,10 @@ rule all:
             "../output/science_submission/figures/{clus}_chrom_enrichment.svg",
             clus=["G", "EPS", "MPS", "LPS"]
         ),
+        expand(
+            "../output/science_submission/figures/GvLPS_{direction}_expression_by_chrom.svg",
+            direction=['G', 'LPS']
+        ),
 
 
 ################################################################################
@@ -133,8 +137,9 @@ rule plot_chrom_bias:
 rule plot_GvLPS_expression_by_chrom:
     input:
         tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        biased="../output/seurat3-cluster-wf/germline_deg/GvLPS_{direction}_biased.pkl",
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/figures/GvLPS_expression_by_chrom.svg"
+    output: "../output/science_submission/figures/GvLPS_{direction}_expression_by_chrom.svg"
     script: "scripts/plot_GvLPS_expression_by_chrom.py"
 
 
