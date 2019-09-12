@@ -25,9 +25,9 @@ def main():
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     sns.boxplot("chrom", "TPM", data=tpm_biased, notch=True, order=CHROMS, palette=COLORS, ax=ax1)
-    ax1.set(title=f"{snakemake.wildcards.direction}-Biased", xlabel="")
+    ax1.set(title=f"{snakemake.wildcards.direction}-Biased", xlabel="", ylim=(0, 2000))
     sns.boxplot("chrom", "TPM", data=tpm_not_biased, notch=True, order=CHROMS, palette=COLORS, ax=ax2)
-    ax2.set(title=f"{snakemake.wildcards.direction}-Expressed Not Biased", xlabel="")
+    ax2.set(title=f"{snakemake.wildcards.direction}-Expressed Not Biased", xlabel="", ylim=(0, 45))
 
     fig.savefig(snakemake.output[0])
 
