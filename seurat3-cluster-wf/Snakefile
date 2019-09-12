@@ -268,7 +268,7 @@ rule sp_v_lps_deg_gene_lists:
         df = pd.read_feather(input[0]).query("p_val_adj <= 0.01")
         pickle_dump(df.query("avg_logFC > 0").FBgn.tolist(), output.up)
         pickle_dump(df.query("avg_logFC < 0").FBgn.tolist(), output.down)
-        pickle_dump(pd.read_feather(input[0]).query("p_val_adj > 0.01"), output.ns)
+        pickle_dump(pd.read_feather(input[0]).query("p_val_adj > 0.01").FBgn.tolist(), output.ns)
 
 
 
