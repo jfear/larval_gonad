@@ -50,6 +50,7 @@ rule targets:
         ),
         "../output/seurat3-cluster-wf/germline_deg/GvLPS_G_biased.pkl",
         "../output/seurat3-cluster-wf/germline_deg/GvLPS_LPS_biased.pkl",
+        "../output/seurat3-cluster-wf/germline_deg/GvLPS_NS_biased.pkl",
         "../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
@@ -260,12 +261,14 @@ rule sp_v_lps_deg_gene_lists:
     input: rules.germline_deg.output.gvlps.format(cnt=3)
     output: 
         up="../output/seurat3-cluster-wf/germline_deg/GvLPS_G_biased.pkl",
-        down="../output/seurat3-cluster-wf/germline_deg/GvLPS_LPS_biased.pkl"
+        down="../output/seurat3-cluster-wf/germline_deg/GvLPS_LPS_biased.pkl",
+        ns="../output/seurat3-cluster-wf/germline_deg/GvLPS_NS_biased.pkl",
     run:
         from larval_gonad.io import pickle_dump
         df = pd.read_feather(input[0]).query("p_val_adj <= 0.01")
         pickle_dump(df.query("avg_logFC > 0").FBgn.tolist(), output.up)
         pickle_dump(df.query("avg_logFC < 0").FBgn.tolist(), output.down)
+        pickle_dump(pd.read_feather(input[0]).query("p_val_adj > 0.01"), output.ns)
 
 
 
