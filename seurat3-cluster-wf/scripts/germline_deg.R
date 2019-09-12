@@ -8,6 +8,8 @@ GENE_METADATA <- snakemake@input[["gene_annotation"]]
 GVC <- list(feather = snakemake@output[["gvcf"]], tsv = snakemake@output[["gvct"]])
 GVE <- list(feather = snakemake@output[["gvef"]], tsv = snakemake@output[["gvet"]])
 GVP <- list(feather = snakemake@output[["gvpf"]], tsv = snakemake@output[["gvpt"]])
+GVM <- list(feather = snakemake@output[["gvmf"]], tsv = snakemake@output[["gvmt"]])
+GVL <- list(feather = snakemake@output[["gvlf"]], tsv = snakemake@output[["gvlt"]])
 EVP <- list(feather = snakemake@output[["evpf"]], tsv = snakemake@output[["evpt"]])
 EVM <- list(feather = snakemake@output[["evmf"]], tsv = snakemake@output[["evmt"]])
 EVL <- list(feather = snakemake@output[["evlf"]], tsv = snakemake@output[["evlt"]])
@@ -56,6 +58,12 @@ save_deg(gonia_vs_eps, GVE)
 
 gonia_vs_ps <- find_markers(combined, "9", c("0", "2"))
 save_deg(gonia_vs_ps, GVP)
+
+gonia_vs_mps <- find_markers(combined, "9", "0")
+save_deg(gonia_vs_mps, GVM)
+
+gonia_vs_lps <- find_markers(combined, "9", "2")
+save_deg(gonia_vs_lps, GVL)
 
 eps_vs_ps <- find_markers(combined, "4", c("0", "2"))
 save_deg(eps_vs_ps, EVP)

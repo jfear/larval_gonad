@@ -49,8 +49,8 @@ rule targets:
                 "umap",
             ]
         ),
-        "../output/seurat3-cluster-wf/combined_n3_gonia_biased.pkl",
-        "../output/seurat3-cluster-wf/combined_n3_cyte_biased.pkl",
+        "../output/seurat3-cluster-wf/combined_n3_spvlps_sp_biased.pkl",
+        "../output/seurat3-cluster-wf/combined_n3_spvlps_lps_biased.pkl",
         "../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         "../output/seurat3-cluster-wf/combined_n3_GO_analysis.html",
         "../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
@@ -241,6 +241,12 @@ rule germline_deg:
         # SP vs PS
         gvpf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.feather",
         gvpt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_ps.tsv",
+        # SP vs MPS
+        gvmf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_mps.feather",
+        gvmt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_mps.tsv",
+        # SP vs LPS
+        gvlf = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_lps.feather",
+        gvlt = "../output/seurat3-cluster-wf/combined_n{cnt}_gonia_vs_lps.tsv",
         # EPS vs PS
         evpf = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.feather",
         evpt = "../output/seurat3-cluster-wf/combined_n{cnt}_eps_vs_ps.tsv",
@@ -260,11 +266,11 @@ rule germline_deg:
     script: "scripts/germline_deg.R"
 
 
-rule sp_cytes_deg_gene_lists:
-    input: rules.germline_deg.output.gvcf.format(cnt=3)
+rule sp_v_lps_deg_gene_lists:
+    input: rules.germline_deg.output.gvlf.format(cnt=3)
     output: 
-        up="../output/seurat3-cluster-wf/combined_n3_gonia_biased.pkl",
-        down="../output/seurat3-cluster-wf/combined_n3_cyte_biased.pkl"
+        up="../output/seurat3-cluster-wf/combined_n3_spvlps_sp_biased.pkl",
+        down="../output/seurat3-cluster-wf/combined_n3_spvlps_lps_biased.pkl"
     run:
         from larval_gonad.io import pickle_dump
         df = pd.read_feather(input[0]).query("p_val_adj <= 0.01")
