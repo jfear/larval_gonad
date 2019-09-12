@@ -25,7 +25,7 @@ def main():
 
     ax = sns.barplot("chrom", "count", hue="type", data=tidy)
     add_qvalue(chisq, ax)
-    ax.set(title=snakemake.wildcards.clus, ylabel="Number Expressed Genes")
+    ax.set(title=snakemake.wildcards.clus, ylabel="Number Expressed Genes", ylim=(0, 1200))
     ax.legend(loc="upper left", bbox_to_anchor=[1, 1])
 
     plt.savefig(snakemake.output[0])
