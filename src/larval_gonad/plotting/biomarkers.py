@@ -5,6 +5,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+MULTI_ORDER = [
+    "G|EPS",
+    "Germline",
+    "Spermatocytes",
+    "Cyst Cells",
+    "Germline and Somatic",
+    "Somatic",
+]
+
 
 def plot_all_biomarkers(
     biomarkers: str,
@@ -62,8 +71,33 @@ def plot_multi_biomarkers(
     cluster_order: list,
     ax: plt.Axes = None,
     cax: plt.Axes = None,
+    fig: plt.Figure = None,
 ):
-    pass
+    """Plot heatmap of multi biomarkers
+
+    Example
+    -------
+    >>> biomarkers = "output/seurat3-cluster-wf/biomarkers.feather"
+    >>> zscores = "output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    >>> from larval_gonad.config import read_config
+    >>> lit_genes = read_config("config/literature_genes.yaml")
+    >>> plot_multi_biomarkers(biomarkers, zscores, lit_genes)
+
+    """
+    df = _read_biomarkers(biomarkers)
+    df_multi = _multi_biomarkers(df)
+    df_grouped = _order_multi_groups(_collapse_cluster(df_multi))
+
+    df_zscore = _read_zscores(zscores)
+    zscore_ordered = _order_zscores(df_zscore, df_grouped.index.unique().tolist())
+
+    if ax is None:
+        ax, cax = _make_panel(fig)
+
+    _make_heatmap(zscore_ordered, ax, cax)
+    _cleanup_xaxis(ax, df_grouped)
+    _cleanup_yaxis(ax, df_grouped)
+    _add_annotations(ax, df_grouped, lit_genes, zscore_ordered.shape[1])
 
 
 def _add_annotations(ax, biomarkers, lit_genes, cols=30):
@@ -134,7 +168,7 @@ def _collapse_cluster(df):
         df.groupby("FBgn")
         .apply(lambda x: "|".join(x.cluster.sort_values()))
         .apply(_group_logic)
-        .rename("group")
+        .rename("cluster")
         .to_frame()
         .join(df.gene_symbol.drop_duplicates())
     )
@@ -215,11 +249,13 @@ def _make_heatmap(df, ax, cax=None, **kwargs):
 
 def _multi_biomarkers(df):
     """Keep only duplicated biomarkers"""
-    return (
-        df[~df.duplicated(subset="FBgn", keep=False)]
-        .sort_values("cluster")
-        .set_index("FBgn")
-    )
+    return df[df.index.duplicated(keep=False)].sort_values("cluster")
+
+
+def _order_multi_groups(biomarkers):
+    return biomarkers.assign(
+        cluster=lambda x: pd.Categorical(x.cluster, categories=MULTI_ORDER, ordered=True)
+    ).sort_values("cluster")
 
 
 def _order_zscores(zscores, fbgns):
