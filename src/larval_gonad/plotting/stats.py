@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 
 def pval_to_string(pvalue):
     if pvalue <= 0.001:
@@ -37,7 +39,9 @@ def add_pvals(x, y, pval, ax, **kwargs):
 
 
 def plot_statsmodels_results(file: str, results: str):
-    plt.text(0.01, 0.05, results, {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
-    plt.axis('off')
+    plt.text(
+        0.01, 0.05, results, {"fontsize": 10}, fontproperties="monospace"
+    )  # approach improved by OP -> monospace!
+    plt.axis("off")
     plt.tight_layout()
     plt.savefig(file, dpi=200)

@@ -35,7 +35,7 @@ def demasculinization(data, ax=None, title=None, legend=False, **kwargs):
         color=["red", "lightgrey", "blue"],
         width=0.9,
         edgecolor="k",
-        linewidth=0.2
+        linewidth=0.2,
     )
     plot_defaults.update(kwargs)
 
