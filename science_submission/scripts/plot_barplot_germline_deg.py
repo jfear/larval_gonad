@@ -8,7 +8,7 @@ from scipy.stats import fisher_exact
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from larval_gonad.plotting import format_pval
+from larval_gonad.plotting.stats import format_pval
 
 gonia = snakemake.input.gonia
 early = snakemake.input.early
@@ -58,8 +58,8 @@ def main():
         # Add * for significance
         _, xpval = fisher_exact(ct[['X', 'A']])
         _, fourpval = fisher_exact(ct[['4', 'A']])
-        format_pval(ax, 0, proportion_genes_significant['X'], xpval, fontsize=7)
-        format_pval(ax, 2, proportion_genes_significant['4'], fourpval, fontsize=7)
+        format_pval(0, proportion_genes_significant['X'], xpval, ax, fontsize=7)
+        format_pval(2, proportion_genes_significant['4'], fourpval, ax, fontsize=7)
 
         # Clean up axes
         sns.despine(ax=ax)

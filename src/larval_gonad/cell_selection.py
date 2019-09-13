@@ -102,7 +102,7 @@ def plot_barcode_rank(umi, selected=None, title=None, **kwargs):
     try:
         ax = options.pop("ax")
     except KeyError:
-        ax = make_ax()
+        _, ax = plt.subplots()
 
     dat = umi.to_frame()
     dat.columns = ["umi"]

@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.io import shelve_load
-from larval_gonad.plotting import demasculinization, add_pvals
+from larval_gonad.plotting.stats import add_pvals
+from larval_gonad.plotting.demasculinization import demasculinization
 
 
 def main():

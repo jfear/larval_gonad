@@ -3,16 +3,15 @@
 from pathlib import Path
 from pickle import load
 
-import matplotlib as mpl
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from larval_gonad.config import CONFIG_DIR
-from larval_gonad.plotting import add_styles
+import larval_gonad.plotting
 
 
 # Setup general plotting info
-add_styles(Path(CONFIG_DIR, 'stylelib'))
-mpl.style.use(['common', 'paper'])
+plt.style.use(['common', 'paper'])
 
 # make mappers
 try:

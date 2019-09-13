@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.stats import run_chisq
-from larval_gonad.plotting import format_pval
+from larval_gonad.plotting.stats import format_pval
 
 # %%
 sns.set_context('poster')
@@ -111,8 +111,8 @@ print(f'p-value x: {pvalx:0.4f}, p-value 4: {pval4:0.4f}')
 
 dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
 ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
-format_pval(ax, 0, dat['X'], pvalx)
-format_pval(ax, 2, dat['4'], pval4)
+format_pval(0, dat['X'], pvalx, ax)
+format_pval(2, dat['4'], pval4, ax)
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
 sns.despine(ax=ax);
@@ -145,8 +145,8 @@ print(f'p-value x: {pvalx:0.4f}, p-value 4: {pval4:0.4f}')
 
 dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
 ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
-format_pval(ax, 0, dat['X'], pvalx)
-format_pval(ax, 2, dat['4'], pval4)
+format_pval(0, dat['X'], pvalx, ax)
+format_pval(2, dat['4'], pval4, ax)
     
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
@@ -181,8 +181,8 @@ print(f'p-value x: {pvalx:0.4f}, p-value 4: {pval4:0.4f}')
 
 dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
 ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
-format_pval(ax, 0, dat['X'], pvalx)
-format_pval(ax, 2, dat['4'], pval4)
+format_pval(0, dat['X'], pvalx, ax)
+format_pval(2, dat['4'], pval4, ax)
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
 sns.despine(ax=ax);
@@ -216,8 +216,8 @@ print(f'p-value x: {pvalx:0.4f}, p-value 4: {pval4:0.4f}')
 
 dat = df.groupby('chrom').biased.mean()[['X', 'A', '4']]
 ax = dat.plot(kind='bar', width=.9, color=['darkgray', 'w', 'darkgray'], edgecolor='k', lw=1)
-format_pval(ax, 0, dat['X'], pvalx)
-format_pval(ax, 2, dat['4'], pval4)
+format_pval(0, dat['X'], pvalx, ax)
+format_pval(2, dat['4'], pval4, ax)
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome')
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
 sns.despine(ax=ax);
@@ -256,7 +256,6 @@ bulk_sig.bias = bulk_sig.bias.fillna('None')
 MALE_BIAS = bulk_sig[bulk_sig.testis_bias].index
 
 # %%
-<<<<<<< HEAD
 title = 'Bulk'
 ct = bulk_sig.groupby('chrom').bias.value_counts().unstack().loc[['X', '2L', '2R', '3L', '3R', '4']].T
 res = run_chisq(ct)
@@ -271,22 +270,12 @@ ax = dat.plot(kind='bar', stacked=True, width=.95, color=['w', 'darkgray', 'k'],
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome', title=title)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
 sns.despine(ax=ax)
-format_pval(ax, 0, dat.loc['X', 'testis'], pvalx)
-format_pval(ax, 5, dat.loc['4', 'testis'], pval4)
+format_pval(0, dat.loc['X', 'testis'], pvalx, ax)
+format_pval(5, dat.loc['4', 'testis'], pval4, ax)
 plt.legend(['Testis Biased', 'Non-Biased', 'Ovary Biased'], loc='upper left', bbox_to_anchor=(1, 1));
 
 # %%
 dat
-=======
-df = bulk_sig.join(fbgn2chrom, how='left').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
-
-# %%
-df = bulk_sig.join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
->>>>>>> 793cb92f7873d9395f5935b1250878a243e8c9f5
 
 # %% [markdown]
 # ### SP testis-biased genes do not show evidence of X or 4th demasculinization.
@@ -299,21 +288,9 @@ BIASED = (
     .index.tolist()
 )
 
-<<<<<<< HEAD
 _bulk_sig = bulk_sig.copy()
 _bulk_sig.loc[~_bulk_sig.index.isin(BIASED), 'bias'] = 'None'
 ct = _bulk_sig.groupby('chrom').bias.value_counts().unstack().loc[['X', '2L', '2R', '3L', '3R', '4']].T.fillna(0)
-=======
-# %%
-df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom, how='left').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
-
-# %%
-df = bulk_sig.reindex(SP_BIASED).join(fbgn2chrom, how='outer').fillna('None').groupby('chrom').bias.value_counts().unstack().loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
->>>>>>> 793cb92f7873d9395f5935b1250878a243e8c9f5
 
 res = run_chisq(ct)
 display(res.reindex(['ovary', 'None', 'testis'], level=0).loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :])
@@ -327,8 +304,8 @@ ax = dat.plot(kind='bar', stacked=True, width=.95, color=['w', 'darkgray', 'k'],
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome', title=title)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
 sns.despine(ax=ax)
-format_pval(ax, 0, dat.loc['X', 'testis'], pvalx)
-format_pval(ax, 5, dat.loc['4', 'testis'], pval4)
+format_pval(0, dat.loc['X', 'testis'], pvalx, ax)
+format_pval(5, dat.loc['4', 'testis'], pval4, ax)
 plt.legend(['Testis Biased', 'Non-Biased', 'Ovary Biased'], loc='upper left', bbox_to_anchor=(1, 1));
 
 # %% [markdown]
@@ -342,34 +319,9 @@ BIASED = (
     .index.tolist()
 )
 
-<<<<<<< HEAD
 _bulk_sig = bulk_sig.copy()
 _bulk_sig.loc[~_bulk_sig.index.isin(BIASED), 'bias'] = 'None'
 ct = _bulk_sig.groupby('chrom').bias.value_counts().unstack().loc[['X', '2L', '2R', '3L', '3R', '4']].T.fillna(0)
-=======
-# %%
-df = (
-    bulk_sig.reindex(CYTE_BIASED)
-    .join(fbgn2chrom, how='left').fillna('None')
-    .assign(bias=lambda x: x.bias.replace({'ovary': "None"}))
-    .groupby('chrom').bias.value_counts()
-    .unstack()
-    .loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-)
-
-res = run_chisq(df)
-res.loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :]
-
-# %%
-df = (
-    bulk_sig.reindex(CYTE_BIASED)
-    .join(fbgn2chrom, how='outer').fillna('None')
-    .assign(bias=lambda x: x.bias.replace({'ovary': "None"}))
-    .groupby('chrom').bias.value_counts()
-    .unstack()
-    .loc[['chrX', 'chr2L', 'chr2R', 'chr3L', 'chr3R', 'chr4']].T
-)
->>>>>>> 793cb92f7873d9395f5935b1250878a243e8c9f5
 
 res = run_chisq(ct)
 display(res.reindex(['ovary', 'None', 'testis'], level=0).loc[(slice(None), ['observed', 'adj std residual', 'flag_sig']), :])
@@ -383,8 +335,8 @@ ax = dat.plot(kind='bar', stacked=True, width=.95, color=['w', 'darkgray', 'k'],
 ax.set(ylim=(0, 1), ylabel='Proportion of Genes', xlabel='Chromosome', title=title)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
 sns.despine(ax=ax)
-format_pval(ax, 0, dat.loc['X', 'testis'], pvalx)
-format_pval(ax, 5, dat.loc['4', 'testis'], pval4)
+format_pval(0, dat.loc['X', 'testis'], pvalx, ax)
+format_pval(5, dat.loc['4', 'testis'], pval4, ax)
 plt.legend(['Testis Biased', 'Non-Biased', 'Ovary Biased'], loc='upper left', bbox_to_anchor=(1, 1));
 
 # %%
