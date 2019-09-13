@@ -25,6 +25,7 @@ def plot_unique_biomarkers(
     lit_genes: dict,
     ax: plt.Axes = None,
     cax: plt.Axes = None,
+    fig: plt.Figure = None,
 ):
     """Plot heatmap of unqiue biomarkers
 
@@ -44,7 +45,7 @@ def plot_unique_biomarkers(
     zscore_ordered = _order_zscores(df_zscore, df_unique.index.unique().tolist())
 
     if ax is None:
-        ax, cax = _make_panel()
+        ax, cax = _make_panel(fig)
 
     _make_heatmap(zscore_ordered, ax, cax)
     _cleanup_xaxis(ax, df_unique)
@@ -180,10 +181,12 @@ def _group_logic(x):
         return "Somatic"
 
 
-def _make_panel():
+def _make_panel(fig=None):
     from matplotlib.gridspec import GridSpec
 
-    fig = plt.figure(figsize=(2, 4))
+    if fig is None:
+        fig = plt.figure(figsize=(2, 4))
+
     gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
     ax = fig.add_subplot(gs[0, 0])
     cax = fig.add_subplot(gs[1, 0])
