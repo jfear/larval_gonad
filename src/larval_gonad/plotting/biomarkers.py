@@ -1,3 +1,6 @@
+from itertools import chain
+
+from more_itertools import flatten
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -18,25 +21,35 @@ def plot_all_biomarkers(
 
 def plot_unique_biomarkers(
     biomarkers: str,
-    clusters: str,
     zscores: str,
     lit_genes: dict,
-    cluster_annot: dict,
-    cluster_order: list,
     ax: plt.Axes = None,
     cax: plt.Axes = None,
 ):
-    df = _read_biomarkers(biomarkers, cluster_annot)
+    """Plot heatmap of unqiue biomarkers
+
+    Example
+    -------
+    >>> biomarkers = "output/seurat3-cluster-wf/biomarkers.feather"
+    >>> zscores = "output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    >>> from larval_gonad.config import read_config
+    >>> lit_genes = read_config("config/literature_genes.yaml")
+    >>> plot_unique_biomarkers(biomarkers, zscores, lit_genes)
+
+    """
+    df = _read_biomarkers(biomarkers)
     df_unique = _unique_biomarkers(df)
+
+    df_zscore = _read_zscores(zscores)
+    zscore_ordered = _order_zscores(df_zscore, df_unique.index.unique().tolist())
 
     if ax is None:
         ax, cax = _make_panel()
 
-    _make_heatmap(zscore, ax, cax)
-
-    _cleanup_xaxis(ax)
-    _cleanup_yaxis(ax, biomarkers)
-    _add_annotations(ax, biomarkers, lit_genes, zscore.shape[1])
+    _make_heatmap(zscore_ordered, ax, cax)
+    _cleanup_xaxis(ax, df_unique)
+    _cleanup_yaxis(ax, df_unique)
+    _add_annotations(ax, df_unique, lit_genes, zscore_ordered.shape[1])
 
 
 def plot_multi_biomarkers(
@@ -52,61 +65,66 @@ def plot_multi_biomarkers(
     pass
 
 
-def _make_panel():
-    from matplotlib.gridspec import GridSpec
+def _add_annotations(ax, biomarkers, lit_genes, cols=30):
+    """Adds annotation on the left and right sides.
 
-    fig = plt.figure(figsize=(2, 4))
-    gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
-    ax = fig.add_subplot(gs[0, 0])
-    cax = fig.add_subplot(gs[1, 0])
-    return ax, cax
+    Annotation includes the cluster name, the number of genes, and the gene
+    names of literature genes found in that set.
 
+    """
+    lit_fbgns = list(flatten(lit_genes.values()))
 
-def _make_heatmap(df, ax, cax=None, **kwargs):
-    defaults = dict(
-        df,
-        xticklabels=True,
-        yticklabels=False,
-        vmin=-3,
-        vmax=3,
-        rasterized=True,
-        cmap="viridis",
-        ax=ax,
-        cbar_ax=cax,
-        cbar_kws=dict(label="Z-Score (TPM)", ticks=[-3, 3], orientation="horizontal"),
-    )
-    defaults.update(kwargs)
-    if df.shape[0] < 100:
-        defaults["yticklabels"] = True
+    loc = 0
+    xloc_odd, xloc_even = (-5, cols + cols * 0.01)
+    for i, (clus, dd) in enumerate(biomarkers.groupby("cluster")):
+        loc, mid = _take_step(loc, dd.shape[0])
+        txt = f"{clus} ({dd.shape[0]:,})"
+        txt += _check_for_lit_genes(dd, lit_fbgns)
 
-    return sns.heatmap(**defaults)
+        if i % 2 == 0:
+            xloc = xloc_even
+        else:
+            xloc = xloc_odd
+
+        ax.text(xloc, mid, txt, ha="left", va="center", fontsize=8)
 
 
-def _read_biomarkers(biomarkers, cluster_annot):
-    """Read biomarkers feather file."""
-    return (
-        pd.read_feather(biomarkers)
-        .sort_values("FBgn")
-        .assign(cluster=lambda x: x.cluster.map(cluster_annot))
-    )
+def _check_for_lit_genes(df, lit_fbgns):
+    res = []
+    for fbgn, dd in df.sort_values("gene_symbol").iterrows():
+        if fbgn in lit_fbgns:
+            res.append(dd.gene_symbol)
+    return "\n" + "\n".join(res)
 
 
-def _unique_biomarkers(df):
-    """Remove duplicated biomarkers"""
-    return (
-        df[~df.duplicated(subset="FBgn", keep=False)]
-        .sort_values("cluster")
-        .set_index("FBgn")
+def _cleanup_xaxis(ax, biomarkers):
+    cluster_order = biomarkers.cluster.cat.categories
+
+    ax.set_xlabel("")
+    ax.xaxis.set_ticks_position("top")
+    ax.set_xticklabels(
+        list(chain.from_iterable([("", x, "") for x in cluster_order])),
+        ha="center",
+        va="bottom",
     )
 
+    # Add lines separating cell types
+    for i in range(1, len(cluster_order)):
+        ax.axvline(i * 3, color="w", ls="--", lw=0.5)
 
-def _multi_biomarkers(df):
-    """Keep only duplicated biomarkers"""
-    return (
-        df[~df.duplicated(subset="FBgn", keep=False)]
-        .sort_values("cluster")
-        .set_index("FBgn")
-    )
+    return ax
+
+
+def _cleanup_yaxis(ax, biomarkers):
+    ax.set_ylabel("")
+
+    # Add lines separating biomarker groups
+    loc = 0
+    for _, dd in biomarkers.groupby("cluster"):
+        loc += dd.shape[0]
+        ax.axhline(loc, color="w", ls="--", lw=0.5)
+
+    return ax
 
 
 def _collapse_cluster(df):
@@ -162,57 +180,62 @@ def _group_logic(x):
         return "Somatic"
 
 
-def _cleanup_xaxis(ax):
-    ax.set_xlabel("")
-    ax.xaxis.set_ticks_position("top")
-    ax.set_xticklabels(
-        list(
-            chain.from_iterable([("", x, "") for x in snakemake.params.cluster_order])
-        ),
-        ha="center",
-        va="bottom",
+def _make_panel():
+    from matplotlib.gridspec import GridSpec
+
+    fig = plt.figure(figsize=(2, 4))
+    gs = GridSpec(2, 1, height_ratios=[1, 0.01], hspace=0.01)
+    ax = fig.add_subplot(gs[0, 0])
+    cax = fig.add_subplot(gs[1, 0])
+    return ax, cax
+
+
+def _make_heatmap(df, ax, cax=None, **kwargs):
+    defaults = dict(
+        data=df,
+        xticklabels=True,
+        yticklabels=False,
+        vmin=-3,
+        vmax=3,
+        rasterized=True,
+        cmap="viridis",
+        ax=ax,
+        cbar_ax=cax,
+        cbar_kws=dict(label="Z-Score (TPM)", ticks=[-3, 3], orientation="horizontal"),
+    )
+    defaults.update(kwargs)
+    if df.shape[0] < 100:
+        defaults["yticklabels"] = True
+
+    return sns.heatmap(**defaults)
+
+
+def _multi_biomarkers(df):
+    """Keep only duplicated biomarkers"""
+    return (
+        df[~df.duplicated(subset="FBgn", keep=False)]
+        .sort_values("cluster")
+        .set_index("FBgn")
     )
 
-    # Add lines separating cell types
-    for i in range(1, len(snakemake.params.cluster_order)):
-        ax.axvline(i * 3, color="w", ls="--", lw=0.5)
 
-    return ax
+def _order_zscores(zscores, fbgns):
+    return zscores.reindex(fbgns)
 
 
-def _cleanup_yaxis(ax, df):
-    ax.set_ylabel("")
-
-    # Add lines separating biomarker groups
-    loc = 0
-    for _, dd in biomarkers.groupby("cluster"):
-        loc += dd.shape[0]
-        ax.axhline(loc, color="w", ls="--", lw=0.5)
-
-    return ax
+def _read_biomarkers(biomarkers):
+    """Read biomarkers feather file."""
+    return pd.read_feather(biomarkers).set_index("FBgn").sort_index()
 
 
-def _add_annotations(ax, biomarkers, lit_genes, cols=30):
-    """Adds annotation on the left and right sides.
-
-    Annotation includes the cluster name, the number of genes, and the gene
-    names of literature genes found in that set.
-
-    """
-
-    loc = 0
-    xloc_odd, xloc_even = (-5, cols + cols * 0.01)
-    for i, (clus, dd) in enumerate(biomarkers.groupby("cluster")):
-        loc, mid = take_step(loc, dd.shape[0])
-        txt = f"{clus} ({dd.shape[0]:,})"
-        txt += check_for_lit_genes(dd, lit_genes)
-
-        if i % 2 == 0:
-            xloc = xloc_even
-        else:
-            xloc = xloc_odd
-
-        ax.text(xloc, mid, txt, ha="left", va="center", fontsize=8)
+def _read_zscores(zscores):
+    return pd.pivot_table(
+        pd.read_feather(zscores),
+        index="FBgn",
+        columns=["cluster", "rep"],
+        values="zscore",
+        aggfunc="first",
+    )
 
 
 def _take_step(loc, step_size):
@@ -222,9 +245,7 @@ def _take_step(loc, step_size):
     return loc, mid
 
 
-def _check_for_lit_genes(df, lit_genes):
-    res = []
-    for fbgn, dd in df.sort_values("gene_symbol").iterrows():
-        if fbgn in lit_genes:
-            res.append(dd.gene_symbol)
-    return "\n" + "\n".join(res)
+def _unique_biomarkers(df):
+    """Remove duplicated biomarkers"""
+    return df[~df.index.duplicated(keep=False)].sort_values("cluster")
+
