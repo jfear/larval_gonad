@@ -20,10 +20,3 @@ chrom_boxplot_cmap = dict(zip(config["chrom_order"][:-1], config["colors"]["chro
 def make_ax(*args, **kwargs):
     fig, ax = plt.subplots(*args, **kwargs)
     return ax
-
-
-def centerify(text, width=-1):
-    """Center multiline text."""
-    lines = text.split(" ")
-    width = max(map(len, lines)) if width == -1 else width
-    return "\n".join(line.center(width) for line in lines)
