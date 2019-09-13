@@ -15,8 +15,3 @@ chrom_cmap = dict(zip(config["chrom_order"], config["colors"]["chrom"]))
 
 # I have a separate color scheme for boxplots, that does not contain Y.
 chrom_boxplot_cmap = dict(zip(config["chrom_order"][:-1], config["colors"]["chrom_boxplot"]))
-
-
-def make_ax(*args, **kwargs):
-    fig, ax = plt.subplots(*args, **kwargs)
-    return ax
