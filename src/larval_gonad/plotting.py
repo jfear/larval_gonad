@@ -121,18 +121,6 @@ def flip_ticks(ax, pos="left"):
     ax.yaxis.set_label_position(pos)
 
 
-def add_triangle(ax, add_text=True, **kwargs):
-    points = [[0, 0], [1, 0], [1, 1]]
-    polygon = plt.Polygon(points, alpha=0.6)
-    ax.add_artist(polygon)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.axis("off")
-
-    if add_text:
-        ax.text(0.5, 0.1, "Pseudotime", ha="center")
-
-
 def centerify(text, width=-1):
     """Center multiline text."""
     lines = text.split(" ")
