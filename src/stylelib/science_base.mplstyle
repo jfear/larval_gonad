@@ -1,6 +1,3 @@
-### Backend
-backend_fallback: True
-
 # Lines
 lines.linewidth: 1
 lines.linestyle: -
@@ -65,7 +62,7 @@ figure.subplot.hspace: 0.1
 figure.subplot.wspace: 0.1
 
 ### Saving Figures
-savefil.format: svg
+savefig.format: svg
 savefig.bbox: tight
 savefig.pad_inches: 0.0
 
