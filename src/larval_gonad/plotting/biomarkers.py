@@ -64,11 +64,8 @@ def plot_unique_biomarkers(
 
 def plot_multi_biomarkers(
     biomarkers: str,
-    clusters: str,
     zscores: str,
     lit_genes: dict,
-    cluster_annot: dict,
-    cluster_order: list,
     ax: plt.Axes = None,
     cax: plt.Axes = None,
     fig: plt.Figure = None,
