@@ -408,14 +408,9 @@ rule unique_biomarkers:
 
 rule multi_biomarkers:
     input: 
-        biomarkers=rules.biomarkers.output.feather.format(cnt="3"),
-        clusters=rules.combined_n3_clusters.output[0],
-        zscore=rules.zscore.output[0],
+        biomarkers=rules.annotate_biomarkers.output[0],
+        zscores=rules.zscore.output[0],
         lit_genes="../config/literature_genes.yaml"
-    params: 
-        color=colors_config['heatmap'],
-        cluster_annot=common_config['cluster_annot'],
-        cluster_order=common_config['cluster_order'],
     output: "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 8,
