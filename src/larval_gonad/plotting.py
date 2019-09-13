@@ -44,42 +44,6 @@ def figure_element(func):
     return wrapper
 
 
-def make_figs(fname=None, styles=None, formats=None, layout=True, kws_layout=None):
-    if isinstance(formats, str):
-        formats = [formats]
-    elif formats is None:
-        formats = ["png", "eps"]
-
-    if isinstance(styles, str):
-        styles = [styles]
-    elif styles is None:
-        styles = ["notebook"]
-
-    if kws_layout is None:
-        kws_layout = {}
-
-    def _plot_all(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            def plot_style(style, formats):
-                with plt.style.context(["common", style]):
-                    func(*args, **kwargs)
-                    if layout:
-                        plt.tight_layout(**kws_layout)
-                    if ("notebook" not in style) & (fname is not None):
-                        fn = fname + "_" + style
-                        for f in formats:
-                            plt.savefig("{}.{}".format(fn, f))
-                        plt.close()
-
-            for style in styles:
-                plot_style(style, formats)
-
-        return wrapper
-
-    return _plot_all
-
-
 def centerify(text, width=-1):
     """Center multiline text."""
     lines = text.split(" ")
