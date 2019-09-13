@@ -9,23 +9,67 @@ MULTI_ORDER = [
     "G|EPS",
     "Germline",
     "Spermatocytes",
-    "Cyst Cells",
     "Germline and Somatic",
+    "Cyst Cells",
+    "Somatic",
+]
+
+COMBINED_ORDER = [
+    "G",
+    "G|EPS",
+    "EPS",
+    "MPS",
+    "LPS",
+    "Spermatocytes",
+    "Germline",
+    "Germline and Somatic",
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "Cyst Cells",
+    "P",
+    "T",
     "Somatic",
 ]
 
 
 def plot_all_biomarkers(
     biomarkers: str,
-    clusters: str,
     zscores: str,
     lit_genes: dict,
-    cluster_annot: dict,
-    cluster_order: list,
     ax: plt.Axes = None,
     cax: plt.Axes = None,
+    fig: plt.Figure = None,
 ):
-    pass
+    """Plot heatmap of unqiue biomarkers
+
+    Example
+    -------
+    >>> biomarkers = "output/seurat3-cluster-wf/biomarkers.feather"
+    >>> zscores = "output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    >>> from larval_gonad.config import read_config
+    >>> lit_genes = read_config("config/literature_genes.yaml")
+    >>> plot_all_biomarkers(biomarkers, zscores, lit_genes)
+
+    """
+    df = _read_biomarkers(biomarkers)
+    df_unique = _unique_biomarkers(df)
+    df_multi = _multi_biomarkers(df)
+    df_multi_grouped = _collapse_cluster(df_multi)
+    df_combined = _combine_unique_and_Multi(df_unique, df_multi_grouped)
+
+    df_zscore = _read_zscores(zscores)
+    zscore_ordered = _order_zscores(df_zscore, df_combined.index.unique().tolist())
+
+    if ax is None:
+        ax, cax = _make_panel(fig)
+
+    ax, cax = _make_panel(fig)
+    _make_heatmap(zscore_ordered, ax, cax)
+    _cleanup_xaxis(ax, df_combined)
+    _cleanup_yaxis(ax, df_combined)
+    _add_annotations(ax, df_combined, lit_genes, zscore_ordered.shape[1])
 
 
 def plot_unique_biomarkers(
@@ -171,6 +215,17 @@ def _collapse_cluster(df):
     )
 
 
+def _combine_unique_and_Multi(unique, multi):
+    df = pd.concat(
+        [unique[["gene_symbol", "cluster"]], multi[["gene_symbol", "cluster"]]]
+    )
+    return df.assign(
+        cluster=lambda x: pd.Categorical(
+            x.cluster, categories=COMBINED_ORDER, ordered=True
+        )
+    ).sort_values("cluster")
+
+
 def _group_logic(x):
     """Label multi biomarker groups.
 
@@ -251,7 +306,9 @@ def _multi_biomarkers(df):
 
 def _order_multi_groups(biomarkers):
     return biomarkers.assign(
-        cluster=lambda x: pd.Categorical(x.cluster, categories=MULTI_ORDER, ordered=True)
+        cluster=lambda x: pd.Categorical(
+            x.cluster, categories=MULTI_ORDER, ordered=True
+        )
     ).sort_values("cluster")
 
 
