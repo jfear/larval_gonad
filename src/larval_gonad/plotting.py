@@ -116,11 +116,6 @@ def add_color_labels_w_rep(ax, s=5, germ=False):
         ax.yaxis.set_visible(False)
 
 
-def flip_ticks(ax, pos="left"):
-    ax.yaxis.set_ticks_position(pos)
-    ax.yaxis.set_label_position(pos)
-
-
 def centerify(text, width=-1):
     """Center multiline text."""
     lines = text.split(" ")
