@@ -9,7 +9,7 @@ import pandas as pd
 import seaborn as sns
 
 from larval_gonad.io import shelve_load
-from larval_gonad.plotting import add_pvals
+from larval_gonad.plotting.stats import add_pvals
 
 
 TXT = "Normalized by Number of Genes"

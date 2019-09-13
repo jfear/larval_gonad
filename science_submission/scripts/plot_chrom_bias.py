@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.stats import run_chisq
-from larval_gonad.plotting import add_pvals
+from larval_gonad.plotting.stats import add_pvals
 
 CHROMS = ["X", "2L", "2R", "3L", "3R", "4", "Y"]
 

@@ -10,7 +10,7 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import ttest_ind
 
-from larval_gonad.plotting import pval_to_string
+from larval_gonad.plotting.stats import pval_to_string
 
 
 def main():
