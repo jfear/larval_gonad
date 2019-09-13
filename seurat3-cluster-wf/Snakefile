@@ -60,6 +60,7 @@ rule targets:
         "../output/seurat3-cluster-wf/combined_n3_figures/all_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg",
+        "../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/barplot-cell-per-cluster.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg",
         "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi_y_genes.svg",
@@ -416,6 +417,18 @@ rule multi_biomarkers:
         mem_gb=lambda wildcards, attempt: attempt * 8,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: "scripts/multi_biomarkers.py"
+
+
+rule unique_and_multi_biomarkers:
+    input: 
+        biomarkers=rules.annotate_biomarkers.output[0],
+        zscores=rules.zscore.output[0],
+        lit_genes="../config/literature_genes.yaml"
+    output: "../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 8,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: "scripts/unique_and_multi_biomarkers.py"
 
 
 rule boxplot_total_umi:
