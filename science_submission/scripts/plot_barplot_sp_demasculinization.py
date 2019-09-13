@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.stats import run_chisq
-from larval_gonad.plotting import format_pval
+from larval_gonad.plotting.stats import format_pval
 
 bulk_fname = snakemake.input.bulk_deg
 sc_fname = snakemake.input.sc_deg
@@ -33,8 +33,8 @@ def main():
     # Add * for significance
     pvals = get_pvals(chroms)
     kwargs = dict(va='top', fontsize=7, color='k')
-    format_pval(ax2, 0, df.loc['chrX', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chrX'], **kwargs)
-    format_pval(ax2, 5, df.loc['chr4', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chr4'], **kwargs)
+    format_pval(0, df.loc['chrX', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chrX'], ax2, **kwargs)
+    format_pval(5, df.loc['chr4', 'testis'] - .01, pvals.loc[('testis', 'fdr q-value'), 'chr4'], ax2, **kwargs)
 
     # Add axis breaks
     d = 0.015

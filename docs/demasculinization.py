@@ -6,7 +6,6 @@ import seaborn as sns
 
 from larval_gonad.io import pickle_load, shelve_load
 from larval_gonad.config import read_config
-from larval_gonad.plotting import format_pval
 
 #%%
 import os

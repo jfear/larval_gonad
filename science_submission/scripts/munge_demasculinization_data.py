@@ -10,7 +10,7 @@ data to be easily ploted. The shelve consists of:
 Plot Example
 -------
 >>> ax = sns.barplot("chrom", "Proportion of Genes", data=data)
->>> larval_gonad.plotting.format_pval(ax, pvalues.x, pvalues.y, pvalues.qval)
+>>> larval_gonad.plotting.stats.format_pval(pvalues.x, pvalues.y, pvalues.qval, ax)
 
 """
 import pandas as pd

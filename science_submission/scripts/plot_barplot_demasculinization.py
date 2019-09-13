@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.io import shelve_load
-from larval_gonad.plotting import format_pval
+from larval_gonad.plotting.stats import format_pval
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
 
 
 def add_to_plot(ax, row):
-    format_pval(ax, row.x, row.y, row.qval)
+    format_pval(row.x, row.y, row.qval, ax)
     y_loc2 = row.y / 2
     ax.text(row.x, y_loc2, f"{row.chrom_count:,.0f}", ha="center", fontsize=10)
 
