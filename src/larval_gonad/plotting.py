@@ -80,42 +80,6 @@ def make_figs(fname=None, styles=None, formats=None, layout=True, kws_layout=Non
     return _plot_all
 
 
-def add_color_labels(ax, s=5, germ=False):
-    clusters = config["sel_cluster_order"]
-
-    if germ:
-        clusters = clusters[:5]
-
-    lclus = len(clusters)
-
-    ax.set_xticks(arange(0, lclus + 1, 0.5))
-    ax.set_xlim(0, lclus)
-
-    for i, clus in enumerate(clusters):
-        ax.plot(i + 0.5, 1, "bo", markersize=s, color=cluster_cmap[clus])
-        sns.despine(ax=ax, left=True, bottom=True)
-        ax.xaxis.set_visible(False)
-        ax.yaxis.set_visible(False)
-
-
-def add_color_labels_w_rep(ax, s=5, germ=False):
-    clusters = config["sel_cluster_order_w_rep"]
-
-    if germ:
-        clusters = clusters[:12]
-
-    lclus = len(clusters)
-
-    ax.set_xticks(arange(0, lclus + 1, 0.5))
-    ax.set_xlim(0, lclus)
-
-    for i, clus in enumerate(clusters):
-        ax.plot(i + 0.5, 1, "bo", markersize=s, color=cluster_cmap_w_rep[clus])
-        sns.despine(ax=ax, left=True, bottom=True)
-        ax.xaxis.set_visible(False)
-        ax.yaxis.set_visible(False)
-
-
 def centerify(text, width=-1):
     """Center multiline text."""
     lines = text.split(" ")
