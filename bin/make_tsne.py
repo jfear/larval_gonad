@@ -11,11 +11,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Project level imports
-from larval_gonad.plotting import TSNEPlot, add_styles
+from larval_gonad.plotting import TSNEPlot
 from larval_gonad.logging import logger
 
 REF = os.environ['REFERENCES_DIR']
-add_styles('../config/stylelib')
 plt.style.use(['common', 'paper-wide'])
 
 

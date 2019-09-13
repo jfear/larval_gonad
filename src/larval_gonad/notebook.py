@@ -10,8 +10,8 @@ import matplotlib as mpl
 from IPython import get_ipython
 
 from .config import config, PROJECT_DIR, CONFIG_DIR, REFERENCES_DIR
-from .plotting import add_styles
 from .scRNAseq import Seurat
+import plotting
 
 
 class Nb(object):
@@ -202,10 +202,6 @@ class Nb(object):
         mgc("matplotlib inline")
 
     def _setup_plotting(self):
-        styles = os.path.join(self.config_dir, "stylelib")
-        if os.path.exists(styles):
-            add_styles(styles)
-
         mpl.style.use(["common", "notebook"])
 
     def get_conda(self):

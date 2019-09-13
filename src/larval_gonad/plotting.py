@@ -17,12 +17,6 @@ chrom_cmap = dict(zip(config["chrom_order"], config["colors"]["chrom"]))
 chrom_boxplot_cmap = dict(zip(config["chrom_order"][:-1], config["colors"]["chrom_boxplot"]))
 
 
-def add_styles(dirname):
-    mpl.style.core.USER_LIBRARY_PATHS.append(dirname)
-    mpl.style.core.update_user_library(mpl.style.library)
-    mpl.style.reload_library()
-
-
 def make_ax(*args, **kwargs):
     fig, ax = plt.subplots(*args, **kwargs)
     return ax
