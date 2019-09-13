@@ -14,29 +14,57 @@ CHROMS = ["X", "2L", "2R", "3L", "3R", "4", "Y"]
 
 
 def main():
+    # Get gene lists for expressed and deg
+    cluster = snakemake.wildcards.direction
+    expressed_fbgns = get_expressed_fbgns(cluster)
     deg_fbgns = pickle_load(snakemake.input.deg)
-    df = (
+
+    # Get gene starts for different subsets
+    gene_starts = get_gene_starts()
+    expressed_starts = (
+        gene_starts.reindex(expressed_fbgns).dropna().sort_values(by=["chrom", "start"])
+    )
+    deg_starts = gene_starts.reindex(deg_fbgns).dropna().sort_values(by=["chrom", "start"])
+
+    # Plot starts for different subsets
+    fig, axes = plt.subplots(7, 1, sharex=True, sharey=True)
+    for ax, chrom in zip(axes.flat, CHROMS):
+        defaults = dict(height=1, rasterized=True, ax=ax)
+        # All genes
+        sns.rugplot(gene_starts.query(f"chrom == '{chrom}'").start, color="lightgray", **defaults)
+        # Expressed genes
+        sns.rugplot(expressed_starts.query(f"chrom == '{chrom}'").start, color="black", **defaults)
+        # DEG genes
+        sns.rugplot(deg_starts.query(f"chrom == '{chrom}'").start, color="red", **defaults)
+
+        # Clean up axes
+        sns.despine(ax=ax, left=True, bottom=True)
+        ax.set_ylabel(chrom, rotation=0, va="center")
+        ax.set(yticks=[])
+
+    plt.suptitle(f"{cluster}-Biased")
+
+    fig.savefig(snakemake.output[0])
+
+
+def get_expressed_fbgns(cluster):
+    return (
+        pd.read_feather(snakemake.input.tpm)
+        .query(f"cluster == '{cluster}' & TPM >= 10")
+        .FBgn.unique()
+        .tolist()
+    )
+
+
+def get_gene_starts():
+    return (
         pd.read_feather(snakemake.input.gene_annot)
         .set_index("FBgn")
         .assign(chrom=lambda x: x.FB_chrom)
-        .assign(coordinate=lambda x: x.start)
-        .loc[:, ["chrom", "coordinate"]]
+        .loc[:, ["chrom", "start"]]
         .query(f"chrom == {CHROMS}")
-        .sort_values(by=["chrom", "coordinate"])
+        .sort_values(by=["chrom", "start"])
     )
-    subset = df.reindex(deg_fbgns).dropna().sort_values(by=["chrom", "coordinate"])
-
-    fig, axes = plt.subplots(7, 1, sharex=True, sharey=True)
-    for ax, chrom in zip(axes.flat, CHROMS):
-        sns.rugplot(df.query(f"chrom == '{chrom}'").coordinate, height=1, color="lightgray", rasterized=True, ax=ax)
-        sns.rugplot(subset.query(f"chrom == '{chrom}'").coordinate, height=1, color="red", rasterized=True, ax=ax)
-        sns.despine(ax=ax, left=True, bottom=True)
-        ax.set_ylabel(chrom, rotation=0)
-        ax.set(yticks=[])
-
-    plt.suptitle(snakemake.wildcards.fbgns)
-
-    fig.savefig(snakemake.output[0])
 
 
 if __name__ == "__main__":
@@ -50,10 +78,11 @@ if __name__ == "__main__":
         snakemake = snakemake_debug(
             workdir="science_submission",
             input=dict(
-                deg="../output/seurat3-cluster-wf/combined_n3_gonia_biased.pkl",
+                tpm="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+                deg="../output/seurat3-cluster-wf/germline_deg/GvLPS_G_biased.pkl",
                 gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
             ),
-            wildcards=dict(fbgns="gonia"),
+            wildcards=dict(direction="G"),
         )
 
     plt.style.use("../config/figure_styles.mplstyle")

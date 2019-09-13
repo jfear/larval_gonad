@@ -1,29 +1,24 @@
 library(Seurat)
+library(tibble)
 library(dplyr)
+library(feather)
 set.seed(42)
 
-ROBJ <- gsub(".html", ".Robj", snakemake@input[["html"]])
-GENE_METADATA <- snakemake@input[["gene_annotation"]]
-
-GVC <- list(feather = snakemake@output[["gvcf"]], tsv = snakemake@output[["gvct"]])
-GVE <- list(feather = snakemake@output[["gvef"]], tsv = snakemake@output[["gvet"]])
-GVP <- list(feather = snakemake@output[["gvpf"]], tsv = snakemake@output[["gvpt"]])
-EVP <- list(feather = snakemake@output[["evpf"]], tsv = snakemake@output[["evpt"]])
-EVM <- list(feather = snakemake@output[["evmf"]], tsv = snakemake@output[["evmt"]])
-EVL <- list(feather = snakemake@output[["evlf"]], tsv = snakemake@output[["evlt"]])
-MVL <- list(feather = snakemake@output[["mvlf"]], tsv = snakemake@output[["mvlt"]])
-
 # Load Gene Metadata
-fbgn2symbol <- feather::read_feather(GENE_METADATA, columns = c("FBgn", "gene_symbol"))
+fbgn2symbol <- feather::read_feather(
+    snakemake@input[["gene_annotation"]],
+    columns = c("FBgn", "gene_symbol")
+)
 
 # Load Combined Data
-load(ROBJ)
+robj <- gsub(".html", ".Robj", snakemake@input[["html"]])
+load(robj)
 
 # Helper function
 find_markers <- function(obj, ident.1, ident.2, alpha = 1) {
     deg <- FindMarkers(obj, ident.1 = ident.1, ident.2 = ident.2)
 
-    deg_clean <- tibble::as_tibble(deg %>% tibble::rownames_to_column("gene_symbol")) %>%
+    deg_clean <- as_tibble(deg %>% tibble::rownames_to_column("gene_symbol")) %>%
         left_join(fbgn2symbol) %>%
         select(FBgn, gene_symbol, everything()) %>%
         filter(p_val_adj <= alpha) %>%
@@ -32,39 +27,38 @@ find_markers <- function(obj, ident.1, ident.2, alpha = 1) {
     return(deg_clean)
 }
 
-save_deg <- function(df, output_names) {
-    write.table(
-        df,
-        file = output_names[["tsv"]],
-        sep = "\t",
-        quote = FALSE,
-        row.names = FALSE,
-        col.names = TRUE
-    )
+# GvPS
+df <- find_markers(combined, "6", c("0", "2", "4"))
+write_feather(df, path = snakemake@output[["gvps"]])
 
-    feather::write_feather(
-        df,
-        path = output_names[["feather"]]
-    )
-}
+# GvEPS
+df <- find_markers(combined, "6", "4")
+write_feather(df, path = snakemake@output[["gveps"]])
 
-gonia_vs_cytes <- find_markers(combined, "6", c("0", "2", "4"))
-save_deg(gonia_vs_cytes, GVC)
+# GvMLPS
+df <- find_markers(combined, "6", c("0", "2"))
+write_feather(df, path = snakemake@output[["gvmlps"]])
 
-gonia_vs_eps <- find_markers(combined, "6", "4")
-save_deg(gonia_vs_eps, GVE)
+# GvMPS
+df <- find_markers(combined, "6", "0")
+write_feather(df, path = snakemake@output[["gvmps"]])
 
-gonia_vs_ps <- find_markers(combined, "9", c("0", "2"))
-save_deg(gonia_vs_ps, GVP)
+# GvLPS
+df <- find_markers(combined, "6", "2")
+write_feather(df, path = snakemake@output[["gvlps"]])
 
-eps_vs_ps <- find_markers(combined, "4", c("0", "2"))
-save_deg(eps_vs_ps, EVP)
+# EPSvMLPS
+df <- find_markers(combined, "4", c("0", "2"))
+write_feather(df, path = snakemake@output[["epsvmlps"]])
 
-eps_vs_mps <- find_markers(combined, "4", "0")
-save_deg(eps_vs_mps, EVM)
+# EPSvMPS
+df <- find_markers(combined, "4", "0")
+write_feather(df, path = snakemake@output[["epsvmps"]])
 
-eps_vs_lps <- find_markers(combined, "4", "2")
-save_deg(eps_vs_mps, EVL)
+# EPSvLPS
+df <- find_markers(combined, "4", "2")
+write_feather(df, path = snakemake@output[["epsvlps"]])
 
-mps_vs_lps <- find_markers(combined, "0", "2")
-save_deg(mps_vs_lps, MVL)
+# MPSvLPS
+df <- find_markers(combined, "0", "2")
+write_feather(df, path = snakemake@output[["mpsvlps"]])
