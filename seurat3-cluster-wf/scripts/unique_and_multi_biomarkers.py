@@ -10,7 +10,7 @@ def main():
     lit_genes = read_config(snakemake.input.lit_genes)
 
     plt.style.use("science_base")
-    fig = plt.figure(figsize=(6, 8))
+    fig = plt.figure(figsize=(3, 3.2))
 
     plot_all_biomarkers(
         snakemake.input.biomarkers, snakemake.input.zscores, lit_genes, fig=fig
