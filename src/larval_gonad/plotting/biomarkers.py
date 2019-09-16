@@ -28,8 +28,8 @@ COMBINED_ORDER = [
     "C3",
     "C4",
     "Cyst Cells",
-    "P",
     "T",
+    "P",
     "Somatic",
 ]
 
@@ -61,13 +61,14 @@ def plot_all_biomarkers(
 
     df_zscore = _read_zscores(zscores)
     zscore_ordered = _order_zscores(df_zscore, df_combined.index.unique().tolist())
+    cluster_order = zscore_ordered.columns.get_level_values("cluster").categories
 
     if ax is None:
         ax, cax = _make_panel(fig)
 
-    ax, cax = _make_panel(fig)
+    ax, cax = _make_panel()
     _make_heatmap(zscore_ordered, ax, cax)
-    _cleanup_xaxis(ax, df_combined)
+    _cleanup_xaxis(ax, cluster_order)
     _cleanup_yaxis(ax, df_combined)
     _add_annotations(ax, df_combined, lit_genes, zscore_ordered.shape[1])
 
@@ -96,12 +97,13 @@ def plot_unique_biomarkers(
 
     df_zscore = _read_zscores(zscores)
     zscore_ordered = _order_zscores(df_zscore, df_unique.index.unique().tolist())
+    cluster_order = zscore_ordered.columns.get_level_values("cluster").categories
 
     if ax is None:
         ax, cax = _make_panel(fig)
 
     _make_heatmap(zscore_ordered, ax, cax)
-    _cleanup_xaxis(ax, df_unique)
+    _cleanup_xaxis(ax, cluster_order)
     _cleanup_yaxis(ax, df_unique)
     _add_annotations(ax, df_unique, lit_genes, zscore_ordered.shape[1])
 
@@ -131,12 +133,13 @@ def plot_multi_biomarkers(
 
     df_zscore = _read_zscores(zscores)
     zscore_ordered = _order_zscores(df_zscore, df_grouped.index.unique().tolist())
+    cluster_order = zscore_ordered.columns.get_level_values("cluster").categories
 
     if ax is None:
         ax, cax = _make_panel(fig)
 
     _make_heatmap(zscore_ordered, ax, cax)
-    _cleanup_xaxis(ax, df_grouped)
+    _cleanup_xaxis(ax, cluster_order)
     _cleanup_yaxis(ax, df_grouped)
     _add_annotations(ax, df_grouped, lit_genes, zscore_ordered.shape[1])
 
@@ -173,9 +176,7 @@ def _check_for_lit_genes(df, lit_fbgns):
     return "\n" + "\n".join(res)
 
 
-def _cleanup_xaxis(ax, biomarkers):
-    cluster_order = biomarkers.cluster.cat.categories
-
+def _cleanup_xaxis(ax, cluster_order):
     ax.set_xlabel("")
     ax.xaxis.set_ticks_position("top")
     ax.set_xticklabels(
