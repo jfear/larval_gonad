@@ -18,7 +18,9 @@ rule targets:
         "../output/seurat3-cluster-wf/testis3_individual.html",
         "../output/seurat3-cluster-wf/testis4_individual.html",
         "../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+        "../output/seurat3-cluster-wf/raw_by_cluster.feather",
         "../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        "../output/seurat3-cluster-wf/tpm_by_cluster.feather",
         "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
         "../output/seurat3-cluster-wf/zscore_by_cell.feather",
         expand("../output/seurat3-cluster-wf/combined_n{cnt}_biomarkers.feather", cnt=[3, 4]),
@@ -288,7 +290,7 @@ rule sp_v_lps_deg_gene_lists:
 ################################################################################
 # Aggregate and Normalize Counts
 ################################################################################
-rule raw_agg:
+rule raw_by_cluster_rep:
     input:
         raw="../output/cellselection-wf/raw.feather",
         clusters=rules.combined_n3_clusters.output[0]
@@ -296,22 +298,22 @@ rule raw_agg:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: "scripts/raw_agg.py"
+    script: "scripts/raw_by_cluster_rep.py"
 
 
-rule tpm:
+rule tpm_by_cluster_rep:
     input:
-        raw_agg = rules.raw_agg.output[0],
+        raw_agg = rules.raw_by_cluster_rep.output[0],
         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output: "../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: "scripts/tpm.py"
+    script: "scripts/tpm_by_cluster_rep.py"
 
 
-rule zscore:
-    input: rules.tpm.output[0]
+rule zscore_by_cluster_rep:
+    input: rules.tpm_by_cluster_rep.output[0]
     output: "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
@@ -326,6 +328,28 @@ rule cell_zscore:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: "scripts/cell_zscore.py"
+
+
+rule raw_by_cluster:
+    input:
+        raw="../output/cellselection-wf/raw.feather",
+        clusters=rules.combined_n3_clusters.output[0]
+    output: "../output/seurat3-cluster-wf/raw_by_cluster.feather"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: "scripts/raw_by_cluster.py"
+
+
+rule tpm_by_cluster:
+    input:
+        raw_agg = rules.raw_by_cluster.output[0],
+        gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: "../output/seurat3-cluster-wf/tpm_by_cluster.feather"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: "scripts/tpm_by_cluster.py"
 
 
 ################################################################################
@@ -382,7 +406,7 @@ rule all_biomarkers:
     input: 
         biomarkers=rules.biomarkers.output.feather.format(cnt="3"),
         clusters=rules.combined_n3_clusters.output[0],
-        zscore=rules.zscore.output[0],
+        zscore=rules.zscore_by_cluster_rep.output[0],
         lit_genes="../config/literature_genes.yaml"
     params: 
         color=colors_config['heatmap'],
@@ -398,7 +422,7 @@ rule all_biomarkers:
 rule unique_biomarkers:
     input: 
         biomarkers=rules.annotate_biomarkers.output[0],
-        zscores=rules.zscore.output[0],
+        zscores=rules.zscore_by_cluster_rep.output[0],
         lit_genes="../config/literature_genes.yaml"
     output: "../output/seurat3-cluster-wf/combined_n3_figures/unique_biomarkers.svg"
     resources:
@@ -410,7 +434,7 @@ rule unique_biomarkers:
 rule multi_biomarkers:
     input: 
         biomarkers=rules.annotate_biomarkers.output[0],
-        zscores=rules.zscore.output[0],
+        zscores=rules.zscore_by_cluster_rep.output[0],
         lit_genes="../config/literature_genes.yaml"
     output: "../output/seurat3-cluster-wf/combined_n3_figures/multi_biomarkers.svg"
     resources:
@@ -422,7 +446,7 @@ rule multi_biomarkers:
 rule unique_and_multi_biomarkers:
     input: 
         biomarkers=rules.annotate_biomarkers.output[0],
-        zscores=rules.zscore.output[0],
+        zscores=rules.zscore_by_cluster_rep.output[0],
         lit_genes="../config/literature_genes.yaml"
     output: "../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg"
     resources:
@@ -432,7 +456,7 @@ rule unique_and_multi_biomarkers:
 
 
 rule boxplot_total_umi:
-    input: rules.raw_agg.output[0]
+    input: rules.raw_by_cluster_rep.output[0]
     output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi.svg"
     params: cluster_colors=colors_config["clusters"]
     resources:
@@ -450,7 +474,7 @@ def _y_genes(wildcards):
 
 
 rule boxplot_total_umi_y_genes:
-    input: rules.raw_agg.output[0]
+    input: rules.raw_by_cluster_rep.output[0]
     output: "../output/seurat3-cluster-wf/combined_n3_figures/boxplot-total-umi_y_genes.svg"
     params: 
         cluster_colors=colors_config["clusters"],

@@ -210,9 +210,25 @@ def feather_to_cluster_rep_matrix(fname):
     )
 
 
+def feather_to_cluster_matrix(fname):
+    """Helper function to building a cluster matrix from a feather"""
+    return (
+        pd.read_feather(fname)
+        .set_index(["FBgn", "cluster"])
+        .iloc[:, 0]
+        .unstack()
+    )
+
+
 def melt_cluster_rep_matrix(df, name="count"):
     """Helper function to melt a cluster rep matrix for saving as feather"""
     return df.T.reset_index().melt(id_vars=["cluster", "rep"], var_name="FBgn", value_name=name)
+    
+
+def melt_cluster_matrix(df, name="count"):
+    """Helper function to melt a cluster matrix for saving as feather"""
+    return df.T.reset_index().melt(id_vars="cluster", var_name="FBgn", value_name=name)
+
 
 
 class GffRow(object):
