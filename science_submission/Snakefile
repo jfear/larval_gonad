@@ -33,7 +33,7 @@ rule all:
         expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
         expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
         "../output/science_submission/figures/cluster-legend.svg",
-        "../output/science_submission/figures/heatmap-lit-gene-evidence.svg",
+        "../output/science_submission/figures/lit-gene-evidence.svg",
         expand(
             "../output/science_submission/figures/GvLPS_{direction}_biased_chrom_location.svg",
             direction=['G', 'LPS']
@@ -95,13 +95,14 @@ rule ptrap_gene_expression_patterns_panel:
     script: "scripts/gene_panels.py"
 
 
-rule plot_heatmap_lit_gene_evidence:
+rule plot_lit_gene_evidence:
     input:
          gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv'
-    output: "../output/science_submission/figures/heatmap-lit-gene-evidence.svg"
+         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
+         tpm_by_cluster="../output/seurat3-cluster-wf/tpm_by_cluster.feather"
+    output: "../output/science_submission/figures/lit-gene-evidence.svg"
     params: cmap=COLORS["heatmap"]
-    script: "scripts/plot_heatmap_lit_evidence.py"
+    script: "scripts/plot_lit_gene_evidence.py"
 
 
 rule ptrap_scores:
