@@ -14,21 +14,22 @@ from larval_gonad.plotting.stats import pval_to_string
 
 
 def main():
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=plt.figaspect(2), sharex=True, sharey=True)
+    plt.style.use(["2c", "science_base"])
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(4.75, 1.16), sharey=True, gridspec_kw=dict(wspace=0.01))
     ax1.set_ylim(None, 2.3)
 
     # S2
     s2 = get_data(snakemake.input[0], "S2")
-    sns.boxplot("chrom", "norm", data=s2, ax=ax1, palette=snakemake.params.colors)
-    ax1.set(xlabel="", ylabel="S2 Phospho CTD / Total Pol II\nNormalized Pixel Intensity")
+    sns.boxplot("chrom", "norm", data=s2, ax=ax1, palette=snakemake.params.colors, notch=True)
+    ax1.set(xlabel="", title="S2 Phospho CTD / Total Pol II", ylabel="Normalized Pixel Intensity")
     sns.despine(ax=ax1)
     pval = get_pval(s2)
     add_pval_and_line(pval, ax1)
 
     # S5
     s5 = get_data(snakemake.input[0], "S5")
-    sns.boxplot("chrom", "norm", data=s5, ax=ax2, palette=snakemake.params.colors)
-    ax2.set(xlabel="", ylabel="S5 Phospho CTD / Total Pol II\nNormalized Pixel Intensity")
+    sns.boxplot("chrom", "norm", data=s5, ax=ax2, palette=snakemake.params.colors, notch=True)
+    ax2.set(xlabel="", title="S5 Phospho CTD / Total Pol II", ylabel="")
     sns.despine(ax=ax2)
     pval = get_pval(s5)
     add_pval_and_line(pval, ax2)
