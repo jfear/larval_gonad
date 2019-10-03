@@ -100,7 +100,7 @@ rule plot_lit_gene_evidence:
     input:
          gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
          lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
-         tpm_by_cluster="../output/seurat3-cluster-wf/tpm_by_cluster.feather"
+         zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
     output: "../output/science_submission/figures/lit-gene-evidence.svg"
     params: cmap=COLORS["heatmap"]
     script: "scripts/plot_lit_gene_evidence.py"

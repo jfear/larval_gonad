@@ -3,17 +3,17 @@ import os
 import matplotlib.pyplot as plt
 
 from larval_gonad.config import read_config
-from larval_gonad.plotting.literature import plot_lit_evidence_profile
+from larval_gonad.plotting.literature import plot_lit_evidence_zscore_profile
 
 def main():
     plt.style.use("science_base")
 
     _, axes = plt.subplots(1, 2, figsize=(1.6, 3.4))
 
-    plot_lit_evidence_profile(
+    plot_lit_evidence_zscore_profile(
         gene_metadata=snakemake.input.gene_metadata,
         lit_evidence=snakemake.input.lit_evidence,
-        tpm_by_cluster=snakemake.input.tpm_by_cluster,
+        zscore_by_cluster_rep=snakemake.input.zscore_by_cluster_rep,
         germ_clusters=snakemake.config['germ'],
         axes=axes
     )
