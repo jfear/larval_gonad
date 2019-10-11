@@ -13,6 +13,12 @@ fbgn2symbol <- read_feather(
 # Load Combined Data
 load("../../output/seurat3-cluster-wf/combined_n3.Robj")
 
+# Run PCA
+pca <- combined@reductions$pca@cell.embeddings[, 1:2] %>%
+    as.data.frame() %>%
+    rownames_to_column("cell_id")
+write.table(pca, "../../output/plp-wf/pca.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
 # Trial List
 trial_fbgns <- read.table(
     "../../data/external/galletta/trial_list.txt",
