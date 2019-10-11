@@ -34,11 +34,47 @@ trial_symbols <- fbgn2symbol %>%
 # Pull out trial genes
 sobj <- subset(x = combined, features = trial_symbols)
 
-deg <- FindMarkers(sobj, "6", c("0", "2"), logfc.threshold = 0, min.pct = 0.01)
-
+# G vs All
+deg <- FindMarkers(sobj, "6", c("4", "0", "2"), logfc.threshold = 0, min.pct = 0.01)
 deg_clean <- as_tibble(deg %>% rownames_to_column("gene_symbol")) %>%
     left_join(fbgn2symbol) %>%
     select(FBgn, gene_symbol, p_val, p_val_adj, everything()) %>%
     arrange(desc(avg_logFC))
 
-write.table(deg_clean, file = "../../output/plp-wf/trial_list_deg.tsv", sep = "\t", quote = FALSE, row.names=FALSE)
+write.table(deg_clean, file = "../../output/plp-wf/trial_list_deg_gonia_vs_spermatocytes.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# G vs EPS
+deg <- FindMarkers(sobj, "6", "4", logfc.threshold = 0, min.pct = 0.01)
+deg_clean <- as_tibble(deg %>% rownames_to_column("gene_symbol")) %>%
+    left_join(fbgn2symbol) %>%
+    select(FBgn, gene_symbol, p_val, p_val_adj, everything()) %>%
+    arrange(desc(avg_logFC))
+
+write.table(deg_clean, file = "../../output/plp-wf/trial_list_deg_gonia_vs_eps.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# G vs MPS and LPS
+deg <- FindMarkers(sobj, "6", c("0", "2"), logfc.threshold = 0, min.pct = 0.01)
+deg_clean <- as_tibble(deg %>% rownames_to_column("gene_symbol")) %>%
+    left_join(fbgn2symbol) %>%
+    select(FBgn, gene_symbol, p_val, p_val_adj, everything()) %>%
+    arrange(desc(avg_logFC))
+
+write.table(deg_clean, file = "../../output/plp-wf/trial_list_deg_gonia_vs_mid_and_late.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# G vs MPS
+deg <- FindMarkers(sobj, "6", "0", logfc.threshold = 0, min.pct = 0.01)
+deg_clean <- as_tibble(deg %>% rownames_to_column("gene_symbol")) %>%
+    left_join(fbgn2symbol) %>%
+    select(FBgn, gene_symbol, p_val, p_val_adj, everything()) %>%
+    arrange(desc(avg_logFC))
+
+write.table(deg_clean, file = "../../output/plp-wf/trial_list_deg_gonia_vs_mid.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# G vs LPS
+deg <- FindMarkers(sobj, "6", "2", logfc.threshold = 0, min.pct = 0.01)
+deg_clean <- as_tibble(deg %>% rownames_to_column("gene_symbol")) %>%
+    left_join(fbgn2symbol) %>%
+    select(FBgn, gene_symbol, p_val, p_val_adj, everything()) %>%
+    arrange(desc(avg_logFC))
+
+write.table(deg_clean, file = "../../output/plp-wf/trial_list_deg_gonia_vs_late.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
