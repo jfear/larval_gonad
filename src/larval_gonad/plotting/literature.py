@@ -95,7 +95,7 @@ def plot_lit_evidence_soma_profile(
     gene_metadata: str,
     lit_evidence: str,
     tpm_by_cluster: str,
-    germ_clusters: list,
+    soma_clusters: list,
     axes: list = None,
 ):
     """Plot heatmap of evidence and expression patterns from the literature.
@@ -114,7 +114,7 @@ def plot_lit_evidence_soma_profile(
 
     """
     fbgn2symbol = get_fbgn2symbol(gene_metadata)
-    soma_evidence = _get_lit_evidence(lit_evidence)[["C", "EC", "MC", "LC", "PC", "TE", "H"]]
+    soma_evidence = _get_lit_evidence(lit_evidence)[["C", "EC", "MC", "LC", "PC", "TE"]]
     this_study = list(map(lambda x: fbgn2symbol[x], _genes_w_ptraps(lit_evidence)))
     binned_expression = _get_binned_expression(tpm_by_cluster)[soma_clusters]
     df = soma_evidence.join(binned_expression).rename(fbgn2symbol)
@@ -128,6 +128,47 @@ def plot_lit_evidence_soma_profile(
     sns.heatmap(data=df.iloc[:, :7], cmap=["#d3d3d3", "#450457", "#f8e621"], ax=ax1, **defaults)
     sns.heatmap(data=df.iloc[:, 7:], cmap=["#450457", "#ff7800", "#f8e621"], ax=ax2, **defaults)
     _cleanup_xaxis(ax1), _cleanup_yaxis(ax1, this_study)
+    _cleanup_xaxis(ax2), _cleanup_yaxis(ax2, this_study)
+    _add_legend(ax2)
+
+
+def plot_lit_evidence_zscore_soma_profile(
+    gene_metadata: str,
+    lit_evidence: str,
+    zscore_by_cluster_rep: str,
+    soma_clusters: list,
+    axes: list = None,
+):
+    """Plot heatmap of evidence and expression patterns from the literature.
+
+    Most of the evidence patterns are protein based.
+
+    Example
+    -------
+    >>> from larval_gonad.config import read_config
+    >>> config = read_config("config/common.yaml")
+    >>> gene_metadata = f"references/gene_annotation_dmel_{config['tag']}.feather"
+    >>> lit_evidence = "data/external/miriam/lit_gene_dummy_vars.tsv"
+    >>> zscore_by_cluster_rep = "output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    >>> soma_clusters = config["soma"]
+    >>> plot_lit_expression_soma_profile(gene_metadata, lit_evidence)
+
+    """
+    fbgn2symbol = get_fbgn2symbol(gene_metadata)
+    soma_evidence = _get_lit_evidence(lit_evidence)[["C", "EC", "MC", "LC", "PC", "TE"]]
+    this_study = list(map(lambda x: fbgn2symbol[x], _genes_w_ptraps(lit_evidence)))
+    zscore_expression = _get_zscore_expression(zscore_by_cluster_rep).loc[:, (soma_clusters, slice(None))]
+    df = soma_evidence.join(zscore_expression).rename(fbgn2symbol)
+
+    if axes is None:
+        _, (ax1, ax2) = plt.subplots(1, 2, figsize=(4, 8))
+    else:
+        ax1, ax2 = axes
+
+    defaults = dict(square=True, linewidths=0.01, linecolor="k", yticklabels=True, xticklabels=True, cbar=False)
+    sns.heatmap(data=df.iloc[:, 6:], cmap='viridis', vmin=-3, vmax=3, ax=ax1, **defaults)
+    sns.heatmap(data=df.iloc[:, :6], cmap=["#d3d3d3", "#450457", "#f8e621"], ax=ax2, **defaults)
+    _cleanup_xaxis_rep(ax1, soma_clusters), _cleanup_yaxis(ax1, this_study)
     _cleanup_xaxis(ax2), _cleanup_yaxis(ax2, this_study)
     _add_legend(ax2)
 
