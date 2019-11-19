@@ -15,18 +15,15 @@ SP_ES:            # spermatogonia and early 1º spermatocytes
   - FBgn0039044   # p53
   - FBgn0000158   # bam
   - FBgn0005672   # spi
+  - FBgn0250843   # Prosalpha6
   - FBgn0283442   # vas
   - FBgn0004581   # bgcn
-  - FBgn0051361   # dpr17
-  - FBgn0000146   # Aub
+  - FBgn0000146   # aub
   - FBgn0038089   # d-cup
+
+SP_ES_MS_LS:      # Gonia and Primary Spermatocytes
   - FBgn0000404   # CycA
   - FBgn0000405   # CycB
-
-ES:               # early 1º spermatocytes
-  - FBgn0250843   # Prosalpha6
-
-PS:               # 1º spermatocytes
   - FBgn0002842   # sa
   - FBgn0002673   # twe
   - FBgn0039124   # tbrd-1
@@ -48,16 +45,6 @@ PS:               # 1º spermatocytes
   - FBgn0010258   # Rbp4
   - FBgn0034435   # fest
   - FBgn0037751   # topi
-
-spermatids:
-  - FBgn0038225   # soti
-  - FBgn0037460   # sowi
-  - FBgn0031367   # c-cup
-  - FBgn0037502   # wa-cup
-  - FBgn0030840   # p-cup
-  - FBgn0031142   # r-cup
-
-LS:               # late 1º spermatocytes
   - FBgn0041102   # ocn
 
 EC:               # Early Cyst Cells
@@ -75,7 +62,7 @@ EC:               # Early Cyst Cells
   - FBgn0000546   # EcR
   - FBgn0243512   # puc
   - FBgn0014163   # fax
-  - FBgn0283451   # Br
+  - FBgn0283451   # br
   - FBgn0032451   # spict
   - FBgn0003366   # sev
   - FBgn0003460   # so
@@ -83,16 +70,9 @@ EC:               # Early Cyst Cells
 CY:               # Cyst Cells
   - FBgn0004872   # piwi
   - FBgn0000320   # eya
-  - FBgn0034408   # sano
   - FBgn0015399   # kek1
-  - FBgn0083963   # Nlg3
-  - FBgn0038180   # Cht5
-  - FBgn0243486   # rdo
 
 TE:               # Terminal epithelia
-  - FBgn0050418   # nord
-  - FBgn0000395   # cv-2
-  - FBgn0264953   # Piezo
   - FBgn0004647   # N
   - FBgn0000014   # abd-A
   - FBgn0000015   # Abd-B
@@ -100,11 +80,3 @@ TE:               # Terminal epithelia
 PC:               # Pigment cells
   - FBgn0024288   # Sox100B
   - FBgn0000576   # ems
-
-H:                # Hub
-  - FBgn0004956   # upd1
-  - FBgn0004644   # hh
-  - FBgn0264089   # slit
-  - FBgn0041184   # Socs36E
-  - FBgn0262169   # magu
-  - FBgn0000636   # Fas3
