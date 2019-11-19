@@ -1,58 +1,39 @@
-ptrap1:
-  # - FBgn0037015   # cmpy
-  # - FBgn0083981   # RunxA
-  - FBgn0005633   # fln
-  - FBgn0004575   # Syn
-  - FBgn0027598   # cindr
-  - FBgn0004885   # tok
-  - FBgn0000636   # Fas3
-  - FBgn0265487   # mbl
-  - FBgn0050418   # nord
-  - FBgn0264953   # Piezo
-  - FBgn0010473   # tutl
-  - FBgn0041182   # Tep2
-  - FBgn0083963   # Nlg3
-  - FBgn0038180   # Cht5
-  - FBgn0243486   # rdo
-  - FBgn0000416   # Sap-r
+ptraps:
+  - FBgn0026573   # ADD1
+  - FBgn0012037   # Ance
+  - FBgn0011206   # bol
+  - FBgn0037320   # CG14668
   - FBgn0264494   # CG17646
   - FBgn0039754   # CG9747
-  - FBgn0038197   # foxo
-  - FBgn0264975   # Nrg
-  - FBgn0039232   # sosie
-  - FBgn0011206   # bol
-  - FBgn0051361   # dpr17
-  - FBgn0037320   # CG14668
-
-ptrap2:
-  - FBgn0003475   # spir
-  - FBgn0011725   # twin
-  - FBgn0266521   # stai
-  - FBgn0012037   # Ance
-  - FBgn0051158   # Efa6
-  - FBgn0030520   # Pdcd4
-  - FBgn0026573   # ADD1
-  - FBgn0286813   # SRPK
-  - FBgn0039044   # p53
-  - FBgn0087008   # e(y)3
-  - FBgn0261885   # osa
+  - FBgn0038180   # Cht5
+  - FBgn0027598   # cindr
+  - FBgn0037015   # cmpy
   - FBgn0026533   # Dek
-  - FBgn0034282   # Mapmodulin
-  - FBgn0262743   # Fs(2)Ket
-
-selected:
-  - FBgn0050418   # nord
-  - FBgn0264953   # Piezo
-  - FBgn0243486   # rdo
-  - FBgn0041182   # Tep2
-  - FBgn0083963   # Nlg3
-  - FBgn0039044   # p53
-  - FBgn0011206   # bol
-
-main:
-  - FBgn0039044   # p53
-  - FBgn0264953   # Piezo
-  - FBgn0083963   # Nlg3
-  - FBgn0011206   # bol
-  - FBgn0243486   # rdo
+  - FBgn0051361   # dpr17
+  - FBgn0087008   # e(y)3
   - FBgn0051158   # Efa6
+  - FBgn0000636   # Fas3
+  - FBgn0005633   # fln
+  - FBgn0038197   # foxo
+  - FBgn0262743   # Fs(2)Ket
+  - FBgn0034282   # Mapmodulin
+  - FBgn0265487   # mbl
+  - FBgn0083963   # Nlg3
+  - FBgn0050418   # nord
+  - FBgn0264975   # Nrg
+  - FBgn0261885   # osa
+  - FBgn0039044   # p53
+  - FBgn0030520   # Pdcd4
+  - FBgn0264953   # Piezo
+  - FBgn0243486   # rdo
+  - FBgn0083981   # RunxA
+  - FBgn0000416   # Sap-r
+  - FBgn0039232   # sosie
+  - FBgn0003475   # spir
+  - FBgn0286813   # SRPK
+  - FBgn0266521   # stai
+  - FBgn0004575   # Syn
+  - FBgn0041182   # Tep2
+  - FBgn0004885   # tok
+  - FBgn0010473   # tutl
+  - FBgn0011725   # twin
