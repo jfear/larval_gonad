@@ -48,6 +48,10 @@ rule all:
             direction=['G', 'LPS']
         ),
         "../output/science_submission/figures/msci_panel.svg",
+        "../output/science_submission/lit_gene_validation_scores.tsv",
+        "../output/science_submission/lit_gene_validation_scores_summary.tsv",
+        "../output/science_submission/ptrap_validation_scores.tsv",
+        "../output/science_submission/ptrap_validation_scores_summary.tsv",
 
 
 ################################################################################
@@ -155,6 +159,7 @@ rule plot_GvLPS_expression_by_chrom:
     output: "../output/science_submission/figures/GvLPS_{direction}_expression_by_chrom.svg"
     script: "scripts/plot_GvLPS_expression_by_chrom.py"
 
+
 rule plot_msci_panel:
     input: 
         autosome_ratios='../output/x-to-a-wf/db/commonly_expressed.dat',
@@ -168,7 +173,30 @@ rule plot_msci_panel:
     script: "scripts/msci_panel.py"
 
 
+rule lit_gene_validation_score:
+    input: 
+        gene_annot = "../references/gene_annotation_dmel_r6-26.feather",
+        lit_genes = "../data/external/miriam/lit_gene_table.csv",
+        biomarkers = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        zscores = "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    output: 
+        table = "../output/science_submission/lit_gene_validation_scores.tsv",
+        summary = "../output/science_submission/lit_gene_validation_scores_summary.tsv",
+    params: cluster_annot=config["cluster_annot"]
+    script: "scripts/lit_gene_validation.py"
 
+
+rule ptrap_validation_score:
+    input: 
+        gene_annot = "../references/gene_annotation_dmel_r6-26.feather",
+        ptraps = "../data/external/miriam/ptrap_scores_by_rater.tsv",
+        biomarkers = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        zscores = "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    output: 
+        table = "../output/science_submission/ptrap_validation_scores.tsv",
+        summary = "../output/science_submission/ptrap_validation_scores_summary.tsv",
+    params: cluster_annot=config["cluster_annot"]
+    script: "scripts/ptrap_validation.py"
 
 
 

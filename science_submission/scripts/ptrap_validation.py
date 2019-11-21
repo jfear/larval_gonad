@@ -2,13 +2,10 @@
 
 This module houses the cell type validation code.
 """
-import os
 from functools import partial
 import numpy as np
 import pandas as pd
 
-from larval_gonad.config import read_config
-from larval_gonad.io import feather_to_cluster_rep_matrix
 from larval_gonad.validation import GeneValidator
 
 
@@ -18,20 +15,17 @@ def main():
         .set_index("FBgn")
         .squeeze()
     )
-    lit_genes = get_lit()
+    ptraps = get_ptraps()
     biomarkers = get_biomarkers()
     zscores = get_zscores()
 
+    protein = True
     res = []
-    for fbgn, lit_gene in lit_genes.iterrows():
-        if lit_gene.method == "protein":
-            protein = True
-        else:
-            protein = False
+    for fbgn, ptrap_gene in ptraps.items():
         gene_score = GeneValidator(
             fbgn,
-            lit_gene.expressed_in,
-            lit_gene.missing,
+            ptrap_gene,
+            set(),
             biomarkers.get(fbgn, set()),
             zscores.get(fbgn, set()),
             flag_protein=protein,
@@ -52,13 +46,34 @@ def main():
     )
 
 
-def get_lit():
+def cell_type_above_upper_quantile(x, n=3, name="zscore"):
+    x["flag_upper"] = x[name] > np.quantile(x[name], 0.75)
+    flag_cluster = x.groupby(["cluster"]).flag_upper.sum() == n
+    return set(flag_cluster[flag_cluster].index.tolist())
+
+
+def get_ptraps():
     return (
-        pd.read_csv(snakemake.input.lit_genes)
-        .set_index("FBgn")
-        .assign(expressed_in=lambda x: x.expressed_in.str.split("|").apply(lambda y: set(y)))
-        .assign(missing=lambda x: x.not_analyzed.fillna("").str.split("|").apply(lambda y: set(y)))
-        .loc[:, ["expressed_in", "missing", "method"]]
+        pd.read_csv(snakemake.input.ptraps, sep="\t", na_values='-')
+        .fillna(0)
+        .groupby("FBgn").mean()
+        # Fix column names
+        .assign(G=lambda x: x['Spermatogoina'])
+        .assign(EPS=lambda x: x['Early 1° Spermatocytes'])
+        .assign(MPS=lambda x: x['Mid 1° Spermatocytes'])
+        .assign(LPS=lambda x: x['Late 1° Spermatocytes'])
+        .assign(C1=lambda x: x['Cyst Cells'])
+        .assign(C2=lambda x: x['Cyst Cells'])
+        .assign(C3=lambda x: x['Cyst Cells'])
+        .assign(C4=lambda x: x['Cyst Cells'])
+        .assign(P=lambda x: x['Pigment Cells'])
+        .assign(T=lambda x: x['Terminal Epithelium'])
+        .loc[:, ["G", "EPS", "MPS", "LPS", "C1", "C2", "C3", "C4", "P", "T"]]
+        .reset_index()
+        # Figure out what cell types are in upper quantile
+        .melt(id_vars="FBgn", var_name="cluster", value_name="score")
+        .groupby("FBgn")
+        .apply(partial(cell_type_above_upper_quantile, n=1, name="score"))
     )
 
 
@@ -73,17 +88,11 @@ def get_biomarkers():
     )
 
 
-def cell_type_above_upper_quantile(x):
-    x["flag_upper"] = x.zscore > np.quantile(x.zscore, 0.75)
-    flag_cluster = x.groupby(["cluster"]).flag_upper.sum() == 3
-    return set(flag_cluster[flag_cluster].index.tolist())
-
-
 def get_zscores():
     return (
         pd.read_feather(snakemake.input.zscores)
         .groupby("FBgn")
-        .apply(cell_type_above_upper_quantile)
+        .apply(partial(cell_type_above_upper_quantile, n=3, name="zscore"))
         .rename("zscore")
     )
 
