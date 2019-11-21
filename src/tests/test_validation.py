@@ -9,10 +9,7 @@ from larval_gonad.validation import GeneValidator
         # Fours: Lit Gene matches BioMarkers
         ## in situ
         ({"G"}, set(), {"G"}, set(), False, 4),
-        ({"G"}, set(), {"G"}, {"G"}, False, 4),
-        ({"G"}, set(), {"G"}, {"G", "EPS"}, False, 4),
         ({"G", "EPS"}, set(), {"G", "EPS"}, set(), False, 4),
-        ({"G", "EPS"}, set(), {"G", "EPS"}, {"C1"}, False, 4),
         ({"G", "EPS"}, {"MPS", "EC"}, {"G", "EPS", "MPS"}, set(), False, 4),
         ## protein expression
         ({"G"}, set(), {"G"}, set(), True, 4),
@@ -26,7 +23,7 @@ from larval_gonad.validation import GeneValidator
         ## in situ
         ({"G"}, set(), set(), {"G"}, False, 3),
         ({"G", "EPS"}, set(), set(), {"G", "EPS"}, False, 3),
-        ({"G", "EPS"}, {"MPS"}, set(), {"G", "EPS", "MPS"}, False, 3),
+        ({"G", "EPS"}, {"MPS", "EC"}, set(), {"G", "EPS", "MPS"}, False, 3),
         ## protein expression
         ({"G"}, set(), set(), {"G"}, True, 3),
         ({"EPS"}, set(), set(), {"G"}, True, 3),
@@ -39,6 +36,8 @@ from larval_gonad.validation import GeneValidator
         ## in situ
         ({"G", "EPS"}, set(), {"G", "EPS", "MPS"}, set(), False, 2),
         ({"C1", "C4"}, set(), {"C1", "C2", "C3"}, set(), False, 2),
+        ({"EPS", "MPS", "LPS", "P"}, set(), {"EPS"},set(),  False, 2),
+
         ## protein expression
         ({"C1", "C2"}, set(), {"C1", "C2", "C3"}, set(), True, 2),
         ({"G", "EPS"}, set(), {"EPS", "MPS"}, set(), True, 2),
@@ -49,6 +48,7 @@ from larval_gonad.validation import GeneValidator
         ## in situ
         ({"G", "EPS"}, set(), set(), {"G", "EPS", "MPS"}, False, 1),
         ({"C1", "C4"}, set(), set(), {"C1", "C2", "C3"}, False, 1),
+        ({"EPS", "MPS", "LPS", "P"}, set(), set(), {"EPS"}, False, 1),
         ## protein expression
         ({"G", "EPS"}, set(), set(), {"G", "EPS", "MPS"}, True, 1),
 

@@ -89,15 +89,19 @@ class GeneValidator(object):
         """({Lit} subset {Germ} & {Biomarkers} subset {Germ}) or
            ({Lit} subset {Cyst} & {Biomarkers} subset {Cyst})
         """
-        if (
-            self.lit_gene.issubset(self.germ_lineage)
-            & self.biomarker.issubset(self.germ_lineage)
-            & bool(self.biomarker)
-        ) | (
-            self.lit_gene.issubset(self.cyst_lineage)
-            & self.biomarker.issubset(self.cyst_lineage)
-            & bool(self.biomarker)
-        ):
+        # Germ line
+        lit_lineage = self.lit_gene.intersection(self.germ_lineage)
+        biomarker_lineage = self.biomarker.intersection(self.germ_lineage)
+
+        if (lit_lineage != set()) & (biomarker_lineage != set()):
+            self.score = 2
+            return True
+
+        # Cyst line
+        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
+        biomarker_lineage = self.biomarker.intersection(self.cyst_lineage)
+
+        if (lit_lineage != set()) & (biomarker_lineage != set()):
             self.score = 2
             return True
 
@@ -106,7 +110,12 @@ class GeneValidator(object):
         if self.any_proceeds(self.lit_gene, self.biomarker, self.germ_lineage):
             self.score = 2
             return True
-        elif self.any_proceeds(self.lit_gene, self.biomarker, self.cyst_lineage):
+
+        # Cyst line
+        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
+        biomarker_lineage = self.biomarker.intersection(self.cyst_lineage)
+
+        if (lit_lineage != set()) & (biomarker_lineage != set()):
             self.score = 2
             return True
 
@@ -114,15 +123,19 @@ class GeneValidator(object):
         """({Lit} subset {Germ} & {q75(Zscores)} subset {Germ}) or
            ({Lit} subset {Cyst} & {q75(Zscores)} subset {Cyst})
         """
-        if (
-            self.lit_gene.issubset(self.germ_lineage)
-            & self.zscore.issubset(self.germ_lineage)
-            & bool(self.zscore)
-        ) | (
-            self.lit_gene.issubset(self.cyst_lineage)
-            & self.zscore.issubset(self.cyst_lineage)
-            & bool(self.zscore)
-        ):
+        # Germ line
+        lit_lineage = self.lit_gene.intersection(self.germ_lineage)
+        zscore_lineage = self.zscore.intersection(self.germ_lineage)
+
+        if (lit_lineage != set()) & (zscore_lineage != set()):
+            self.score = 1
+            return True
+
+        # Cyst line
+        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
+        zscore_lineage = self.zscore.intersection(self.cyst_lineage)
+
+        if (lit_lineage != set()) & (zscore_lineage != set()):
             self.score = 1
             return True
 
@@ -131,7 +144,12 @@ class GeneValidator(object):
         if self.any_proceeds(self.lit_gene, self.zscore, self.germ_lineage):
             self.score = 1
             return True
-        elif self.any_proceeds(self.lit_gene, self.zscore, self.cyst_lineage):
+
+        # Cyst line
+        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
+        zscore_lineage = self.zscore.intersection(self.cyst_lineage)
+
+        if (lit_lineage != set()) & (zscore_lineage != set()):
             self.score = 1
             return True
 
