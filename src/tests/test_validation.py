@@ -34,6 +34,7 @@ from larval_gonad.validation import GeneValidator
         ({"C2"}, set(), {"C1"}, set(), True, 2),
         ({"C1", "C2"}, set(), {"C1", "C2", "C3"}, set(), True, 2),
         ({"EPS", "MPS", "LPS"}, set(), {"G", "EPS"}, set(), True, 2),
+        ({"G", "EPS"}, set(), {"EPS", "MPS"}, set(), True, 2),
         # Ones: Lit Gene matches Lineage Zscores
         ## in situ
         ({"G", "EPS"}, set(), set(), {"G", "EPS", "MPS"}, False, 1),
