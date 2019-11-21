@@ -18,16 +18,44 @@ except:
     pass
 
 
-
 def main():
     cluster_annot = read_config("../../config/common.yaml")["cluster_annot"]
+    fbgn2symbol = (
+        pd.read_feather(
+            "../../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "gene_symbol"]
+        )
+        .set_index("FBgn")
+        .squeeze()
+    )
     lit_genes = get_lit()
     biomarkers = get_biomarkers()
     zscores = get_zscores()
 
-    for fbgn, lit_gene in lit_genes.items():
-        gene_score = GeneValidator(fbgn, "ISH", lit_gene.expressed_in, lit_gene.missing, biomarkers, zscores)
-        print(gene_score)
+    res = []
+    for fbgn, lit_gene in lit_genes.iterrows():
+        if lit_gene.method == "protein":
+            protein = True
+        else:
+            protein = False
+        gene_score = GeneValidator(
+            fbgn,
+            lit_gene.expressed_in,
+            lit_gene.missing,
+            biomarkers.get(fbgn, set()),
+            zscores.get(fbgn, set()),
+            flag_protein=protein,
+        )
+        res.append(
+            [fbgn, gene_score.lit_gene, gene_score.biomarker, gene_score.zscore, gene_score.score]
+        )
+    df = (
+        pd.DataFrame(res, columns=["FBgn", "literature", "Biomarker", "Zscore", "Score"])
+        .fillna(0)
+        .set_index("FBgn")
+        .join(fbgn2symbol)
+        .set_index("gene_symbol", append=True)
+    )
+    df.Score.value_counts()
 
 
 def get_lit():
@@ -35,8 +63,8 @@ def get_lit():
         pd.read_csv("../../data/external/miriam/lit_gene_table.csv")
         .set_index("FBgn")
         .assign(expressed_in=lambda x: x.expressed_in.str.split("|").apply(lambda y: set(y)))
-        .assign(missing=lambda x: x.not_analyzed.str.split("|").apply(lambda y: set(y)))
-        .rename("lit")
+        .assign(missing=lambda x: x.not_analyzed.fillna("").str.split("|").apply(lambda y: set(y)))
+        .loc[:, ["expressed_in", "missing", "method"]]
     )
 
 
