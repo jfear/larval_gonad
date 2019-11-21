@@ -21,7 +21,7 @@ def main():
 
     protein = True
     res = []
-    for fbgn, ptrap_gene in ptraps.items():
+    for (fbgn, ptrap_id), ptrap_gene in ptraps.items():
         gene_score = GeneValidator(
             fbgn,
             ptrap_gene,
@@ -31,10 +31,19 @@ def main():
             flag_protein=protein,
         )
         res.append(
-            [fbgn, gene_score.lit_gene, gene_score.biomarker, gene_score.zscore, gene_score.score]
+            [
+                fbgn,
+                ptrap_id,
+                gene_score.lit_gene,
+                gene_score.biomarker,
+                gene_score.zscore,
+                gene_score.score,
+            ]
         )
     df = (
-        pd.DataFrame(res, columns=["FBgn", "literature", "Biomarker", "Zscore", "Score"])
+        pd.DataFrame(
+            res, columns=["FBgn", "ptrap_id", "ptrap_cell_types", "Biomarker", "Zscore", "Score"]
+        )
         .fillna(0)
         .set_index("FBgn")
         .join(fbgn2symbol)
@@ -53,27 +62,19 @@ def cell_type_above_upper_quantile(x, n=3, name="zscore"):
 
 
 def get_ptraps():
-    return (
+    df = (
         pd.read_csv(snakemake.input.ptraps, sep="\t", na_values='-')
         .fillna(0)
-        .groupby("FBgn").mean()
-        # Fix column names
-        .assign(G=lambda x: x['Spermatogoina'])
-        .assign(EPS=lambda x: x['Early 1° Spermatocytes'])
-        .assign(MPS=lambda x: x['Mid 1° Spermatocytes'])
-        .assign(LPS=lambda x: x['Late 1° Spermatocytes'])
-        .assign(C1=lambda x: x['Cyst Cells'])
-        .assign(C2=lambda x: x['Cyst Cells'])
-        .assign(C3=lambda x: x['Cyst Cells'])
-        .assign(C4=lambda x: x['Cyst Cells'])
-        .assign(P=lambda x: x['Pigment Cells'])
-        .assign(T=lambda x: x['Terminal Epithelium'])
-        .loc[:, ["G", "EPS", "MPS", "LPS", "C1", "C2", "C3", "C4", "P", "T"]]
-        .reset_index()
-        # Figure out what cell types are in upper quantile
-        .melt(id_vars="FBgn", var_name="cluster", value_name="score")
-        .groupby("FBgn")
-        .apply(partial(cell_type_above_upper_quantile, n=1, name="score"))
+        .set_index(["FBgn", "gene_symbol", "ptrap_id"])
+    )
+
+    return (
+        pd.DataFrame(
+            [(*idx, set(dd[dd == dd.max()].index.values.tolist())) for idx, dd in df.iterrows()],
+            columns=["FBgn", "gene_symbol", "ptrap_id", "cell_types"],
+        )
+        .set_index(["FBgn", "ptrap_id"])
+        .cell_types.squeeze()
     )
 
 

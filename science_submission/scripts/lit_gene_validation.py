@@ -37,10 +37,10 @@ def main():
             flag_protein=protein,
         )
         res.append(
-            [fbgn, gene_score.lit_gene, gene_score.biomarker, gene_score.zscore, gene_score.score]
+            [fbgn, protein, gene_score.lit_gene, gene_score.biomarker, gene_score.zscore, gene_score.score]
         )
     df = (
-        pd.DataFrame(res, columns=["FBgn", "literature", "Biomarker", "Zscore", "Score"])
+        pd.DataFrame(res, columns=["FBgn", "flag_protein", "literature", "Biomarker", "Zscore", "Score"])
         .fillna(0)
         .set_index("FBgn")
         .join(fbgn2symbol)
