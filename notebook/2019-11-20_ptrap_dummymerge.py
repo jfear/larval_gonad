@@ -53,18 +53,13 @@ zscores = (
 )
 
 #%%
-pscores = (
-    pd.read_csv("../data/external/miriam/ptrap_scores_by_rater.tsv", sep="\t", na_values="-")
-    .groupby(["FBgn", "ptrap_id"])
-    .mean()
-)
-pscores.columns = ["G", "EPS", "MPS", "LPS", "C", "P", "T"]
+pscores = pd.read_csv("../data/external/miriam/ptrap_scores_2019-11-10.tsv", sep="\t", na_values="-").set_index("FBgn")
 
 
 #%%
 df = (
-    biomarkers.join(fbgn2symbol, how="left").join(zscores, how="left")
-    .merge(pscores.reset_index(), left_on="FBgn", right_on="FBgn")
-    .set_index(["FBgn", "ptrap_id"])
+    biomarkers.join(zscores, how="left")
+    .merge(pscores.reset_index(), left_on="FBgn", right_on="FBgn", how="right")
+    .set_index(["FBgn", "gene_symbol", "ptrap_id"])
 )
 df.to_csv("../output/notebook/2019-11-20_ptrap_scores.tsv", sep="\t")
