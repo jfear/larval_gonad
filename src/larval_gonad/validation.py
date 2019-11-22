@@ -56,7 +56,7 @@ class GeneValidator(object):
             return True
 
     def lvl1_protein(self):
-        """{Lit} == {Biomarkers} or {Biomarkers} less than"""
+        """{Lit} == {Biomarkers} or {Biomarkers} less than or equal to {Lit}"""
         if self.lit_gene == self.non_missing_biomarker:
             self.score = 4
             return True
@@ -74,7 +74,7 @@ class GeneValidator(object):
             return True
 
     def lvl2_protein(self):
-        """{Lit} == {q75(Zscores)} or {q75(Zscores)} less than"""
+        """{Lit} == {q75(Zscores)} or {q75(Zscores)} less than or equal to {Lit}"""
         if self.lit_gene == self.non_missing_zscore:
             self.score = 3
             return True
@@ -89,33 +89,24 @@ class GeneValidator(object):
         """({Lit} subset {Germ} & {Biomarkers} subset {Germ}) or
            ({Lit} subset {Cyst} & {Biomarkers} subset {Cyst})
         """
-        # Germ line
-        lit_lineage = self.lit_gene.intersection(self.germ_lineage)
-        biomarker_lineage = self.biomarker.intersection(self.germ_lineage)
-
-        if (lit_lineage != set()) & (biomarker_lineage != set()):
+        if self.any_match_lineage(self.lit_gene, self.biomarker, self.germ_lineage):
             self.score = 2
             return True
 
-        # Cyst line
-        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
-        biomarker_lineage = self.biomarker.intersection(self.cyst_lineage)
-
-        if (lit_lineage != set()) & (biomarker_lineage != set()):
+        if self.any_match_lineage(self.lit_gene, self.biomarker, self.cyst_lineage):
             self.score = 2
             return True
 
     def lvl3_protein(self):
-        """Gene expression proceeds in the lineage."""
+        """[({Lit} subset {Germ} & {Biomarkers} subset {Germ}) and 
+            ({Biomarkers} proceeds or equal to {Lit})] or
+           ({Lit} subset {Cyst} & {Biomarkers} subset {Cyst})
+        """
         if self.any_proceeds(self.lit_gene, self.biomarker, self.germ_lineage):
             self.score = 2
             return True
 
-        # Cyst line
-        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
-        biomarker_lineage = self.biomarker.intersection(self.cyst_lineage)
-
-        if (lit_lineage != set()) & (biomarker_lineage != set()):
+        if self.any_match_lineage(self.lit_gene, self.biomarker, self.cyst_lineage):
             self.score = 2
             return True
 
@@ -123,33 +114,24 @@ class GeneValidator(object):
         """({Lit} subset {Germ} & {q75(Zscores)} subset {Germ}) or
            ({Lit} subset {Cyst} & {q75(Zscores)} subset {Cyst})
         """
-        # Germ line
-        lit_lineage = self.lit_gene.intersection(self.germ_lineage)
-        zscore_lineage = self.zscore.intersection(self.germ_lineage)
-
-        if (lit_lineage != set()) & (zscore_lineage != set()):
+        if self.any_match_lineage(self.lit_gene, self.zscore, self.germ_lineage):
             self.score = 1
             return True
 
-        # Cyst line
-        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
-        zscore_lineage = self.zscore.intersection(self.cyst_lineage)
-
-        if (lit_lineage != set()) & (zscore_lineage != set()):
+        if self.any_match_lineage(self.lit_gene, self.zscore, self.cyst_lineage):
             self.score = 1
             return True
 
     def lvl4_protein(self):
-        """Gene expression any_proceeds in the lineage."""
+        """[({Lit} subset {Germ} & {Zscore} subset {Germ}) and 
+            ({Zscore} proceeds or equal to {Lit})] or
+           ({Lit} subset {Cyst} & {Zscore} subset {Cyst})
+        """
         if self.any_proceeds(self.lit_gene, self.zscore, self.germ_lineage):
             self.score = 1
             return True
 
-        # Cyst line
-        lit_lineage = self.lit_gene.intersection(self.cyst_lineage)
-        zscore_lineage = self.zscore.intersection(self.cyst_lineage)
-
-        if (lit_lineage != set()) & (zscore_lineage != set()):
+        if self.any_match_lineage(self.lit_gene, self.zscore, self.cyst_lineage):
             self.score = 1
             return True
 
@@ -169,23 +151,31 @@ class GeneValidator(object):
                 return True
         return False
 
+    def any_match_lineage(self, cell_types1, cell_types2, lineage):
+        cell_types1_lineage = cell_types1.intersection(lineage)
+        cell_types2_lineage = cell_types2.intersection(lineage)
+
+        if (cell_types1_lineage != set()) & (cell_types2_lineage != set()):
+            return True
+
     def all_proceeds(self, protein_cell_types, cell_types, lineage):
         """Check if all cell types proceed or are the same as the protein index."""
         protein_lineage = protein_cell_types.intersection(lineage)
         rna_lineage = cell_types.intersection(lineage)
 
         if (protein_lineage == set()) | (rna_lineage == set()):
-            return 
+            return
 
-        _rna_before_protein = np.array([
-            self.rna_proceeds_any(rna, protein_lineage, lineage)
-            for rna in rna_lineage
-        ])
+        _rna_before_protein = np.array(
+            [self.rna_proceeds_any(rna, protein_lineage, lineage) for rna in rna_lineage]
+        )
 
-        _protein_before_rna = np.array([
-            self.protein_proceeds_any(rna_lineage, protein, lineage)
-            for protein in protein_lineage
-        ])
+        _protein_before_rna = np.array(
+            [
+                self.protein_proceeds_any(rna_lineage, protein, lineage)
+                for protein in protein_lineage
+            ]
+        )
 
         if np.all(_rna_before_protein) and not np.all(_protein_before_rna):
             return True
@@ -196,17 +186,18 @@ class GeneValidator(object):
         rna_lineage = cell_types.intersection(lineage)
 
         if (protein_lineage == set()) | (rna_lineage == set()):
-            return 
+            return
 
-        _rna_before_protein = np.array([
-            self.rna_proceeds_any(rna, protein_lineage, lineage)
-            for rna in rna_lineage
-        ])
+        _rna_before_protein = np.array(
+            [self.rna_proceeds_any(rna, protein_lineage, lineage) for rna in rna_lineage]
+        )
 
-        _protein_before_rna = np.array([
-            self.protein_proceeds_any(rna_lineage, protein, lineage)
-            for protein in protein_lineage
-        ])
+        _protein_before_rna = np.array(
+            [
+                self.protein_proceeds_any(rna_lineage, protein, lineage)
+                for protein in protein_lineage
+            ]
+        )
 
         if np.any(_rna_before_protein):
             return True
