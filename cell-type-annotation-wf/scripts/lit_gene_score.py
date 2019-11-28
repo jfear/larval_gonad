@@ -1,14 +1,7 @@
-"""Cell type validation code.
-
-This module houses the cell type validation code.
-"""
-import os
-from functools import partial
+"""Literature Gene Cell Type Score"""
 import numpy as np
 import pandas as pd
 
-from larval_gonad.config import read_config
-from larval_gonad.io import feather_to_cluster_rep_matrix
 from larval_gonad.validation import GeneValidator
 
 
@@ -37,10 +30,19 @@ def main():
             flag_protein=protein,
         )
         res.append(
-            [fbgn, protein, gene_score.lit_gene, gene_score.biomarker, gene_score.zscore, gene_score.score]
+            [
+                fbgn,
+                protein,
+                gene_score.lit_gene,
+                gene_score.biomarker,
+                gene_score.zscore,
+                gene_score.score,
+            ]
         )
     df = (
-        pd.DataFrame(res, columns=["FBgn", "flag_protein", "literature", "Biomarker", "Zscore", "Score"])
+        pd.DataFrame(
+            res, columns=["FBgn", "flag_protein", "literature", "Biomarker", "Zscore", "Score"]
+        )
         .fillna(0)
         .set_index("FBgn")
         .join(fbgn2symbol)

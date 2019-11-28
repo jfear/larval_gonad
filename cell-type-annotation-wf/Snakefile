@@ -1,0 +1,40 @@
+"""Workflow to score scRNA-Seq annotation compatability with Literature and Protein Trap expression"""
+
+workdir: "."
+configfile: "../config/common.yaml"
+
+ASSEMBLY = config["assembly"]
+TAG = config["tag"]
+
+rule all:
+    input: 
+        "../output/cell-type-annotation-wf/lit_gene_scores.tsv",
+        "../output/cell-type-annotation-wf/lit_gene_scores_summary.tsv",
+        "../output/cell-type-annotation-wf/ptrap_scores.tsv",
+        "../output/cell-type-annotation-wf/ptrap_scores_summary.tsv",
+
+
+rule lit_gene_score:
+    input: 
+        gene_annot = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        lit_genes = "../data/external/miriam/lit_gene_table.csv",
+        biomarkers = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        zscores = "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    output: 
+        table = "../output/cell-type-annotation-wf/lit_gene_scores.tsv",
+        summary = "../output/cell-type-annotation-wf/lit_gene_scores_summary.tsv",
+    params: cluster_annot=config["cluster_annot"]
+    script: "scripts/lit_gene_score.py"
+
+
+rule ptrap_score:
+    input: 
+        gene_annot = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        ptraps = "../data/external/miriam/ptrap_scores_2019-11-10.tsv",
+        biomarkers = "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        zscores = "../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    output: 
+        table = "../output/cell-type-annotation-wf/ptrap_scores.tsv",
+        summary = "../output/cell-type-annotation-wf/ptrap_scores_summary.tsv",
+    params: cluster_annot=config["cluster_annot"]
+    script: "scripts/ptrap_score.py"

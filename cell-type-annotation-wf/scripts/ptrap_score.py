@@ -1,7 +1,5 @@
-"""Cell type validation code.
+"""Protein Trap Gene Cell Type Score"""
 
-This module houses the cell type validation code.
-"""
 from functools import partial
 import numpy as np
 import pandas as pd
@@ -63,7 +61,7 @@ def cell_type_above_upper_quantile(x, n=3, name="zscore"):
 
 def get_ptraps():
     df = (
-        pd.read_csv(snakemake.input.ptraps, sep="\t", na_values='-')
+        pd.read_csv(snakemake.input.ptraps, sep="\t", na_values="-")
         .fillna(0)
         .set_index(["FBgn", "gene_symbol", "ptrap_id"])
     )
