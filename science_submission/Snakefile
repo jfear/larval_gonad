@@ -1,6 +1,4 @@
-"""Scrip to generate figures and needed material for the Science Submssion.
-
-"""
+"""Scrip to generate figures and needed material for the Science Submssion"""
 import os
 import yaml
 from pathlib import Path
@@ -28,10 +26,10 @@ wildcard_constraints:
 
 rule all:
     input: 
-        expand("../output/science_submission/figures/lit_genes_umap_panel_{group}.svg", group=LIT_GENES.keys()),
-        expand("../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg", group=PTRAP_GENES.keys()),
-        expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
-        expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
+        # expand("../output/science_submission/figures/lit_genes_umap_panel_{group}.svg", group=LIT_GENES.keys()),
+        # expand("../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg", group=PTRAP_GENES.keys()),
+        # expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
+        # expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/lit-gene-evidence.svg",
         "../output/science_submission/figures/lit-gene-evidence_soma.svg",
@@ -48,6 +46,7 @@ rule all:
             direction=['G', 'LPS']
         ),
         "../output/science_submission/figures/msci_panel.svg",
+        "../output/science_submission/biomarkers.tsv"
 
 
 ################################################################################
@@ -115,14 +114,6 @@ rule plot_lit_gene_evidence_soma:
     output: "../output/science_submission/figures/lit-gene-evidence_soma.svg"
     params: cmap=COLORS["heatmap"]
     script: "scripts/plot_lit_gene_evidence_soma.py"
-
-
-rule plot_heatmap_ptrap_scores:
-    input: 
-        ptrap = rules.ptrap_scores.output[0],
-        gene_annot = "../references/gene_annotation_dmel_r6-26.feather"
-    output: "../output/science_submission/figures/heatmap-ptrap-scores.svg"
-    script: "scripts/plot_heatmap_ptrap_scores.py"
 
 
 rule plot_deg_chrom_locs:
@@ -225,3 +216,15 @@ rule zscores_by_celltype_to_tsv:
             values="zscore",
             aggfunc="first"
         ).to_csv(output[0], sep="\t")
+
+rule biomarkers_to_tsv:
+    input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output: "../output/science_submission/biomarkers.tsv"
+    params: cluster_annot = config["cluster_annot"]
+    run:
+        (
+            pd.read_feather(input[0])
+            .assign(cluster=lambda x: x.cluster.map(lambda y: params.cluster_annot[y]))
+            .to_csv(output[0], index=False, sep="\t")
+        )
+    
