@@ -46,7 +46,8 @@ rule all:
             direction=['G', 'LPS']
         ),
         "../output/science_submission/figures/msci_panel.svg",
-        "../output/science_submission/biomarkers.tsv"
+        "../output/science_submission/biomarkers.tsv",
+        "../output/science_submission/figures/ptrap_expression_panel.svg"
 
 
 ################################################################################
@@ -154,6 +155,14 @@ rule plot_msci_panel:
     output: "../output/science_submission/figures/msci_panel.svg"
     script: "scripts/msci_panel.py"
 
+rule plot_ptrap_panel:
+    input:
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/ptrap_expression_panel.svg"
+    script: "scripts/ptrap_expression_panel.py"
 
 ################################################################################
 # Tables
