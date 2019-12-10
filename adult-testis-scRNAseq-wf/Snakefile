@@ -72,7 +72,7 @@ rule cellranger:
     && $HOME/opt/cellranger-3.0.2/cellranger count \
         --id={wildcards.sample} \
         --transcriptome={params.refdir} \
-        --fastqs=$(dirname {input.r1})} \
+        --fastqs=$(dirname {input.r1}) \
         --sample={wildcards.sample} \
         --localcores={threads} \
         --localmem={resources.mem_gb} 
