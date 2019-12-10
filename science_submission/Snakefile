@@ -47,7 +47,8 @@ rule all:
         ),
         "../output/science_submission/figures/msci_panel.svg",
         "../output/science_submission/biomarkers.tsv",
-        "../output/science_submission/figures/ptrap_expression_panel.svg"
+        "../output/science_submission/figures/ptrap_expression_panel.svg",
+        "../output/science_submission/figures/chrom_counts_panel.svg"
 
 
 ################################################################################
@@ -163,6 +164,17 @@ rule plot_ptrap_panel:
         norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
     output: "../output/science_submission/figures/ptrap_expression_panel.svg"
     script: "scripts/ptrap_expression_panel.py"
+
+rule plot_chrom_count_panel:
+    input: 
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+        adult_sc_agg="",
+        adult_sc_by_class="",
+    output: "../output/science_submission/figures/chrom_counts_panel.svg"
+    script: "scripts/plot_chrom_counts_panel.py"
 
 ################################################################################
 # Tables
