@@ -1,0 +1,79 @@
+"""Adult Testis scRNA-Seq Workflow
+
+Data is from:
+    Witt, Evan, Sigi Benjamin, Nicolas Svetec, and Li Zhao. 2019. “Testis
+    Single-Cell RNA-Seq Reveals the Dynamics of de Novo Gene Transcription and
+    Germline Mutational Bias in Drosophila.” eLife 8 (August).
+    https://doi.org/10.7554/eLife.47138.
+
+Available at:
+SRR9705086: Ral517
+SRR9700117: "wild strain"
+"""
+import yaml
+from pathlib import Path
+
+import pandas as pd
+from snakemake.rules import expand
+
+from larval_gonad.config import read_config
+
+configfile: "../config/common.yaml"
+
+# Build References
+sample_table = pd.DataFrame(dict(srr=["SRR9705086", "SRR9700117"], sample=["Ral517", "wild"]))
+
+
+ASSEMBLY = config["assembly"]
+TAG = config["tag"]
+
+
+rule all:
+    input: 
+        expand("../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam", sample=sample_table["sample"])
+
+
+################################################################################
+# Download Data
+################################################################################
+rule fq_dump:
+    output:
+        r1="../output/adult-testis-scRNAseq-wf/{sample}/fqs/{sample}_S1_L001_R1_001.fastq.gz",
+        r2="../output/adult-testis-scRNAseq-wf/{sample}/fqs/{sample}_S1_L001_R2_001.fastq.gz"
+    params: srr=lambda wildcards: sample_table.query(f"sample == '{wildcards.sample}'").srr.values[0]
+    conda: "config/sratools.yaml"
+    shell: """
+    ODIR=$(dirname {output.r1}) \
+    && fastq-dump --gzip -O $ODIR --split-3 {params.srr} \
+    && mv $ODIR/{params.srr}_1.fastq.gz {output.r1} \
+    && mv $ODIR/{params.srr}_2.fastq.gz {output.r2}
+    """
+
+
+################################################################################
+# Align and Process
+################################################################################
+rule cellranger:
+    input: 
+        ref=f"../references/cellranger3/{ASSEMBLY}{TAG}/star/SA",
+        r1=rules.fq_dump.output[0],
+        r2=rules.fq_dump.output[1]
+    output: "../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam"
+    params:
+        refdir = Path(f"../references/cellranger3/{ASSEMBLY}{TAG}").absolute().as_posix(),
+        outdir = Path("../output/adult-testis-scRNAseq-wf").absolute().as_posix()
+    threads: 16
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 25,
+        time_hr=lambda wildcards, attempt: attempt * 24
+    shell: """
+    cd {params.outdir} \
+    && rm -rf {wildcards.sample} \
+    && $HOME/opt/cellranger-3.0.2/cellranger count \
+        --id={wildcards.sample} \
+        --transcriptome={params.refdir} \
+        --fastqs=$(dirname {input.r1})} \
+        --sample={wildcards.sample} \
+        --localcores={threads} \
+        --localmem={resources.mem_gb} 
+    """
