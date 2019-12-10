@@ -51,7 +51,7 @@ rule fq_dump:
 
 
 ################################################################################
-# Align and Process
+# Align and Count
 ################################################################################
 rule cellranger:
     input: 
@@ -77,3 +77,52 @@ rule cellranger:
         --localcores={threads} \
         --localmem={resources.mem_gb} 
     """
+
+################################################################################
+# Cluster Cells
+################################################################################
+rule seurat:
+    input:
+        rmd = "scripts/{sample}.Rmd"
+    output: 
+        html = "../output/adult-testis-scRNAseq-wf/{sample}.html",
+    conda: "../envs/seurat3.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: "../scripts/rscript.py"
+
+
+rule dump_robj:
+    input: 
+        html = "../output/adult-testis-scRNAseq-wf/{sample}.html",
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: 
+        norm = "../output/adult-testis-scRNAseq-wf/{sample}_normalized.feather",
+        metadata = "../output/adult-testis-scRNAseq-wf/{sample}_metadata.feather",
+        pca_embed = "../output/adult-testis-scRNAseq-wf/{sample}_pca_cell_embedings.feather",
+        pca_load = "../output/adult-testis-scRNAseq-wf/{sample}_pca_gene_loadings.feather",
+        umap = "../output/adult-testis-scRNAseq-wf/{sample}_umap.feather",
+    params:
+        # TODO: Add resolution
+        integrated_resolution = ""
+    conda: "../envs/seurat3.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: "scripts/dump.R"
+
+
+rule biomarkers:
+    input: 
+        html = "../output/adult-testis-scRNAseq-wf/{sample}.html",
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+    output: 
+        tsv = "../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.tsv",
+        feather = "../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.feather"
+    conda: "../envs/seurat3.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: "scripts/combined_biomarkers.R"
+

@@ -1,0 +1,327 @@
+---
+title: Seurat3 Ral517 Clustering
+author: Justin Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+    html_document:
+        self_contained: TRUE
+        keep_md: TRUE
+---
+
+## Ral517
+
+Here I explore clustering using Seurat v3 for clustering.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    warning = FALSE,
+    message = FALSE,
+    include = TRUE,
+    echo = FALSE,
+    cache.lazy = FALSE,
+    fig.path = "Ral517_figures/",
+    dev = c("png", "svg"),
+    fig.width = 8
+)
+```
+
+```{r load_libraries}
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+set.seed(42)
+```
+
+```{r globals}
+SAMPLE <- "Ral517"
+RESOLUTIONS <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
+SEL_RESOLUTION <- "RNA_snn_res.0.8"
+PCA_DIMS <- 1:9
+
+PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
+DATA_DIR <- file.path(PROJ_DIR, paste0("output/adult-testis-scRNAseq-wf/", SAMPLE))
+OUTDIR <- file.path(PROJ_DIR, "output/adult-testis-scRNAseq-wf")
+
+GENE_ANNOTATION <- file.path(PROJ_DIR, "references/gene_annotation_dmel_r6-26.feather")
+LITERATURE_GENES <- file.path(PROJ_DIR, "config/literature_genes.yaml")
+```
+
+```{r load_gene_annotations}
+fbgn2symbol <- feather::read_feather(
+    GENE_ANNOTATION,
+    columns = c("FBgn", "gene_symbol")
+)
+```
+
+```{r load_10x_data}
+tenx <- Read10X(data.dir = DATA_DIR, gene.column = 2)
+sobj <- CreateSeuratObject(
+    counts = tenx,
+    min.cells = 3,
+    project = SAMPLE
+)
+```
+
+### Normalize Data
+
+```{r normalize}
+sobj <- NormalizeData(
+    sobj,
+    normalization.method = "LogNormalize",
+    scale.factor = 1e4,
+    verbose = FALSE
+)
+```
+
+```{r find_variable_genes, echo=TRUE}
+sobj <- FindVariableFeatures(
+    sobj,
+    selection.method = "vst",
+    nfeatures = 2000,
+    verbose = FALSE
+)
+
+top20 <- head(VariableFeatures(sobj), 20)
+```
+
+```{r scatter_variable_genes, fig.width=8}
+p1 <- VariableFeaturePlot(sobj)
+p2 <- LabelPoints(plot = p1, points = top20, repel = TRUE)
+print(p2)
+```
+
+### Scale Data
+
+```{r scale_data, echo=TRUE}
+all_genes <- rownames(sobj)
+
+sobj <- ScaleData(
+    sobj,
+    features = all_genes,
+    vars.to.regress = "nCount_RNA",
+    verbose = FALSE
+)
+```
+
+### Dimensionality Reduction
+
+```{r dim_reduction}
+sobj <- RunPCA(
+    sobj,
+    features = VariableFeatures(sobj),
+    verbose = FALSE
+)
+```
+
+#### Dimensional Gene Loadings
+
+```{r dotplot_pcs, fig.wdith=12, fig.height=12}
+VizDimLoadings(sobj, dims = 1:4, reduction = "pca", ncol = 2)
+```
+
+#### Top Genes Heatmap
+
+```{r heatmap_pca, fig.height=20}
+DimHeatmap(sobj, dims = 1:15, balanced = TRUE)
+```
+
+#### JackStraw
+
+```{r run_jackstraw}
+sobj <- JackStraw(sobj, num.replicate = 100, dims = 30, verbose = FALSE)
+sobj <- ScoreJackStraw(sobj, dims = 1:30)
+```
+
+```{r jackstraw_pca, fig.width=8, fig.heights=12}
+p1 <- JackStrawPlot(sobj, dims = 1:30)
+p2 <- JackStrawPlot(sobj, dims = PCA_DIMS)
+CombinePlots(plots = list(p1, p2), ncol = 1)
+```
+
+#### Elbow Plot
+
+```{r elbow_pca}
+ElbowPlot(sobj)
+```
+
+#### Dimension Selection 
+
+
+### Clustering 
+
+```{r run_clustering}
+sobj <- FindNeighbors(sobj, dims = PCA_DIMS)
+sobj <- FindClusters(sobj, resolution = RESOLUTIONS, verbose = FALSE)
+
+diff_res <- sobj@meta.data %>% select(contains("res"))
+for (i in 1:dim(diff_res)[[2]]){
+    res <- diff_res[, i]
+    name <- colnames(diff_res)[[i]]
+    lvls <- levels(res)
+    print(paste0(name, ":  ", length(lvls)))
+}
+
+sobj <- SetIdent(sobj, value = SEL_RESOLUTION)
+```
+
+```{r umap, fig.asp=1}
+sobj <- RunUMAP(sobj, dims = PCA_DIMS)
+
+DimPlot(sobj, reduction = "umap") +
+    ggtitle(paste0(SAMPLE, ": ", SEL_RESOLUTION))
+```
+
+```{r tsne, fig.asp=1}
+sobj <- RunTSNE(sobj, dims = PCA_DIMS)
+
+DimPlot(sobj, reduction = "tsne") +
+    ggtitle(paste0(SAMPLE, ": ", SEL_RESOLUTION))
+```
+
+### Look at marker genes
+
+```{r load_lit_genes}
+lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
+```
+
+#### Spermatogonia
+
+```{r heatmap_gonia, fig.width=8, fig.height=20}
+lg <- fbgn2symbol %>%
+    filter(FBgn %in% c(lit_genes[["SP"]], lit_genes[["SP_ES"]])) %>%
+    pull("gene_symbol")
+
+VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
+FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
+```
+
+#### Spermatocytes
+
+```{r heatmap_spermatocytes, fig.width=8, fig.height=22}
+lg <- fbgn2symbol %>%
+    filter(FBgn %in% lit_genes[["SP_ES_MS_LS"]]) %>%
+    pull("gene_symbol")
+
+VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
+FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
+```
+
+#### CySC
+
+```{r heatmap_cysc, fig.width=8, fig.height=22}
+lg <- fbgn2symbol %>%
+    filter(FBgn %in% c(lit_genes[["EC"]], lit_genes[["CY"]])) %>%
+    pull("gene_symbol")
+
+VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
+FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
+```
+
+#### TE
+
+```{r heatmap_te, fig.width=8, fig.height=12}
+lg <- fbgn2symbol %>%
+    filter(FBgn %in% lit_genes[["TE"]]) %>%
+    pull("gene_symbol")
+
+VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
+FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
+```
+
+#### PC
+
+```{r heatmap_pc, fig.width=8, fig.height=4}
+lg <- fbgn2symbol %>%
+    filter(FBgn %in% lit_genes[["PC"]]) %>%
+    pull("gene_symbol")
+
+VlnPlot(sobj, features = lg, pt.size = .1)
+FeaturePlot(sobj, features = lg, pt.size = 1)
+```
+
+### Cluster Markers
+
+```{r find_markers}
+biomarkers <- FindAllMarkers(sobj, only.pos = TRUE, verbose = FALSE)
+
+biomarkers <- tibble::as_tibble(biomarkers) %>%
+    rename(gene_symbol = gene) %>%
+    left_join(fbgn2symbol) %>%
+    select(FBgn, gene_symbol, cluster, everything())
+```
+
+```{r num_markers_per_cluster}
+biomarkers %>%
+    filter(p_val_adj <= 0.001) %>%
+    group_by(cluster) %>%
+    summarise(num_markers_per_cluster = n()) %>%
+    print(n = nrow(.))
+```
+
+#### Top 12 Genes Per Cluster
+
+```{r top_markers}
+top_markers <- biomarkers %>%
+    filter(p_val_adj <= 0.001) %>%
+    group_by(cluster) %>%
+    top_n(n = 12, wt = avg_logFC)
+```
+
+```{r plot_top_markers, fig.width=8, fig.height=20, echo=TRUE}
+for (i in 1:length(levels(biomarkers$cluster))) {
+    clus <- levels(biomarkers$cluster)[[i]]
+    features <- top_markers %>%
+        filter(cluster == clus) %>%
+        pull(gene_symbol)
+    p1 <- FeaturePlot(sobj, features = features, pt.size = 1, ncol = 3)
+    t1 <- grid::textGrob(paste0("Cluster: ", clus), gp = grid::gpar(cex = 3))
+    gridExtra::grid.arrange(p1, top = t1)
+}
+```
+
+```{r save_biomarkers}
+write.table(
+    biomarkers,
+    file = file.path(OUTDIR, paste(SAMPLE, "biomarkers.tsv", sep = "_")),
+    sep = "\t",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE
+)
+
+feather::write_feather(
+    biomarkers,
+    path = file.path(OUTDIR, paste(SAMPLE, "biomarkers.feather", sep = "_"))
+)
+```
+
+```{r save_robj}
+save(
+    tesits1 = sobj,
+    file = file.path(OUTDIR, paste(SAMPLE, "Robj", sep = "."))
+)
+```
+
+```{r save_metadata}
+df <- tibble::as_tibble(
+    sobj@meta.data %>%
+        tibble::rownames_to_column("cell_id")
+)
+
+df$clusters <- df[, SEL_RESOLUTION] %>% pull(.)
+
+write.table(
+    df,
+    file = file.path(OUTDIR, paste(SAMPLE, "clusters.tsv", sep = "_")),
+    sep = "\t",
+    quote = FALSE,
+    row.names = FALSE,
+    col.names = TRUE
+)
+
+feather::write_feather(
+    df,
+    path = file.path(OUTDIR, paste(SAMPLE, "clusters.feather", sep = "_"))
+)
+```
