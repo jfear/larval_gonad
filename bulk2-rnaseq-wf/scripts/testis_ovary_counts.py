@@ -8,6 +8,7 @@ Table has the following columns:
 - tissue
 - rep
 - chrom
+- data_source = 'RNA-Seq'
 
 """
 import os
@@ -41,6 +42,7 @@ def get_counts():
         .assign(stage="L3")
         .assign(tissue=lambda x: tissue_mapper(x.sample_ID))
         .assign(rep=lambda x: rep_mapper(x.sample_ID))
+        .assign(data_source="RNA-Seq")
     )
 
 

@@ -16,6 +16,7 @@ def main():
         .assign(stage=lambda x: x.sample_ID.str.extract(r"(\w+)_\w+_r\d", expand=False))
         .assign(tissue=lambda x: x.sample_ID.str.extract(r"\w+_(\w+)_r\d", expand=False))
         .assign(rep=lambda x: x.sample_ID.str.extract(r"\w+_\w+_r(\d)", expand=False))
+        .assign(data_source="RNA-Seq")
         .set_index("FBgn")
         .join(fbgn2chrom, how="inner")
         .reset_index()

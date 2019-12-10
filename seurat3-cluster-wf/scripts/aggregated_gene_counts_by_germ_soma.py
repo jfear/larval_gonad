@@ -31,6 +31,7 @@ def get_counts():
         .assign(tissue="testis")
         .assign(stage="L3")
         .assign(sample_ID=lambda x: "L3_scRNAseq_" + x.rep)
+        .assign(data_source="scRNA-Seq")
     )
 
 def cell_class_mapper(cluster):
