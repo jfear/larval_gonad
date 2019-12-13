@@ -48,7 +48,9 @@ rule all:
         "../output/science_submission/figures/msci_panel.svg",
         "../output/science_submission/biomarkers.tsv",
         "../output/science_submission/figures/ptrap_expression_panel.svg",
-        "../output/science_submission/figures/chrom_counts_panel.svg"
+        "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg",
+        "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg",
+        "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg",
 
 
 ################################################################################
@@ -156,19 +158,41 @@ rule plot_ptrap_panel:
 ################################################################################
 # Figure 2: Chromosome Expression
 ################################################################################
-rule plot_chrom_count_panel:
+rule plot_chrom_read_count_panel_scale_scaffold_len:
     input: 
-        # gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
         adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
         L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
         L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
         L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-        # adult_sc_agg="",
-        # adult_sc_by_class="",
-    output: "../output/science_submission/figures/chrom_counts_panel.svg"
+    output: "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg"
     params: colors=COLORS
-    script: "scripts/plot_chrom_counts_panel.py"
+    script: "scripts/plot_chrom_read_count_panel_scale_scaffold_len.py"
+
+
+rule plot_chrom_read_count_panel_scale_num_genes_per_scaffold:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_read_count_panel_scale_num_genes_per_scaffold.py"
+
+
+rule plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.py"
+
 
 
 ################################################################################
