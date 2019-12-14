@@ -1,3 +1,18 @@
+""" Percent of genes expressed per chromosome arm.
+
+This is a set of 4 panels. Each panel has:
+
+- x-axis: Chromosome Arm
+- y-axis: percent gene expressed (i.e. > 5) per chrom / number genes per arm * 100
+
+Each panel plots a different set of data:
+
+- A: L3 larval bulk samples with testis and ovary data
+- B: Adult bulk samples with testis and ovary data
+- C: L3 larval single cell testis data aggregated together
+- D: L3 larval single cell testis data split by cell lineage
+
+"""
 import os
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -1,3 +1,18 @@
+""" Proportion of reads mapping scaled by chromosome length.
+
+This is a set of 4 panels. Each panel has:
+
+- x-axis: Chromosome Arm
+- y-axis: proportion reads mapping to chrom / total counts per sample / chrom length / 1e7
+
+Each panel plots a different set of data:
+
+- A: L3 larval bulk samples with testis and ovary data
+- B: Adult bulk samples with testis and ovary data
+- C: L3 larval single cell testis data aggregated together
+- D: L3 larval single cell testis data split by cell lineage
+
+"""
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -63,7 +78,7 @@ def plot_L3_scAgg(ax, df):
 
 
 def plot_L3_scLineage(ax, df):
-    germline = snakemake.params.colors["germline"][0]
+    geline = snakemake.params.colors["germline"][0]
     cyst = snakemake.params.colors["cyst"][0]
     soma = snakemake.params.colors["soma"][0]
     dat = df.query("stage == 'L3' and data_source == 'scRNA-Seq' and cell_type != 'None'")
