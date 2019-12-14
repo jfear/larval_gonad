@@ -51,6 +51,8 @@ rule all:
         "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg",
         "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg",
         "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg",
+        "../output/science_submission/figures/chrom_prop_expressed_all_genes.svg",
+        "../output/science_submission/figures/chrom_prop_expressed_genes_in_experiment.svg",
 
 
 ################################################################################
@@ -204,6 +206,17 @@ rule plot_chrom_prop_expressed_all_genes:
     params: colors=COLORS
     script: "scripts/plot_chrom_prop_expressed_all_genes.py"
 
+
+rule plot_chrom_prop_expressed_genes_in_experiment:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_prop_expressed_genes_in_experiment.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_prop_expressed_genes_in_experiment.py"
 
 
 ################################################################################
