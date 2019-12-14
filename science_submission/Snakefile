@@ -156,7 +156,7 @@ rule plot_ptrap_panel:
     script: "scripts/ptrap_expression_panel.py"
 
 ################################################################################
-# Figure 2: Chromosome Expression
+# Figure 2: Chromosome Expression and Gene Counts
 ################################################################################
 rule plot_chrom_read_count_panel_scale_scaffold_len:
     input: 
@@ -192,6 +192,17 @@ rule plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold:
     output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg"
     params: colors=COLORS
     script: "scripts/plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.py"
+
+rule plot_chrom_prop_expressed_all_genes:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_prop_expressed_all_genes.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_prop_expressed_all_genes.py"
 
 
 
