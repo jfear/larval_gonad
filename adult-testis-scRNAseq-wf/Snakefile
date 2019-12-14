@@ -22,6 +22,7 @@ configfile: "../config/common.yaml"
 
 # Build References
 sample_table = pd.DataFrame(dict(srr=["SRR9705086", "SRR9700117"], sample=["Ral517", "wild"]))
+# sample_table = pd.DataFrame(dict(srr=["SRR9700117"], sample=["wild"]))
 
 
 ASSEMBLY = config["assembly"]
@@ -36,20 +37,46 @@ rule all:
 ################################################################################
 # Download Data
 ################################################################################
-rule fq_dump:
-    output:
-        r1="../output/adult-testis-scRNAseq-wf/fqs/{sample}/{sample}_S1_L001_R1_001.fastq.gz",
-        r2="../output/adult-testis-scRNAseq-wf/fqs/{sample}/{sample}_S1_L001_R2_001.fastq.gz"
-    params: srr=lambda wildcards: sample_table.query(f"sample == '{wildcards.sample}'").srr.values[0]
+rule fq_prefetch:
+    output: "../output/adult-testis-scRNAseq-wf/{sample}.sra"
+    log: "../output/adult-testis-scRNAseq-wf/{sample}.sra-download.log"
+    params:
+        srr=lambda wildcards: sample_table.query(f"sample == '{wildcards.sample}'").srr.values[0]
     conda: "config/sratools.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 2,
+        time_hr=lambda wildcards, attempt: attempt * 8
+    shell: "prefetch --output-file {output[0]} {params.srr} > {log} 2>&1"
+
+rule fq_dump:
+    input: Path(rules.fq_prefetch.output[0]).absolute().as_posix()
+    output:
+        r1=temp("../output/adult-testis-scRNAseq-wf/fqs/{sample}/{sample}_1.fastq"),
+        r2=temp("../output/adult-testis-scRNAseq-wf/fqs/{sample}/{sample}_2.fastq")
+    conda: "config/sratools.yaml"
+    threads: 8
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 4,
         time_hr=lambda wildcards, attempt: attempt * 24
     shell: """
-    ODIR=$(dirname {output.r1}) \
-    && fastq-dump --gzip -O $ODIR --split-3 {params.srr} \
-    && mv $ODIR/{params.srr}_1.fastq.gz {output.r1} \
-    && mv $ODIR/{params.srr}_2.fastq.gz {output.r2}
+    cd $(dirname {output.r1}) && \
+    fasterq-dump {input[0]} -o {wildcards.sample} -t /lscratch/$SLURM_JOBID -e {threads} --split-3
+    """
+
+rule fq_gzip:
+    input:
+        r1=rules.fq_dump.output.r1,
+        r2=rules.fq_dump.output.r2
+    output:
+        r1="../output/adult-testis-scRNAseq-wf/fqs/{sample}/{sample}_S1_L001_R1_001.fastq.gz",
+        r2="../output/adult-testis-scRNAseq-wf/fqs/{sample}/{sample}_S1_L001_R2_001.fastq.gz"
+    threads: 8
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 2,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    shell: """
+    pigz -p {threads} -c {input.r1} > {output.r1} && \
+    pigz -p {threads} -c {input.r2} > {output.r2}
     """
 
 
@@ -59,8 +86,8 @@ rule fq_dump:
 rule cellranger:
     input:
         ref=f"../references/cellranger3/{ASSEMBLY}{TAG}/star/SA",
-        r1=rules.fq_dump.output[0],
-        r2=rules.fq_dump.output[1]
+        r1=rules.fq_gzip.output[0],
+        r2=rules.fq_gzip.output[1]
     output: "../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam"
     params:
         refdir = Path(f"../references/cellranger3/{ASSEMBLY}{TAG}").absolute().as_posix(),
