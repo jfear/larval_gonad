@@ -48,11 +48,13 @@ rule all:
         "../output/science_submission/figures/msci_panel.svg",
         "../output/science_submission/biomarkers.tsv",
         "../output/science_submission/figures/ptrap_expression_panel.svg",
-        "../output/science_submission/figures/chrom_counts_panel.svg"
+        "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg",
+        "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg",
+        "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg",
 
 
 ################################################################################
-# Part 1: scRNA-Seq intron, cluster, annotate, and validate
+# Figure 1: scRNA-Seq intron, cluster, annotate, and validate
 ################################################################################
 rule plot_cluster_legend:
     params:
@@ -144,6 +146,58 @@ rule plot_GvLPS_expression_by_chrom:
     script: "scripts/plot_GvLPS_expression_by_chrom.py"
 
 
+rule plot_ptrap_panel:
+    input:
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/ptrap_expression_panel.svg"
+    script: "scripts/ptrap_expression_panel.py"
+
+################################################################################
+# Figure 2: Chromosome Expression
+################################################################################
+rule plot_chrom_read_count_panel_scale_scaffold_len:
+    input: 
+        chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_read_count_panel_scale_scaffold_len.py"
+
+
+rule plot_chrom_read_count_panel_scale_num_genes_per_scaffold:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_read_count_panel_scale_num_genes_per_scaffold.py"
+
+
+rule plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg"
+    params: colors=COLORS
+    script: "scripts/plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.py"
+
+
+
+################################################################################
+# Figure 3: X + 4 Inactivation
+################################################################################
 rule plot_msci_panel:
     input: 
         autosome_ratios='../output/x-to-a-wf/db/commonly_expressed.dat',
@@ -156,25 +210,6 @@ rule plot_msci_panel:
     output: "../output/science_submission/figures/msci_panel.svg"
     script: "scripts/msci_panel.py"
 
-rule plot_ptrap_panel:
-    input:
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
-        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
-    output: "../output/science_submission/figures/ptrap_expression_panel.svg"
-    script: "scripts/ptrap_expression_panel.py"
-
-rule plot_chrom_count_panel:
-    input: 
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-        adult_sc_agg="",
-        adult_sc_by_class="",
-    output: "../output/science_submission/figures/chrom_counts_panel.svg"
-    script: "scripts/plot_chrom_counts_panel.py"
 
 ################################################################################
 # Tables
