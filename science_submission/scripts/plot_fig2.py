@@ -60,7 +60,7 @@ def plot_read_counts(axes: List[plt.Axes]):
     plot_L3_scLineage(axes[2], df, **kwargs)
 
     for ax in axes:
-        ax.set(ylim=(0, 0.15), yticks=[0, 0.1, 0.15], xlabel="")
+        ax.set(ylim=(0, 0.16), yticks=[0, 0.8, 0.16], xlabel="")
 
     for ax in axes[1:]:
         ax.set(ylabel="")
