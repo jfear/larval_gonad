@@ -45,7 +45,6 @@ rule all:
             "../output/science_submission/figures/GvLPS_{direction}_expression_by_chrom.svg",
             direction=['G', 'LPS']
         ),
-        "../output/science_submission/figures/msci_panel.svg",
         "../output/science_submission/biomarkers.tsv",
         "../output/science_submission/figures/ptrap_expression_panel.svg",
         "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg",
@@ -53,7 +52,8 @@ rule all:
         "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg",
         "../output/science_submission/figures/chrom_prop_expressed_all_genes.svg",
         "../output/science_submission/figures/chrom_prop_expressed_genes_in_experiment.svg",
-        "../output/science_submission/figures/fig2.svg"
+        "../output/science_submission/figures/fig2.svg",
+        "../output/science_submission/figures/fig3.svg",
 
 
 ################################################################################
@@ -247,17 +247,18 @@ rule plot_chrom_prop_expressed_genes_in_experiment:
 ################################################################################
 # Figure 3: X + 4 Inactivation
 ################################################################################
-rule plot_msci_panel:
+rule plot_fig3:
     input: 
-        autosome_ratios='../output/x-to-a-wf/db/commonly_expressed.dat',
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        all='../output/x-to-a-wf/db/expressed.dat',
+        common='../output/x-to-a-wf/db/commonly_expressed.dat',
         tpm='../output/seurat3-cluster-wf/tpm_by_cluster.feather',
-        commonly_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+        common_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
     params:
           cluster_color=COLORS["clusters"],
           cluster_order=config['cluster_order'],
-    output: "../output/science_submission/figures/msci_panel.svg"
-    script: "scripts/msci_panel.py"
+    output: "../output/science_submission/figures/fig3.svg"
+    script: "scripts/fig3.py"
 
 
 ################################################################################
