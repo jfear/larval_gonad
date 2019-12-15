@@ -53,6 +53,7 @@ def all_genes(axes: List[plt.Axes]):
         axes[2],
         Y_FBGNS,
     )
+    axes[2].set(ylabel="Y Genes\nLog(TPM)")
 
     plot_log_expression_by_cluster(
         snakemake.input.tpm, snakemake.params.cluster_color, snakemake.params.cluster_order, axes[3]
@@ -81,6 +82,7 @@ def common_genes(axes: List[plt.Axes]):
         axes[2],
         set(Y_FBGNS).intersection(set(COMMON_FBGNS)),
     )
+    axes[2].set(ylabel="Y Genes\nLog(TPM)")
 
     plot_log_expression_by_cluster(
         snakemake.input.tpm,
