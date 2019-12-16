@@ -28,6 +28,7 @@ sample_table = pd.DataFrame(dict(srr=["SRR9705086", "SRR9700117"], sample=["Ral5
 ASSEMBLY = config["assembly"]
 TAG = config["tag"]
 
+localrules: unzip_cellranger3, barcode_to_cellid, expressed_genes, commonly_expressed_genes
 
 rule all:
     input:
@@ -38,7 +39,7 @@ rule all:
 # Download Data
 ################################################################################
 rule fq_prefetch:
-    output: "../output/adult-testis-scRNAseq-wf/{sample}.sra"
+    output: temp("../output/adult-testis-scRNAseq-wf/{sample}.sra")
     log: "../output/adult-testis-scRNAseq-wf/{sample}.sra-download.log"
     params:
         srr=lambda wildcards: sample_table.query(f"sample == '{wildcards.sample}'").srr.values[0]
@@ -88,7 +89,13 @@ rule cellranger:
         ref=f"../references/cellranger3/{ASSEMBLY}{TAG}/star/SA",
         r1=rules.fq_gzip.output[0],
         r2=rules.fq_gzip.output[1]
-    output: "../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam"
+    output: 
+        raw_barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv.gz",
+        raw_features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/features.tsv.gz",
+        raw_matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx.gz",
+        filtered_barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz",
+        filtered_features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/features.tsv.gz",
+        filtered_matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/matrix.mtx.gz",
     params:
         refdir = Path(f"../references/cellranger3/{ASSEMBLY}{TAG}").absolute().as_posix(),
         outdir = Path("../output/adult-testis-scRNAseq-wf").absolute().as_posix()
@@ -108,8 +115,130 @@ rule cellranger:
         --localmem={resources.mem_gb}
     """
 
+
+rule unzip_cellranger3:
+    """Cell Ranger v3 gzip outputs but downstream algorithms expect unzipped files."""
+    input:
+        barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv.gz",
+        features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/features.tsv.gz",
+        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/matrix.mtx.gz",
+    output:
+        barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv",
+        features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/features.tsv",
+        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/matrix.mtx",
+    shell:"""
+        gunzip -c {input.barcodes} > {output.barcodes} && \
+        gunzip -c {input.features} > {output.features} && \
+        gunzip -c {input.matrix} > {output.matrix}
+    """
+
+
+rule barcode_to_cellid:
+    """Make a unique cell_id across replicates.
+
+    10X barcodes are not unique across replicates. I simply prepend the
+    replicate number to make cell_id unique.
+    """
+    input: rules.unzip_cellranger3.output.barcodes
+    output: "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/cell_ids.tsv",
+    script: 'scripts/barcode_to_cellid.py'
+
 ################################################################################
-# Cluster Cells
+# Cell Filter Part 1: Droplet Utils remove empty cells
+################################################################################
+rule dropletutils:
+    input: "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv",
+    output:
+        pval_plot = '../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_pval.png',
+        barcode_rank = '../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_bc_rank.png',
+        cell_calls = temp('../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_cell_calls.feather')
+    conda: '../envs/dropletutils.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    # TODO: Fix script to match adult
+    script: 'scripts/dropletutils.R'
+
+
+rule summary:
+    input:
+        raw = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv",
+        filtered = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv",
+        droputils = rules.dropletutils.output.cell_calls
+    output:
+        cell_calls = '../output/adult-testis-scRNAseq-wf/{sample}_combined_cell_calls.feather',
+        upset_plot = '../output/adult-testis-scRNAseq-wf/{sample}_combined_upset.svg'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    conda: '../envs/upset.yaml'
+    # TODO: Fix script to match adult
+    script: 'scripts/summary.R'
+
+
+################################################################################
+# Cell Filter Part 2: Scrublet remove heterotypic doublets
+################################################################################
+rule scrublet:
+    input:
+        cell_ids = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/cell_ids.tsv",
+        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx",
+        cell_calls = rules.summary.output.cell_calls
+    output:
+        doublets = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_dublets.txt',
+        histogram = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_histogram.png',
+        umap = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_umap.png',
+        tsne = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_tsne.png',
+    params:
+        threshold = 0.25
+    conda: '../envs/scrublet.yaml'
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    # TODO: Fix script to match adult
+    script: 'scripts/scrublet.py'
+
+
+################################################################################
+# Save filtered dataset
+################################################################################
+rule save_filtered_cell_matrix:
+    input:
+        cell_ids = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/cell_ids.tsv",
+        features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/features.tsv",
+        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx",
+        cell_calls = rules.summary.output.cell_calls,
+        scrublet = rules.scrublet.output.doublets,
+        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+    output:
+        barcodes = '../output/adult-testis-scRNAseq-wf/{sample}/barcodes.tsv',
+        features = '../output/adult-testis-scRNAseq-wf/{sample}/features.tsv',
+        matrix = '../output/adult-testis-scRNAseq-wf/{sample}/matrix.mtx'
+    params:
+        low_gene = 200
+        high_gene = 5000
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    # TODO: Fix script to match adult
+    script: 'scripts/filter_cells.py'
+
+
+rule adult_data:
+    input: 
+        barcodes = rules.save_filtered_cell_matrix.output.barcodes,
+        features = rules.save_filtered_cell_matrix.output.features,
+        matrix = rules.save_filtered_cell_matrix.outdir.matrix
+    output: "../output/adult-testis-scRNAseq-wf/raw_{sample}.feather"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 12,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    # TODO: Fix script to match adult
+    script: "scripts/raw_expression_matrix.py"
+
+
+################################################################################
+# Downstream Analysis: Clustering
 ################################################################################
 rule seurat:
     input:
