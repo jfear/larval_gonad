@@ -1,3 +1,22 @@
+""" Proportion of reads mapping scaled by number of expressed genes per chromosome
+
+The FlyBase annotations have a little over 100 genes in the 4th and Y. I
+think this number is too large. Here I count only genes that were expressed
+in any of these experiments.
+
+This is a set of 4 panels. Each panel has:
+
+- x-axis: Chromosome Arm
+- y-axis: proportion reads mapping to chrom / total counts per sample / number expressed genes per arm / 1e3
+
+Each panel plots a different set of data:
+
+- A: L3 larval bulk samples with testis and ovary data
+- B: Adult bulk samples with testis and ovary data
+- C: L3 larval single cell testis data aggregated together
+- D: L3 larval single cell testis data split by cell lineage
+
+"""
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
