@@ -54,6 +54,7 @@ rule all:
         "../output/science_submission/figures/chrom_prop_expressed_genes_in_experiment.svg",
         "../output/science_submission/figures/fig2.svg",
         "../output/science_submission/figures/fig3.svg",
+        "../output/science_submission/figures/literature_expression_panel.done",
 
 
 ################################################################################
@@ -157,6 +158,17 @@ rule plot_ptrap_panel:
         norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
     output: "../output/science_submission/figures/ptrap_expression_panel.svg"
     script: "scripts/ptrap_expression_panel.py"
+
+rule plot_literature_panel:
+    input:
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/literature_expression_panel.done"
+    params: pattern=lambda wildcards: "../output/science_submission/figures/literature_expression_panel_{cnt}.svg"
+    script: "scripts/literature_gene_expression_panel.py"
 
 ################################################################################
 # Figure 2: Chromosome Expression and Gene Counts
