@@ -33,7 +33,8 @@ localrules: unzip_cellranger3, barcode_to_cellid, expressed_genes, commonly_expr
 
 rule all:
     input:
-        expand("../output/adult-testis-scRNAseq-wf/{sample}_scrublet_dublets.txt", sample=sample_table["sample"])
+        expand("../output/adult-testis-scRNAseq-wf/raw_{sample}.feather", sample=sample_table["sample"])
+    
 
 
 ################################################################################
@@ -231,7 +232,6 @@ rule save_filtered_cell_matrix:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    # TODO: Fix script to match adult
     script: "scripts/filter_cells.py"
 
 
@@ -244,7 +244,6 @@ rule adult_data:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    # TODO: Fix script to match adult
     script: "scripts/raw_expression_matrix.py"
 
 
