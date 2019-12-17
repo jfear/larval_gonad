@@ -33,8 +33,7 @@ localrules: unzip_cellranger3, barcode_to_cellid, expressed_genes, commonly_expr
 
 rule all:
     input:
-        # expand("../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam", sample=sample_table["sample"])
-        expand('../output/adult-testis-scRNAseq-wf/{sample}_combined_cell_calls.feather', sample=sample_table["sample"])
+        expand("../output/adult-testis-scRNAseq-wf/{sample}_scrublet_dublets.txt", sample=sample_table["sample"])
 
 
 ################################################################################
@@ -92,15 +91,15 @@ rule cellranger:
         r1=rules.fq_gzip.output[0],
         r2=rules.fq_gzip.output[1]
     output: 
-        raw_barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv.gz",
-        raw_features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/features.tsv.gz",
-        raw_matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx.gz",
-        filtered_barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz",
-        filtered_features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/features.tsv.gz",
-        filtered_matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/matrix.mtx.gz",
+        raw_barcodes="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv.gz",
+        raw_features="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/features.tsv.gz",
+        raw_matrix="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx.gz",
+        filtered_barcodes="../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz",
+        filtered_features="../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/features.tsv.gz",
+        filtered_matrix="../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/matrix.mtx.gz",
     params:
-        refdir = Path(f"../references/cellranger3/{ASSEMBLY}{TAG}").absolute().as_posix(),
-        outdir = Path("../output/adult-testis-scRNAseq-wf").absolute().as_posix()
+        refdir=Path(f"../references/cellranger3/{ASSEMBLY}{TAG}").absolute().as_posix(),
+        outdir=Path("../output/adult-testis-scRNAseq-wf").absolute().as_posix()
     threads: 16
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 25,
@@ -121,13 +120,13 @@ rule cellranger:
 rule unzip_cellranger3:
     """Cell Ranger v3 gzip outputs but downstream algorithms expect unzipped files."""
     input:
-        barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv.gz",
-        features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/features.tsv.gz",
-        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/matrix.mtx.gz",
+        barcodes="../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv.gz",
+        features="../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/features.tsv.gz",
+        matrix="../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/matrix.mtx.gz",
     output:
-        barcodes = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv",
-        features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/features.tsv",
-        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/matrix.mtx",
+        barcodes="../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/barcodes.tsv",
+        features="../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/features.tsv",
+        matrix="../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/matrix.mtx",
     shell:"""
         gunzip -c {input.barcodes} > {output.barcodes} && \
         gunzip -c {input.features} > {output.features} && \
@@ -143,7 +142,7 @@ rule barcode_to_cellid:
     """
     input: rules.unzip_cellranger3.output.barcodes
     output: "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/cell_ids.tsv",
-    script: 'scripts/barcode_to_cellid.py'
+    script: "scripts/barcode_to_cellid.py"
 
 rule symlink_genes:
     input: Path(rules.unzip_cellranger3.output.features).absolute().as_posix()
@@ -164,29 +163,29 @@ def _dropletutils(wildcards):
 rule dropletutils:
     input: _dropletutils
     output:
-        pval_plot = '../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_pval.png',
-        barcode_rank = '../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_bc_rank.png',
-        cell_calls = temp('../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_cell_calls.feather')
-    conda: '../envs/dropletutils.yaml'
+        pval_plot="../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_pval.png",
+        barcode_rank="../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_bc_rank.png",
+        cell_calls=temp("../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_cell_calls.feather")
+    conda: "../envs/dropletutils.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    script: 'scripts/dropletutils.R'
+    script: "scripts/dropletutils.R"
 
 
 rule summary:
     input:
-        raw = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv",
-        filtered = "../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv",
-        droputils = rules.dropletutils.output.cell_calls
+        raw="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv",
+        filtered="../output/adult-testis-scRNAseq-wf/{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv",
+        droputils=rules.dropletutils.output.cell_calls
     output:
-        cell_calls = '../output/adult-testis-scRNAseq-wf/{sample}_combined_cell_calls.feather',
-        upset_plot = '../output/adult-testis-scRNAseq-wf/{sample}_combined_upset.svg'
+        cell_calls="../output/adult-testis-scRNAseq-wf/{sample}_combined_cell_calls.feather",
+        upset_plot="../output/adult-testis-scRNAseq-wf/{sample}_combined_upset.svg"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    conda: '../envs/upset.yaml'
-    script: 'scripts/summary.R'
+    conda: "../envs/upset.yaml"
+    script: "scripts/summary.R"
 
 
 ################################################################################
@@ -194,22 +193,21 @@ rule summary:
 ################################################################################
 rule scrublet:
     input:
-        cell_ids = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/cell_ids.tsv",
-        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx",
-        cell_calls = rules.summary.output.cell_calls
+        cell_ids="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/cell_ids.tsv",
+        matrix="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx",
+        cell_calls=rules.summary.output.cell_calls
     output:
-        doublets = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_dublets.txt',
-        histogram = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_histogram.png',
-        umap = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_umap.png',
-        tsne = '../output/adult-testis-scRNAseq-wf/{sample}_scrublet_tsne.png',
+        doublets="../output/adult-testis-scRNAseq-wf/{sample}_scrublet_dublets.txt",
+        histogram="../output/adult-testis-scRNAseq-wf/{sample}_scrublet_histogram.png",
+        umap="../output/adult-testis-scRNAseq-wf/{sample}_scrublet_umap.png",
+        tsne="../output/adult-testis-scRNAseq-wf/{sample}_scrublet_tsne.png",
     params:
-        threshold = 0.25
-    conda: '../envs/scrublet.yaml'
+        threshold=0.25
+    conda: "../envs/scrublet.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    # TODO: Fix script to match adult
-    script: 'scripts/run_scrublet.py'
+    script: "scripts/run_scrublet.py"
 
 
 ################################################################################
@@ -217,31 +215,31 @@ rule scrublet:
 ################################################################################
 rule save_filtered_cell_matrix:
     input:
-        cell_ids = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/cell_ids.tsv",
-        features = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/features.tsv",
-        matrix = "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx",
-        cell_calls = rules.summary.output.cell_calls,
-        scrublet = rules.scrublet.output.doublets,
-        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        cell_ids="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/cell_ids.tsv",
+        features="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/features.tsv",
+        matrix="../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/matrix.mtx",
+        cell_calls=rules.summary.output.cell_calls,
+        scrublet=rules.scrublet.output.doublets,
+        gene_annotation=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
     output:
-        barcodes = '../output/adult-testis-scRNAseq-wf/{sample}/barcodes.tsv',
-        features = '../output/adult-testis-scRNAseq-wf/{sample}/features.tsv',
-        matrix = '../output/adult-testis-scRNAseq-wf/{sample}/matrix.mtx'
+        barcodes="../output/adult-testis-scRNAseq-wf/{sample}/barcodes.tsv",
+        features="../output/adult-testis-scRNAseq-wf/{sample}/features.tsv",
+        matrix="../output/adult-testis-scRNAseq-wf/{sample}/matrix.mtx"
     params:
-        low_gene = 200,
-        high_gene = 5000
+        low_gene=200,
+        high_gene=5000
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     # TODO: Fix script to match adult
-    script: 'scripts/filter_cells.py'
+    script: "scripts/filter_cells.py"
 
 
 rule adult_data:
     input: 
-        barcodes = rules.save_filtered_cell_matrix.output.barcodes,
-        features = rules.save_filtered_cell_matrix.output.features,
-        matrix = rules.save_filtered_cell_matrix.output.matrix
+        barcodes=rules.save_filtered_cell_matrix.output.barcodes,
+        features=rules.save_filtered_cell_matrix.output.features,
+        matrix=rules.save_filtered_cell_matrix.output.matrix
     output: "../output/adult-testis-scRNAseq-wf/raw_{sample}.feather"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
@@ -255,9 +253,9 @@ rule adult_data:
 ################################################################################
 rule seurat:
     input:
-        rmd = "scripts/{sample}.Rmd"
+        rmd="scripts/{sample}.Rmd"
     output:
-        html = "../output/adult-testis-scRNAseq-wf/{sample}.html",
+        html="../output/adult-testis-scRNAseq-wf/{sample}.html",
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
@@ -267,17 +265,17 @@ rule seurat:
 
 rule dump_robj:
     input:
-        html = "../output/adult-testis-scRNAseq-wf/{sample}.html",
-        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+        html="../output/adult-testis-scRNAseq-wf/{sample}.html",
+        gene_annotation=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output:
-        norm = "../output/adult-testis-scRNAseq-wf/{sample}_normalized.feather",
-        metadata = "../output/adult-testis-scRNAseq-wf/{sample}_metadata.feather",
-        pca_embed = "../output/adult-testis-scRNAseq-wf/{sample}_pca_cell_embedings.feather",
-        pca_load = "../output/adult-testis-scRNAseq-wf/{sample}_pca_gene_loadings.feather",
-        umap = "../output/adult-testis-scRNAseq-wf/{sample}_umap.feather",
+        norm="../output/adult-testis-scRNAseq-wf/{sample}_normalized.feather",
+        metadata="../output/adult-testis-scRNAseq-wf/{sample}_metadata.feather",
+        pca_embed="../output/adult-testis-scRNAseq-wf/{sample}_pca_cell_embedings.feather",
+        pca_load="../output/adult-testis-scRNAseq-wf/{sample}_pca_gene_loadings.feather",
+        umap="../output/adult-testis-scRNAseq-wf/{sample}_umap.feather",
     params:
         # TODO: Add resolution
-        integrated_resolution = ""
+        integrated_resolution=""
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
@@ -287,11 +285,11 @@ rule dump_robj:
 
 rule biomarkers:
     input:
-        html = "../output/adult-testis-scRNAseq-wf/{sample}.html",
-        gene_annotation = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
+        html="../output/adult-testis-scRNAseq-wf/{sample}.html",
+        gene_annotation=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
     output:
-        tsv = "../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.tsv",
-        feather = "../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.feather"
+        tsv="../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.tsv",
+        feather="../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.feather"
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
