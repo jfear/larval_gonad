@@ -13,6 +13,7 @@ SRR9700117: "wild strain"
 import yaml
 from pathlib import Path
 
+from more_itertools import flatten
 import pandas as pd
 from snakemake.rules import expand
 
@@ -32,7 +33,8 @@ localrules: unzip_cellranger3, barcode_to_cellid, expressed_genes, commonly_expr
 
 rule all:
     input:
-        expand("../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam", sample=sample_table["sample"])
+        # expand("../output/adult-testis-scRNAseq-wf/{sample}/outs/possorted_genome_bam.bam", sample=sample_table["sample"])
+        expand('../output/adult-testis-scRNAseq-wf/{sample}_combined_cell_calls.feather', sample=sample_table["sample"])
 
 
 ################################################################################
@@ -143,11 +145,24 @@ rule barcode_to_cellid:
     output: "../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/cell_ids.tsv",
     script: 'scripts/barcode_to_cellid.py'
 
+rule symlink_genes:
+    input: Path(rules.unzip_cellranger3.output.features).absolute().as_posix()
+    output: Path("../output/adult-testis-scRNAseq-wf/{sample}/outs/{stage}_feature_bc_matrix/genes.tsv").absolute().as_posix()
+    shell: "ln -s {input[0]} {output[0]}"
+
 ################################################################################
 # Cell Filter Part 1: Droplet Utils remove empty cells
 ################################################################################
+def _dropletutils(wildcards):
+    return list(flatten([
+        expand(rules.unzip_cellranger3.output.barcodes, sample=wildcards.sample, stage="raw"),
+        expand(rules.symlink_genes.output[0], sample=wildcards.sample, stage="raw"),
+        expand(rules.unzip_cellranger3.output.matrix, sample=wildcards.sample, stage="raw"),
+    ]))
+
+
 rule dropletutils:
-    input: "../output/adult-testis-scRNAseq-wf/{sample}/outs/raw_feature_bc_matrix/barcodes.tsv",
+    input: _dropletutils
     output:
         pval_plot = '../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_pval.png',
         barcode_rank = '../output/adult-testis-scRNAseq-wf/dropletutils/{sample}_bc_rank.png',
@@ -156,7 +171,6 @@ rule dropletutils:
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
-    # TODO: Fix script to match adult
     script: 'scripts/dropletutils.R'
 
 
@@ -172,7 +186,6 @@ rule summary:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     conda: '../envs/upset.yaml'
-    # TODO: Fix script to match adult
     script: 'scripts/summary.R'
 
 
@@ -196,7 +209,7 @@ rule scrublet:
         mem_gb=lambda wildcards, attempt: attempt * 12,
         time_hr=lambda wildcards, attempt: attempt * 2
     # TODO: Fix script to match adult
-    script: 'scripts/scrublet.py'
+    script: 'scripts/run_scrublet.py'
 
 
 ################################################################################
@@ -215,7 +228,7 @@ rule save_filtered_cell_matrix:
         features = '../output/adult-testis-scRNAseq-wf/{sample}/features.tsv',
         matrix = '../output/adult-testis-scRNAseq-wf/{sample}/matrix.mtx'
     params:
-        low_gene = 200
+        low_gene = 200,
         high_gene = 5000
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
@@ -228,7 +241,7 @@ rule adult_data:
     input: 
         barcodes = rules.save_filtered_cell_matrix.output.barcodes,
         features = rules.save_filtered_cell_matrix.output.features,
-        matrix = rules.save_filtered_cell_matrix.outdir.matrix
+        matrix = rules.save_filtered_cell_matrix.output.matrix
     output: "../output/adult-testis-scRNAseq-wf/raw_{sample}.feather"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 12,
