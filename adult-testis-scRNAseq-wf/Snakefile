@@ -33,7 +33,8 @@ localrules: unzip_cellranger3, barcode_to_cellid, expressed_genes, commonly_expr
 
 rule all:
     input:
-        expand("../output/adult-testis-scRNAseq-wf/raw_{sample}.feather", sample=sample_table["sample"])
+        expand("../output/adult-testis-scRNAseq-wf/raw_{sample}.feather", sample=sample_table["sample"]),
+        expand("../output/adult-testis-scRNAseq-wf/{sample}_normalized.feather", sample=sample_table["sample"]),
     
 
 
@@ -273,25 +274,10 @@ rule dump_robj:
         pca_load="../output/adult-testis-scRNAseq-wf/{sample}_pca_gene_loadings.feather",
         umap="../output/adult-testis-scRNAseq-wf/{sample}_umap.feather",
     params:
-        # TODO: Add resolution
-        integrated_resolution=""
+        integrated_resolution="RNA_snn_res.0.3"
     conda: "../envs/seurat3.yaml"
     resources:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: "scripts/dump.R"
-
-
-rule biomarkers:
-    input:
-        html="../output/adult-testis-scRNAseq-wf/{sample}.html",
-        gene_annotation=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output:
-        tsv="../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.tsv",
-        feather="../output/adult-testis-scRNAseq-wf/{sample}_biomarkers.feather"
-    conda: "../envs/seurat3.yaml"
-    resources:
-        mem_gb=lambda wildcards, attempt: attempt * 16,
-        time_hr=lambda wildcards, attempt: attempt * 6
-    script: "scripts/combined_biomarkers.R"
 
