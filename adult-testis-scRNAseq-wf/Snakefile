@@ -224,7 +224,7 @@ rule save_filtered_cell_matrix:
         gene_annotation=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
     output:
         barcodes="../output/adult-testis-scRNAseq-wf/{sample}/barcodes.tsv",
-        features="../output/adult-testis-scRNAseq-wf/{sample}/features.tsv",
+        features="../output/adult-testis-scRNAseq-wf/{sample}/genes.tsv",
         matrix="../output/adult-testis-scRNAseq-wf/{sample}/matrix.mtx"
     params:
         low_gene=200,
