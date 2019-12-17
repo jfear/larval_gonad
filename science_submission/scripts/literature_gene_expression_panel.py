@@ -106,16 +106,19 @@ def main():
 
     cnt = 0
     for genes in grouper(16, target_genes):
-        fig, axes = plt.subplots(4, 4, sharex=True, gridspec_kw=dict(hspace=0.05, wspace=0.05))
+        fig, axes = plt.subplots(4, 4, sharex=True, figsize=(12, 12), gridspec_kw=dict(hspace=0.05, wspace=0.1))
         for gene, ax in zip(genes, axes.flat):
             if gene is None:
                 ax.set_visible(False)
             else:
                 panel(*gene, ax)
-                for ax in axes[:, 1].flat:
+                for ax in axes[:, 1:].flat:
                     ax.set_ylabel("")
 
-        plt.savefig(snakemake.params.pattern.format(cnt=cnt))
+                for ax in axes[-1, :].flat:
+                    plt.setp(ax.get_xticklabels(), rotation=90)
+
+        plt.savefig(snakemake.params.pattern.format(cnt=cnt), transparent=True)
         cnt += 1
 
     Path(snakemake.output[0]).touch()
@@ -140,7 +143,7 @@ def expression_patterns(fbgn, symbol, ax):
     )
     df = clusters.join(norm)
     sns.pointplot("cluster", "norm", data=df, ax=ax)
-    ax.set_title(f"{symbol}", fontstyle="italic")
+    ax.set_title(f"{symbol}", fontstyle="italic", y=.9)
     ax.set(xlabel="", ylabel="Normalized Expression (by cell)")
     sns.despine(ax=ax)
     return ax
