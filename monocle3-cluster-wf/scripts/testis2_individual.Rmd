@@ -108,41 +108,33 @@ lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
 
 ## Spermatogonia
 ```{r fig.width=8, fig.height=12}
-markers <- fData(cds)[lit_genes$gonia,]
+markers <- fData(cds)[lit_genes$G,]
 plot_cells(cds, genes = markers, label_cell_groups = FALSE)
 ```
 
 ## Primary Spermatocytes
 ```{r fig.width=8, fig.height=20}
-markers <- fData(cds)[lit_genes$spermatocytes,]
+markers <- fData(cds)[lit_genes$EPS_MPS_LPS,]
 plot_cells(cds, genes = markers, label_cell_groups = FALSE)
 ```
 
 ## CySC
 ```{r fig.width=8, fig.height=20}
-markers <- fData(cds)[lit_genes$cysc,]
+markers <- fData(cds)[lit_genes$cyst,]
 plot_cells(cds, genes = markers, label_cell_groups = FALSE)
 ```
 
 ## Terminal Epithelium
 ```{r fig.width=8, fig.height=12}
-markers <- fData(cds)[lit_genes$te,]
+markers <- fData(cds)[lit_genes$T,]
 plot_cells(cds, genes = markers, label_cell_groups = FALSE)
 ```
 
 ## Pigment Cells
 ```{r fig.width=8, fig.height=6}
-markers <- fData(cds)[lit_genes$pigment,]
+markers <- fData(cds)[lit_genes$P,]
 plot_cells(cds, genes = markers, label_cell_groups = FALSE)
 ```
-
-## Hub
-```{r fig.width=8, fig.height=12}
-markers <- fData(cds)[lit_genes$hub,]
-plot_cells(cds, genes = markers, label_cell_groups = FALSE)
-```
-
-
 
 ```{r trajectory}
 cds <- learn_graph(cds)

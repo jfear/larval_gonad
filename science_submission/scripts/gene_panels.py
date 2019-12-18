@@ -45,9 +45,9 @@ if __name__ == "__main__":
             input=f"../references/gene_annotation_dmel_{tag}.feather",
             params=dict(
                 pattern="../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
-                genes=lit_genes["PS"],
+                genes=lit_genes["EPS_MPS_LPS"],
             ),
-            wildcards=dict(group="PS"),
+            wildcards=dict(group="EPS_MPS_LPS"),
         )
 
     main()

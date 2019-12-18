@@ -281,3 +281,18 @@ rule dump_robj:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 2
     script: "scripts/dump.R"
+
+################################################################################
+# Downstream Analysis: Cluster Annotation
+################################################################################
+rule annotate_clusters:
+    input:
+        adult_norm=rules.dump_robj.output.norm,
+        adult_metadata=rules.dump_robj.output.metadata,
+        larval_norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather",
+        larval_clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather"
+    output: "../output/adult-testis-scRNAseq-wf/{sample}_clusters.feather"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 2
+    script: "scripts/annotate_clusters.py"
