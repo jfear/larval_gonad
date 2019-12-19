@@ -35,9 +35,9 @@ set.seed(42)
 
 ```{r globals}
 SAMPLE <- "Ral517"
-RESOLUTIONS <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
-SEL_RESOLUTION <- "RNA_snn_res.0.8"
-PCA_DIMS <- 1:9
+RESOLUTIONS <- c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
+SEL_RESOLUTION <- "RNA_snn_res.0.3"
+PCA_DIMS <- 1:12
 
 PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
 DATA_DIR <- file.path(PROJ_DIR, paste0("output/adult-testis-scRNAseq-wf/", SAMPLE))
@@ -117,7 +117,7 @@ sobj <- RunPCA(
 #### Dimensional Gene Loadings
 
 ```{r dotplot_pcs, fig.wdith=12, fig.height=12}
-VizDimLoadings(sobj, dims = 1:4, reduction = "pca", ncol = 2)
+VizDimLoadings(sobj, dims = 1:8, reduction = "pca", ncol = 2)
 ```
 
 #### Top Genes Heatmap
@@ -189,7 +189,7 @@ lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
 
 ```{r heatmap_gonia, fig.width=8, fig.height=20}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% c(lit_genes[["SP"]], lit_genes[["SP_ES"]])) %>%
+    filter(FBgn %in% c(lit_genes[["G"]], lit_genes[["G_EPS"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -200,7 +200,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_spermatocytes, fig.width=8, fig.height=22}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["SP_ES_MS_LS"]]) %>%
+    filter(FBgn %in% c(lit_genes[["EPS"]], lit_genes[["EPS_MPS_LPS"]], lit_genes[["G_EPS_MPS_LPS"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -211,7 +211,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_cysc, fig.width=8, fig.height=22}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% c(lit_genes[["EC"]], lit_genes[["CY"]])) %>%
+    filter(FBgn %in% lit_genes[["cyst"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -222,7 +222,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_te, fig.width=8, fig.height=12}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["TE"]]) %>%
+    filter(FBgn %in% lit_genes[["T"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -233,7 +233,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_pc, fig.width=8, fig.height=4}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["PC"]]) %>%
+    filter(FBgn %in% lit_genes[["P"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, pt.size = .1)

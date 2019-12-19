@@ -20,8 +20,8 @@ rule all:
         "../output/germ-trajectory-wf/clusters.feather",
         "../output/germ-trajectory-wf/biomarkers.feather",
         "../output/germ-trajectory-wf/umap_panel.svg",
-        expand("../output/germ-trajectory-wf/lit_genes_umap_panel_{group}.svg", group=["SP", "SP_ES", "ES", "PS", "LS", "spermatids"]),
-        expand("../output/germ-trajectory-wf/lit_genes_expression_patterns_panel_{group}.svg", group=["SP", "SP_ES", "ES", "PS", "LS", "spermatids"]),
+        expand("../output/germ-trajectory-wf/lit_genes_umap_panel_{group}.svg", group=["G", "G_EPS", "EPS", "EPS_MPS_LPS", "G_MPS_EPS_LPS"]),
+        expand("../output/germ-trajectory-wf/lit_genes_expression_patterns_panel_{group}.svg", group=["G", "G_EPS", "EPS", "EPS_MPS_LPS", "G_MPS_EPS_LPS"]),
 
 
 rule recluster_germ_cells:

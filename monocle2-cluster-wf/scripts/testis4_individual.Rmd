@@ -130,37 +130,31 @@ lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
 
 ## Spermatogonia
 ```{r fig.width=8, fig.height=12}
-markers <- fData(cds)[lit_genes$gonia,]$gene_short_name
+markers <- fData(cds)[lit_genes$G,]$gene_short_name
 plot_cell_clusters(cds, 1, 2, marker=markers, option = "B")
 ```
 
 ## Primary Spermatocytes
 ```{r fig.width=8, fig.height=12}
-markers <- fData(cds)[lit_genes$spermatocytes,]$gene_short_name
+markers <- fData(cds)[lit_genes$EPS_MPS_LPS,]$gene_short_name
 plot_cell_clusters(cds, 1, 2, marker=markers, option = "B")
 ```
 
 ## CySC
 ```{r fig.width=8, fig.height=12}
-markers <- fData(cds)[lit_genes$cysc,]$gene_short_name
+markers <- fData(cds)[lit_genes$cyst,]$gene_short_name
 plot_cell_clusters(cds, 1, 2, marker=markers, option = "B")
 ```
 
 ## Terminal Epithelium
 ```{r fig.width=8, fig.height=10}
-markers <- fData(cds)[lit_genes$te,]$gene_short_name
+markers <- fData(cds)[lit_genes$T,]$gene_short_name
 plot_cell_clusters(cds, 1, 2, marker=markers, option = "B")
 ```
 
 ## Pigment Cells
 ```{r fig.width=8, fig.height=6}
-markers <- fData(cds)[lit_genes$pigment,]$gene_short_name
-plot_cell_clusters(cds, 1, 2, marker=markers, option = "B")
-```
-
-## Hub
-```{r fig.width=8, fig.height=10}
-markers <- fData(cds)[lit_genes$hub,]$gene_short_name
+markers <- fData(cds)[lit_genes$P,]$gene_short_name
 plot_cell_clusters(cds, 1, 2, marker=markers, option = "B")
 ```
 

@@ -189,7 +189,7 @@ lit_genes <- yaml::yaml.load_file(LITERATURE_GENES)
 
 ```{r heatmap_gonia, fig.width=8, fig.height=20}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% c(lit_genes[["SP"]], lit_genes[["SP_ES"]])) %>%
+    filter(FBgn %in% c(lit_genes[["G"]], lit_genes[["G_EPS"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -200,7 +200,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_spermatocytes, fig.width=8, fig.height=22}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% c(lit_genes[["ES"]], lit_genes[["PS"]], lit_genes[["LS"]])) %>%
+    filter(FBgn %in% c(lit_genes[["EPS"]], lit_genes[["EPS_MPS_LPS"]], lit_genes[["G_EPS_MPS_LPS"]])) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -211,7 +211,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_cysc, fig.width=8, fig.height=22}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% c(lit_genes[["EC"]], lit_genes[["CY"]])) %>%
+    filter(FBgn %in% lit_genes[["cyst"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -222,7 +222,7 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_te, fig.width=8, fig.height=12}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["TE"]]) %>%
+    filter(FBgn %in% lit_genes[["T"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
@@ -233,22 +233,11 @@ FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 
 ```{r heatmap_pc, fig.width=8, fig.height=4}
 lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["PC"]]) %>%
+    filter(FBgn %in% lit_genes[["P"]]) %>%
     pull("gene_symbol")
 
 VlnPlot(sobj, features = lg, pt.size = .1)
 FeaturePlot(sobj, features = lg, pt.size = 1)
-```
-
-#### hub
-
-```{r heatmap_hub, fig.width=8, fig.height=10}
-lg <- fbgn2symbol %>%
-    filter(FBgn %in% lit_genes[["H"]]) %>%
-    pull("gene_symbol")
-
-VlnPlot(sobj, features = lg, ncol = 2, pt.size = .1)
-FeaturePlot(sobj, features = lg, ncol = 2, pt.size = 1)
 ```
 
 ### Cluster Markers

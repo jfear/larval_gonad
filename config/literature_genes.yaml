@@ -1,82 +1,85 @@
 # These genes have been described in the literature. For more details see:
 # https://docs.google.com/spreadsheets/d/1A5ilJROL4HUeQOXwJlWuiTjbE1EsJhiWxKUC5lleM4k/edit?usp=sharing
 
-SP:               # spermatogonia
-  - FBgn0002962   # nos
-  - FBgn0003525   # stg
-  - FBgn0052364   # tut
-  - FBgn0002932   # neur
+G:                # spermatogonia
   - FBgn0250816   # AGO3
-  - FBgn0001981   # esg
-  - FBgn0020493   # Dad
-
-SP_ES:            # spermatogonia and early 1º spermatocytes
-  - FBgn0031091   # Phf7
-  - FBgn0039044   # p53
-  - FBgn0000158   # bam
-  - FBgn0005672   # spi
-  - FBgn0250843   # Prosalpha6
-  - FBgn0283442   # vas
-  - FBgn0004581   # bgcn
   - FBgn0000146   # aub
-  - FBgn0038089   # d-cup
-
-SP_ES_MS_LS:      # Gonia and Primary Spermatocytes
-  - FBgn0000404   # CycA
-  - FBgn0000405   # CycB
-  - FBgn0002842   # sa
-  - FBgn0002673   # twe
-  - FBgn0039124   # tbrd-1
-  - FBgn0031715   # tomb
-  - FBgn0041103   # nht
-  - FBgn0014342   # mia
-  - FBgn0031623   # Taf12L (rye)
-  - FBgn0011569   # can
-  - FBgn0004372   # aly
-  - FBgn0011596   # fzo
-  - FBgn0019828   # dj
-  - FBgn0011206   # bol
-  - FBgn0039071   # bb8
-  - FBgn0033476   # oys (oysgedart)
-  - FBgn0002862   # Mst87F
-  - FBgn0030313   # CG11697
-  - FBgn0032473   # CG5204 (kmg)
-  - FBgn0034739   # CG3927
+  - FBgn0283442   # vas
+  - FBgn0000158   # bam
+  - FBgn0039044   # p53
+  - FBgn0026533   # Dek (p-trap)
+  - FBgn0087008   # e(y)3 (p-trap)
+G_EPS:            # spermatogonia and early 1º spermatocytes
   - FBgn0010258   # Rbp4
-  - FBgn0034435   # fest
-  - FBgn0037751   # topi
+  - FBgn0031091   # Phf7
+  - FBgn0031715   # tomb
+  - FBgn0032473   # CG5204 (kmg)
+  - FBgn0034282   # Mapmodulin (p-trap)
+  - FBgn0041103   # nht
+  - FBgn0262743   # Fs(2)Ket
+  - FBgn0286813   # SRPK (p-trap)
+EPS:
+  - FBgn0004372   # aly
+  - FBgn0002842   # sa
+  - FBgn0039124   # tbrd-1
+  - FBgn0026573   # ADD1 (p-trap)
+EPS_MPS_LPS:
+  - FBgn0002673   # twe
+  - FBgn0011206   # bol
+  - FBgn0003475   # spir (p-trap)
+  - FBgn0011596   # fzo
+  - FBgn0012037   # Ance (p-trap)
+  - FBgn0019828   # dj
   - FBgn0041102   # ocn
-
-EC:               # Early Cyst Cells
-  - FBgn0002543   # robo2
-  - FBgn0004606   # Zfh1
-  - FBgn0003984   # vn
-  - FBgn0024234   # gbb
-  - FBgn0000964   # tj
-  - FBgn0003964   # usp
-  - FBgn0001257   # ImpL2
-  - FBgn0010453   # Wnt4
-  - FBgn0004108   # nrt
-  - FBgn0001090   # bnb
-  - FBgn0011591   # fng
-  - FBgn0000546   # EcR
-  - FBgn0243512   # puc
-  - FBgn0014163   # fax
-  - FBgn0283451   # br
-  - FBgn0032451   # spict
-  - FBgn0003366   # sev
-  - FBgn0003460   # so
-
-CY:               # Cyst Cells
-  - FBgn0004872   # piwi
+  - FBgn0051361   # dpr17 (p-trap)
+  - FBgn0000405   # CycB
+  - FBgn0002862   # Mst87F
+  - FBgn0011725   # twin (p-trap)
+  - FBgn0030313   # CG11697
+  - FBgn0034435   # fest
+  - FBgn0034739   # CG3927
+  - FBgn0039071   # bb8
+G_EPS_MPS_LPS:
+  - FBgn0000404   # CycA
+  - FBgn0031623   # Taf12L
+mixed:
+  - FBgn0000416   # Sap-r (p-trap)
+  - FBgn0030520   # Pdcd4 (p-trap)
+  - FBgn0250843   # Prosalpha6
+  - FBgn0261885   # osa (p-trap)
+  - FBgn0266521   # stai (p-trap)
+cyst:
   - FBgn0000320   # eya
-  - FBgn0015399   # kek1
-
-TE:               # Terminal epithelia
-  - FBgn0004647   # N
-  - FBgn0000014   # abd-A
-  - FBgn0000015   # Abd-B
-
-PC:               # Pigment cells
-  - FBgn0024288   # Sox100B
+  - FBgn0083963   # Nlg3 (p-trap)
+  - FBgn0051158   # Efa6 (p-trap)
+  - FBgn0264494   # CG17646 (p- trap)
+  - FBgn0004872   # piwi
+  - FBgn0011591   # fng
+  - FBgn0038197   # foxo (p- trap)
+  - FBgn0039754   # CG9747 (p- trap)
+  - FBgn0000964   # tj
+  - FBgn0243486   # rdo (p- trap)
+  - FBgn0001090   # bnb
+  - FBgn0004108   # Nrt
+  - FBgn0010453   # Wnt4
+T:
+  - FBgn0050418   # nord (p- trap)
+  - FBgn0264953   # Piezo (p- trap)
+  - FBgn0000636   # Fas3 (p- trap)
+  - FBgn0010473   # tutl
+P:
   - FBgn0000576   # ems
+  - FBgn0004885   # tok (p- trap)
+  - FBgn0024288   # Sox100B
+somatic:
+  - FBgn0001257   # ImpL2
+  - FBgn0003984   # vn
+  - FBgn0004647   # N
+  - FBgn0014163   # fax
+  - FBgn0015399   # kek1
+  - FBgn0020493   # Dad
+  - FBgn0027598   # cindr (p- trap)
+  - FBgn0041182   # Tep2 (p- trap)
+  - FBgn0243512   # puc
+  - FBgn0264975   # Nrg (p- trap)
+  - FBgn0265487   # mbl (p- trap)

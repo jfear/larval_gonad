@@ -1,5 +1,5 @@
 ---
-title: Seurat3 Testis 3 Clustering
+title: Seurat3 Wild Clustering
 author: Justin Fear
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 output: 
@@ -8,7 +8,7 @@ output:
         keep_md: TRUE
 ---
 
-## Testis 3
+## wild
 
 Here I explore clustering using Seurat v3 for clustering.
 
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
     include = TRUE,
     echo = FALSE,
     cache.lazy = FALSE,
-    fig.path = "testis3_figures/",
+    fig.path = "wild_figures/",
     dev = c("png", "svg"),
     fig.width = 8
 )
@@ -34,14 +34,14 @@ set.seed(42)
 ```
 
 ```{r globals}
-SAMPLE <- "testis3"
-RESOLUTIONS <- c(0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
-SEL_RESOLUTION <- "RNA_snn_res.0.6"
-PCA_DIMS <- 1:11
+SAMPLE <- "wild"
+RESOLUTIONS <- c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2)
+SEL_RESOLUTION <- "RNA_snn_res.0.3"
+PCA_DIMS <- 1:12
 
 PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
-DATA_DIR <- file.path(PROJ_DIR, paste0("output/cellselection-wf/", SAMPLE))
-OUTDIR <- file.path(PROJ_DIR, "output/seurat3-cluster-wf")
+DATA_DIR <- file.path(PROJ_DIR, paste0("output/adult-testis-scRNAseq-wf/", SAMPLE))
+OUTDIR <- file.path(PROJ_DIR, "output/adult-testis-scRNAseq-wf")
 
 GENE_ANNOTATION <- file.path(PROJ_DIR, "references/gene_annotation_dmel_r6-26.feather")
 LITERATURE_GENES <- file.path(PROJ_DIR, "config/literature_genes.yaml")
@@ -117,7 +117,7 @@ sobj <- RunPCA(
 #### Dimensional Gene Loadings
 
 ```{r dotplot_pcs, fig.wdith=12, fig.height=12}
-VizDimLoadings(sobj, dims = 1:4, reduction = "pca", ncol = 2)
+VizDimLoadings(sobj, dims = 1:8, reduction = "pca", ncol = 2)
 ```
 
 #### Top Genes Heatmap
