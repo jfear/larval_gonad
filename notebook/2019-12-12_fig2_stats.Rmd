@@ -1,0 +1,33 @@
+```{r}
+library(dplyr)
+library(tibble)
+
+```
+
+```{r funcs}
+test <- function(x, y){
+    testis <- filter(x, tissue == "testis") %>% pull(prop_reads)
+    ovary <- filter(x, tissue == "ovary") %>% pull(prop_reads)
+    pval <- wilcox.test(testis, ovary, alternative = "two.sided", exact = TRUE)[["p.value"]]
+    # names(pval) <- y[[1]]
+    out <- list()
+    out[y[[1]]] <- pval
+    return(out)
+}
+```
+
+```{r load_data}
+df <- feather::read_feather("../output/science_submission/fig2_data_prop_reads.feather")
+colnames(df) <- c("stage", "data_source", "cell_type", "rep", "tissue", "chrom", "prop_reads")
+head(df)
+```
+
+```{r adult_bulk}
+adult_bulk <- filter(df, stage == "adult" & data_source == "RNA-Seq") %>% select(tissue, chrom, rep, prop_reads)
+
+bob <- adult_bulk %>% group_by(chrom) %>% group_map(~ test(.x, .y))
+reshape2::melt(bob)
+
+
+
+```
