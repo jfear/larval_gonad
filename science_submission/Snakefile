@@ -26,41 +26,26 @@ wildcard_constraints:
 
 rule all:
     input: 
-        # expand("../output/science_submission/figures/lit_genes_umap_panel_{group}.svg", group=LIT_GENES.keys()),
-        # expand("../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg", group=PTRAP_GENES.keys()),
-        # expand("../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg", group=LIT_GENES.keys()),
-        # expand("../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg", group=PTRAP_GENES.keys()),
+        # Figures
+        ## Fig 1 + Supplement
         "../output/science_submission/figures/cluster-legend.svg",
         "../output/science_submission/figures/lit-gene-evidence.svg",
         "../output/science_submission/figures/lit-gene-evidence_soma.svg",
-        expand(
-            "../output/science_submission/figures/GvLPS_{direction}_biased_chrom_location.svg",
-            direction=['G', 'LPS']
-        ),
-        expand(
-            "../output/science_submission/figures/{clus}_chrom_enrichment.svg",
-            clus=["G", "EPS", "MPS", "LPS"]
-        ),
-        expand(
-            "../output/science_submission/figures/GvLPS_{direction}_expression_by_chrom.svg",
-            direction=['G', 'LPS']
-        ),
-        "../output/science_submission/biomarkers.tsv",
-        "../output/science_submission/figures/ptrap_expression_panel.svg",
-        "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg",
-        "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg",
-        "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg",
-        "../output/science_submission/figures/chrom_prop_expressed_all_genes.svg",
-        "../output/science_submission/figures/chrom_prop_expressed_genes_in_experiment.svg",
-        "../output/science_submission/figures/fig2.svg",
-        "../output/science_submission/figures/fig3.svg",
         "../output/science_submission/figures/literature_expression_panel.done",
+        ## Fig 2 + Supplement
+        "../output/science_submission/figures/fig2.svg",
+        ## Fig 3 + Supplement
+        "../output/science_submission/figures/fig3.svg",
+        # Tables
         "../output/science_submission/cell_metadata.tsv",
         "../output/science_submission/gene_metadata.tsv",
+        '../output/science_submission/scRNAseq_raw_counts.tsv.gz',
+        '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz',
+        "../output/science_submission/biomarkers.tsv",
 
 
 ################################################################################
-# Figure 1: scRNA-Seq intron, cluster, annotate, and validate
+# Figure 1: scRNA-Seq intro, cluster, and annotate
 ################################################################################
 rule plot_cluster_legend:
     params:
@@ -70,40 +55,16 @@ rule plot_cluster_legend:
     script: "scripts/plot_cluster_legend.py"
 
 
-rule lit_gene_umap_panel:
-    input: f"../references/gene_annotation_dmel_{TAG}.feather"
-    params: 
-        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
-        genes=lambda wildcards: LIT_GENES[wildcards.group]
-    output: "../output/science_submission/figures/lit_genes_umap_panel_{group}.svg"
-    script: "scripts/gene_panels.py"
-
-
-rule lit_gene_expression_patterns_panel:
-    input: f"../references/gene_annotation_dmel_{TAG}.feather"
-    params: 
-        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg",
-        genes=lambda wildcards: LIT_GENES[wildcards.group]
-    output: "../output/science_submission/figures/lit_genes_expression_patterns_panel_{group}.svg"
-    script: "scripts/gene_panels.py"
-
-
-rule ptrap_gene_umap_panel:
-    input: f"../references/gene_annotation_dmel_{TAG}.feather"
-    params: 
-        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/gene_projections/{symbol}_{FBgn}.svg",
-        genes=lambda wildcards: PTRAP_GENES[wildcards.group]
-    output: "../output/science_submission/figures/ptrap_genes_umap_panel_{group}.svg"
-    script: "scripts/gene_panels.py"
-
-
-rule ptrap_gene_expression_patterns_panel:
-    input: f"../references/gene_annotation_dmel_{TAG}.feather"
-    params: 
-        pattern=lambda wildcards: "../output/seurat3-cluster-wf/combined_n3_figures/expression_patterns/{symbol}_{FBgn}.svg",
-        genes=lambda wildcards: PTRAP_GENES[wildcards.group]
-    output: "../output/science_submission/figures/ptrap_genes_expression_patterns_panel_{group}.svg"
-    script: "scripts/gene_panels.py"
+rule plot_literature_panel:
+    input:
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/literature_expression_panel.done"
+    params: pattern=lambda wildcards: "../output/science_submission/figures/literature_expression_panel_{cnt}.svg"
+    script: "scripts/literature_gene_expression_panel.py"
 
 
 rule plot_lit_gene_evidence:
@@ -125,52 +86,6 @@ rule plot_lit_gene_evidence_soma:
     params: cmap=COLORS["heatmap"]
     script: "scripts/plot_lit_gene_evidence_soma.py"
 
-
-rule plot_deg_chrom_locs:
-    input: 
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-        deg="../output/seurat3-cluster-wf/germline_deg/GvLPS_{direction}_biased.pkl",
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/figures/GvLPS_{direction}_biased_chrom_location.svg"
-    script: "scripts/plot_locations.py"
-
-
-rule plot_chrom_bias:
-    input:
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/figures/{clus}_chrom_enrichment.svg"
-    script: "scripts/plot_chrom_bias.py"
-
-
-rule plot_GvLPS_expression_by_chrom:
-    input:
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-        biased="../output/seurat3-cluster-wf/germline_deg/GvLPS_{direction}_biased.pkl",
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather"
-    output: "../output/science_submission/figures/GvLPS_{direction}_expression_by_chrom.svg"
-    script: "scripts/plot_GvLPS_expression_by_chrom.py"
-
-
-rule plot_ptrap_panel:
-    input:
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
-        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
-    output: "../output/science_submission/figures/ptrap_expression_panel.svg"
-    script: "scripts/ptrap_expression_panel.py"
-
-rule plot_literature_panel:
-    input:
-        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
-        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
-    output: "../output/science_submission/figures/literature_expression_panel.done"
-    params: pattern=lambda wildcards: "../output/science_submission/figures/literature_expression_panel_{cnt}.svg"
-    script: "scripts/literature_gene_expression_panel.py"
 
 ################################################################################
 # Figure 2: Chromosome Expression and Gene Counts
@@ -196,66 +111,6 @@ rule plot_fig2:
     output: "../output/science_submission/figures/fig2.svg"
     params: colors=COLORS
     script: "scripts/plot_fig2.py"
-
-
-rule plot_chrom_read_count_panel_scale_scaffold_len:
-    input: 
-        chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: "../output/science_submission/figures/chrom_read_count_panel_scale_scaffold_len.svg"
-    params: colors=COLORS
-    script: "scripts/plot_chrom_read_count_panel_scale_scaffold_len.py"
-
-
-rule plot_chrom_read_count_panel_scale_num_genes_per_scaffold:
-    input: 
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_genes_per_scaffold.svg"
-    params: colors=COLORS
-    script: "scripts/plot_chrom_read_count_panel_scale_num_genes_per_scaffold.py"
-
-
-rule plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold:
-    input: 
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: "../output/science_submission/figures/chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.svg"
-    params: colors=COLORS
-    script: "scripts/plot_chrom_read_count_panel_scale_num_expressed_genes_per_scaffold.py"
-
-
-rule plot_chrom_prop_expressed_all_genes:
-    input: 
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: "../output/science_submission/figures/chrom_prop_expressed_all_genes.svg"
-    params: colors=COLORS
-    script: "scripts/plot_chrom_prop_expressed_all_genes.py"
-
-
-rule plot_chrom_prop_expressed_genes_in_experiment:
-    input: 
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: "../output/science_submission/figures/chrom_prop_expressed_genes_in_experiment.svg"
-    params: colors=COLORS
-    script: "scripts/plot_chrom_prop_expressed_genes_in_experiment.py"
 
 
 ################################################################################
@@ -316,44 +171,6 @@ rule seurat_normalized_to_tsv:
     run:
         pd.read_feather(input[0]).drop("gene_symbol", axis=1).to_csv(output[0], index=False, sep="\t")
 
-
-rule raw_by_celltype_to_tsv:
-    input: '../output/seurat3-cluster-wf/raw_by_cluster_rep.feather'
-    output: '../output/science_submission/scRNAseq_raw_counts_by_celltype_rep.tsv.gz'
-    run:
-        pd.pivot_table(
-            pd.read_feather(input[0]),
-            index="FBgn",
-            columns=["cluster", "rep"],
-            values="UMI",
-            aggfunc="first"
-        ).to_csv(output[0], sep="\t")
-
-
-rule tpm_by_celltype_to_tsv:
-    input: '../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather'
-    output: '../output/science_submission/scRNAseq_tpm_counts_by_celltype_rep.tsv.gz'
-    run:
-        pd.pivot_table(
-            pd.read_feather(input[0]),
-            index="FBgn",
-            columns=["cluster", "rep"],
-            values="TPM",
-            aggfunc="first"
-        ).to_csv(output[0], sep="\t")
-
-
-rule zscores_by_celltype_to_tsv:
-    input: '../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather'
-    output: '../output/science_submission/scRNAseq_zscores_by_celltype_rep.tsv.gz'
-    run:
-        pd.pivot_table(
-            pd.read_feather(input[0]),
-            index="FBgn",
-            columns=["cluster", "rep"],
-            values="zscore",
-            aggfunc="first"
-        ).to_csv(output[0], sep="\t")
 
 rule biomarkers_to_tsv:
     input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
