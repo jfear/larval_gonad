@@ -55,6 +55,7 @@ rule all:
         "../output/science_submission/figures/fig2.svg",
         "../output/science_submission/figures/fig3.svg",
         "../output/science_submission/figures/literature_expression_panel.done",
+        "../output/science_submission/cell_metadata.tsv",
 
 
 ################################################################################
@@ -276,6 +277,16 @@ rule plot_fig3:
 ################################################################################
 # Tables
 ################################################################################
+rule cell_metadata:
+    input: 
+        metadata="../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        cell_calls=expand("../output/cellselection-wf/{sample}_combined_cell_calls.feather", sample=["testis1", "testis2", "testis3"]),
+        scrublets=expand("../output/cellselection-wf/{sample}_scrublet_dublets.txt", sample=["testis1", "testis2", "testis3"]),
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+    output: "../output/science_submission/cell_metadata.tsv"
+    script: "scripts/cell_metadata_table.py"
+
 rule gene_locs:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
     params: chrom_order=config["chrom_order"]
