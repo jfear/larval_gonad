@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from larval_gonad.config import read_config
+from larval_gonad.io import safe_gene_name
 
 workdir: "."
 configfile: "../config/common.yaml"
@@ -21,6 +22,13 @@ LIT_GENES = read_config("../config/literature_genes.yaml")
 PTRAP_GENES = read_config("../config/ptrap_genes.yaml")
 COLORS = yaml.full_load(open("../config/colors.yaml"))
 
+FBGN2SYMBOL = (
+    pd.read_feather("../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "gene_symbol"])
+    .set_index("FBgn")
+    .squeeze()
+    .map(safe_gene_name)
+)
+
 wildcard_constraints: 
     sample="testis\d"
 
@@ -32,6 +40,7 @@ rule all:
         "../output/science_submission/figures/lit-gene-evidence.svg",
         "../output/science_submission/figures/lit-gene-evidence_soma.svg",
         "../output/science_submission/figures/literature_expression_panel.done",
+        expand("../output/science_submission/figures/projections_all_gnees/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),
         ## Fig 2 + Supplement
         "../output/science_submission/figures/fig2.svg",
         ## Fig 3 + Supplement
@@ -85,6 +94,16 @@ rule plot_lit_gene_evidence_soma:
     output: "../output/science_submission/figures/lit-gene-evidence_soma.svg"
     params: cmap=COLORS["heatmap"]
     script: "scripts/plot_lit_gene_evidence_soma.py"
+
+
+rule plot_umaps_all_genes:
+    input:
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/projections_all_gnees/{fbgn}_{symbol}.svg"
 
 
 ################################################################################
