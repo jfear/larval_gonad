@@ -56,6 +56,7 @@ rule all:
         "../output/science_submission/figures/fig3.svg",
         "../output/science_submission/figures/literature_expression_panel.done",
         "../output/science_submission/cell_metadata.tsv",
+        "../output/science_submission/gene_metadata.tsv",
 
 
 ################################################################################
@@ -286,6 +287,19 @@ rule cell_metadata:
         umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
     output: "../output/science_submission/cell_metadata.tsv"
     script: "scripts/cell_metadata_table.py"
+
+rule gene_metadata:
+    input: 
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+    params: 
+        cluster_annot=config['cluster_annot'],
+        cluster_order=config['cluster_order'],
+    output: "../output/science_submission/gene_metadata.tsv"
+    script: "scripts/gene_metadata_table.py"
 
 rule gene_locs:
     input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
