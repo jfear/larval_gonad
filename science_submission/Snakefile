@@ -288,6 +288,7 @@ rule cell_metadata:
     output: "../output/science_submission/cell_metadata.tsv"
     script: "scripts/cell_metadata_table.py"
 
+
 rule gene_metadata:
     input: 
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
@@ -300,12 +301,6 @@ rule gene_metadata:
         cluster_order=config['cluster_order'],
     output: "../output/science_submission/gene_metadata.tsv"
     script: "scripts/gene_metadata_table.py"
-
-rule gene_locs:
-    input: Path(REFERENCES_DIR, ASSEMBLY, TAG, "gtf", f"{ASSEMBLY}_{TAG}.gtf.db").as_posix()
-    params: chrom_order=config["chrom_order"]
-    output: "../output/science_submission/gene_locations.feather"
-    script: "scripts/gene_locations.py"
 
 
 rule raw_to_tsv:
