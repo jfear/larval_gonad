@@ -5,11 +5,26 @@ import pandas as pd
 
 
 def main():
-    df = pd.concat(
-        [read_metadata(), read_cell_calls(), read_cluster(), read_umap()], axis=1, sort=False, join="inner"
-    )  # type: pd.DataFrame
+    df = pd.concat([read_cell_calls(), read_cluster(), read_umap()], axis=1, sort=False).join(
+        read_metadata(), how="inner"
+    ).assign(flag_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000))  # type: pd.DataFrame
+
     df.rename_axis("cell_id", inplace=True)
-    df.to_csv(snakemake.output[0], sep="\t")
+    df.reindex(
+        columns=[
+            "rep",
+            "nUMI",
+            "nFeature",
+            "cellranger_is_cell",
+            "droputils_is_cell",
+            "is_cell",
+            "scrublet_is_multi",
+            "flag_cell_used_in_study",
+            "cluster",
+            "UMAP_1",
+            "UMAP_2",
+        ]
+    ).to_csv(snakemake.output[0], sep="\t")
 
 
 def read_metadata():
@@ -29,7 +44,7 @@ def read_cell_calls():
     cells = pd.concat(list(map(read_cell_call, snakemake.input.cell_calls)))
     doublets = list(flatten(map(read_scrublet, snakemake.input.scrublets)))
     cells.loc[cells.index.isin(doublets), "scrublet_is_multi"] = True
-    return cells.assign(flag_cell_used_in_study=lambda x: x.is_cell ^ x.scrublet_is_multi)
+    return cells
 
 
 def read_cell_call(fname):
