@@ -9,7 +9,7 @@ from larval_gonad.io import cellranger_counts
 
 def main():
     df = pd.concat([get_cell_metadata(fname) for fname in snakemake.input])
-    df.reset_index().to_feather(snakemake.output[0])
+    df.rename_axis("cell_id").reset_index().to_feather(snakemake.output[0])
 
 
 def get_cell_metadata(fname):

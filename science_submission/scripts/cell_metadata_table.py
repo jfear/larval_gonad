@@ -6,7 +6,7 @@ import pandas as pd
 
 def main():
     df = pd.concat(
-        [read_metadata(), read_cell_calls(), read_cluster(), read_umap()], axis=1, sort=False
+        [read_metadata(), read_cell_calls(), read_cluster(), read_umap()], axis=1, sort=False, join="inner"
     )  # type: pd.DataFrame
     df.rename_axis("cell_id", inplace=True)
     df.to_csv(snakemake.output[0], sep="\t")
@@ -15,8 +15,6 @@ def main():
 def read_metadata():
     return (
         pd.read_feather(snakemake.input.metadata)
-        .assign(nUMI=lambda x: x.nCount_RNA)
-        .assign(nFeature=lambda x: x.nFeature_RNA)
         .assign(rep=lambda x: x.cell_id.str.extract(r"(rep\d)_.*", expand=False))
         .loc[:, ["cell_id", "rep", "nUMI", "nFeature"]]
         .set_index("cell_id")
@@ -64,7 +62,7 @@ if __name__ == "__main__":
         snakemake = snakemake_debug(
             workdir="science_submission",
             input=dict(
-                metadata="../output/seurat3-cluster-wf/combined_n3_metadata.feather",
+                metadata="../output/cellselection-wf/cell_metadata.feather",
                 clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
                 cell_calls=[
                     "../output/cellselection-wf/testis1_combined_cell_calls.feather",
