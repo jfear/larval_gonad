@@ -84,6 +84,7 @@ rule targets:
         "../output/cellselection-wf/expressed_genes.pkl",
         "../output/cellselection-wf/commonly_expressed_genes.pkl",
         expand("../output/cellselection-wf/figures/barcode_rank_plot_{sample}.svg", sample=SAMPLES),
+        "../output/cellselection-wf/cell_metadata.feather",
 
 
 rule unzip_cellranger3:
@@ -362,6 +363,17 @@ rule commonly_expressed_genes:
 
         df = pd.read_feather(input[0]).set_index("FBgn")
         pickle_dump(commonly_expressed(df), output[0])
+
+################################################################################
+# Output Cell Metadata
+################################################################################
+rule cell_metadata:
+    input:
+        "../output/cellranger3-wf/testis1/outs/raw_feature_bc_matrix.h5",
+        "../output/cellranger3-wf/testis2/outs/raw_feature_bc_matrix.h5",
+        "../output/cellranger3-wf/testis3/outs/raw_feature_bc_matrix.h5"
+    output: "../output/cellselection-wf/cell_metadata.feather"
+    script: "scripts/cell_metadata.py"
 
 
 ################################################################################
