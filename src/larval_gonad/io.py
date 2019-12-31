@@ -186,7 +186,7 @@ def cellranger_counts(fname, genome="matrix"):
         except tables.NoSuchNodeError:
             print("That genome does not exist in this file.")
             return None
-        gene_ids = getattr(group, "features").read()
+        gene_ids = getattr(group, "features/id").read()
         barcodes = getattr(group, "barcodes").read()
         data = getattr(group, "data").read()
         indices = getattr(group, "indices").read()
