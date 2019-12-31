@@ -7,6 +7,7 @@ import matplotlib
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import seaborn as sns
 
+matplotlib.use("Agg")
 plt.style.use("seaborn-white")
 plt.rcParams["savefig.facecolor"] = "white"
 
@@ -101,7 +102,7 @@ if __name__ == "__main__":
             ),
             wildcards=dict(
                 fbgn="FBgn0000504",
-                clean_symbol="dsx"
+                symbol="dsx"
             )
         )
 

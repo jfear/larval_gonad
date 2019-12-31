@@ -26,6 +26,7 @@ FBGN2SYMBOL = (
     pd.read_feather("../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "gene_symbol"])
     .set_index("FBgn")
     .squeeze()
+    .reindex(pd.read_feather("../output/seurat3-cluster-wf/combined_n3_normalized.feather", columns=["FBgn"]).FBgn.unique().tolist())
     .map(safe_gene_name)
 )
 
@@ -40,7 +41,7 @@ rule all:
         "../output/science_submission/figures/lit-gene-evidence.svg",
         "../output/science_submission/figures/lit-gene-evidence_soma.svg",
         "../output/science_submission/figures/literature_expression_panel.done",
-        expand("../output/science_submission/figures/projections_all_gnees/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),
+        # expand("../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),   ## commented out to spead up build snakemake.
         ## Fig 2 + Supplement
         "../output/science_submission/figures/fig2.svg",
         ## Fig 3 + Supplement
@@ -103,7 +104,8 @@ rule plot_umaps_all_genes:
         zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
         umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
         norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
-    output: "../output/science_submission/figures/projections_all_gnees/{fbgn}_{symbol}.svg"
+    output: "../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg"
+    script: "scripts/plot_umap_projections.py"
 
 
 ################################################################################
