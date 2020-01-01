@@ -164,6 +164,8 @@ rule cell_metadata:
         cell_calls=expand("../output/cellselection-wf/{sample}_combined_cell_calls.feather", sample=["testis1", "testis2", "testis3"]),
         scrublets=expand("../output/cellselection-wf/{sample}_scrublet_dublets.txt", sample=["testis1", "testis2", "testis3"]),
         umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        autosome_ratios_all_genes="../output/x-to-a-wf/autosome_ratios_expressed_by_cell.feather",
+        autosome_ratios_commonly_expressed_genes="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
     output: "../output/science_submission/cell_metadata.tsv"
     script: "scripts/cell_metadata_table.py"
 

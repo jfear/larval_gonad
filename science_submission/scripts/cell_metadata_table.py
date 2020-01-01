@@ -5,9 +5,13 @@ import pandas as pd
 
 
 def main():
-    df = pd.concat([read_cell_calls(), read_cluster(), read_umap()], axis=1, sort=False).join(
-        read_metadata(), how="inner"
-    ).assign(is_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000))  # type: pd.DataFrame
+    df = (
+        pd.concat([read_cell_calls(), read_cluster(), read_umap(), read_ratios_all_genes(), read_ratios_common_genes()], axis=1, sort=False)
+        .join(read_metadata(), how="inner")
+        .assign(
+            is_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000)
+        )
+    )  # type: pd.DataFrame
 
     df.rename_axis("cell_id", inplace=True)
     df.reindex(
@@ -23,6 +27,12 @@ def main():
             "cluster",
             "UMAP_1",
             "UMAP_2",
+            "all_genes_x_to_a_ratio",
+            "all_genes_fourth_to_a_ratio",
+            "all_genes_y_to_a_ratio",
+            "common_genes_x_to_a_ratio",
+            "common_genes_fourth_to_a_ratio",
+            "common_genes_y_to_a_ratio",
         ]
     ).to_csv(snakemake.output[0], sep="\t")
 
@@ -70,6 +80,28 @@ def read_umap():
     return pd.read_feather(snakemake.input.umap).set_index("cell_id")
 
 
+def read_ratios_all_genes():
+    df = (
+        pd.read_feather(snakemake.input.autosome_ratios_all_genes)
+        .set_index("cell_id")
+        .drop(["rep", "cluster"], axis=1)
+    )
+    cols = [f"all_genes_{x}" for x in df.columns]
+    df.columns = cols
+    return df
+
+
+def read_ratios_common_genes():
+    df = (
+        pd.read_feather(snakemake.input.autosome_ratios_commonly_expressed_genes)
+        .set_index("cell_id")
+        .drop(["rep", "cluster"], axis=1)
+    )
+    cols = [f"common_genes_{x}" for x in df.columns]
+    df.columns = cols
+    return df
+
+
 if __name__ == "__main__":
     if os.getenv("SNAKE_DEBUG", False):
         from larval_gonad.debug import snakemake_debug
@@ -90,6 +122,8 @@ if __name__ == "__main__":
                     "../output/cellselection-wf/testis3_scrublet_dublets.txt",
                 ],
                 umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+                autosome_ratios_all_genes="../output/x-to-a-wf/autosome_ratios_expressed_by_cell.feather",
+                autosome_ratios_commonly_expressed_genes="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
             ),
         )
 
