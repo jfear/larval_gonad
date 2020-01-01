@@ -23,4 +23,4 @@ df.is_cell.sum()
 (df[df.is_cell].scrublet_is_multi).sum()
 
 # %%
-df.flag_cell_used_in_study.sum()
+df.is_cell_used_in_study.sum()

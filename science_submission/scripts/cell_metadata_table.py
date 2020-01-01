@@ -7,7 +7,7 @@ import pandas as pd
 def main():
     df = pd.concat([read_cell_calls(), read_cluster(), read_umap()], axis=1, sort=False).join(
         read_metadata(), how="inner"
-    ).assign(flag_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000))  # type: pd.DataFrame
+    ).assign(is_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000))  # type: pd.DataFrame
 
     df.rename_axis("cell_id", inplace=True)
     df.reindex(
@@ -19,7 +19,7 @@ def main():
             "droputils_is_cell",
             "is_cell",
             "scrublet_is_multi",
-            "flag_cell_used_in_study",
+            "is_cell_used_in_study",
             "cluster",
             "UMAP_1",
             "UMAP_2",
