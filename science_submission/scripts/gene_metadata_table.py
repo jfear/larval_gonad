@@ -5,9 +5,13 @@ from larval_gonad.io import feather_to_cluster_rep_matrix
 
 
 def main():
-    df = pd.concat([read_gene_annot(), read_biomarkers(), read_zscore(), read_raw(), read_tpm()], axis=1, sort=False)
+    df = pd.concat(
+        [read_gene_annot(), read_biomarkers(), read_zscore(), read_raw(), read_tpm()],
+        axis=1,
+        sort=False,
+    )
     df.rename_axis("FBgn", inplace=True)
-    df.to_csv(snakemake.output[0], sep='\t')
+    df.to_csv(snakemake.output[0], sep="\t")
 
 
 def read_gene_annot():
@@ -22,7 +26,8 @@ def read_gene_annot():
 
 def read_biomarkers():
     return (
-        pd.read_feather(snakemake.input.biomarkers).assign(
+        pd.read_feather(snakemake.input.biomarkers)
+        .assign(
             cluster=lambda x: pd.Categorical(
                 x.cluster.map(lambda y: snakemake.params["cluster_annot"][y]),
                 ordered=True,
