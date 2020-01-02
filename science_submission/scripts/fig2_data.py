@@ -17,9 +17,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from larval_gonad.normalization import tpm
 from larval_gonad import plotting
 
-NAMES = ["Prop Reads Mapping\n(Scaled by # Expressed Genes)", r"% Gene Expressed"]
+NAMES = ["Average TPM", r"% Gene Expressed"]
 
 
 def main():
@@ -53,25 +54,37 @@ def munge_prop_reads(name):
             )
         )
     )
-
+    counts_tpm = add_tpm(counts)
     expressed = counts.loc[counts.Count > 0, "FBgn"].unique().tolist()
 
     fbgn2chrom = get_fbgn2chrom(expressed).value_counts().rename("num_genes")
     fbgn2chrom.index.name = "chrom"
 
-    total_counts = counts.groupby(
-        ["stage", "data_source", "cell_type", "rep", "tissue"]
-    ).Count.sum()
-
     prop_counts = (
-        counts.groupby(["chrom", "stage", "data_source", "cell_type", "rep", "tissue"])
-        .Count.sum()
-        .div(total_counts)
-        .div(fbgn2chrom / 1e3, axis=0)
+        counts_tpm.groupby(["chrom", "stage", "data_source", "cell_type", "rep", "tissue"])
+        .TPM.sum()
+        .div(fbgn2chrom, axis=0)
         .rename(name)
     )
 
     return prop_counts.to_frame().reset_index()
+
+
+def add_tpm(counts):
+    counts_matrix = pd.pivot_table(
+        counts, index="FBgn", columns="sample_ID", values="Count", aggfunc="first"
+    ).fillna(0)
+
+    gene_lens = (
+        pd.read_feather(snakemake.input.gene_annot, columns=["FBgn", "length"])
+        .set_index("FBgn")
+        .squeeze()
+    )
+
+    _tpm = (
+        tpm(counts_matrix, gene_lens).dropna().reset_index().melt(id_vars="FBgn", value_name="TPM")
+    )
+    return counts.merge(_tpm, on=["FBgn", "sample_ID"])
 
 
 def munge_pct_expressed(name):
