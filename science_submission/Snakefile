@@ -49,13 +49,14 @@ rule all:
         # Tables
         "../output/science_submission/cell_metadata.tsv",
         "../output/science_submission/gene_metadata.tsv",
+        "../output/science_submission/cluster_metadata.tsv",
         '../output/science_submission/scRNAseq_raw_counts.tsv.gz',
         '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz',
         "../output/science_submission/biomarkers.tsv",
         '../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz',
-
+        expand("../output/science_submission/{comparison}.tsv", comparison=["EPSvLPS", "EPSvMLPS", "EPSvMPS", "GvEPS", "GvLPS", "GvMLPS", "GvMPS", "GvPS", "MPSvLPS"]),
 
 ################################################################################
 # Figure 1: scRNA-Seq intro, cluster, and annotate
@@ -183,6 +184,16 @@ rule gene_metadata:
     output: "../output/science_submission/gene_metadata.tsv"
     script: "scripts/gene_metadata_table.py"
 
+rule cluster_metadata:
+    input:
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+    params:
+        cluster_annot=config["cluster_annot"],
+        cluster_order=config["cluster_order"],
+        legend_names=config["legend_names"],
+    output: "../output/science_submission/cluster_metadata.tsv"
+    script: "scripts/cluster_metadata_table.py"
 
 rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
@@ -209,6 +220,13 @@ rule biomarkers_to_tsv:
             .to_csv(output[0], index=False, sep="\t")
         )
     
+
+rule deg_to_tsv:
+    input: "../output/seurat3-cluster-wf/germline_deg/{comparison}.feather"
+    output: "../output/science_submission/{comparison}.tsv"
+    run:
+        pd.read_feather(input[0]).to_csv(output[0], index=False, sep="\t")
+
 
 rule larval_bulk_gene_level:
     input: "../output/bulk2-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv"
