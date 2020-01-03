@@ -4,17 +4,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
 from matplotlib.collections import LineCollection
+import matplotlib.pyplot as plt
+
 from scipy.stats import mannwhitneyu
 
+from larval_gonad import plotting
 
 def main():
+    plt.style.use(["1c", "science_base"])
+    width = plt.rcParams["figure.figsize"][0]
+    plt.rcParams["figure.figsize"] = (width, width)
+
     sphere = pd.read_csv(snakemake.input[0])
     ax = sns.boxplot(
         "chrom",
         "um3",
         data=sphere.melt(var_name="chrom", value_name="um3"),
         palette=snakemake.params.colors,
+        notch=True
     )
 
     # Clean up plot
@@ -44,6 +53,5 @@ if __name__ == "__main__":
             input="../data/external/miriam/oligopaint_sphere.csv",
             params=dict(colors=["red", "grey"]),
         )
-    plt.style.use("../config/figure_styles.mplstyle")
 
     main()

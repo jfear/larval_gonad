@@ -7,14 +7,20 @@ import seaborn as sns
 from matplotlib.collections import LineCollection
 from scipy.stats import mannwhitneyu
 
+from larval_gonad import plotting
 
 def main():
+    plt.style.use(["1c", "science_base"])
+    width = plt.rcParams["figure.figsize"][0]
+    plt.rcParams["figure.figsize"] = (width, width)
+
     volume = pd.read_csv(snakemake.input[0])
     ax = sns.boxplot(
         "chrom",
         "um3",
         data=volume.melt(var_name="chrom", value_name="um3"),
         palette=snakemake.params.colors,
+        notch=True
     )
 
     # Clean up plot
