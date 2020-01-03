@@ -56,6 +56,7 @@ rule all:
         '../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz',
+        "../output/science_submission/spearman_corr.tsv",
         expand("../output/science_submission/{comparison}.tsv", comparison=["EPSvLPS", "EPSvMLPS", "EPSvMPS", "GvEPS", "GvLPS", "GvMLPS", "GvMPS", "GvPS", "MPSvLPS"]),
 
 ################################################################################
@@ -184,6 +185,7 @@ rule gene_metadata:
     output: "../output/science_submission/gene_metadata.tsv"
     script: "scripts/gene_metadata_table.py"
 
+
 rule cluster_metadata:
     input:
         clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
@@ -194,6 +196,7 @@ rule cluster_metadata:
         legend_names=config["legend_names"],
     output: "../output/science_submission/cluster_metadata.tsv"
     script: "scripts/cluster_metadata_table.py"
+
 
 rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
@@ -251,4 +254,13 @@ rule adult_bulk_gene_level:
             values="Count"
         ).to_csv(output[0], sep="\t")
         
+
+rule spearman_corr:
+    input:
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        larval_scrnaseq="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        larval_bulk="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+    output: "../output/science_submission/spearman_corr.tsv"
+    script: "scripts/correlation_table.py"
 
