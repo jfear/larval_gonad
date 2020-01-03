@@ -44,6 +44,7 @@ rule all:
         # expand("../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),   ## commented out to spead up build snakemake.
         ## Fig 2 + Supplement
         "../output/science_submission/figures/fig2.svg",
+        "../output/science_submission/figures/fig2_boxplot.svg",
         ## Fig 3 + Supplement
         "../output/science_submission/figures/fig3.svg",
         # Tables
@@ -137,6 +138,16 @@ rule plot_fig2:
     output: "../output/science_submission/figures/fig2.svg"
     params: colors=COLORS
     script: "scripts/plot_fig2.py"
+
+
+rule plot_fig2_boxplot:
+    input: 
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        adult="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        larval="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+    output: "../output/science_submission/figures/fig2_boxplot.svg"
+    params: colors=COLORS
+    script: "scripts/plot_fig2_boxplots.py"
 
 
 ################################################################################
