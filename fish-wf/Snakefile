@@ -13,7 +13,7 @@ rule chrom_volume:
     input: "../data/external/miriam/oligopaint_volumes.csv"
     output: "../output/fish-wf/chrom_volume.svg"
     params:
-        colors=['red', 'grey']
+        colors=['yellow', 'purple']
     script: "scripts/fish_volume_boxplot.py"
 
 
@@ -21,5 +21,5 @@ rule sphericity:
     input: "../data/external/miriam/oligopaint_sphere.csv"
     output: "../output/fish-wf/sphericity.svg"
     params:
-        colors=['red', 'grey']
+        colors=['yellow', 'purple']
     script: "scripts/fish_sphere_boxplot.py"

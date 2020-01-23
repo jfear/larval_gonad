@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib.collections import LineCollection
-from scipy.stats import mannwhitneyu
+from scipy.stats import ttest_rel
 
 from larval_gonad import plotting
 
@@ -28,13 +28,13 @@ def main():
     sns.despine(ax=ax)
 
     # Test that not significant
-    pval = np.round(mannwhitneyu(volume["X"], volume["2L"], alternative="less")[1], 3)
-    if pval > 0.05:
+    pval = np.round(ttest_rel(volume["X"], volume["2L"])[1], 3)
+    if pval <= 0.05:
         # Extend axis and add NS.
         _max = volume.max().max() + 2
         ax.set_ylim(None, _max)
 
-        ax.text(0.5, 0.99, f"NS (p={pval})", transform=ax.transAxes, va="top", ha="center")
+        ax.text(0.5, 0.99, f"p = {pval}", transform=ax.transAxes, va="top", ha="center")
         l = plt.Line2D([0.3, 0.7], [0.94, 0.94], transform=ax.transAxes, color="k", lw=0.8, ls="-")
         ax.add_line(l)
 
