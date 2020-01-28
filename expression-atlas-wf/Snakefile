@@ -146,6 +146,12 @@ rule aggregated_muller_table:
     script: "scripts/aggregated_muller_table.py"
 
 
+rule species_for_maria:
+    input: 
+        muller=rules.aggregated_muller_table.output[0],
+        yogns=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
+    output: "../output/expression-atlas-wf/species_for_maria.tsv"
+    script: "scripts/species_for_maria.py"
 ################################################################################
 # Aggregate D. melanogaster counts
 ################################################################################
