@@ -152,6 +152,14 @@ rule species_for_maria:
         yogns=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
     output: "../output/expression-atlas-wf/species_for_maria.tsv"
     script: "scripts/species_for_maria.py"
+
+
+rule scaffolds_for_maria:
+    input:
+        orthologs=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
+        scaffolds=expand(rules.yogn_to_metadata.output[0], species=config["species_order_w_dmel"]),
+    output: "../output/expression-atlas-wf/scaffolds_for_maria.tsv"
+    script: "scripts/scaffolds_for_maria.py"
 ################################################################################
 # Aggregate D. melanogaster counts
 ################################################################################
