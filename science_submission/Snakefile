@@ -269,7 +269,7 @@ rule adult_bulk_gene_level:
 rule spearman_corr_bulk_vs_sum_single_cell:
     input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-        larval_scrnaseq="../output/cellselection-wf/raw.feather",
+        larval_scrnaseq="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
         larval_bulk="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
     output: "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv"
     script: "scripts/correlation_table_bulk_sum_single_cell.py"
