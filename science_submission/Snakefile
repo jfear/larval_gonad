@@ -272,7 +272,7 @@ rule spearman_corr_bulk_vs_sum_single_cell:
         larval_scrnaseq="../output/cellselection-wf/raw.feather",
         larval_bulk="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
     output: "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv"
-    script: "scripts/correlation_table_bulk_vs_sum_single_cell.py"
+    script: "scripts/correlation_table_bulk_sum_single_cell.py"
 
 rule spearman_corr:
     input:
