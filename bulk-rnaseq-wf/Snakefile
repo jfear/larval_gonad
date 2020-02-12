@@ -82,6 +82,7 @@ final_targets = utils.flatten((
         '../output/bulk-rnaseq-wf/deg/larva_ovary_biased_fbgns.pkl',
         '../output/bulk-rnaseq-wf/deg/larval_ns_biased_fbgns.pkl',
         "../output/bulk-rnaseq-wf/figures/demas_x_and_4th/larval_gonad.svg",
+        "../output/bulk-rnaseq-wf/testis_ovary_counts.feather"
     ],
 ))
 
@@ -1124,3 +1125,14 @@ rule plot_demas_x_and_4th:
     params: colors=["blue", "lightgray", "red"]
     output: "../output/bulk-rnaseq-wf/figures/demas_x_and_4th/larval_gonad.svg"
     script: "scripts/plot_demas_x_and_4th.py"
+
+rule testis_ovary_counts:
+    """Table for making counts summary figure.
+    I need to plot various aggregated counts by chromosome arm. This is a
+    summary table to make that easy.
+    """
+    input: 
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        counts="../output/bulk-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv"
+    output: "../output/bulk-rnaseq-wf/testis_ovary_counts.feather"
+    script: "scripts/testis_ovary_counts.py"
