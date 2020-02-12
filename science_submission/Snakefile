@@ -58,6 +58,7 @@ rule all:
         '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz',
         "../output/science_submission/spearman_corr.tsv",
+        "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv",
         expand("../output/science_submission/{comparison}.tsv", comparison=["EPSvLPS", "EPSvMLPS", "EPSvMPS", "GvEPS", "GvLPS", "GvMLPS", "GvMPS", "GvPS", "MPSvLPS"]),
 
 ################################################################################
@@ -122,7 +123,7 @@ rule data_fig2:
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
         adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
+        L3_bulk="../output/bulk-rnaseq-wf/testis_ovary_counts.feather",
         L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
         L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
     output: 
@@ -144,7 +145,7 @@ rule plot_fig2_boxplot:
     input: 
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         adult="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        larval="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+        larval="../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
     output: "../output/science_submission/figures/fig2_boxplot.svg"
     params: colors=COLORS
     script: "scripts/plot_fig2_boxplots.py"
@@ -243,13 +244,13 @@ rule deg_to_tsv:
 
 
 rule larval_bulk_gene_level:
-    input: "../output/bulk2-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv"
+    input: "../output/bulk-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv"
     output: '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz'
     shell: "gzip -c {input[0]} > {output[0]}"
 
 
 rule larval_bulk_intergenic_level:
-    input: "../output/bulk2-rnaseq-wf/rnaseq_aggregation/intergenic_counts.tsv"
+    input: "../output/bulk-rnaseq-wf/rnaseq_aggregation/intergenic_counts.tsv"
     output: '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz'
     shell: "gzip -c {input[0]} > {output[0]}"
 
@@ -270,7 +271,7 @@ rule spearman_corr_bulk_vs_sum_single_cell:
     input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         larval_scrnaseq="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        larval_bulk="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+        larval_bulk="../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
     output: "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv"
     script: "scripts/correlation_table_bulk_sum_single_cell.py"
 
@@ -278,7 +279,7 @@ rule spearman_corr:
     input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         larval_scrnaseq="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-        larval_bulk="../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+        larval_bulk="../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
         adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
     output: "../output/science_submission/spearman_corr.tsv"
     script: "scripts/correlation_table.py"
