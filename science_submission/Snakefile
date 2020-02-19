@@ -30,6 +30,14 @@ FBGN2SYMBOL = (
     .map(safe_gene_name)
 )
 
+FBGN2CHROM = (
+    pd.read_feather("../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "gene_symbol", "FB_chrom"])
+    .set_index(["FBgn", "gene_symbol"])
+    .squeeze()
+    .rename("Chromosome")
+    .reset_index()
+)
+
 wildcard_constraints: 
     sample="testis\d"
 
@@ -53,7 +61,7 @@ rule all:
         "../output/science_submission/cluster_metadata.tsv",
         '../output/science_submission/scRNAseq_raw_counts.tsv.gz',
         '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz',
-        "../output/science_submission/biomarkers.tsv",
+        "../output/science_submission/one_vs_rest.tsv",
         '../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz',
         '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz',
@@ -214,57 +222,107 @@ rule raw_to_tsv:
     input: '../output/cellselection-wf/raw.feather'
     output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
     run:
-        pd.read_feather(input[0]).to_csv(output[0], index=False, sep="\t")
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on="FBgn", how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
 
 
 rule seurat_normalized_to_tsv:
     input: '../output/seurat3-cluster-wf/combined_n3_normalized.feather'
     output: '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz'
     run:
-        pd.read_feather(input[0]).drop("gene_symbol", axis=1).to_csv(output[0], index=False, sep="\t")
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
 
 
 rule biomarkers_to_tsv:
     input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/science_submission/biomarkers.tsv"
+    output: "../output/science_submission/one_vs_rest.tsv"
     params: cluster_annot = config["cluster_annot"]
     run:
         (
             pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
             .assign(cluster=lambda x: x.cluster.map(lambda y: params.cluster_annot[y]))
-            .to_csv(output[0], index=False, sep="\t")
+            .to_csv(output[0], sep="\t")
         )
+
     
 
 rule deg_to_tsv:
     input: "../output/seurat3-cluster-wf/germline_deg/{comparison}.feather"
     output: "../output/science_submission/{comparison}.tsv"
     run:
-        pd.read_feather(input[0]).to_csv(output[0], index=False, sep="\t")
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
 
 
 rule larval_bulk_gene_level:
     input: "../output/bulk-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv"
     output: '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz'
-    shell: "gzip -c {input[0]} > {output[0]}"
+    run:
+        (
+            pd.read_csv(input[0], sep="\t")
+            .set_index("Geneid")
+            .rename_axis("FBgn")
+            .reset_index()
+            .merge(FBGN2CHROM, on="FBgn", how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
 
 
 rule larval_bulk_intergenic_level:
-    input: "../output/bulk-rnaseq-wf/rnaseq_aggregation/intergenic_counts.tsv"
+    input: 
+        data="../output/bulk2-rnaseq-wf/rnaseq_aggregation/intergenic_counts.tsv",
+        intergene_annot="../output/bulk2-rnaseq-wf/intergenic.bed"
     output: '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz'
-    shell: "gzip -c {input[0]} > {output[0]}"
+    run:
+        inter2chrom = pd.read_csv(
+            input.intergene_annot, sep="\t", header=None, names=["Chromosome", "start", "end", "intergenic_id"]
+        )
+
+        (
+            pd.read_csv(input.data, sep="\t")
+            .set_index("Geneid")
+            .rename_axis("intergenic_id")
+            .reset_index()
+            .merge(inter2chrom, on="intergenic_id", how="left")
+            .set_index(["intergenic_id", "Chromosome", "start", "end"])
+            .to_csv(output[0], sep="\t")
+        )
 
 
 rule adult_bulk_gene_level:
-    input: "../output/expression-atlas-wf/w1118_gene_counts.feather"
+    input: 
+        data="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather"
     output: '../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz'
     run: 
-        pd.pivot_table(
-            pd.read_feather(input[0], columns=["FBgn", "sample_ID", "Count"]),
-            index="FBgn",
-            columns="sample_ID",
-            values="Count"
-        ).to_csv(output[0], sep="\t")
+        (
+            pd.pivot_table(
+                pd.read_feather(input[0], columns=["FBgn", "sample_ID", "Count"]),
+                index="FBgn",
+                columns="sample_ID",
+                values="Count"
+            )
+            .reset_index()
+            .merge(FBGN2CHROM, on="FBgn", how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
         
 
 rule spearman_corr_bulk_vs_sum_single_cell:
@@ -275,6 +333,7 @@ rule spearman_corr_bulk_vs_sum_single_cell:
     output: "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv"
     script: "scripts/correlation_table_bulk_sum_single_cell.py"
 
+
 rule spearman_corr:
     input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
@@ -283,4 +342,3 @@ rule spearman_corr:
         adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
     output: "../output/science_submission/spearman_corr.tsv"
     script: "scripts/correlation_table.py"
-
