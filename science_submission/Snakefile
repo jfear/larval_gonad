@@ -43,34 +43,47 @@ wildcard_constraints:
 
 rule all:
     input: 
-        # Figures
-        ## Fig 1 + Supplement
-        "../output/science_submission/figures/cluster-legend.svg",
-        "../output/science_submission/figures/lit-gene-evidence.svg",
-        "../output/science_submission/figures/lit-gene-evidence_soma.svg",
-        "../output/science_submission/figures/literature_expression_panel.done",
-        # expand("../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),   ## commented out to spead up build snakemake.
-        ## Fig 2 + Supplement
-        "../output/science_submission/figures/fig2.svg",
-        "../output/science_submission/figures/fig2_boxplot.svg",
-        ## Fig 3 + Supplement
+        # Main Figures
+        "../output/science_submission/figures/fig1.svg",
+        "../output/science_submission/figures/fig2.parts.done",
         "../output/science_submission/figures/fig3.svg",
-        # Tables
-        "../output/science_submission/cell_metadata.tsv",
-        "../output/science_submission/gene_metadata.tsv",
-        "../output/science_submission/cluster_metadata.tsv",
+        "../output/science_submission/figures/fig4.svg",
+        "../output/science_submission/figures/fig5.svg",
+        # Supplemental Figures
+
+        # Table S1
+        # Table S2
+        # Supplemental Files
         '../output/science_submission/scRNAseq_raw_counts.tsv.gz',
         '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz',
-        "../output/science_submission/one_vs_rest.tsv",
-        '../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz',
-        '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz',
-        '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz',
-        "../output/science_submission/spearman_corr.tsv",
-        "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv",
-        expand("../output/science_submission/{comparison}.tsv", comparison=["EPSvLPS", "EPSvMLPS", "EPSvMPS", "GvEPS", "GvLPS", "GvMLPS", "GvMPS", "GvPS", "MPSvLPS"]),
+        # expand("../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),   ## commented out to spead up build snakemake.
 
 ################################################################################
-# Figure 1: scRNA-Seq intro, cluster, and annotate
+# Figure 1: Bulk
+################################################################################
+rule data_fig1:
+    input: 
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+        chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
+        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        L3_bulk="../output/bulk-rnaseq-wf/testis_ovary_counts.feather",
+        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
+    output: 
+        prop_reads="../output/science_submission/fig1_data_prop_reads.feather",
+        pct_expressed="../output/science_submission/fig1_data_pct_expressed.feather"
+    script: "scripts/fig1_data.py"
+
+
+rule fig1:
+    input: rules.data_fig1.output.prop_reads,
+    output: "../output/science_submission/figures/fig1.svg"
+    params: colors=COLORS
+    script: "scripts/fig1.py"
+
+
+################################################################################
+# Figure 2: scRNA-Seq intro, cluster, and annotate
 ################################################################################
 rule plot_cluster_legend:
     params:
@@ -92,77 +105,19 @@ rule plot_literature_panel:
     script: "scripts/literature_gene_expression_panel.py"
 
 
-rule plot_lit_gene_evidence:
-    input:
-         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
-         zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
-    output: "../output/science_submission/figures/lit-gene-evidence.svg"
-    params: cmap=COLORS["heatmap"]
-    script: "scripts/plot_lit_gene_evidence.py"
-
-
-rule plot_lit_gene_evidence_soma:
-    input:
-         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
-         zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
-    output: "../output/science_submission/figures/lit-gene-evidence_soma.svg"
-    params: cmap=COLORS["heatmap"]
-    script: "scripts/plot_lit_gene_evidence_soma.py"
-
-
-rule plot_umaps_all_genes:
-    input:
-        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
-        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
-    output: "../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg"
-    script: "scripts/plot_umap_projections.py"
-
-
-################################################################################
-# Figure 2: Chromosome Expression and Gene Counts
-################################################################################
-rule data_fig2:
+rule fig2:
     input: 
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        L3_bulk="../output/bulk-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: 
-        prop_reads="../output/science_submission/fig2_data_prop_reads.feather",
-        pct_expressed="../output/science_submission/fig2_data_pct_expressed.feather"
-    script: "scripts/fig2_data.py"
-
-
-rule plot_fig2:
-    input: 
-        prop_reads=rules.data_fig2.output.prop_reads,
-        pct_expressed=rules.data_fig2.output.pct_expressed
-    output: "../output/science_submission/figures/fig2.svg"
-    params: colors=COLORS
-    script: "scripts/plot_fig2.py"
-
-
-rule plot_fig2_boxplot:
-    input: 
-        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-        adult="../output/expression-atlas-wf/w1118_gene_counts.feather",
-        larval="../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
-    output: "../output/science_submission/figures/fig2_boxplot.svg"
-    params: colors=COLORS
-    script: "scripts/plot_fig2_boxplots.py"
+        legend=rules.plot_cluster_legend.output[0],
+        umap="../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
+        heatmap="../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg",
+        umap_panels=expand(rules.plot_literature_panel.output[0], cnt=[0, 1, 2, 3, 4])
+    output: touch("../output/science_submission/figures/fig2.parts.done")
 
 
 ################################################################################
-# Figure 3: X + 4 Inactivation
+# Figure 3: Chromosome Expression and Gene Counts
 ################################################################################
-rule plot_fig3:
+rule fig3:
     input: 
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         all='../output/x-to-a-wf/db/expressed.dat',
@@ -177,98 +132,29 @@ rule plot_fig3:
 
 
 ################################################################################
-# Tables
+# Figure 4: Chromosome Spatial Localization
 ################################################################################
-rule cell_metadata:
-    input: 
-        metadata="../output/cellselection-wf/cell_metadata.feather",
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        cell_calls=expand("../output/cellselection-wf/{sample}_combined_cell_calls.feather", sample=["testis1", "testis2", "testis3"]),
-        scrublets=expand("../output/cellselection-wf/{sample}_scrublet_dublets.txt", sample=["testis1", "testis2", "testis3"]),
-        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        autosome_ratios_all_genes="../output/x-to-a-wf/autosome_ratios_expressed_by_cell.feather",
-        autosome_ratios_commonly_expressed_genes="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
-    output: "../output/science_submission/cell_metadata.tsv"
-    script: "scripts/cell_metadata_table.py"
-
-
-rule gene_metadata:
-    input: 
-        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-        biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
-        raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-        zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
-    params: 
-        cluster_annot=config['cluster_annot'],
-        cluster_order=config['cluster_order'],
-    output: "../output/science_submission/gene_metadata.tsv"
-    script: "scripts/gene_metadata_table.py"
-
-
-rule cluster_metadata:
+rule fig4:
     input:
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
-    params:
-        cluster_annot=config["cluster_annot"],
-        cluster_order=config["cluster_order"],
-        legend_names=config["legend_names"],
-    output: "../output/science_submission/cluster_metadata.tsv"
-    script: "scripts/cluster_metadata_table.py"
+        volume="../output/fish-wf/chrom_volume.svg",
+        sphere="../output/fish-wf/sphericity.svg"
+    output: "../output/science_submission/figures/fig4.svg"
+    script: "scripts/fig4.py"
 
 
-rule raw_to_tsv:
-    input: '../output/cellselection-wf/raw.feather'
-    output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
-    run:
-        (
-            pd.read_feather(input[0])
-            .merge(FBGN2CHROM, on="FBgn", how="left")
-            .set_index(["FBgn", "gene_symbol", "Chromosome"])
-            .to_csv(output[0], sep="\t")
-        )
+################################################################################
+# Figure 5: Pol II
+################################################################################
+rule fig5:
+    input: "../output/polII-wf/s2_and_s5_boxplot.svg"
+    output: "../output/science_submission/figures/fig5.svg"
+    shell: "cp {input[0]} {output[0]}"
 
-
-rule seurat_normalized_to_tsv:
-    input: '../output/seurat3-cluster-wf/combined_n3_normalized.feather'
-    output: '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz'
-    run:
-        (
-            pd.read_feather(input[0])
-            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
-            .set_index(["FBgn", "gene_symbol", "Chromosome"])
-            .to_csv(output[0], sep="\t")
-        )
-
-
-rule biomarkers_to_tsv:
-    input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/science_submission/one_vs_rest.tsv"
-    params: cluster_annot = config["cluster_annot"]
-    run:
-        (
-            pd.read_feather(input[0])
-            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
-            .set_index(["FBgn", "gene_symbol", "Chromosome"])
-            .assign(cluster=lambda x: x.cluster.map(lambda y: params.cluster_annot[y]))
-            .to_csv(output[0], sep="\t")
-        )
-
-    
-
-rule deg_to_tsv:
-    input: "../output/seurat3-cluster-wf/germline_deg/{comparison}.feather"
-    output: "../output/science_submission/{comparison}.tsv"
-    run:
-        (
-            pd.read_feather(input[0])
-            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
-            .set_index(["FBgn", "gene_symbol", "Chromosome"])
-            .to_csv(output[0], sep="\t")
-        )
-
-
+####################################
+# Table S1: bulk data
+####################################
+## Normalized Data (L3 Testis, L3 Ovary, Adult Testis, Adult Ovary)
+## Correlation (Bulk vs Single-Cell)
 rule larval_bulk_gene_level:
     input: "../output/bulk-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv"
     output: '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz'
@@ -342,3 +228,144 @@ rule spearman_corr:
         adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
     output: "../output/science_submission/spearman_corr.tsv"
     script: "scripts/correlation_table.py"
+
+rule table_s1:
+    output: "../output/science_submission/TableS1.xlsx"
+
+####################################
+# Table S2: Single-cell RNA-Seq Data
+####################################
+rule cell_metadata:
+    input: 
+        metadata="../output/cellselection-wf/cell_metadata.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        cell_calls=expand("../output/cellselection-wf/{sample}_combined_cell_calls.feather", sample=["testis1", "testis2", "testis3"]),
+        scrublets=expand("../output/cellselection-wf/{sample}_scrublet_dublets.txt", sample=["testis1", "testis2", "testis3"]),
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        autosome_ratios_all_genes="../output/x-to-a-wf/autosome_ratios_expressed_by_cell.feather",
+        autosome_ratios_commonly_expressed_genes="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
+    output: "../output/science_submission/cell_metadata.tsv"
+    script: "scripts/cell_metadata_table.py"
+
+rule gene_metadata:
+    input: 
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+    params: 
+        cluster_annot=config['cluster_annot'],
+        cluster_order=config['cluster_order'],
+    output: "../output/science_submission/gene_metadata.tsv"
+    script: "scripts/gene_metadata_table.py"
+
+rule cluster_metadata:
+    input:
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+    params:
+        cluster_annot=config["cluster_annot"],
+        cluster_order=config["cluster_order"],
+        legend_names=config["legend_names"],
+    output: "../output/science_submission/cluster_metadata.tsv"
+    script: "scripts/cluster_metadata_table.py"
+
+rule biomarkers_to_tsv:
+    input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output: "../output/science_submission/one_vs_rest.tsv"
+    params: cluster_annot = config["cluster_annot"]
+    run:
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .assign(cluster=lambda x: x.cluster.map(lambda y: params.cluster_annot[y]))
+            .to_csv(output[0], sep="\t")
+        )
+
+    
+rule table_s2:
+    output: "../output/science_submission/TableS2.xlsx"
+
+
+####################################
+# Table S3: Literature Genes
+####################################
+################################################################################
+# Files
+################################################################################
+rule raw_to_tsv:
+    input: '../output/cellselection-wf/raw.feather'
+    output: '../output/science_submission/scRNAseq_raw_counts.tsv.gz'
+    run:
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on="FBgn", how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
+
+
+rule seurat_normalized_to_tsv:
+    input: '../output/seurat3-cluster-wf/combined_n3_normalized.feather'
+    output: '../output/science_submission/scRNAseq_seurat_normalized_counts.tsv.gz'
+    run:
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
+
+
+rule plot_umaps_all_genes:
+    input:
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/science_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg"
+    script: "scripts/plot_umap_projections.py"
+
+
+################################################################################
+# Deprecated
+################################################################################
+rule plot_lit_gene_evidence:
+    input:
+         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
+         zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    output: "../output/science_submission/figures/lit-gene-evidence.svg"
+    params: cmap=COLORS["heatmap"]
+    script: "scripts/plot_lit_gene_evidence.py"
+
+
+rule plot_lit_gene_evidence_soma:
+    input:
+         gene_metadata = f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+         lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
+         zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
+    output: "../output/science_submission/figures/lit-gene-evidence_soma.svg"
+    params: cmap=COLORS["heatmap"]
+    script: "scripts/plot_lit_gene_evidence_soma.py"
+
+rule deg_to_tsv:
+    """ This rule builds germline DEG comparisons.
+        Files that it is used to create:
+            '../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz',
+            '../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz',
+            '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz',
+    """
+    input: "../output/seurat3-cluster-wf/germline_deg/{comparison}.feather"
+    output: "../output/science_submission/{comparison}.tsv"
+    run:
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .to_csv(output[0], sep="\t")
+        )
+
