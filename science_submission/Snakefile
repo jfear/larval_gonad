@@ -52,6 +52,7 @@ rule all:
         # Supplemental Figures
 
         # Table S1
+        "../output/science_submission/TableS1.xlsx",
         # Table S2
         # Supplemental Files
         '../output/science_submission/scRNAseq_raw_counts.tsv.gz',
@@ -199,17 +200,26 @@ rule spearman_corr_bulk_vs_sum_single_cell:
     script: "scripts/correlation_table_bulk_sum_single_cell.py"
 
 
-rule spearman_corr:
+rule spearman_corr_bulk_vs_single_cell_clusters:
     input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         larval_scrnaseq="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
         larval_bulk="../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
         adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-    output: "../output/science_submission/spearman_corr.tsv"
-    script: "scripts/correlation_table.py"
+    output: "../output/science_submission/spearman_corr_bulk_vs_single_cell_clusters.tsv"
+    script: "scripts/correlation_table_bulk_vs_single_cell_clusters.py"
+
 
 rule table_s1:
+    input:
+        larval=rules.larval_bulk_gene_level.output[0],
+        adult=rules.adult_bulk_gene_level.output[0],
+        corr_reps=rules.spearman_corr_bulk_vs_sum_single_cell.output[0],
+        corr_clusters=rules.spearman_corr_bulk_vs_single_cell_clusters.output[0]
     output: "../output/science_submission/TableS1.xlsx"
+    params:
+        cluster_order=config["cluster_order"]
+    script: "scripts/table_s1.py"
 
 ####################################
 # Table S2: Single-cell RNA-Seq Data

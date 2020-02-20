@@ -2,6 +2,7 @@ import os
 import pandas as pd
 
 from larval_gonad.normalization import tpm
+from larval_gonad.constants import L3_BULK, L3_SC
 
 
 def main():
@@ -14,24 +15,23 @@ def main():
 
 def read_l3_sc() -> pd.DataFrame:
     gene_lengths = pd.read_feather(snakemake.input.gene_annot).set_index("FBgn")["length"].squeeze()
-
     raw = (
         pd.read_feather(snakemake.input.larval_scrnaseq)
         .groupby(["FBgn", "rep"])
         .Count.sum()
         .unstack()
+        .rename(columns=L3_SC)
     )
     norm = tpm(raw, gene_lengths).dropna()
-    norm.columns = [f"l3_scRNAseq_{x}" for x in norm.columns]
-
     return norm
 
 
 def read_l3_bulk() -> pd.DataFrame:
-    df = pd.read_csv(snakemake.input.larval_bulk, sep="\t", index_col=0).rename_axis("FBgn")
-    cols = [f"l3_bulk_{x}" for x in df.columns]
-    df.columns = cols
-    return df
+    return (
+        pd.read_csv(snakemake.input.larval_bulk, sep="\t", index_col=0)
+        .rename_axis("FBgn")
+        .rename(columns=L3_BULK)
+    )
 
 
 if __name__ == "__main__":
@@ -42,7 +42,7 @@ if __name__ == "__main__":
             input=dict(
                 gene_annot="../../references/gene_annotation_dmel_r6-26.feather",
                 larval_scrnaseq="../../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-                larval_bulk="../../output/bulk2-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+                larval_bulk="../../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
             )
         )
 
