@@ -1,4 +1,6 @@
 import os
+import pickle
+
 import pandas as pd
 
 from larval_gonad.io import feather_to_cluster_rep_matrix
@@ -15,13 +17,21 @@ def main():
 
 
 def read_gene_annot():
-    return (
+    df = (
         pd.read_feather(snakemake.input.gene_annot)
         .assign(chrom=lambda x: x.FB_chrom)
         .drop(["FB_chrom", "UCSC_chrom"], axis=1)
         .set_index("FBgn")
         .loc[:, ["gene_symbol", "chrom", "start", "end", "length", "strand"]]
     )
+
+    df["tau"] = False
+    df.loc[df.index.isin(pickle.load(open(snakemake.input.tau, "rb"))), "tau"] = True
+
+    df["tsps"] = False
+    df.loc[df.index.isin(pickle.load(open(snakemake.input.tsps, "rb"))), "tsps"] = True
+
+    return df
 
 
 def read_biomarkers():
@@ -64,16 +74,17 @@ if __name__ == "__main__":
         from larval_gonad.debug import snakemake_debug
         from larval_gonad.config import read_config
 
-        config = read_config("config/common.yaml")
+        config = read_config("../../config/common.yaml")
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
             input=dict(
-                gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-                biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
-                raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
-                tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-                zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+                gene_annot="../../references/gene_annotation_dmel_r6-26.feather",
+                biomarkers="../../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+                raw="../../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+                tpm="../../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+                zscore="../../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+                tau="../../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl",
+                tsps="../../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl",
             ),
             params=dict(
                 cluster_annot=config["cluster_annot"], cluster_order=config["cluster_order"]

@@ -224,6 +224,7 @@ rule table_s1:
 ####################################
 # Table S2: Single-cell RNA-Seq Data
 ####################################
+# TODO: Change sample IDs in metadata tables.
 rule cell_metadata:
     input: 
         metadata="../output/cellselection-wf/cell_metadata.feather",
@@ -243,6 +244,8 @@ rule gene_metadata:
         raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
         tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
         zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+        tau="../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl",
+        tsps="../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl",
     params: 
         cluster_annot=config['cluster_annot'],
         cluster_order=config['cluster_order'],
@@ -275,7 +278,13 @@ rule biomarkers_to_tsv:
 
     
 rule table_s2:
+    input: 
+        cell=rules.cell_metadata.output[0],
+        gene=rules.gene_metadata.output[0],
+        cluster=rules.cluster_metadata.output[0],
+        biomarkers=rules.biomarkers_to_tsv.output[0],
     output: "../output/science_submission/TableS2.xlsx"
+    script: "scripts/table_s2.py"
 
 
 ####################################
