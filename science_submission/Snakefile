@@ -170,27 +170,6 @@ rule larval_bulk_gene_level:
         )
 
 
-rule larval_bulk_intergenic_level:
-    input: 
-        data="../output/bulk2-rnaseq-wf/rnaseq_aggregation/intergenic_counts.tsv",
-        intergene_annot="../output/bulk2-rnaseq-wf/intergenic.bed"
-    output: '../output/science_submission/larval_bulk_RNA-Seq_intergenic_counts.tsv.gz'
-    run:
-        inter2chrom = pd.read_csv(
-            input.intergene_annot, sep="\t", header=None, names=["Chromosome", "start", "end", "intergenic_id"]
-        )
-
-        (
-            pd.read_csv(input.data, sep="\t")
-            .set_index("Geneid")
-            .rename_axis("intergenic_id")
-            .reset_index()
-            .merge(inter2chrom, on="intergenic_id", how="left")
-            .set_index(["intergenic_id", "Chromosome", "start", "end"])
-            .to_csv(output[0], sep="\t")
-        )
-
-
 rule adult_bulk_gene_level:
     input: 
         data="../output/expression-atlas-wf/w1118_gene_counts.feather",
