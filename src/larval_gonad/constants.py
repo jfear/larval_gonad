@@ -14,11 +14,10 @@ L3_BULK = {
     "B10_OCP": "bulk_L3_ovary_rep2_GSM3179827",
     "B11_OCP": "bulk_L3_ovary_rep3_GSM3179828",
     "B12_OCP": "bulk_L3_ovary_rep4_GSM3179829",
-    # TODO: add ovary GSMs
-    "A1_OCP": "bulk_L3_ovary_rep5_GSM",
-    "A2_OCP": "bulk_L3_ovary_rep6_GSM",
-    "A3_OCP": "bulk_L3_ovary_rep7_GSM",
-    "A4_OCP": "bulk_L3_ovary_rep8_GSM",
+    "A1_OCP": "bulk_L3_ovary_rep5_GSM4331892",
+    "A2_OCP": "bulk_L3_ovary_rep6_GSM4331893",
+    "A3_OCP": "bulk_L3_ovary_rep7_GSM4331894",
+    "A4_OCP": "bulk_L3_ovary_rep8_GSM4331895",
 }
 
 ADULT_BULK = {
