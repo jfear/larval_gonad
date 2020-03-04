@@ -30,28 +30,9 @@ SAMPLES = sample2attrs.index.values.tolist()
 
 rule all:
     input: 
-        "../output/expression-atlas-wf/aggregated_muller_table.feather",
-        expand(
-            '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat',
-            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
-        ),
-        expand(
-            '../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{tissue}.dat',
-            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
-        ),
-        expand(
-            '../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{tissue}.dat',
-            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
-        ),
-        expand(
-        "../output/expression-atlas-wf/figures/demas_x_and_4th/{species}_{tissue}.svg",
-            zip, species=species2tissue.index.tolist(), tissue=species2tissue.values.tolist(),
-        ),
-        expand('../output/expression-atlas-wf/tau_housekeeping/{species}.svg', species=config["species_order"]),
+        "../output/expression-atlas-wf/w1118_gene_counts.feather",
         expand('../output/expression-atlas-wf/tau_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
-        expand('../output/expression-atlas-wf/tsps_housekeeping/{species}.svg', species=config["species_order"]),
         expand('../output/expression-atlas-wf/tsps_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
-        "../output/expression-atlas-wf/w1118_gene_counts.feather"
 
 
 ################################################################################
@@ -112,71 +93,12 @@ def _yogn_to_dmel_ortholog_dmel_translate(wildcards):
     return rules.yogn_to_dmel_ortholog.output[0].format(species=species)
 
 
-rule muller_arm_assignment:
-    input: 
-        yogn_annot=rules.yogn_to_metadata.output[0],
-        orthologs=rules.yogn_to_dmel_ortholog.output[0],
-        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
-        primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
-    # pickle: dict
-    output: '../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl'
-    script: 'scripts/muller_arm_assignment.py'
-
-
-def _muller_arm_assignment_dmel_translate(wildcards):
-    species = wildcards.species
-    if (species == "w1118") | (species == "orgR"):
-        species = "dmel"
-    return rules.muller_arm_assignment.output[0].format(species=species)
-
-
-rule fbgn_to_muller:
-    input: 
-        muller=rules.muller_arm_assignment.output[0],
-        ortholog=rules.yogn_to_dmel_ortholog.output[0]
-    # pickle: pd.Series
-    output: temp("../output/expression-atlas-wf/FBgn_to_muller_{species}.pkl")
-    script: "scripts/FBgn_to_muller.py"
-
-
-rule aggregated_muller_table:
-    input: expand(rules.fbgn_to_muller.output[0], species=config["species_order_w_dmel"])
-    params: species=config['species_order_w_dmel']
-    output: "../output/expression-atlas-wf/aggregated_muller_table.feather"
-    script: "scripts/aggregated_muller_table.py"
-
-
-rule species_for_maria:
-    input: 
-        muller=rules.aggregated_muller_table.output[0],
-        yogns=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
-    output: "../output/expression-atlas-wf/species_for_maria.tsv"
-    script: "scripts/species_for_maria.py"
-
-
-rule scaffolds_for_maria:
-    input:
-        orthologs=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
-        scaffolds=expand(rules.yogn_to_metadata.output[0], species=config["species_order_w_dmel"]),
-    output: "../output/expression-atlas-wf/scaffolds_for_maria.tsv"
-    script: "scripts/scaffolds_for_maria.py"
 ################################################################################
-# Aggregate D. melanogaster counts
-################################################################################
-rule w1118_counts:
-    input: 
-        orthologs="../output/expression-atlas-wf/YOgn_to_dmel_ortholog/dmel.pkl",
-        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-        counts="../output/expression-atlas-wf/aggregated_counts_table/w1118.feather"
-    output: "../output/expression-atlas-wf/w1118_gene_counts.feather"
-    script: "scripts/w1118_counts.py"
-
-################################################################################
-# Sex Biased Expression
+# Counts Table
 ################################################################################
 def _species_counts_table(wildcards):
     return expand(
-        '../output/expression-atlas-wf/raw_counts/{samplename}.tsv',
+        rules.download_coverage_counts.output[0],
         samplename=sample2attrs.query(f'species == "{wildcards.species}"').index.tolist()
     )
 
@@ -187,54 +109,15 @@ rule species_counts_table:
     script: "scripts/species_counts_table.py"
 
 
-rule sex_bias_expression:
-    input:
-        sampletable = 'config/sampletable.tsv',
-        counts_table = rules.species_counts_table.output[0]
-    output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
-    log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
-    conda: "../envs/deseq2.yaml"
-    script: 'scripts/sex_bias_expression.R'
-
-
-rule sex_bias_by_muller:
+# Aggregate D. melanogaster counts
+rule w1118_counts:
     input: 
-        muller=_muller_arm_assignment_dmel_translate,
-        deg=rules.sex_bias_expression.output[0]
-    params: alpha=config['alpha']
-    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
-    output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
-    script: "scripts/sex_bias_by_muller.py"
+        orthologs=expand(rules.yogn_to_dmel_ortholog.output[0], species=["dmel"]),
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        counts=expand(rules.species_counts_table.output[0], species="w1118"),
+    output: "../output/expression-atlas-wf/w1118_gene_counts.feather"
+    script: "scripts/w1118_counts.py"
 
-
-# Same as rules.sex_bias_by_muller except includes all genes in the annotation, not
-# just those expressed.
-rule sex_bias_by_muller_all_genes:
-    input: 
-        muller=_muller_arm_assignment_dmel_translate,
-        deg=rules.sex_bias_expression.output[0]
-    params: alpha=config['alpha']
-    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
-    output: '../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{tissue}.dat'
-    script: "scripts/sex_bias_by_muller_all_genes.py"
-
-# Same as rules.sex_bias_by_muller except aggregates autsomes to only tests for
-# X and 4th.
-rule sex_bias_by_muller_x_and_4th:
-    input: 
-        muller=_muller_arm_assignment_dmel_translate,
-        deg=rules.sex_bias_expression.output[0]
-    params: alpha=config['alpha']
-    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
-    output: '../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{tissue}.dat'
-    script: "scripts/sex_bias_by_muller_x_and_4th.py"
-
-
-rule plot_demas_x_and_4th:
-    input: "../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{tissue}.dat"
-    params: colors=["blue", "lightgray", "red"]
-    output: "../output/expression-atlas-wf/figures/demas_x_and_4th/{species}_{tissue}.svg"
-    script: "scripts/plot_demas_x_and_4th.py"
 
 ################################################################################
 # Identify Housekeeping Genes
@@ -311,3 +194,109 @@ rule dmel_tsps_housekeeping:
         male='../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl',
         female='../output/expression-atlas-wf/tsps_housekeeping/female_fbgns.pkl'
     script: 'scripts/dmel_tsps_housekeeping.py'
+
+
+################################################################################
+# Deprecated
+################################################################################
+# Prep metadata
+rule muller_arm_assignment:
+    input: 
+        yogn_annot=rules.yogn_to_metadata.output[0],
+        orthologs=rules.yogn_to_dmel_ortholog.output[0],
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        primary2secondary=f"../references/primary2secondary_dmel_{TAG}.pkl"
+    # pickle: dict
+    output: '../output/expression-atlas-wf/YOgn_to_muller/{species}.pkl'
+    script: 'scripts/muller_arm_assignment.py'
+
+
+def _muller_arm_assignment_dmel_translate(wildcards):
+    species = wildcards.species
+    if (species == "w1118") | (species == "orgR"):
+        species = "dmel"
+    return rules.muller_arm_assignment.output[0].format(species=species)
+
+
+rule fbgn_to_muller:
+    input: 
+        muller=rules.muller_arm_assignment.output[0],
+        ortholog=rules.yogn_to_dmel_ortholog.output[0]
+    # pickle: pd.Series
+    output: temp("../output/expression-atlas-wf/FBgn_to_muller_{species}.pkl")
+    script: "scripts/FBgn_to_muller.py"
+
+
+rule aggregated_muller_table:
+    input: expand(rules.fbgn_to_muller.output[0], species=config["species_order_w_dmel"])
+    params: species=config['species_order_w_dmel']
+    output: "../output/expression-atlas-wf/aggregated_muller_table.feather"
+    script: "scripts/aggregated_muller_table.py"
+
+
+rule species_for_maria:
+    input: 
+        muller=rules.aggregated_muller_table.output[0],
+        yogns=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
+    output: "../output/expression-atlas-wf/species_for_maria.tsv"
+    script: "scripts/species_for_maria.py"
+
+
+rule scaffolds_for_maria:
+    input:
+        orthologs=expand(rules.yogn_to_dmel_ortholog.output[0], species=config["species_order_w_dmel"]),
+        scaffolds=expand(rules.yogn_to_metadata.output[0], species=config["species_order_w_dmel"]),
+    output: "../output/expression-atlas-wf/scaffolds_for_maria.tsv"
+    script: "scripts/scaffolds_for_maria.py"
+
+
+# Sex Biased Expression
+rule sex_bias_expression:
+    input:
+        sampletable = 'config/sampletable.tsv',
+        counts_table = rules.species_counts_table.output[0]
+    output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
+    log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
+    conda: "../envs/deseq2.yaml"
+    script: 'scripts/sex_bias_expression.R'
+
+
+rule sex_bias_by_muller:
+    input: 
+        muller=_muller_arm_assignment_dmel_translate,
+        deg=rules.sex_bias_expression.output[0]
+    params: alpha=config['alpha']
+    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
+    output: '../output/expression-atlas-wf/sex_bias_by_muller/{species}_{tissue}.dat'
+    script: "scripts/sex_bias_by_muller.py"
+
+
+rule sex_bias_by_muller_all_genes:
+    """Same as rules.sex_bias_by_muller except includes all genes in the
+    annotation, not just those expressed."""
+    input: 
+        muller=_muller_arm_assignment_dmel_translate,
+        deg=rules.sex_bias_expression.output[0]
+    params: alpha=config['alpha']
+    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
+    output: '../output/expression-atlas-wf/sex_bias_by_muller_all_genes/{species}_{tissue}.dat'
+    script: "scripts/sex_bias_by_muller_all_genes.py"
+
+
+rule sex_bias_by_muller_x_and_4th:
+    """Same as rules.sex_bias_by_muller except aggregates autsomes to only
+    tests for X and 4th."""
+    input: 
+        muller=_muller_arm_assignment_dmel_translate,
+        deg=rules.sex_bias_expression.output[0]
+    params: alpha=config['alpha']
+    # shelve: data=pd.DataFrame, male_qval=pd.DataFrame, female_qval=pd.DataFrame
+    output: '../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/{species}_{tissue}.dat'
+    script: "scripts/sex_bias_by_muller_x_and_4th.py"
+
+
+rule plot_demas_x_and_4th:
+    input: rules.sex_bias_by_muller_x_and_4th.output[0]
+    params: colors=["blue", "lightgray", "red"]
+    output: "../output/expression-atlas-wf/figures/demas_x_and_4th/{species}_{tissue}.svg"
+    script: "scripts/plot_demas_x_and_4th.py"

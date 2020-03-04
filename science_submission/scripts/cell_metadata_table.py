@@ -3,10 +3,22 @@ import os
 from more_itertools import flatten
 import pandas as pd
 
+from larval_gonad.constants import L3_SC
+
 
 def main():
     df = (
-        pd.concat([read_cell_calls(), read_cluster(), read_umap(), read_ratios_all_genes(), read_ratios_common_genes()], axis=1, sort=False)
+        pd.concat(
+            [
+                read_cell_calls(),
+                read_cluster(),
+                read_umap(),
+                read_ratios_all_genes(),
+                read_ratios_common_genes(),
+            ],
+            axis=1,
+            sort=False,
+        )
         .join(read_metadata(), how="inner")
         .assign(
             is_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000)
@@ -16,6 +28,7 @@ def main():
     df.rename_axis("cell_id", inplace=True)
     df.reindex(
         columns=[
+            "sample_id",
             "rep",
             "nUMI",
             "nFeature",
@@ -41,7 +54,8 @@ def read_metadata():
     return (
         pd.read_feather(snakemake.input.metadata)
         .assign(rep=lambda x: x.cell_id.str.extract(r"(rep\d)_.*", expand=False))
-        .loc[:, ["cell_id", "rep", "nUMI", "nFeature"]]
+        .assign(sample_id=lambda x: x.rep.map(L3_SC))
+        .loc[:, ["cell_id", "sample_id", "rep", "nUMI", "nFeature"]]
         .set_index("cell_id")
     )
 
