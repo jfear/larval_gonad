@@ -5,8 +5,17 @@ colors = read_config("../config/colors.yaml")
 
 rule all:
     input: 
+        "../output/fish-wf/four_distance.svg",
         "../output/fish-wf/chrom_volume.svg",
         "../output/fish-wf/sphericity.svg"
+
+
+rule fourth_distance:
+    input: "../data/external/camila/fourth_distance_20200228.tsv"
+    output: "../output/fish-wf/four_distance.svg"
+    params:
+        colors=['red', 'cyan']
+    script: "scripts/fourth_distance.py"
 
 
 rule chrom_volume:
