@@ -4,11 +4,12 @@ import pickle
 import pandas as pd
 
 from larval_gonad.io import feather_to_cluster_rep_matrix
+from larval_gonad.constants import L3_SC
 
 
 def main():
     df = pd.concat(
-        [read_gene_annot(), read_biomarkers(), read_zscore(), read_raw(), read_tpm()],
+        [read_gene_annot(), read_biomarkers(), read_raw(), read_tpm(), read_zscore()],
         axis=1,
         sort=False,
     )
@@ -53,19 +54,19 @@ def read_biomarkers():
 
 def read_raw():
     df = feather_to_cluster_rep_matrix(snakemake.input.raw)
-    df.columns = [f"raw_{x}_{y}" for x, y in df.columns.to_flat_index()]
+    df.columns = [f"raw_{x}_{L3_SC[y]}" for x, y in df.columns.to_flat_index()]
     return df
 
 
 def read_tpm():
     df = feather_to_cluster_rep_matrix(snakemake.input.tpm)
-    df.columns = [f"tpm_{x}_{y}" for x, y in df.columns.to_flat_index()]
+    df.columns = [f"tpm_{x}_{L3_SC[y]}" for x, y in df.columns.to_flat_index()]
     return df
 
 
 def read_zscore():
     df = feather_to_cluster_rep_matrix(snakemake.input.zscore)
-    df.columns = [f"zscore_{x}_{y}" for x, y in df.columns.to_flat_index()]
+    df.columns = [f"zscore_{x}_{L3_SC[y]}" for x, y in df.columns.to_flat_index()]
     return df
 
 

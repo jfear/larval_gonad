@@ -224,7 +224,6 @@ rule table_s1:
 ####################################
 # Table S2: Single-cell RNA-Seq Data
 ####################################
-# TODO: Change sample IDs in metadata tables.
 rule cell_metadata:
     input: 
         metadata="../output/cellselection-wf/cell_metadata.feather",
