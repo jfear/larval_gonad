@@ -200,6 +200,15 @@ rule spearman_corr_bulk_vs_sum_single_cell:
     script: "scripts/correlation_table_bulk_sum_single_cell.py"
 
 
+rule spearman_corr_bulk_vs_sum_single_cell_pvals:
+    input:
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        larval_scrnaseq="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
+        larval_bulk="../output/bulk-rnaseq-wf/rnaseq_aggregation/tpm_gene_level_counts.tsv",
+    output: "../output/science_submission/spearman_corr_bulk_vs_sum_single_cell_pvals.tsv"
+    script: "scripts/correlation_table_bulk_sum_single_cell_pvals.py"
+
+
 rule spearman_corr_bulk_vs_single_cell_clusters:
     input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
