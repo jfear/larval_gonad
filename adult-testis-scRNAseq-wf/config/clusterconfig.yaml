@@ -1,0 +1,6 @@
+__default__:
+  gres: "lscratch:20"
+  partition: 'norm'
+
+fq_dump:
+  gres: "lscratch:200"
