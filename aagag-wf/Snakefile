@@ -1,0 +1,40 @@
+"""Workflow for checking for AAGAG(n) repeats
+
+Brian had sent this paper around:
+
+> Mills, Wilbur K., Yuh Chwen G. Lee, Antje M. Kochendoerfer, Elaine M. Dunleavy, and Gary H. Karpen. n.d. “RNA
+> Transcribed from Heterochromatic Simple-Tandem Repeats Are Required for Male Fertility and Histone-Protamine Exchange
+> in Drosophila Melanogaster.” https://doi.org/10.1101/617175.
+
+They found that the tandem repeats were found in primary spermatocytes (larval and adult) and that it was required
+for fertility.
+
+Here I look to summarize how many reads and what cells the AAGAGx3 repeats are in.
+
+"""
+from yaml import load
+from snakemake.rules import expand
+
+workdir: '.'
+
+with open('config/patterns.yaml') as fh:
+    patterns = load(fh.read())
+
+
+rule targets:
+    input:
+        expand(patterns['aagag'], sample=['testis1', 'testis2', 'testis3']),
+        expand(patterns['aagag_trans'], sample=['BM5', 'BM21', 'stock'])
+
+
+rule pull_aagag:
+    input: patterns['bam']
+    output: patterns['aagag']
+    script: 'scripts/pull_aagag.py'
+
+
+rule pull_aagag_translocations:
+    input: patterns['bam_trans']
+    output: patterns['aagag_trans']
+    script: 'scripts/pull_aagag.py'
+
