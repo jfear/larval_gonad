@@ -1,0 +1,45 @@
+import pandas as pd
+
+from larval_gonad.config import read_config
+
+common_config = read_config('../config/common.yaml')
+sample_table = pd.read_csv('../expression-atlas-wf/config/sampletable.tsv', sep='\t')
+sample_attrs = sample_table.samplename.str.extract('(?P<species>\w+)_(?P<tissue>\w+)_(?P<sex>\w+)_(?P<rep>\w+)')
+SPECIES = sample_attrs.species.unique().tolist()
+TISSUE = sample_attrs.tissue.unique().tolist()
+
+
+rule all:
+    input: 
+        '../output/neox-wf/sturgill_2007.xls',
+        '../output/neox-wf/sturgill_2007_mullerD.feather',
+        '../output/neox-wf/sturgill_2007_mullerE.feather',
+        expand(
+            '../output/neox-wf/{species}_muller_{suffix}.feather', 
+            species=['dpse', 'dwil'],
+            suffix=['A', 'D', 'E']
+        )
+
+
+rule download_strugill:
+    output: '../output/neox-wf/sturgill_2007.xls'
+    shell: """
+        curl -o {output[0]} https://media.nature.com/original/nature-assets/nature/journal/v450/n7167/extref/nature06330-s2.xls
+    """
+
+
+rule sturgill_data_prep:
+    input: rules.download_strugill.output[0]
+    output: 
+        mullerD='../output/neox-wf/sturgill_2007_mullerD.feather',
+        mullerE='../output/neox-wf/sturgill_2007_mullerE.feather'
+    script: 'scripts/parse_sturgill.py'
+
+
+rule muller_arm_movement_classes:
+    input: '../output/expression-atlas-wf/muller_arm_assignment.feather'
+    output: 
+        muller_a = '../output/neox-wf/{species}_muller_A.feather',
+        muller_d = '../output/neox-wf/{species}_muller_D.feather',
+        muller_e = '../output/neox-wf/{species}_muller_E.feather'
+    script: 'scripts/muller_arms_classes.py'
