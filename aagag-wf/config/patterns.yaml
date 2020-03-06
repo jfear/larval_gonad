@@ -1,5 +1,0 @@
-bam: '../output/scrnaseq-wf/scrnaseq_samples/{sample}_force/outs/possorted_genome_bam.bam'
-aagag: '../output/aagag-wf/{sample}.tsv'
-
-bam_trans: '../output/translocations-wf/scrnaseq_samples/testis_{sample}_force/outs/possorted_genome_bam.bam'
-aagag_trans: '../output/aagag-wf/translocations_{sample}.tsv'
