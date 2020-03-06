@@ -1,0 +1,4 @@
+# scRNA-Seq Ovary vs Testis
+
+A quick differential expression analysis comparing testis and ovary. One goal
+was to look at dsx targets.
