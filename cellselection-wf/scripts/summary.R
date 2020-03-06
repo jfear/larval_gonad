@@ -58,7 +58,7 @@ write_feather(df, CALLS)
 
 svg(SVG)
 upset(
-    df, sets = c("cellranger-wf", "cellranger-force-wf", "cellranger3-wf", "droputils"), 
+    df, sets = c("cellranger3-wf", "droputils"), 
     order.by = "degree", mainbar.y.label = "Cell Detected"
 )
 grid.text(SAMPLE, x = 0.65, y = 0.95, gp = gpar(fontsize = 20))

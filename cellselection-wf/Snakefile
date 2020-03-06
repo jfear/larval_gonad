@@ -58,18 +58,6 @@ localrules: unzip_cellranger3, barcode_to_cellid, expressed_genes, commonly_expr
 
 rule targets:
     input:
-        expand(config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
-            stage=['raw', 'filtered'],
-            assembly=ASSEMBLY,
-            tag=TAG,
-            sample=SAMPLES
-        ),
-        expand(config['data_pattern']['cellranger-force-wf'].replace('barcodes', 'cell_ids'),
-            stage=['raw', 'filtered'],
-            assembly=ASSEMBLY,
-            tag=TAG,
-            sample=SAMPLES
-        ),
         expand(config['data_pattern']['cellranger3-wf'].replace('barcodes', 'cell_ids'),
             stage=['raw', 'filtered'],
             sample=SAMPLES
@@ -179,14 +167,14 @@ rule summary:
 rule scrublet:
     input:
         cell_ids = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes', 'cell_ids'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
             sample=wildcards.sample
         )[0],
         mtx = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'matrix.mtx'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
@@ -216,7 +204,7 @@ rule scrublet:
 rule data_distribution:
     input: 
         mtx = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'matrix.mtx'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
@@ -242,7 +230,7 @@ rule data_distribution:
 rule grid_search:
     input: 
         mtx = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'matrix.mtx'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
@@ -289,21 +277,21 @@ rule grid_search_summary:
 rule save_filtered_cell_matrix:
     input:
         cell_ids = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes', 'cell_ids'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes', 'cell_ids'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
             sample=wildcards.sample
         )[0],
         genes = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes', 'genes'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes', 'genes'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
             sample=wildcards.sample
         )[0],
         mtx = lambda wildcards: expand(
-            config['data_pattern']['cellranger-wf'].replace('barcodes.tsv', 'matrix.mtx'),
+            config['data_pattern']['cellranger3-wf'].replace('barcodes.tsv', 'matrix.mtx'),
             stage='raw',
             assembly=ASSEMBLY,
             tag=TAG,
