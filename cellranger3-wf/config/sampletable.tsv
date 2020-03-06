@@ -2,4 +2,3 @@ samplename	orig_filename	group	sample
 testis1	../data/singleCellSeqData/SV_1_10X_Te	testis	SV_1_10X_Te
 testis2	../data/singleCellSeqData/SV_3_10X_Te	testis	SV-3-10X-Te-2
 testis3	../data/singleCellSeqData/SV_5_10X_Te	testis	SV-5-10X-Te-3
-testis4	../data/singleCellSeqData/SV_8_10X_Te	testis	SV_8_10X_Te_4
