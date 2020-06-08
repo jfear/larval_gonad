@@ -285,7 +285,17 @@ rule biomarkers_to_tsv:
             .to_csv(output[0], sep="\t")
         )
 
-    
+rule commonly_expressed_summary:
+    input: 
+        commonly_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        clusters="../output//seurat3-cluster-wf/combined_n3_clusters.feather",
+        raw="../output/cellselection-wf/raw.feather",
+        tau="../output/expression-atlas-wf/dmel_tau.feather",
+        tsps="../output/expression-atlas-wf/dmel_tsps.feather",
+    output: "../output/science_submission/commonly_expressed_summary.tsv"
+    script: "scripts/commonly_expressed_summary.py"
+
+
 rule table_s2:
     input: 
         cell=rules.cell_metadata.output[0],
