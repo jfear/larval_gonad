@@ -21,20 +21,19 @@ def _debug():
 
 def main():
     expression = commonly_expressed_by_cluster()
-    prop_cells_on = proportion_cells_with_expression(expression)
-    fbgn2symbol = read_annotation()
+    prop_cells_from_cluster = cluster_proportion(expression)
     fbgn_to_tau_tsps = load_tau_tsps()
-
-    prop_cells_on.join(fbgn2symbol).join(fbgn_to_tau_tsps).set_index(
-        "gene_symbol", append=True
-    ).to_csv(snakemake.output[0], sep="\t")
-
-
-def read_annotation() -> pd.Series:
-    return pd.read_feather(snakemake.input.annotation).set_index("FBgn").gene_symbol
+    prop_cells_from_cluster.join(fbgn_to_tau_tsps).to_csv(snakemake.output[0], sep="\t")
 
 
 def commonly_expressed_by_cluster() -> pd.DataFrame:
+    annotation = (
+        pd.read_feather(snakemake.input.annotation)
+        .set_index("FBgn")
+        .gene_symbol.to_frame()
+        .reset_index()
+    )
+
     common_fbgns = joblib.load(snakemake.input.commonly_expressed)
     clusters = pd.read_feather(snakemake.input.clusters)[["cell_id", "cluster"]]
 
@@ -43,35 +42,26 @@ def commonly_expressed_by_cluster() -> pd.DataFrame:
         .query("FBgn in @common_fbgns")
         .melt(id_vars="FBgn", var_name="cell_id", value_name="UMI")
         .merge(clusters)
+        .merge(annotation)
     )
 
     return raw
 
 
-def proportion_cells_with_expression(expression: pd.DataFrame) -> pd.DataFrame:
-    # Total Cell Counts for colnames
-    total_cells = (
-        expression[["cell_id", "cluster"]]
-        .drop_duplicates()
-        .groupby("cluster")
-        .size()
-        .rename("num_cells")
-        .map(lambda cell: f"(n={cell:,})")
-        .reset_index()
-    )
-    column_names = pd.MultiIndex.from_frame(total_cells)
-
-    # Calculate Prop Cells On (0 < UMI)
-    prop_on = (
-        expression.assign(gene_on=lambda df: df.UMI > 0)
-        .groupby(["FBgn", "cluster"])
-        .gene_on.mean()
-        .rename("prop_on")
+def cluster_proportion(expression: pd.DataFrame) -> pd.DataFrame:
+    num_cells_with_expression_by_cluster = (
+        expression.query("UMI > 0")
+        .groupby(["FBgn", "gene_symbol"])
+        .cluster.value_counts()
         .unstack()
+        .loc[:, expression.cluster.cat.categories]
+        .assign(total=lambda df: df.sum(axis=1))
+        .set_index("total", append=True)
     )
-    prop_on.columns = column_names
 
-    return prop_on
+    return num_cells_with_expression_by_cluster.div(
+        num_cells_with_expression_by_cluster.index.get_level_values("total"), axis=0
+    )
 
 
 def load_tau_tsps() -> pd.DataFrame:

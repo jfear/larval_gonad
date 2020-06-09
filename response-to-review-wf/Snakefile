@@ -2,22 +2,46 @@
 rule all:
     input: 
         "../output/response-to-review-wf/prop_cells_on_commonly_expressed.tsv",
+        "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv"
 
-
+################################################################################
+# Commonly Expressed Genes
+################################################################################
 rule prop_cells_on_commonly_expressed:
     """Proportion of cells expressing commonly expressed genes
 
     Table: commonly expressed genes x cluster
+    Value: proportion cells where UMI > 0
     """
     input: 
+        annotation="../references/gene_annotation_dmel_r6-26.feather",
         commonly_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
-        clusters="../output//seurat3-cluster-wf/combined_n3_clusters.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
         raw="../output/cellselection-wf/raw.feather",
         tau="../output/expression-atlas-wf/dmel_tau.feather",
         tsps="../output/expression-atlas-wf/dmel_tsps.feather",
     output: "../output/response-to-review-wf/prop_cells_on_commonly_expressed.tsv"
-    script: "scripts/prop_cells_on-commonly_expressed.py"
+    script: "scripts/prop_cells_on_commonly_expressed.py"
 
+rule commonly_expressed_cluster_proportion:
+    """Commonly expressed cluster proportions.
+
+    Commonly expressed genes are defined by being expressed in >33% of cells.
+    I want to split the cells with expression out so we know what proportion
+    is from each cluster.
+
+    Table: commonly expressed genes x cluster
+    Value: Proportion of cluster for each genes (rows sum to 1)
+    """
+    input: 
+        annotation="../references/gene_annotation_dmel_r6-26.feather",
+        commonly_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        raw="../output/cellselection-wf/raw.feather",
+        tau="../output/expression-atlas-wf/dmel_tau.feather",
+        tsps="../output/expression-atlas-wf/dmel_tsps.feather",
+    output: "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv"
+    script: "scripts/commonly_expressed_cluster_proportion.py"
 
 rule dump_pickle_for_R:
     """Dump out pickle for easy import into R."""
