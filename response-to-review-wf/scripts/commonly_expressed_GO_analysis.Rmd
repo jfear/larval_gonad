@@ -76,5 +76,5 @@ dotplot(res.cc, showCategory = 30, title="Cellular Component")
 ```{r merge}
 
 df <- rbind(res.bp@result, res.mf@result, res.cc@result)
-write.table(df, file.path(PROJ_DIR, "output/seurat3-cluster-wf/commonly_expressed_GO_res.tsv"), row.names = F)
+write.table(df, file.path(PROJ_DIR, "output/response-to-review-wf/commonly_expressed_GO_res.tsv"), row.names = F)
 ```
