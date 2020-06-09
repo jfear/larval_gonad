@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
     include = TRUE,
     echo = FALSE,
     cache.lazy = FALSE,
-    fig.path = "combined_n3_GO_figures/",
+    fig.path = "commonly_expressed_GO_figures/",
     dev = c("png", "svg"),
     fig.width = 8
 )
