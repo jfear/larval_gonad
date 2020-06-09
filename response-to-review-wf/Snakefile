@@ -2,7 +2,8 @@
 rule all:
     input: 
         "../output/response-to-review-wf/prop_cells_on_commonly_expressed.tsv",
-        "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv"
+        "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv",
+        "../output/response-to-review-wf/commonly_expressed_GO_analysis.html",
 
 ################################################################################
 # Commonly Expressed Genes

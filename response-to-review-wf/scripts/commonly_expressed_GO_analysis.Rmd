@@ -48,8 +48,8 @@ gogo <- function(genes, bg, ont) {
 ```
 
 ```{r load_data}
-background <- read.table(file.path(PROJ_DIR, "output/cellselection-wf/expressed_genes.txt"), stringsAsFactors = F) %>% pull(.)
-commonly_expressed <- read.table(file.path(PROJ_DIR, "output/cellselection-wf/commonly_expressed_genes.txt"), stringsAsFactors = F) %>% pull(.)
+background <- read.table(file.path(PROJ_DIR, "output/response-to-review-wf/expressed_genes.txt"), stringsAsFactors = F) %>% pull(.)
+commonly_expressed <- read.table(file.path(PROJ_DIR, "output/response-to-review-wf/commonly_expressed_genes.txt"), stringsAsFactors = F) %>% pull(.)
 ```
 
 ## Biolgoical Process
