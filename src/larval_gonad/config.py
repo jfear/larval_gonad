@@ -12,7 +12,7 @@ def read_config(fname, keepers=None):
     return those keys.
 
     """
-    with open(fname, "r") as fh:
+    with open(fname, "r", encoding="utf8") as fh:
         c = yaml.full_load(fh)
 
     if keepers is None:

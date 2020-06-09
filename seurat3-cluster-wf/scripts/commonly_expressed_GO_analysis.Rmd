@@ -1,0 +1,80 @@
+---
+title: Gene Ontology Analysis Commonly Expressed Genes
+author: Justin M. Fear
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+    html_document:
+        self_contained: TRUE
+        keep_md: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    warning = FALSE,
+    message = FALSE,
+    include = TRUE,
+    echo = FALSE,
+    cache.lazy = FALSE,
+    fig.path = "combined_n3_GO_figures/",
+    dev = c("png", "svg"),
+    fig.width = 8
+)
+```
+```{r globals}
+PROJ_DIR <- "/home/fearjm/Projects/larval_gonad"
+```
+
+```{r load_library}
+library(feather)
+library(dplyr)
+library(clusterProfiler)
+```
+
+```{r helper_function}
+gogo <- function(genes, bg, ont) {
+    res <- enrichGO(
+        genes,
+        OrgDb = "org.Dm.eg.db",
+        keyType = "FLYBASE",
+        ont = ont,
+        universe = bg,
+        pAdjustMethod = "BH",
+        qvalueCutoff = .01
+    )
+
+    return(res)
+}
+```
+
+```{r load_data}
+background <- read.table(file.path(PROJ_DIR, "output/cellselection-wf/expressed_genes.txt"), stringsAsFactors = F) %>% pull(.)
+commonly_expressed <- read.table(file.path(PROJ_DIR, "output/cellselection-wf/commonly_expressed_genes.txt"), stringsAsFactors = F) %>% pull(.)
+```
+
+## Biolgoical Process
+```{r BP, fig.width=10, fig.height=10}
+res.bp <- gogo(commonly_expressed, background, "BP")
+res.bp@result["Ontology"] <- "BP"
+dotplot(res.bp, showCategory = 30, title="Biological Process")
+```
+
+## Molecular Function
+```{r MF, fig.width=10, fig.height=10}
+res.mf <- gogo(commonly_expressed, background, "MF")
+res.mf@result["Ontology"] <- "MF"
+dotplot(res.mf, showCategory = 30, title="Molecular Function")
+```
+
+## Cellular Component
+```{r CC, fig.width=10, fig.height=10}
+res.cc <- gogo(commonly_expressed, background, "CC")
+res.cc@result["Ontology"] <- "CC"
+dotplot(res.cc, showCategory = 30, title="Cellular Component")
+```
+
+```{r merge}
+
+df <- rbind(res.bp@result, res.mf@result, res.cc@result)
+write.table(df, file.path(PROJ_DIR, "output/seurat3-cluster-wf/commonly_expressed_GO_res.tsv"), row.names = F)
+```

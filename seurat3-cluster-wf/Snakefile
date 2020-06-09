@@ -184,6 +184,34 @@ rule combined_n3_GO:
         time_hr=lambda wildcards, attempt: attempt * 6
     script: "../scripts/rscript.py"
 
+rule dump_pickle_for_R:
+    input: 
+        expressed="../output/cellselection-wf/expressed_genes.pkl",
+        commonly_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
+    output: 
+        expressed=temp("../output/cellselection-wf/expressed_genes.txt"),
+        commonly_expressed=temp("../output/cellselection-wf/commonly_expressed_genes.txt"),
+    run:
+        import joblib
+
+        with open(output.expressed, "w") as fh:
+            fh.write("\n".join(joblib.load(input.expressed)))
+
+        with open(output.commonly_expressed, "w") as fh:
+            fh.write("\n".join(joblib.load(input.commonly_expressed)))
+
+rule commonly_expressed_GO:
+    input: 
+        rmd="scripts/commonly_expressed_GO_analysis.Rmd",
+        expressed=rules.dump_pickle_for_R.output.expressed,
+        commonly_expressed=rules.dump_pickle_for_R.output.commonly_expressed,
+    output:
+        html = "../output/seurat3-cluster-wf/commonly_expressed_GO_analysis.html",
+    conda: "../envs/go_analysis.yaml"
+    resources:
+        mem_gb=lambda wildcards, attempt: attempt * 16,
+        time_hr=lambda wildcards, attempt: attempt * 6
+    script: "../scripts/rscript.py"
 
 ################################################################################
 # Differential Expression
