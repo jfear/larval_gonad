@@ -26,12 +26,16 @@ def main():
     fbgn_to_tau_tsps = load_tau_tsps()
 
     prop_cells_on.join(fbgn2symbol).join(fbgn_to_tau_tsps).set_index(
-        "gene_symbol", append=True
+        ["gene_symbol", "chromosome"], append=True
     ).to_csv(snakemake.output[0], sep="\t")
 
 
 def read_annotation() -> pd.Series:
-    return pd.read_feather(snakemake.input.annotation).set_index("FBgn").gene_symbol
+    return (
+        pd.read_feather(snakemake.input.annotation)
+        .set_index("FBgn")[["gene_symbol", "FB_chrom"]]
+        .rename(columns={"FB_chrom": "chromosome"})
+    )
 
 
 def commonly_expressed_by_cluster() -> pd.DataFrame:
