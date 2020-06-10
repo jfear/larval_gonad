@@ -9,7 +9,8 @@ from larval_gonad.config import read_config
 from larval_gonad.io import safe_gene_name
 
 workdir: "."
-configfile: "../config/common.yaml"
+# configfile: "../config/common.yaml"
+config = read_config("../config/common.yaml")
 colors_config = read_config("../config/colors.yaml")
 
 SAMPLES = ["testis1", "testis2", "testis3"]
@@ -284,7 +285,6 @@ rule biomarkers_to_tsv:
             .to_csv(output[0], sep="\t")
         )
 
-    
 rule table_s2:
     input: 
         cell=rules.cell_metadata.output[0],
