@@ -6,7 +6,8 @@ rule all:
         "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv",
         "../output/response-to-review-wf/commonly_expressed_GO_analysis.html",
         "../output/response-to-review-wf/germline_centric_subset.pkl",
-        expand("../output/response-to-review-wf/msl_heatmap.{ext}", ext=["svg", "png"])
+        expand("../output/response-to-review-wf/msl_heatmap.{ext}", ext=["svg", "png"]),
+        "../output/response-to-review-wf/y_expression_table.tsv",
 
 ################################################################################
 # Commonly Expressed Genes
@@ -105,3 +106,16 @@ rule plot_mls_heatmap:
         cluster_order=read_config("../config/common.yaml")["cluster_order"],
     output: "../output/response-to-review-wf/msl_heatmap.{ext,svg|png}"
     script: "scripts/mls_complex_gene_expression.py"
+
+################################################################################
+# Y Chromosome Expression
+################################################################################
+rule y_expression_table:
+    input:
+        annotation="../references/gene_annotation_dmel_r6-26.feather",
+        expressed="../output/cellselection-wf/expressed_genes.pkl",
+        widely_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        raw="../output/cellselection-wf/raw.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+    output: "../output/response-to-review-wf/y_expression_table.tsv"
+    script: "scripts/y_expression_table.py"
