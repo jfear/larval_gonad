@@ -27,12 +27,9 @@ def main():
 
 
 def commonly_expressed_by_cluster() -> pd.DataFrame:
-    annotation = (
-        pd.read_feather(snakemake.input.annotation)
-        .set_index("FBgn")
-        .gene_symbol.to_frame()
-        .reset_index()
-    )
+    annotation = pd.read_feather(snakemake.input.annotation)[
+        ["FBgn", "gene_symbol", "FB_chrom"]
+    ].rename(columns={"FB_chrom": "chromosome"})
 
     common_fbgns = joblib.load(snakemake.input.commonly_expressed)
     clusters = pd.read_feather(snakemake.input.clusters)[["cell_id", "cluster"]]
@@ -51,7 +48,7 @@ def commonly_expressed_by_cluster() -> pd.DataFrame:
 def cluster_proportion(expression: pd.DataFrame) -> pd.DataFrame:
     num_cells_with_expression_by_cluster = (
         expression.query("UMI > 0")
-        .groupby(["FBgn", "gene_symbol"])
+        .groupby(["FBgn", "gene_symbol", "chromosome"])
         .cluster.value_counts()
         .unstack()
         .loc[:, expression.cluster.cat.categories]
