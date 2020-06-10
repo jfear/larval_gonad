@@ -5,6 +5,7 @@ rule all:
         "../output/response-to-review-wf/prop_cells_on_commonly_expressed.tsv",
         "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv",
         "../output/response-to-review-wf/commonly_expressed_GO_analysis.html",
+        "../output/response-to-review-wf/chrom_arm_summary.tsv",
         "../output/response-to-review-wf/germline_centric_subset.pkl",
         expand("../output/response-to-review-wf/msl_heatmap.{ext}", ext=["svg", "png"]),
         "../output/response-to-review-wf/y_expression_table.tsv",
@@ -78,6 +79,14 @@ rule commonly_expressed_GO:
         mem_gb=lambda wildcards, attempt: attempt * 16,
         time_hr=lambda wildcards, attempt: attempt * 6
     script: "../scripts/rscript.py"
+
+rule chrom_arm_summary:
+    input: 
+        annotation="../references/gene_annotation_dmel_r6-26.feather",
+        expressed="../output/cellselection-wf/expressed_genes.pkl",
+        widely_expressed="../output/cellselection-wf/commonly_expressed_genes.pkl",
+    output: "../output/response-to-review-wf/chrom_arm_summary.tsv"
+    script: "scripts/chrom_arm_summary.py"
 
 ################################################################################
 # Germline Centric Expressed Genes
