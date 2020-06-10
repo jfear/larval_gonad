@@ -1,3 +1,4 @@
+from larval_gonad.config import read_config
 
 rule all:
     input: 
@@ -5,6 +6,7 @@ rule all:
         "../output/response-to-review-wf/commonly_expressed_cluster_proportion.tsv",
         "../output/response-to-review-wf/commonly_expressed_GO_analysis.html",
         "../output/response-to-review-wf/germline_centric_subset.pkl",
+        expand("../output/response-to-review-wf/msl_heatmap.{ext}", ext=["svg", "png"])
 
 ################################################################################
 # Commonly Expressed Genes
@@ -90,3 +92,16 @@ rule germline_centric_subset:
         clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
     output: "../output/response-to-review-wf/germline_centric_subset.pkl"
     script: "scripts/germline_centric_subset.py"
+
+################################################################################
+# MSL Complex Expression
+################################################################################
+rule plot_mls_heatmap:
+    input:
+        annotation="../references/gene_annotation_dmel_r6-26.feather",
+        zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+    params:
+        msl_genes=read_config("../config/other_lists.yaml")["msl_genes"],
+        cluster_order=read_config("../config/common.yaml")["cluster_order"],
+    output: "../output/response-to-review-wf/msl_heatmap.{ext,svg|png}"
+    script: "scripts/mls_complex_gene_expression.py"
