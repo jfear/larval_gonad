@@ -11,7 +11,7 @@ except:
 
 
 # %%
-df = pd.read_csv("../output/science_submission/cell_metadata.tsv", sep="\t", index_col=0)
+df = pd.read_csv("../output/paper_submission/cell_metadata.tsv", sep="\t", index_col=0)
 df
 
 # %%

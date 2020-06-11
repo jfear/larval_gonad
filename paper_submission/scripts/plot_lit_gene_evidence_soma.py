@@ -29,7 +29,7 @@ if __name__ == "__main__":
         TAG = config["tag"]
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
+            workdir="paper_submission",
             input=dict(
                 gene_metadata=f"../references/gene_annotation_dmel_{TAG}.feather",
                 lit_evidence="../data/external/miriam/lit_gene_dummy_vars.tsv",

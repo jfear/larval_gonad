@@ -39,7 +39,7 @@ def make_tpm():
     fbgn2length = pd.read_feather('../references/gene_annotation_dmel_r6-26.feather', columns=['FBgn', 'length']).set_index('FBgn').squeeze()
 
     raw = (
-        pd.read_feather('../output/science_submission/raw_by_cluster_rep.feather')
+        pd.read_feather('../output/paper_submission/raw_by_cluster_rep.feather')
         .groupby(['FBgn', 'cluster']).sum()
         .squeeze()
         .unstack(level='cluster')
@@ -56,7 +56,7 @@ def make_rpkm():
     fbgn2length = pd.read_feather('../references/gene_annotation_dmel_r6-26.feather', columns=['FBgn', 'length']).set_index('FBgn').squeeze()
 
     raw = (
-        pd.read_feather('../output/science_submission/raw_by_cluster_rep.feather')
+        pd.read_feather('../output/paper_submission/raw_by_cluster_rep.feather')
         .groupby(['FBgn', 'cluster']).sum()
         .squeeze()
         .unstack(level='cluster')

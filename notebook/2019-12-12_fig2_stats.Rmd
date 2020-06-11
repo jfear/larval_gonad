@@ -17,7 +17,7 @@ test <- function(x, y){
 ```
 
 ```{r load_data}
-df <- feather::read_feather("../output/science_submission/fig2_data_prop_reads.feather")
+df <- feather::read_feather("../output/paper_submission/fig2_data_prop_reads.feather")
 colnames(df) <- c("stage", "data_source", "cell_type", "rep", "tissue", "chrom", "prop_reads")
 head(df)
 ```

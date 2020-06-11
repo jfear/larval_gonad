@@ -35,8 +35,8 @@ from larval_gonad.notebook import Nb
 # %%
 # Setup notebook
 nbconfig = Nb.setup_notebook(seurat_dir='../output/scrnaseq-wf/scrnaseq_combine_force')
-config = yaml.load(open('../science_submission/config.yaml'))
-headers = yaml.load(open('../science_submission/results_table_config.yaml'))
+config = yaml.load(open('../paper_submission/config.yaml'))
+headers = yaml.load(open('../paper_submission/results_table_config.yaml'))
 
 # %%
 writer = pd.ExcelWriter('../output/notebook/spreadsheet_results.xlsx')
@@ -131,7 +131,7 @@ build_w_rep('../output/scrnaseq-wf/tpm_zscore_w_rep.parquet', 'TPM Zscores', wri
 # %%
 # tSNE
 (
-    pd.read_parquet('../output/science_submission/tsne.parquet')
+    pd.read_parquet('../output/paper_submission/tsne.parquet')
     .to_excel(writer, sheet_name='tSNE')
 )
 

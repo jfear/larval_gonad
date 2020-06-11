@@ -53,16 +53,16 @@ with open('../config/common.yaml') as fh:
 with open('../config/colors.yaml') as fh:
     config['colors'] = load(fh.read())
     
-with open('../science_submission/config.yaml') as fh:
+with open('../paper_submission/config.yaml') as fh:
     config.update(load(fh.read()))
 
 # %%
 # Get list of gene expressed in the experiment
-with open('../output/science_submission/background_fbgns.pkl', 'rb') as fh:
+with open('../output/paper_submission/background_fbgns.pkl', 'rb') as fh:
     bg = pickle.load(fh)
 
 # %%
-fbgn2symbol = pd.read_pickle('../output/science_submission/fbgn2symbol.pkl')
+fbgn2symbol = pd.read_pickle('../output/paper_submission/fbgn2symbol.pkl')
 fbgn2chrom = pd.read_parquet('../output/x-to-a-wf/fbgn2chrom.parquet')
 
 # %%

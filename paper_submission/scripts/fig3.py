@@ -108,7 +108,7 @@ if __name__ == "__main__":
         color_config = read_config("config/colors.yaml")
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
+            workdir="paper_submission",
             input=dict(
                 gene_annot="../references/gene_annotation_dmel_r6-26.feather",
                 all="../output/x-to-a-wf/db/expressed.dat",

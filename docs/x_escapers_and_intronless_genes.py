@@ -29,8 +29,8 @@ except:
 
 #%%
 # Get list of intronless FBgns
-fbgns_no_intron = pickle.load(open("../output/science_submission/intron_less_genes.pkl", "rb"))
-background = pickle.load(open("../output/science_submission/background_fbgns.pkl", "rb"))
+fbgns_no_intron = pickle.load(open("../output/paper_submission/intron_less_genes.pkl", "rb"))
+background = pickle.load(open("../output/paper_submission/background_fbgns.pkl", "rb"))
 
 #%%
 # Get list of X chromosome genes
@@ -100,7 +100,7 @@ res
 
 #%%
 zscores_intronless = (
-    feather_to_cluster_rep_matrix("../output/science_submission/zscore_by_cluster_rep.feather")
+    feather_to_cluster_rep_matrix("../output/paper_submission/zscore_by_cluster_rep.feather")
     .reindex(fbgns_no_intron)
     .dropna()
 )

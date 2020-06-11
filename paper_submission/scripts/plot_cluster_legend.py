@@ -26,7 +26,7 @@ if __name__ == '__main__':
         color_config = read_config("config/colors.yaml")
 
         snakemake = snakemake_debug(
-            workdir='science_submission',
+            workdir='paper_submission',
             params=dict(
                 cluster_colors=color_config['clusters'],
                 legend_names=config['legend_names']

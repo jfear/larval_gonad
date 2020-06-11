@@ -155,7 +155,7 @@ Seurat Biomarker List:
         **pct.2:** The percent of cells with this gene in all other cells not in this cell type (Seurat).
 
     **Values:** varied
-  file_name: '../output/science_submission/biomarkers.parquet'
+  file_name: '../output/paper_submission/biomarkers.parquet'
   function: 'biomarkers'
 
 
@@ -174,7 +174,7 @@ tSNE:
         **tSNE_2:** Coordinates on the Y-axis of the tSNE plot (Suerat).
 
     **Values:** X, Y coordinates on tSNE graph.
-  file_name: '../output/science_submission/tsne.parquet'
+  file_name: '../output/paper_submission/tsne.parquet'
   function: 'tsne'
 
 

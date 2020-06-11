@@ -92,8 +92,8 @@ if __name__ == "__main__":
         COLORS = read_config("config/colors.yaml")
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
-            input="../output/science_submission/fig2_data_prop_reads.feather",
+            workdir="paper_submission",
+            input="../output/paper_submission/fig2_data_prop_reads.feather",
             params=dict(colors=COLORS),
         )
 

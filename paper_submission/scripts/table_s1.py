@@ -51,12 +51,12 @@ if __name__ == "__main__":
 
         snakemake = snakemake_debug(
             input=dict(
-                larval="../../output/science_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz",
-                adult="../../output/science_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz",
-                corr_reps="../../output/science_submission/spearman_corr_bulk_vs_sum_single_cell.tsv",
-                corr_clusters="../../output/science_submission/spearman_corr_bulk_vs_single_cell_clusters.tsv",
+                larval="../../output/paper_submission/larval_bulk_RNA-Seq_gene_level_counts.tsv.gz",
+                adult="../../output/paper_submission/adult_bulk_RNA-Seq_gene_level_counts.tsv.gz",
+                corr_reps="../../output/paper_submission/spearman_corr_bulk_vs_sum_single_cell.tsv",
+                corr_clusters="../../output/paper_submission/spearman_corr_bulk_vs_single_cell_clusters.tsv",
             ),
-            output="../../output/science_submission/TableS1.xlsx",
+            output="../../output/paper_submission/TableS1.xlsx",
         )
 
     main()

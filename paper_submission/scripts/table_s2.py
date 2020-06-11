@@ -36,12 +36,12 @@ if __name__ == "__main__":
 
         snakemake = snakemake_debug(
             input=dict(
-                cell="../../output/science_submission/cell_metadata.tsv",
-                gene="../../output/science_submission/gene_metadata.tsv",
-                cluster="../../output/science_submission/cluster_metadata.tsv",
-                biomarkers="../../output/science_submission/one_vs_rest.tsv",
+                cell="../../output/paper_submission/cell_metadata.tsv",
+                gene="../../output/paper_submission/gene_metadata.tsv",
+                cluster="../../output/paper_submission/cluster_metadata.tsv",
+                biomarkers="../../output/paper_submission/one_vs_rest.tsv",
             ),
-            output="../../output/science_submission/TableS2.xlsx",
+            output="../../output/paper_submission/TableS2.xlsx",
         )
 
     main()

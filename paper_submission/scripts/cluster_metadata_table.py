@@ -69,7 +69,7 @@ if __name__ == "__main__":
         config = read_config("../../config/common.yaml")
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
+            workdir="paper_submission",
             input=dict(
                 clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
                 tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",

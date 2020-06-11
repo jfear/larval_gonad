@@ -121,7 +121,7 @@ if __name__ == "__main__":
         from larval_gonad.debug import snakemake_debug
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
+            workdir="paper_submission",
             input=dict(
                 metadata="../output/cellselection-wf/cell_metadata.feather",
                 clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",

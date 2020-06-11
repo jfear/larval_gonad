@@ -37,7 +37,7 @@ if __name__ == "__main__":
         from larval_gonad.debug import snakemake_debug
 
         snakemake = snakemake_debug(
-            workdir="science_submission",
+            workdir="paper_submission",
             input="../output/expression-atlas-wf/sex_bias_by_muller_x_and_4th/dana_AC.dat",
             params=dict(colors=["blue", "lightgray", "red"]),
             wildcards=dict(species="dana", tissue="AC"),
