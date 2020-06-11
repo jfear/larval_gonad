@@ -106,13 +106,26 @@ rule plot_literature_panel:
     params: pattern=lambda wildcards: "../output/paper_submission/figures/literature_expression_panel_{cnt}.svg"
     script: "scripts/literature_gene_expression_panel.py"
 
+rule plot_literature_gene_expression_patterns:
+    input:
+        gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        norm="../output/seurat3-cluster-wf/combined_n3_normalized.feather"
+    output: "../output/paper_submission/figures/literature_expression_patterns_patterns.done"
+    params: 
+        pattern=lambda wildcards: "../output/paper_submission/figures/literature_expression_patterns_{cnt}.svg",
+        colors=colors_config["clusters"]
+    script: "scripts/literature_gene_expression_patterns.py"
+
 
 rule fig2:
     input: 
         legend=rules.plot_cluster_legend.output[0],
         umap="../output/seurat3-cluster-wf/combined_n3_figures/umap_panel.svg",
         heatmap="../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg",
-        umap_panels=expand(rules.plot_literature_panel.output[0], cnt=[0, 1, 2, 3, 4])
+        umap_panels=expand(rules.plot_literature_gene_expression_patterns.output[0], cnt=[0, 1, 2, 3, 4])
     output: touch("../output/paper_submission/figures/fig2.parts.done")
 
 
