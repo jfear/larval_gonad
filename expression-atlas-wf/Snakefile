@@ -31,6 +31,7 @@ SAMPLES = sample2attrs.index.values.tolist()
 rule all:
     input: 
         "../output/expression-atlas-wf/w1118_gene_counts.feather",
+        "../output/expression-atlas-wf/OreR_gene_counts.feather",
         expand('../output/expression-atlas-wf/tau_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
         expand('../output/expression-atlas-wf/tsps_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
 
@@ -117,6 +118,16 @@ rule w1118_counts:
         counts=expand(rules.species_counts_table.output[0], species="w1118")[0],
     output: "../output/expression-atlas-wf/w1118_gene_counts.feather"
     script: "scripts/w1118_counts.py"
+
+
+# Aggregate OregonR counts
+rule Orer_counts:
+    input: 
+        orthologs=expand(rules.yogn_to_dmel_ortholog.output[0], species=["dmel"])[0],
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        counts=expand(rules.species_counts_table.output[0], species="orgR")[0],
+    output: "../output/expression-atlas-wf/OreR_gene_counts.feather"
+    script: "scripts/OreR_counts.py"
 
 
 ################################################################################
