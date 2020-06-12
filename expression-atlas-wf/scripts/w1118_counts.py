@@ -71,16 +71,4 @@ def get_counts(yogn2fbgn):
 
 
 if __name__ == "__main__":
-    if os.getenv("SNAKE_DEBUG", None):
-        from larval_gonad.debug import snakemake_debug
-
-        snakemake = snakemake_debug(
-            workdir="expression-atlas-wf",
-            input=dict(
-                orthologs="../output/expression-atlas-wf/YOgn_to_dmel_ortholog/dmel.pkl",
-                gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-                counts="../output/expression-atlas-wf/aggregated_counts_table/w1118.feather",
-            ),
-        )
-
     main()
