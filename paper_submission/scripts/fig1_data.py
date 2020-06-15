@@ -1,18 +1,13 @@
 """ Data for Figure 2
 
-prop_reads: is the number of reads (from expressed genes, > 5) mapping to
-each chromosome arm scaled by the total number of reads from each sample
-divided by the number of expressed genes (> 5) on that chromosome arm divided
-by 1e3.
-
-pct_expressed: is the number of expressed genes (> 5) divided by the number
-of expressed genes on that chromosome times 100.
+Calculate the Average TPM per chromosome (expressed genes: TPM > 0)
 
 """
 import os
 from typing import List
 from collections import ChainMap
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -20,60 +15,41 @@ import seaborn as sns
 from larval_gonad.normalization import tpm
 from larval_gonad import plotting
 
-NAMES = ["Average TPM", r"% Gene Expressed"]
-
 
 def main():
-    df = munge_prop_reads(NAMES[0])
-    df.to_feather(snakemake.output.prop_reads)
-
-    df = munge_pct_expressed(NAMES[1])
-    df.to_feather(snakemake.output.pct_expressed)
-
-
-def munge_prop_reads(name):
-    counts = (
+    avg_tpm_per_chrom = (
         pd.concat(
             [
-                pd.read_feather(snakemake.input.adult_bulk),
-                pd.read_feather(snakemake.input.L3_bulk),
-                pd.read_feather(snakemake.input.L3_sc_agg),
-                pd.read_feather(snakemake.input.L3_sc_by_class),
+                read_adult_counts(snakemake.input.w1118),
+                read_adult_counts(snakemake.input.OreR),
+                read_larval_counts(snakemake.input.L3_bulk),
             ],
             sort=False,
         )
-        .fillna("None")
-        .assign(
-            cell_type=lambda x: x.cell_type.map(
-                {
-                    "None": "None",
-                    "Germline": "Germline",
-                    "Other Somatic": "Somatic",
-                    "Cyst Lineage": "Somatic",
-                }
-            )
-        )
-    )
-    counts_tpm = add_tpm(counts)
-    expressed = counts.loc[counts.Count > 0, "FBgn"].unique().tolist()
-
-    fbgn2chrom = get_fbgn2chrom(expressed).value_counts().rename("num_genes")
-    fbgn2chrom.index.name = "chrom"
-
-    prop_counts = (
-        counts_tpm.groupby(["chrom", "stage", "data_source", "cell_type", "rep", "tissue"])
-        .TPM.sum()
-        .div(fbgn2chrom, axis=0)
-        .rename(name)
+        .pipe(add_tpm)
+        .groupby(["stage", "strain", "tissue"])
+        .apply(calculate_avg_tpm_per_chrom)
+        .reset_index()
     )
 
-    return prop_counts.to_frame().reset_index()
+    avg_tpm_per_chrom.to_feather(snakemake.output[0])
 
 
-def add_tpm(counts):
-    counts_matrix = pd.pivot_table(
-        counts, index="FBgn", columns="sample_ID", values="Count", aggfunc="first"
-    ).fillna(0)
+def read_adult_counts(file_name) -> pd.DataFrame:
+    return pd.read_feather(file_name)
+
+
+def read_larval_counts(file_name) -> pd.DataFrame:
+    return (
+        pd.read_feather(file_name)
+        .assign(sex=lambda df: np.where(df.tissue == "ovary", "f", "m"))
+        .assign(strain="w1118")
+        .replace({"ovary": "GO", "testis": "GO"})
+    )
+
+
+def add_tpm(df: pd.DataFrame) -> pd.DataFrame:
+    matrix_ = pd.pivot(df, index="FBgn", columns="sample_ID", values="Count").fillna(0)
 
     gene_lens = (
         pd.read_feather(snakemake.input.gene_annot, columns=["FBgn", "length"])
@@ -81,57 +57,16 @@ def add_tpm(counts):
         .squeeze()
     )
 
-    _tpm = (
-        tpm(counts_matrix, gene_lens).dropna().reset_index().melt(id_vars="FBgn", value_name="TPM")
-    )
-    return counts.merge(_tpm, on=["FBgn", "sample_ID"])
-
-
-def munge_pct_expressed(name):
-    counts = (
-        pd.concat(
-            [
-                pd.read_feather(snakemake.input.adult_bulk),
-                pd.read_feather(snakemake.input.L3_bulk),
-                pd.read_feather(snakemake.input.L3_sc_agg),
-                pd.read_feather(snakemake.input.L3_sc_by_class),
-            ],
-            sort=False,
-        )
-        .fillna("None")
-        .assign(
-            cell_type=lambda x: x.cell_type.map(
-                {
-                    "None": "None",
-                    "Germline": "Germline",
-                    "Other Somatic": "Somatic",
-                    "Cyst Lineage": "Somatic",
-                }
-            )
-        )
-        .groupby(["FBgn", "chrom", "stage", "data_source", "cell_type", "rep", "tissue"])
-        .Count.sum()
+    tpm_ = (
+        tpm(matrix_, gene_lens)
+        .dropna()
         .reset_index()
-        .assign(flag_on=lambda x: x.Count > 5)
+        .melt(id_vars="FBgn", value_name="TPM")
     )
-
-    expressed_FBgns = counts[counts.flag_on].FBgn.unique()
-
-    fbgn2chrom = get_fbgn2chrom(expressed_FBgns).value_counts().rename("num_genes")
-    fbgn2chrom.index.name = "chrom"
-
-    pct_expressed = (
-        counts.groupby(["chrom", "stage", "data_source", "cell_type", "rep", "tissue"])
-        .flag_on.sum()
-        .div(fbgn2chrom, axis=0)
-        .mul(100)
-        .rename(name)
-    )
-
-    return pct_expressed.to_frame().reset_index()
+    return df.merge(tpm_, on=["FBgn", "sample_ID"])
 
 
-def get_fbgn2chrom(expressed):
+def map_chrom(expressed: list) -> pd.Series:
     return (
         pd.read_feather(snakemake.input.gene_annot, columns=["FBgn", "FB_chrom"])
         .set_index("FBgn")
@@ -142,23 +77,26 @@ def get_fbgn2chrom(expressed):
     )
 
 
+def calculate_avg_tpm_per_chrom(df: pd.DataFrame) -> pd.DataFrame:
+    expressed_fbgns = df.loc[df.Count > 0, "FBgn"].unique().tolist()
+
+    num_expressed_genes_per_chrom = (
+        map_chrom(expressed_fbgns)
+        .value_counts()
+        .rename("num_genes")
+        .rename_axis("chrom")
+    )
+
+    avg_tpm = (
+        df.groupby(["chrom", "rep", "sex"])
+        .TPM.sum()
+        .div(num_expressed_genes_per_chrom, axis=0)
+        .rename("Avg TPM Per Chromosome")
+        .to_frame()
+    )
+
+    return avg_tpm
+
+
 if __name__ == "__main__":
-    if os.getenv("SNAKE_DEBUG", False):
-        from larval_gonad.debug import snakemake_debug
-        from larval_gonad.config import read_config
-
-        COLORS = read_config("config/colors.yaml")
-
-        snakemake = snakemake_debug(
-            workdir="paper_submission",
-            input=dict(
-                gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-                adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
-                L3_bulk="../output/bulk2-rnaseq-wf/testis_ovary_counts.feather",
-                L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-                L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-            ),
-            params=dict(colors=COLORS),
-        )
-
     main()

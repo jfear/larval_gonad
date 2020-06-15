@@ -66,19 +66,15 @@ rule all:
 rule data_fig1:
     input: 
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        chrom_sizes=f"../lcdb-references/{ASSEMBLY}/{TAG}/fasta/{ASSEMBLY}_{TAG}.chromsizes",
-        adult_bulk="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        w1118="../output/expression-atlas-wf/w1118_gene_counts.feather",
+        OreR="../output/expression-atlas-wf/OreR_gene_counts.feather",
         L3_bulk="../output/bulk-rnaseq-wf/testis_ovary_counts.feather",
-        L3_sc_agg="../output/seurat3-cluster-wf/aggegated_gene_counts.feather",
-        L3_sc_by_class="../output/seurat3-cluster-wf/aggegated_gene_counts_by_germ_soma.feather",
-    output: 
-        prop_reads="../output/paper_submission/fig1_data_prop_reads.feather",
-        pct_expressed="../output/paper_submission/fig1_data_pct_expressed.feather"
+    output: "../output/paper_submission/fig1_data_avg_tpm_per_chrom.feather",
     script: "scripts/fig1_data.py"
 
 
 rule fig1:
-    input: rules.data_fig1.output.prop_reads,
+    input: rules.data_fig1.output[0]
     output: "../output/paper_submission/figures/fig1.svg"
     params: colors=COLORS
     script: "scripts/fig1.py"
