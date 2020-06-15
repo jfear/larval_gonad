@@ -14,13 +14,14 @@ def main():
         adult_counts.reset_index()
         .melt(id_vars="FBgn", var_name="sample_ID", value_name="Count")
         .assign(strain="w1118")
+        .assign(stage="adult")
         .assign(
-            stage=lambda x: x.sample_ID.str.extract(
+            tissue=lambda x: x.sample_ID.str.extract(
                 r"w1118_(\w+)_\w+_r\d", expand=False
             )
         )
         .assign(
-            tissue=lambda x: x.sample_ID.str.extract(
+            sex=lambda x: x.sample_ID.str.extract(
                 r"w1118_\w+_(\w+)_r\d", expand=False
             )
         )
