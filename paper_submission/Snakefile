@@ -63,7 +63,7 @@ rule all:
 ################################################################################
 # Figure 1: Bulk
 ################################################################################
-rule data_fig1:
+rule fig1_data:
     input: 
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         w1118="../output/expression-atlas-wf/w1118_gene_counts.feather",
@@ -73,8 +73,16 @@ rule data_fig1:
     script: "scripts/fig1_data.py"
 
 
+rule fig1_stats:
+    input: rules.fig1_data.output[0]
+    output: "../output/paper_submission/fig1_stats.tsv"
+    script: "scripts/fig1_stats.py"
+
+
 rule fig1:
-    input: rules.data_fig1.output[0]
+    input: 
+        rules.fig1_data.output[0],
+        rules.fig1_stats.output[0]
     output: "../output/paper_submission/figures/fig1.svg"
     params: colors=COLORS
     script: "scripts/fig1.py"

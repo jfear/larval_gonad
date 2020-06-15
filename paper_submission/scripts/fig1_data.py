@@ -44,7 +44,7 @@ def read_larval_counts(file_name) -> pd.DataFrame:
         pd.read_feather(file_name)
         .assign(sex=lambda df: np.where(df.tissue == "ovary", "f", "m"))
         .assign(strain="w1118")
-        .replace({"ovary": "GO", "testis": "GO"})
+        .replace({"ovary": "L3_GO", "testis": "L3_GO"})
     )
 
 
