@@ -28,11 +28,18 @@ def main():
     fix_yaxis((-0.1, 8.2), [0, 4, 8], axes[2, :])
     fix_yaxis((-0.1, 10), [0, 5, 10], axes[3, :])
 
-    axes[0, 0].set_title("All Genes", y=0.9)
-    axes[0, 1].set_title("Common Genes", y=0.9)
+    axes[0, 0].set_title("All Genes", y=0.9, backgroundcolor="w")
+    axes[1, 0].set_title("All Genes", y=0.9, backgroundcolor="w")
+    axes[2, 0].set_title("All Genes", y=0.9, backgroundcolor="w")
+    axes[3, 0].set_title("Y Chromosome Genes", y=0.9, backgroundcolor="w")
+
+    axes[0, 1].set_title("Widely Expressed Genes", y=0.9, backgroundcolor="w")
+    axes[1, 1].set_title("Widely Expressed Genes", y=0.9, backgroundcolor="w")
+    axes[2, 1].set_title("Widely Expressed Genes", y=0.9, backgroundcolor="w")
+    axes[3, 1].set_title("Y Chromosome Genes", y=0.9, backgroundcolor="w")
 
     for (ax, label) in zip(axes.flat, ["A", "B", "C", "D", "E", "F", "G", "H"]):
-        ax.text(0.01, 0.9, label, fontweight="bold", transform=ax.transAxes)
+        ax.text(0.01, 0.95, label, fontweight="bold", fontsize=12, transform=ax.transAxes)
 
     plt.savefig(snakemake.output[0])
 
@@ -47,17 +54,19 @@ def all_genes(axes: List[plt.Axes]):
     )
 
     plot_log_expression_by_cluster(
+        snakemake.input.tpm, snakemake.params.cluster_color, snakemake.params.cluster_order, axes[2]
+    )
+    axes[2].set(ylabel="Expression Log(TPM)")
+
+    plot_log_expression_by_cluster(
         snakemake.input.tpm,
         snakemake.params.cluster_color,
         snakemake.params.cluster_order,
-        axes[2],
+        axes[3],
         Y_FBGNS,
     )
-    axes[2].set(ylabel="Y Genes\nLog(TPM)")
+    axes[3].set(ylabel="Expression Log(TPM)")
 
-    plot_log_expression_by_cluster(
-        snakemake.input.tpm, snakemake.params.cluster_color, snakemake.params.cluster_order, axes[3]
-    )
 
 
 def common_genes(axes: List[plt.Axes]):
@@ -80,17 +89,18 @@ def common_genes(axes: List[plt.Axes]):
         snakemake.params.cluster_color,
         snakemake.params.cluster_order,
         axes[2],
-        set(Y_FBGNS).intersection(set(COMMON_FBGNS)),
+        COMMON_FBGNS,
     )
-    axes[2].set(ylabel="Y Genes\nLog(TPM)")
+    axes[2].set(ylabel="Expression Log(TPM)")
 
     plot_log_expression_by_cluster(
         snakemake.input.tpm,
         snakemake.params.cluster_color,
         snakemake.params.cluster_order,
         axes[3],
-        COMMON_FBGNS,
+        set(Y_FBGNS).intersection(set(COMMON_FBGNS)),
     )
+    axes[3].set(ylabel="Expression Log(TPM)")
 
 
 def fix_yaxis(ylim, yticks, axes):

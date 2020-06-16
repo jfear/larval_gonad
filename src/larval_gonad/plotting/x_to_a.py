@@ -25,7 +25,7 @@ def plot_x_to_a(shelve: str, cluster_color: list, cluster_order: list, ax: plt.A
         _, ax = plt.subplots()
 
     cluster_boxplot("ratio", df, cluster_color, cluster_order, ax)
-    ax.set(xlabel="", ylabel="X / A", axisbelow=True)
+    ax.set(xlabel="", ylabel="Expression X/AA", axisbelow=True)
     ax.axhline(1, ls="--", color="grey")
     add_pvals(pvals.x, pvals.y, pvals.pvalue, ax)
 
@@ -49,7 +49,7 @@ def plot_4_to_a(shelve: str, cluster_color: list, cluster_order: list, ax: plt.A
         _, ax = plt.subplots()
 
     cluster_boxplot("ratio", df, cluster_color, cluster_order, ax)
-    ax.set(xlabel="", ylabel="4 / A", axisbelow=True)
+    ax.set(xlabel="", ylabel="Expression 44/AA", axisbelow=True)
     ax.axhline(1, ls="--", color="grey")
     add_pvals(pvals.x, pvals.y, pvals.pvalue, ax)
 

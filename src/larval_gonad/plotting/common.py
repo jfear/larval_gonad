@@ -47,6 +47,7 @@ def cluster_boxplot(y: str, data: pd.DataFrame, cluster_color: list, cluster_ord
         palette=cluster_color,
         order=cluster_order,
         notch=True,
+        linewidth=.5,
         ax=ax
     )
     args.update(kwargs)
