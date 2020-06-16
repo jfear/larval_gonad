@@ -7,6 +7,7 @@
 import os
 from typing import List
 from collections import ChainMap
+from string import ascii_uppercase
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -35,20 +36,21 @@ def main():
     width = plt.rcParams["figure.figsize"][0]
     plt.rcParams["figure.figsize"] = (width, width * 0.6)
 
-    df = pd.read_feather(snakemake.input[0]).query("strain != 'OreR'")
+    df = pd.read_feather(snakemake.input[0])
     df.tissue = df.tissue.map(TISSUE_MAPPER)
 
     g = sns.catplot(
         data=df,
         x="chrom",
         y="Avg TPM Per Chromosome",
-        order=["X", "2L", "2R", "3L", "3R", "4", "Y"],
+        order=["X", "Y", "2L", "2R", "3L", "3R", "4"],
         hue="sex",
         hue_order=["m", "f"],
         palette=COLORS,
         col="tissue",
-        col_wrap=3,
         col_order=TISSUE_ORDER,
+        row="strain",
+        row_order=["w1118", "OreR"],
         kind="bar",
         height=1.5,
         aspect=1.2,
@@ -57,18 +59,12 @@ def main():
         errwidth=1,
     )
 
-    g.set_titles("{col_name}")
-    g.set_xlabels("Chromosome")
+    g.set_titles("{row_name}\n{col_name}")
+    g.set_xlabels("Scaffold")
 
-    labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+    labels = ascii_uppercase
     for ax, label in zip(g.axes.flat, labels):
         ax.text(0.01, 0.95, label, fontweight="bold", transform=ax.transAxes)
-
-    g.axes[-1].set_xlabel("")
-    g.axes[-3].set_xlabel("")
-
-    g.axes[0].set_ylabel("")
-    g.axes[-3].set_ylabel("")
 
     plt.subplots_adjust(hspace=0.2, wspace=0.1)
     plt.savefig(snakemake.output[0])
