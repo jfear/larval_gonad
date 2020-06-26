@@ -139,7 +139,7 @@ rule plot_gene_ontology_all_genes:
         background="../references/gene_annotation_dmel_r6-26.tsv",
         target_genes="../output/cellselection-wf/expressed_genes.pkl",
     output: 
-        summary="../output/paper_submission/figures/gene_ontology_all_genes.tsv",
+        summary="../output/paper_submission/gene_ontology_all_genes.tsv",
         fig="../output/paper_submission/figures/gene_ontology_all_genes.svg",
     script: "scripts/plot_gene_ontology.py"
 
