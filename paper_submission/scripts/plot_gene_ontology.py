@@ -93,8 +93,17 @@ def _add_other(df: pd.DataFrame, res: List[GOEnrichmentStudyNS], asset: str):
     return df
 
 
+def _unique(values):
+    prev = None
+    for value in values:
+        if value == prev:
+            continue
+        prev = value
+        yield value
+
+
 def molecular_function(res: List[GOEnrichmentStudyNS], res_mapper: Dict[str, float]):
-    order = list(flybase_molecular_function.values()) + ["other"]
+    order = list(_unique(flybase_molecular_function.values())) + ["other"]
     return (
         pd.Series(flybase_molecular_function, name="title")
         .rename_axis("GO")
@@ -111,7 +120,7 @@ def molecular_function(res: List[GOEnrichmentStudyNS], res_mapper: Dict[str, flo
 
 
 def biological_process(res: List[GOEnrichmentStudyNS], res_mapper: Dict[str, float]):
-    order = list(flybase_biological_process.values()) + ["other"]
+    order = list(_unique(flybase_biological_process.values())) + ["other"]
     return (
         pd.Series(flybase_biological_process, name="title")
         .rename_axis("GO")
@@ -128,7 +137,7 @@ def biological_process(res: List[GOEnrichmentStudyNS], res_mapper: Dict[str, flo
 
 
 def cellular_component(res: List[GOEnrichmentStudyNS], res_mapper: Dict[str, float]):
-    order = list(flybase_cellular_component.values()) + ["other"]
+    order = list(_unique(flybase_cellular_component.values())) + ["other"]
     return (
         pd.Series(flybase_cellular_component, name="title")
         .rename_axis("GO")
