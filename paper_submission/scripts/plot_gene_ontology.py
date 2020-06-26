@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from goatools.goea.go_enrichment_ns import GOEnrichmentStudyNS
 
+import larval_gonad.plotting
 from larval_gonad.gene_ontology import (
     run_flyslim,
     flybase_molecular_function,
@@ -15,6 +16,7 @@ from larval_gonad.gene_ontology import (
     flybase_cellular_component,
 )
 
+plt.style.use(["1c", "science_base"])
 
 def main():
     res, res_mapper = go_analysis()
