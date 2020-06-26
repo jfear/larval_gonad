@@ -47,7 +47,7 @@ rule all:
         # Main Figures
         "../output/paper_submission/figures/fig1.svg",
         "../output/paper_submission/figures/fig2.parts.done",
-        "../output/paper_submission/figures/fig3.svg",
+        "../output/paper_submission/figures/fig3.parts.done",
         "../output/paper_submission/figures/fig4.svg",
         "../output/paper_submission/figures/fig5.svg",
         # Supplemental Figures
@@ -134,19 +134,44 @@ rule fig2:
 ################################################################################
 # Figure 3: Chromosome Expression and Gene Counts
 ################################################################################
-rule fig3:
+rule plot_gene_ontology_all_genes:
+    input:
+        background="../references/gene_annotation_dmel_r6-26.tsv",
+        target_genes="../output/cellselection-wf/expressed_genes.pkl",
+    output: 
+        summary="../output/paper_submission/figures/gene_ontology_all_genes.tsv",
+        fig="../output/paper_submission/figures/gene_ontology_all_genes.svg",
+    script: "scripts/plot_gene_ontology.py"
+
+rule plot_gene_ontology_widely_expressed_genes:
+    input:
+        background="../output/cellselection-wf/expressed_genes.pkl",
+        target_genes="../output/cellselection-wf/commonly_expressed_genes.pkl",
+    output: 
+        summary="../output/paper_submission/gene_ontology_widely_expressed_genes.tsv",
+        fig="../output/paper_submission/figures/gene_ontology_widely_expressed_genes.svg",
+    script: "scripts/plot_gene_ontology.py"
+
+rule plot_fig3_boxplots:
     input: 
-        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-        all='../output/x-to-a-wf/db/expressed.dat',
-        common='../output/x-to-a-wf/db/commonly_expressed.dat',
-        tpm='../output/seurat3-cluster-wf/tpm_by_cluster.feather',
-        common_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
+        widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+        expressed_ratios="../output/x-to-a-wf/db/expressed.dat",
+        widely_expressed_ratios="../output/x-to-a-wf/db/commonly_expressed.dat",
     params:
           cluster_color=COLORS["clusters"],
           cluster_order=config['cluster_order'],
-    output: "../output/paper_submission/figures/fig3.svg"
-    script: "scripts/fig3.py"
+    output: "../output/paper_submission/figures/fig3_boxplots.svg"
+    script: "scripts/plot_fig3_boxplots.py"
 
+rule fig3:
+    input: 
+        rules.plot_gene_ontology_all_genes.output[0],
+        rules.plot_gene_ontology_widely_expressed_genes.output[0],
+        rules.plot_fig3_boxplots.output[0],
+    output: touch("../output/paper_submission/figures/fig3.parts.done")
 
 ################################################################################
 # Figure 4: Chromosome Spatial Localization

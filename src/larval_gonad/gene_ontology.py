@@ -15,6 +15,59 @@ oboDag = GODag(HERE / "../../data/external/go-basic.obo")
 slimDag = GODag(HERE / "../../data/external/goslim_drosophila_fb_ribbons.obo")
 association = HERE / "../../data/external/gene_association.fb"
 
+flybase_molecular_function = {
+    "GO:0003824": "enzyme",
+    "GO:0098772": "regulator",
+    "GO:0038023": "receptor",
+    "GO:0005102": "receptor binding",
+    "GO:0005215": "transporter",
+    "GO:0005198": "structural molecule",
+    "GO:0008092": "cytoskeleton binding",
+    "GO:0003677": "DNA binding",
+    "GO:0003723": "RNA binding",
+    "GO:0140110": "transcription factor",
+    "GO:0036094": "small molecule binding",
+    "GO:0046872": "metal ion binding",
+    "GO:0008289": "lipid binding",
+    "GO:0030246": "carbohydrate binding",
+}
+
+flybase_biological_process = {
+    "GO:0008283": "cell cycle/proliferation",
+    "GO:0007049": "cell cycle/proliferation",
+    "GO:0071840": "cellular organization/biogenesis",
+    "GO:0051234": "cellular transport/localization",
+    "GO:0033036": "cellular transport/localization",
+    "GO:0032502": "development",
+    "GO:0000003": "reproduction",
+    "GO:0048232": "male gamete generation",
+    "GO:0007292": "female gamete generation",
+    "GO:0002376": "immune system",
+    "GO:0050877": "nervous system process",
+    "GO:0007610": "behavior",
+    "GO:0050896": "response to stimulus",
+    "GO:0023052": "signaling",
+    "GO:0010467": "gene expression",
+    "GO:0019538": "protein metabolism",
+    "GO:0006259": "DNA metabolism",
+    "GO:0044281": "small molecule metabolism",
+}
+
+flybase_cellular_component = {
+    "GO:0005576": "extracellular",
+    "GO:0005829": "cytosol",
+    "GO:0005856": "cytoskeleton",
+    "GO:0005739": "mitochondrion",
+    "GO:0005634": "nucleus",
+    "GO:0005694": "chromosome",
+    "GO:0016020": "membrane",
+    "GO:0071944": "cell periphery",
+    "GO:0042995": "cell projection",
+    "GO:0005773": "endomembrane system",
+    "GO:0012505": "endomembrane system",
+    "GO:0045202": "synapse",
+    "GO:0032991": "macromolecular complex",
+}
 
 def associate_fbgn_to_go_term(type_filter=None):
     fly = defaultdict(lambda: defaultdict(set))
