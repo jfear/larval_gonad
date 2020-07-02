@@ -74,6 +74,7 @@ sns.violinplot(
     palette=colors,
 )
 plt.suptitle("All Expressed")
+plt.savefig("../../output/response-to-review-wf/tau_all_expressed_genes.svg")
 
 # %%
 widely_expressed = joblib.load(
@@ -96,6 +97,7 @@ sns.violinplot(
     palette=colors,
 )
 plt.suptitle("Widely Expressed")
+plt.savefig("../../output/response-to-review-wf/tau_widely_expressed_genes.svg")
 
 # %%
 fig = plt.figure(figsize=(8, 4))
