@@ -34,7 +34,7 @@ rule all:
         "../output/expression-atlas-wf/OreR_gene_counts.feather",
         expand('../output/expression-atlas-wf/tau_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
         expand('../output/expression-atlas-wf/tsps_housekeeping/{sex}_fbgns.pkl', sex=["male", "female"]),
-
+        "../output/expression-atlas-wf/dmel_sex_biased_expression.feather",
 
 ################################################################################
 # Download data
@@ -208,6 +208,30 @@ rule dmel_tsps_housekeeping:
 
 
 ################################################################################
+# Sex Biased Gene Expression
+################################################################################
+rule sex_bias_expression:
+    input:
+        sampletable = 'config/sampletable.tsv',
+        counts_table = rules.species_counts_table.output[0]
+    output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
+    log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
+    conda: "../envs/deseq2.yaml"
+   script: 'scripts/sex_bias_expression.R'
+
+
+rule merge_sex_bias_expression:
+    input: 
+        deg=expand(
+            '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv', 
+            species=["w1118", "orgR"], 
+            tissue=["AC", "DG", "GE", "GO", "HD", "RE", "TX", "WB"]
+        ),
+        yogn2fbgn="../output/expression-atlas-wf/YOgn_to_dmel_ortholog/dmel.pkl"
+    output: "../output/expression-atlas-wf/dmel_sex_biased_expression.feather"
+    script: "scripts/merge_sex_bias_expression.py"
+
+################################################################################
 # Deprecated
 ################################################################################
 # Prep metadata
@@ -262,16 +286,6 @@ rule scaffolds_for_maria:
 
 
 # Sex Biased Expression
-rule sex_bias_expression:
-    input:
-        sampletable = 'config/sampletable.tsv',
-        counts_table = rules.species_counts_table.output[0]
-    output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
-    log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
-    conda: "../envs/deseq2.yaml"
-    script: 'scripts/sex_bias_expression.R'
-
-
 rule sex_bias_by_muller:
     input: 
         muller=_muller_arm_assignment_dmel_translate,
