@@ -16,6 +16,7 @@ def main():
         .pipe(map_to_fbgn)
         .pipe(keep_genes_with_fbgn)
         .pipe(annotate_bias)
+        .pipe(rename_orgR_to_OreR)
         .rename(columns={"YOgn": "FBgn"})
         .reset_index(drop=True)
         .to_feather(snakemake.output[0])
@@ -57,6 +58,11 @@ def annotate_bias(df: pd.DataFrame, alpha: float = 0.01) -> pd.DataFrame:
     df.loc[significant & male_bias, "bias"] = "male"
     df.loc[significant & female_bias, "bias"] = "female"
 
+    return df
+
+
+def rename_orgR_to_OreR(df: pd.DataFrame) -> pd.DataFrame:
+    df.species = df.species.replace({"orgR": "OreR"})
     return df
 
 

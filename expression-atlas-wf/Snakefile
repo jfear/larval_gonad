@@ -217,7 +217,7 @@ rule sex_bias_expression:
     output: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.tsv'
     log: '../output/expression-atlas-wf/sex_biased_expression/{species}_{tissue}.log'
     conda: "../envs/deseq2.yaml"
-   script: 'scripts/sex_bias_expression.R'
+    script: 'scripts/sex_bias_expression.R'
 
 
 rule merge_sex_bias_expression:
