@@ -45,7 +45,7 @@ wildcard_constraints:
 rule all:
     input: 
         # Main Figures
-        "../output/paper_submission/figures/fig1.svg",
+        "../output/paper_submission/figures/fig1a.svg",
         "../output/paper_submission/figures/fig2.parts.done",
         "../output/paper_submission/figures/fig3.parts.done",
         "../output/paper_submission/figures/fig4.svg",
@@ -61,32 +61,35 @@ rule all:
         # expand("../output/paper_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),   ## commented out to spead up build snakemake.
 
 ################################################################################
-# Figure 1: Bulk
+# Figure 1a: Chromosome Expression
 ################################################################################
-rule fig1_data:
+rule fig1a_data:
     input: 
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         w1118="../output/expression-atlas-wf/w1118_gene_counts.feather",
         OreR="../output/expression-atlas-wf/OreR_gene_counts.feather",
         L3_bulk="../output/bulk-rnaseq-wf/testis_ovary_counts.feather",
-    output: "../output/paper_submission/fig1_data_avg_tpm_per_chrom.feather",
-    script: "scripts/fig1_data.py"
+    output: "../output/paper_submission/fig1a_data_avg_tpm_per_chrom.feather",
+    script: "scripts/fig1a_data.py"
 
 
-rule fig1_stats:
-    input: rules.fig1_data.output[0]
-    output: "../output/paper_submission/fig1_stats.tsv"
-    script: "scripts/fig1_stats.py"
+rule fig1a_stats:
+    input: rules.fig1a_data.output[0]
+    output: "../output/paper_submission/fig1a_stats.tsv"
+    script: "scripts/fig1a_stats.py"
 
 
-rule fig1:
+rule fig1a:
     input: 
-        rules.fig1_data.output[0],
-        rules.fig1_stats.output[0]
-    output: "../output/paper_submission/figures/fig1.svg"
+        rules.fig1a_data.output[0],
+        rules.fig1a_stats.output[0]
+    output: "../output/paper_submission/figures/fig1a.svg"
     params: colors=COLORS
-    script: "scripts/fig1.py"
+    script: "scripts/fig1a.py"
 
+################################################################################
+# Figure 1b: Sex Biased Expression By Chromosome
+################################################################################
 
 ################################################################################
 # Figure 2: scRNA-Seq intro, cluster, and annotate
