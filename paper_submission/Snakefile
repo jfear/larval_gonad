@@ -46,6 +46,7 @@ rule all:
     input: 
         # Main Figures
         "../output/paper_submission/figures/fig1a.svg",
+        "../output/paper_submission/figures/fig1b.svg",
         "../output/paper_submission/figures/fig2.parts.done",
         "../output/paper_submission/figures/fig3.parts.done",
         "../output/paper_submission/figures/fig4.svg",
@@ -90,6 +91,30 @@ rule fig1a:
 ################################################################################
 # Figure 1b: Sex Biased Expression By Chromosome
 ################################################################################
+rule fig1b_data:
+    input: 
+        adult="../output/expression-atlas-wf/dmel_sex_biased_expression.feather",
+        larval="../output/bulk-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv",
+        gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
+    output: "../output/paper_submission/fig1b_sex_biased_expression.feather",
+    script: "scripts/fig1b_data.py"
+
+
+rule fig1b_stats:
+    input: rules.fig1b_data.output[0]
+    output: 
+        full_stats="../output/paper_submission/fig1b_full_stats.tsv",
+        filtered_stats="../output/paper_submission/fig1b_stats.tsv",
+    script: "scripts/fig1b_stats.py"
+
+
+rule fig1b:
+    input: 
+        data=rules.fig1b_data.output[0],
+        stats=rules.fig1b_stats.output.filtered_stats,
+    output: "../output/paper_submission/figures/fig1b.svg"
+    params: colors=COLORS
+    script: "scripts/fig1b.py"
 
 ################################################################################
 # Figure 2: scRNA-Seq intro, cluster, and annotate

@@ -1,18 +1,18 @@
 import matplotlib.pyplot as plt
 
 
-def pval_to_string(pvalue):
-    if pvalue <= 0.001:
+def pval_to_string(pvalue, sig_format=True):
+    if pvalue <= 0.001 and sig_format:
         return "***"
-    elif pvalue <= 0.01:
+    elif pvalue <= 0.01 and sig_format:
         return "**"
     elif pvalue <= 0.05:
         return "*"
     return "NS"
 
 
-def format_pval(x, y, pvalue, ax, **kwargs):
-    pval_string = pval_to_string(pvalue)
+def format_pval(x, y, pvalue, ax, sig_format=True, **kwargs):
+    pval_string = pval_to_string(pvalue, sig_format)
     if pval_string == "NS":
         return ax
 
@@ -20,7 +20,7 @@ def format_pval(x, y, pvalue, ax, **kwargs):
     return ax
 
 
-def add_pvals(x, y, pval, ax, **kwargs):
+def add_pvals(x, y, pval, ax, sig_format=True, **kwargs):
     """Loops over and adds formatted p-value to plot.
     
     Parameters
@@ -35,7 +35,7 @@ def add_pvals(x, y, pval, ax, **kwargs):
         The axes to add formatted p-values.
     """
     for x_i, y_i, pval_i in zip(x, y, pval):
-        format_pval(x_i, y_i, pval_i, ax, **kwargs)
+        format_pval(x_i, y_i, pval_i, ax, sig_format, **kwargs)
 
 
 def plot_statsmodels_results(file: str, results: str):
