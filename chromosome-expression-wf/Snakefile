@@ -1,0 +1,15 @@
+"""Look at chromosome level expression in scRNA-seq.
+
+"""
+
+rule all:
+    input:
+        "../output/chromosome-expression-wf/cell_level_chromosome_proportions.feather",
+
+rule cell_level_chromosome_proportions:
+    input:
+        raw="../output/cellselection-wf/raw.feather",
+        gene_list="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        gene_annotation="../references/gene_annotation_dmel_r6-26.feather",
+    output: "../output/chromosome-expression-wf/cell_level_chromosome_proportions.feather"
+    script: "scripts/proportion_reads_mapping_to_chromosome.py"
