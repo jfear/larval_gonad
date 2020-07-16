@@ -45,76 +45,76 @@ wildcard_constraints:
 rule all:
     input: 
         # Main Figures
-        "../output/paper_submission/figures/fig1a.svg",
-        "../output/paper_submission/figures/fig1b.svg",
-        "../output/paper_submission/figures/fig2.parts.done",
-        "../output/paper_submission/figures/fig3.parts.done",
-        "../output/paper_submission/figures/fig4.svg",
-        "../output/paper_submission/figures/fig5.svg",
+        "../output/paper_submission/figures/chrom_expression_by_tissue.svg", # Fig 1 (Alternative)
+        "../output/paper_submission/figures/sex_biased_expression_by_tissue.svg", # Fig 1 (Current)
+        "../output/paper_submission/figures/scRNASeq_description.parts.done", # Fig 2
+        "../output/paper_submission/figures/cell_type_level_expression.parts.done", # Fig 3
+        "../output/paper_submission/figures/autosome_ratios.svg", # Fig 4
+        "../output/paper_submission/figures/chromosome_territory.svg", # Fig 5
+        "../output/paper_submission/figures/polII.svg", # Fig 6
+
         # Supplemental Figures
 
-        # Table S1
-        "../output/paper_submission/TableS1.xlsx",
-        # Table S2
         # Supplemental Files
+        "../output/paper_submission/TableS1.xlsx", # Table S1
+        "../output/paper_submission/TableS2.xlsx", # Table S2
         '../output/paper_submission/scRNAseq_raw_counts.tsv.gz',
         '../output/paper_submission/scRNAseq_seurat_normalized_counts.tsv.gz',
-        # expand("../output/paper_submission/figures/projections_all_genes/{fbgn}_{symbol}.svg", zip, fbgn=FBGN2SYMBOL.index.tolist(), symbol=FBGN2SYMBOL.values.tolist()),   ## commented out to spead up build snakemake.
 
 ################################################################################
-# Figure 1a: Chromosome Expression
+# Figure 1 (Alternative): Chromosome Expression By Tissue
 ################################################################################
-rule fig1a_data:
+rule chrom_expression_by_tissue_data:
     input: 
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         w1118="../output/expression-atlas-wf/w1118_gene_counts.feather",
         OreR="../output/expression-atlas-wf/OreR_gene_counts.feather",
         L3_bulk="../output/bulk-rnaseq-wf/testis_ovary_counts.feather",
-    output: "../output/paper_submission/fig1a_data_avg_tpm_per_chrom.feather",
-    script: "scripts/fig1a_data.py"
+    output: "../output/paper_submission/chrom_expression_by_tissue_data_avg_tpm_per_chrom.feather",
+    script: "scripts/chrom_expression_by_tissue_data.py"
 
 
-rule fig1a_stats:
-    input: rules.fig1a_data.output[0]
-    output: "../output/paper_submission/fig1a_stats.tsv"
-    script: "scripts/fig1a_stats.py"
+rule chrom_expression_by_tissue_stats:
+    input: rules.chrom_expression_by_tissue_data.output[0]
+    output: "../output/paper_submission/chrom_expression_by_tissue_stats.tsv"
+    script: "scripts/chrom_expression_by_tissue_stats.py"
 
 
-rule fig1a:
+rule chrom_expression_by_tissue:
     input: 
-        rules.fig1a_data.output[0],
-        rules.fig1a_stats.output[0]
-    output: "../output/paper_submission/figures/fig1a.svg"
+        rules.chrom_expression_by_tissue_data.output[0],
+        rules.chrom_expression_by_tissue_stats.output[0]
+    output: "../output/paper_submission/figures/chrom_expression_by_tissue.svg"
     params: colors=COLORS
-    script: "scripts/fig1a.py"
+    script: "scripts/chrom_expression_by_tissue.py"
 
 ################################################################################
-# Figure 1b: Sex Biased Expression By Chromosome
+# Figure 1 (Current): Sex Biased Expression By Chromosome
 ################################################################################
-rule fig1b_data:
+rule sex_biased_expression_by_tissue_data:
     input: 
         adult="../output/expression-atlas-wf/dmel_sex_biased_expression.feather",
         larval="../output/bulk-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv",
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
-    output: "../output/paper_submission/fig1b_sex_biased_expression.feather",
-    script: "scripts/fig1b_data.py"
+    output: "../output/paper_submission/sex_biased_expression_by_tissue.feather",
+    script: "scripts/sex_biased_expression_by_tissue_data.py"
 
 
-rule fig1b_stats:
-    input: rules.fig1b_data.output[0]
+rule sex_biased_expression_by_tissue_stats:
+    input: rules.sex_biased_expression_by_tissue_data.output[0]
     output: 
-        full_stats="../output/paper_submission/fig1b_full_stats.tsv",
-        filtered_stats="../output/paper_submission/fig1b_stats.tsv",
-    script: "scripts/fig1b_stats.py"
+        full_stats="../output/paper_submission/sex_biased_expression_by_tissue_full_stats.tsv",
+        filtered_stats="../output/paper_submission/sex_biased_expression_by_tissue_stats.tsv",
+    script: "scripts/sex_biased_expression_by_tissue_stats.py"
 
 
-rule fig1b:
+rule sex_biased_expression_by_tissue:
     input: 
-        data=rules.fig1b_data.output[0],
-        stats=rules.fig1b_stats.output.filtered_stats,
-    output: "../output/paper_submission/figures/fig1b.svg"
+        data=rules.sex_biased_expression_by_tissue_data.output[0],
+        stats=rules.sex_biased_expression_by_tissue_stats.output.filtered_stats,
+    output: "../output/paper_submission/figures/sex_biased_expression_by_tissue.svg"
     params: colors=COLORS
-    script: "scripts/fig1b.py"
+    script: "scripts/sex_biased_expression_by_tissue.py"
 
 ################################################################################
 # Figure 2: scRNA-Seq intro, cluster, and annotate
@@ -150,17 +150,17 @@ rule plot_gene_expression_pattern:
     script: "scripts/plot_gene_expression_pattern.py"
 
 
-rule fig2:
+rule scRNASeq_description:
     input: 
         legend=rules.plot_cluster_legend.output[0],
         umap=rules.plot_gene_umap.output[0],
         pattern=rules.plot_gene_expression_pattern.output.scaled,
         heatmap="../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg",
-    output: touch("../output/paper_submission/figures/fig2.parts.done")
+    output: touch("../output/paper_submission/figures/scRNASeq_description.parts.done")
 
 
 ################################################################################
-# Figure 3: Chromosome Expression and Gene Counts
+# Figure 3: Cell Type Level Expression
 ################################################################################
 rule plot_gene_ontology_all_genes:
     input:
@@ -180,44 +180,56 @@ rule plot_gene_ontology_widely_expressed_genes:
         fig="../output/paper_submission/figures/gene_ontology_widely_expressed_genes.svg",
     script: "scripts/plot_gene_ontology.py"
 
-rule plot_fig3_boxplots:
+rule plot_total_expression_by_cell_type:
     input: 
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
         widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
         tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+    params:
+          cluster_color=COLORS["clusters"],
+          cluster_order=config['cluster_order'],
+    output: "../output/paper_submission/figures/total_expression_by_cell_type_boxplots.svg"
+    script: "scripts/plot_total_expression_by_cell_type.py"
+
+rule cell_type_level_expression:
+    input: 
+        rules.plot_gene_ontology_all_genes.output[0],
+        rules.plot_gene_ontology_widely_expressed_genes.output[0],
+        rules.plot_total_expression_by_cell_type.output[0],
+    output: touch("../output/paper_submission/figures/cell_type_level_expression.parts.done")
+
+################################################################################
+# Figure 4: X, Y, 4 to Autosome Ratios
+###############################################################################
+rule plot_autosome_ratios:
+    input: 
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         expressed_ratios="../output/x-to-a-wf/db/expressed.dat",
         widely_expressed_ratios="../output/x-to-a-wf/db/commonly_expressed.dat",
     params:
           cluster_color=COLORS["clusters"],
           cluster_order=config['cluster_order'],
-    output: "../output/paper_submission/figures/fig3_boxplots.svg"
-    script: "scripts/plot_fig3_boxplots.py"
-
-rule fig3:
-    input: 
-        rules.plot_gene_ontology_all_genes.output[0],
-        rules.plot_gene_ontology_widely_expressed_genes.output[0],
-        rules.plot_fig3_boxplots.output[0],
-    output: touch("../output/paper_submission/figures/fig3.parts.done")
+    output: "../output/paper_submission/figures/autosome_ratios.svg"
+    script: "scripts/plot_autosome_ratios.py"
 
 ################################################################################
-# Figure 4: Chromosome Spatial Localization
+# Figure 5: Chromosome Spatial Localization
 ################################################################################
-rule fig4:
+rule chromosome_territory:
     input:
         volume="../output/fish-wf/chrom_volume.svg",
         sphere="../output/fish-wf/sphericity.svg"
-    output: "../output/paper_submission/figures/fig4.svg"
-    script: "scripts/fig4.py"
+    output: "../output/paper_submission/figures/chromosome_territory.svg"
+    script: "scripts/chromosome_territory.py"
 
 
 ################################################################################
-# Figure 5: Pol II
+# Figure 6: Pol II
 ################################################################################
-rule fig5:
+rule polII:
     input: "../output/polII-wf/s2_and_s5_boxplot.svg"
-    output: "../output/paper_submission/figures/fig5.svg"
+    output: "../output/paper_submission/figures/polII.svg"
     shell: "cp {input[0]} {output[0]}"
 
 ####################################
@@ -366,6 +378,13 @@ rule table_s2:
 ####################################
 # Table S3: Literature Genes
 ####################################
+# This is done by hand
+
+####################################
+# Table S4: ART Table
+####################################
+# This is done by hand
+
 ################################################################################
 # Files
 ################################################################################
