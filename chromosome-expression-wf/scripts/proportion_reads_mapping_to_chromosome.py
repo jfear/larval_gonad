@@ -1,24 +1,24 @@
 """Calculate the proportion of reads mapping to each chromosome element."""
+from typing import Generator
+
 import pandas as pd
 import joblib
+from more_itertools import chunked
+
 
 CHROMS = ["X", "Y", "2L", "2R", "3L", "3R", "4"]
 
 
 def main():
-    raw = load_gene_level_counts()
-
-    prop_reads_per_chrom = cell_level_prop_reads_mapping_per_chrom(raw)
-    scaled_prop_reads_per_chrom = scale_by_number_gene_per_chrom(
-        raw, prop_reads_per_chrom
-    )
 
     pd.concat(
-        [prop_reads_per_chrom, scaled_prop_reads_per_chrom], sort=False, axis=1
-    ).reset_index().to_feather(snakemake.output[0])
+        [calculate_proportions(raw) for raw in load_gene_level_counts()],
+        sort=False,
+        ignore_index=True,
+    ).to_feather(snakemake.output[0])
 
 
-def load_gene_level_counts() -> pd.DataFrame:
+def load_gene_level_counts() -> Generator[pd.DataFrame, None, None]:
     """Load gene level UMI counts for each cell.
 
     Returns:
@@ -35,16 +35,34 @@ def load_gene_level_counts() -> pd.DataFrame:
         .rename("chrom")
     )
 
-    return (
-        pd.melt(
-            pd.read_feather(snakemake.input.raw).query("FBgn in @target_fbgns"),
-            id_vars="FBgn",
-            var_name="cell_id",
-            value_name="UMI",
-        )
-        .merge(gene_annotation, on="FBgn")
-        .query("chrom in @CHROMS")
+    # For all expressed genes I keep running out memory, so I am going to chunk
+    cell_ids = (
+        pd.read_feather(snakemake.input.raw).drop("FBgn", axis=1).columns.tolist()
     )
+    for chunk in chunked(cell_ids, 1000):
+        yield (
+            pd.melt(
+                pd.read_feather(snakemake.input.raw, columns=["FBgn",] + chunk).query(
+                    "FBgn in @target_fbgns"
+                ),
+                id_vars="FBgn",
+                var_name="cell_id",
+                value_name="UMI",
+            )
+            .merge(gene_annotation, on="FBgn")
+            .query("chrom in @CHROMS")
+        )
+
+
+def calculate_proportions(raw: pd.DataFrame) -> pd.DataFrame:
+    prop_reads_per_chrom = cell_level_prop_reads_mapping_per_chrom(raw)
+    scaled_prop_reads_per_chrom = scale_by_number_gene_per_chrom(
+        raw, prop_reads_per_chrom
+    )
+
+    return pd.concat(
+        [prop_reads_per_chrom, scaled_prop_reads_per_chrom], sort=False, axis=1
+    ).reset_index()
 
 
 def cell_level_prop_reads_mapping_per_chrom(raw: pd.DataFrame,) -> pd.Series:
