@@ -162,6 +162,18 @@ rule scRNASeq_description:
 ################################################################################
 # Figure 3: Cell Type Level Expression
 ################################################################################
+
+rule gsea_by_cell_type:
+    input:
+        sc="../output/cellselection-wf/raw.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        expressed="../output/cellselection-wf/expressed_genes.pkl",
+        male_biased="../output/bulk-rnaseq-wf/deg/larval_testis_biased_fbgns.pkl",
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+    output: "../output/paper_submission/gsea_by_cell_type.feather",
+    threads: 20
+    script: "scripts/gsea_by_cell_type.py"
+
 rule plot_gene_ontology_all_genes:
     input:
         background="../references/gene_annotation_dmel_r6-26.tsv",
