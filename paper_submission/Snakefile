@@ -183,6 +183,13 @@ rule gsea_by_cell_type:
     threads: 20
     script: "scripts/gsea_by_cell_type.py"
 
+rule gsea_pairwise_comparisons_of_cell_types:
+    input: rules.gsea_by_cell_type.output[0]
+    output: "../output/paper_submission/gsea_pairwise_comparisons_of_cell_types.tsv"
+    threads: 20
+    script: "scripts/gsea_pairwise_comparisons_of_cell_types.py"
+
+
 rule plot_gene_ontology_all_genes:
     input:
         background="../references/gene_annotation_dmel_r6-26.tsv",
