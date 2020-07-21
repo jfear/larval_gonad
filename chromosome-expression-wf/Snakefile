@@ -6,6 +6,8 @@ rule all:
     input:
         "../output/chromosome-expression-wf/cell_level_chromosome_proportions_all_expressed_genes.feather",
         "../output/chromosome-expression-wf/cell_level_chromosome_proportions_widely_expressed_genes.feather",
+        "../output/chromosome-expression-wf/cell_level_chromosome_proportions_tau.feather",
+        "../output/chromosome-expression-wf/cell_level_chromosome_proportions_tsps.feather",
 
 
 rule cell_level_chromosome_proportions_all_expressed_genes:
@@ -23,4 +25,20 @@ rule cell_level_chromosome_proportions_widely_expressed_genes:
         gene_list="../output/cellselection-wf/commonly_expressed_genes.pkl",
         gene_annotation="../references/gene_annotation_dmel_r6-26.feather",
     output: "../output/chromosome-expression-wf/cell_level_chromosome_proportions_widely_expressed_genes.feather"
+    script: "scripts/proportion_reads_mapping_to_chromosome.py"
+
+rule cell_level_chromosome_proportions_tau:
+    input:
+        raw="../output/cellselection-wf/raw.feather",
+        gene_list="../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
+        gene_annotation="../references/gene_annotation_dmel_r6-26.feather",
+    output: "../output/chromosome-expression-wf/cell_level_chromosome_proportions_tau.feather"
+    script: "scripts/proportion_reads_mapping_to_chromosome.py"
+
+rule cell_level_chromosome_proportions_tsps:
+    input:
+        raw="../output/cellselection-wf/raw.feather",
+        gene_list="../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
+        gene_annotation="../references/gene_annotation_dmel_r6-26.feather",
+    output: "../output/chromosome-expression-wf/cell_level_chromosome_proportions_tsps.feather"
     script: "scripts/proportion_reads_mapping_to_chromosome.py"
