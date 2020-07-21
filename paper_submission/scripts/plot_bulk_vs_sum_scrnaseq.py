@@ -8,32 +8,29 @@ import joblib
 from scipy.stats import spearmanr
 
 from larval_gonad.normalization import tpm
-import larval_gonad.plotting
+import larval_gonad.plotting  # pylint: disable=unused-import
 
-plt.rcParams["font.sans-serif"] = ["Helvetica", "Arial", "sans-serif"]
+
+plt.style.use("minimal")
 
 
 def main():
-    male_biased_fbgns = joblib.load(snakemake.input.male_biased)
-
-    df = pd.concat(
-        [get_avg_bulk(), get_avg_sc()], axis=1, sort=False, join="inner"
-    ).pipe(
-        lambda x: x[(x != -np.inf).all(axis=1)]
-    )  # Drop -inf from taking log of 0
-
+    df = pd.concat([get_avg_bulk(), get_avg_sc()], axis=1, sort=False, join="inner")
+    male_biased_fbgns = joblib.load(snakemake.input.male_biased)  # pylint: disable=unused-variable
     df_male_biased = df.query("FBgn in @male_biased_fbgns")
 
+    ax: plt.Axes
     fig, ax = plt.subplots()
     x, y = "log_avg_tpm_sum_sc", "log_avg_tpm_bulk"
-    ax.hexbin(df[x], df[y])
-    add_reg_plot(x, y, df, "All Genes", ax)
-    add_reg_plot(x, y, df_male_biased, "Male-Biased Genes", ax, ls="--")
+    ax.hexbin(df[x], df[y], cmap="RdBu_r", mincnt=1)
+    add_reg_plot(x, y, df, "All Genes", ax, color="k")
+    add_reg_plot(x, y, df_male_biased, "Male-Biased Genes", ax, color="k", ls="--")
     xlim = df[x].min(), df[x].max()
     ylim = df[y].min(), df[y].max()
     tweak_plot(ax, xlim, ylim)
     ax.set_xlabel(r"$Log_{10}\left(\overline{TPM(\sum{Single\ Cell})}\right)$")
     ax.set_ylabel(r"$Log_{10}\left(\overline{TPM(Bulk)}\right)$")
+    sns.despine(ax=ax)
 
     fig.savefig(snakemake.output[0])
 
@@ -57,6 +54,7 @@ def get_avg_bulk() -> pd.DataFrame:
     return np.log10(
         tpm(counts, gene_lengths.reindex(counts.index))
         .mean(axis=1)
+        .pipe(lambda x: x[x > 0])
         .rename("log_avg_tpm_bulk")
     )
 
@@ -96,6 +94,7 @@ def get_avg_sc() -> pd.DataFrame:
     return np.log10(
         tpm(counts, gene_lengths.reindex(counts.index))
         .mean(axis=1)
+        .pipe(lambda x: x[x > 0])
         .rename("log_avg_tpm_sum_sc")
     )
 
@@ -112,7 +111,7 @@ def add_reg_plot(
         data=data,
         ax=ax,
         scatter=False,
-        line_kws=dict(color="w", **kwargs),
+        line_kws=dict(**kwargs),
         label=label + stat,
     )
     return ax
@@ -122,7 +121,7 @@ def tweak_plot(ax: plt.Axes, xlim, ylim) -> plt.Axes:
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
     legend = ax.legend(frameon=False)
-    plt.setp(legend.get_texts(), color="w", fontweight="bold")
+    plt.setp(legend.get_texts(), fontweight="bold")
     return ax
 
 
