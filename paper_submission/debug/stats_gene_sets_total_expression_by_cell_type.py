@@ -13,7 +13,5 @@ builtins.snakemake = MockSnake(
         tau_fbgns="../../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
         tsps_fbgns="../../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
     ),
-    params=dict(
-        order=config["cluster_order"]
-    )
+    params=dict(order=config["cluster_order"]),
 )

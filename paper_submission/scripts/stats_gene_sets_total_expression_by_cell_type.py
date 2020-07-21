@@ -1,6 +1,5 @@
 """Plot total expression (TPM) for different gene sets."""
 import joblib
-import numpy as np
 import pandas as pd
 
 from larval_gonad.stats import PairwisePermutationTest
