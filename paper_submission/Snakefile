@@ -230,6 +230,7 @@ rule plot_tau_and_tsps_distributions_by_cell_type:
     output: "../output/paper_submission/figures/tau_tsps_distributions_by_cell_type.svg"
     script: "scripts/plot_tau_tsps_distributions_by_cell_type.py"
 
+
 rule stats_gene_sets_total_expression_by_cell_type:
     """Pairwise comparisons of TPM normalized counts by cell-type."""
     input:
@@ -238,9 +239,9 @@ rule stats_gene_sets_total_expression_by_cell_type:
         widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
         tau_fbgns="../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
         tsps_fbgns="../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
+    output: "../output/paper_submission/stats_gene_sets_total_expression_by_cell_type.tsv"
     params:
         order=config['cluster_order'],
-    output: "../output/paper_submission/stats_gene_sets_total_expression_by_cell_type.tsv"
     script: "scripts/stats_gene_sets_total_expression_by_cell_type.py"
 
 
