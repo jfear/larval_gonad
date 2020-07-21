@@ -96,12 +96,12 @@ cyst:
 
 chrom_order:
   - "X"
+  - "Y"
   - "2L"
   - "2R"
   - "3L"
   - "3R"
   - "4"
-  - "Y"
 
 autosomes:
   - "2L"
