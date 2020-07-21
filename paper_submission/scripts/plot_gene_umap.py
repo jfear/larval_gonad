@@ -3,7 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-import larval_gonad.plotting
+import larval_gonad.plotting  # pylint: disable=unused-import
+
+
+plt.style.use("minimal")
+sns.set_style("dark")
 
 FBGNS = [
     "FBgn0039044",  # p53
@@ -15,9 +19,6 @@ FBGNS = [
 ]
 
 SYMBOLS = ["p53", "rdo", "ADD1", "Nlg3", "bol", "Piezo"]
-
-plt.style.use(["1c", "science_base"])
-sns.set_style("dark")
 
 
 def main():

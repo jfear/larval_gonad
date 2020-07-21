@@ -1,13 +1,13 @@
 """Expression panel of the entire literature gene table."""
-import sys
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from larval_gonad.normalization import tpm
-import larval_gonad.plotting
+import larval_gonad.plotting  # pylint: disable=unused-import
+
+plt.style.use("minimal")
 
 FBGNS = [
     "FBgn0039044",  # p53
@@ -19,8 +19,6 @@ FBGNS = [
 ]
 
 SYMBOLS = ["p53", "rdo", "ADD1", "Nlg3", "bol", "Piezo"]
-
-plt.style.use(["1c", "science_base"])
 
 
 def main():
@@ -34,11 +32,7 @@ def main():
     )
 
     grid_defaults = dict(
-        data=df,
-        col="gene_symbol",
-        col_wrap=2,
-        col_order=SYMBOLS,
-        sharey=True,
+        data=df, col="gene_symbol", col_wrap=2, col_order=SYMBOLS, sharey=True
     )
 
     bar_defaults = dict(
