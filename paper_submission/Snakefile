@@ -216,6 +216,38 @@ rule plot_tau_and_tsps_distributions_by_cell_type:
     output: "../output/paper_submission/figures/tau_tsps_distributions_by_cell_type.svg"
     script: "scripts/plot_tau_tsps_distributions_by_cell_type.py"
 
+rule stats_gene_sets_total_expression_by_cell_type:
+    """Pairwise comparisons of TPM normalized counts by cell-type."""
+    input:
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+        expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
+        widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        tau_fbgns="../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
+        tsps_fbgns="../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
+    params:
+        order=config['cluster_order'],
+    output: "../output/paper_submission/stats_gene_sets_total_expression_by_cell_type.tsv"
+    script: "scripts/stats_gene_sets_total_expression_by_cell_type.py"
+
+
+rule plot_total_expression_by_cell_type:
+    """Boxplots of TPM normalized counts by cell-type."""
+    input:
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+        expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
+        widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
+        tau_fbgns="../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
+        tsps_fbgns="../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
+        _=rules.stats_gene_sets_total_expression_by_cell_type.output[0]
+    params:
+        colors=COLORS["clusters"],
+        order=config['cluster_order'],
+        names=config["cluster_names"],
+    output: "../output/paper_submission/figures/total_expression_by_cell_type.svg"
+    script: "scripts/plot_total_expression_by_cell_type.py"
+
+
 rule plot_gene_ontology_all_genes:
     input:
         background="../references/gene_annotation_dmel_r6-26.tsv",
