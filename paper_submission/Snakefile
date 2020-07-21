@@ -184,15 +184,18 @@ rule gsea_by_cell_type:
     script: "scripts/gsea_by_cell_type.py"
 
 
-rule gsea_pairwise_comparisons_of_cell_types:
+rule stats_gsea_pairwise_comparisons_of_cell_types:
     input: rules.gsea_by_cell_type.output[0]
-    output: "../output/paper_submission/gsea_pairwise_comparisons_of_cell_types.tsv"
+    output: "../output/paper_submission/stats_gsea_pairwise_comparisons_of_cell_types.tsv"
     threads: 20
-    script: "scripts/gsea_pairwise_comparisons_of_cell_types.py"
+    script: "scripts/stats_gsea_pairwise_comparisons_of_cell_types.py"
 
 
 rule plot_gsea_by_cell_type:
-    input: rules.gsea_by_cell_type.output[0]
+    """Boxplots of GSEA enrichment scores by cell-type."""
+    input: 
+        rules.gsea_by_cell_type.output[0], 
+        rules.stats_gsea_pairwise_comparisons_of_cell_types.output[0]
     output: "../output/paper_submission/figures/gsea_by_cell_type.svg",
     params:
         colors=colors_config["clusters"],
