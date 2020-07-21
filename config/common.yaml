@@ -33,6 +33,18 @@ cluster_order:
   - "T"
   - "P"
 
+cluster_names:
+  G: "G"
+  EPS: "E1°"
+  MPS: "M1°"
+  LPS: "L1°"
+  C1: "C1"
+  C2: "C2"
+  C3: "C3"
+  C4: "C4"
+  T: "T"
+  P: "P"
+
 legend_names:
   - "Spermatogonia (G)"
   - "Early Primary Spermatocyte (E1°)"
