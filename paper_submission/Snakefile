@@ -255,11 +255,11 @@ rule plot_total_expression_by_cell_type:
         tau_fbgns="../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
         tsps_fbgns="../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
         _=rules.stats_gene_sets_total_expression_by_cell_type.output[0]
+    output: "../output/paper_submission/figures/total_expression_by_cell_type.svg"
     params:
         colors=COLORS["clusters"],
         order=config['cluster_order'],
         names=config["cluster_names"],
-    output: "../output/paper_submission/figures/total_expression_by_cell_type.svg"
     script: "scripts/plot_total_expression_by_cell_type.py"
 
 
