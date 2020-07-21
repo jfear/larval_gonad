@@ -264,20 +264,23 @@ rule plot_total_expression_by_cell_type:
 
 
 rule plot_gene_ontology_all_genes:
+    """GO ribbon for all expressed genes."""
     input:
         background="../references/gene_annotation_dmel_r6-26.tsv",
         target_genes="../output/cellselection-wf/expressed_genes.pkl",
     output: 
-        summary="../output/paper_submission/gene_ontology_all_genes.tsv",
+        summary="../output/paper_submission/stats_gene_ontology_all_genes.tsv",
         fig="../output/paper_submission/figures/gene_ontology_all_genes.svg",
     script: "scripts/plot_gene_ontology.py"
 
+
 rule plot_gene_ontology_widely_expressed_genes:
+    """GO ribbon for widely expressed genes."""
     input:
         background="../output/cellselection-wf/expressed_genes.pkl",
         target_genes="../output/cellselection-wf/commonly_expressed_genes.pkl",
     output: 
-        summary="../output/paper_submission/gene_ontology_widely_expressed_genes.tsv",
+        summary="../output/paper_submission/stats_gene_ontology_widely_expressed_genes.tsv",
         fig="../output/paper_submission/figures/gene_ontology_widely_expressed_genes.svg",
     script: "scripts/plot_gene_ontology.py"
 
