@@ -80,6 +80,7 @@ class PairwisePermutationTest:
         data: pd.DataFrame,
         method: Optional[str] = "mannwhitney",
         method_kws: Optional[dict] = None,
+        order: Optional[List[str]] = None,
         n_permutations: int = 10_000,
         threads: int = 1,
     ):
@@ -92,6 +93,7 @@ class PairwisePermutationTest:
             method (str, optional): The statistical method to use for
             comparions. Must be one of ["mannwhitney", ].
             method_kws (dict, optional): Options to pass the method of choice.
+            order (list, optional): The preferred order of the group columns.
             n_permutations (int): The number of permuations to perform. Defaults to 10,000
             threads (int, optional): Number of threads to run on. Defaults to 1.
         """
@@ -103,7 +105,7 @@ class PairwisePermutationTest:
         self.n_permutations = n_permutations
         self.threads = threads
 
-        self.ids = data[self.group_column].unique()
+        self.ids = order or data[self.group_column].unique()
         self.comparisons = list(combinations(self.ids, 2))
         self._results = []
 
@@ -176,9 +178,20 @@ class PairwisePermutationTest:
 
     @property
     def results(self):
-        df = pd.DataFrame(self._results)
-        df["padj_value"] = multipletests(df.p_value, method="fdr_bh")[1]
-        return df
+        return (
+            pd.DataFrame(self._results)
+            .assign(
+                name1=lambda x: pd.Categorical(
+                    x.name1, categories=self.ids, ordered=True
+                )
+            )
+            .assign(
+                name2=lambda x: pd.Categorical(
+                    x.name2, categories=self.ids, ordered=True
+                )
+            )
+            .assign(padj_value=lambda x: multipletests(x.p_value, method="fdr_bh")[1])
+        )
 
 
 def adjusted_residuals(observed, expected):
