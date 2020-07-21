@@ -119,6 +119,11 @@ class PairwisePermutationTest:
             for name1, name2 in self.comparisons:
                 data1 = self._get_data_from_group(name1)
                 data2 = self._get_data_from_group(name2)
+
+                if (len(data1) == 0) | (len(data2) == 0):
+                    # No data, skip comparisons
+                    continue
+
                 futures.append(
                     executor.submit(self._run_comparison, name1, name2, data1, data2)
                 )
@@ -129,7 +134,7 @@ class PairwisePermutationTest:
 
         return self
 
-    def _get_data_from_group(self, name: str) -> pd.DataFrame:
+    def _get_data_from_group(self, name: str) -> np.ndarray:
         """Pull out rows corresponding to the group name."""
         return self.data.query(f"{self.group_column} == @name")[
             self.value_column
