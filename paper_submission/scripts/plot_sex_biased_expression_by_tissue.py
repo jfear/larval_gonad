@@ -14,7 +14,7 @@ plt.style.use("minimal")
 
 COLORS = ["black", "lightgray", "white"]
 
-CHROM_ORDER = ["X", "Y", "2L", "2R", "3L", "3R", "4"]
+CHROM_ORDER = snakemake.params.chrom_order
 
 TISSUE_MAPPER = {
     "WB": "Whole Body",

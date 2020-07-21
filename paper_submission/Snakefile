@@ -110,13 +110,15 @@ rule stats_sex_biased_expression_by_tissue:
     script: "scripts/stats_sex_biased_expression_by_tissue.py"
 
 
-rule sex_biased_expression_by_tissue:
+rule plot_sex_biased_expression_by_tissue:
     input: 
         data=rules.sex_biased_expression_by_tissue_data.output[0],
-        stats=rules.sex_biased_expression_by_tissue_stats.output.filtered_stats,
+        stats=rules.stats_sex_biased_expression_by_tissue.output.filtered_stats,
     output: "../output/paper_submission/figures/sex_biased_expression_by_tissue.svg"
-    params: colors=COLORS
-    script: "scripts/sex_biased_expression_by_tissue.py"
+    params: chrom_order=config["chrom_order"]
+    script: "scripts/plot_sex_biased_expression_by_tissue.py"
+
+
 
 ################################################################################
 # Figure 2: scRNA-Seq intro, cluster, and annotate
