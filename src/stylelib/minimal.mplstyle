@@ -1,0 +1,16 @@
+### Font
+font.family: sans-serif
+font.sans-serif: Helvetica, Arial, sans-serif
+
+### Figure
+figure.dpi: 300
+figure.frameon: False
+
+### Saving Figures
+savefig.format: svg
+savefig.bbox: tight
+savefig.pad_inches: 0.0
+
+ps.fonttype: 42
+pdf.fonttype: 42
+svg.fonttype: none
