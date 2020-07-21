@@ -193,9 +193,12 @@ rule gsea_by_cell_type:
 
 
 rule stats_gsea_pairwise_comparisons_of_cell_types:
+    """Permutation test for all pairwise cell-type comparisons."""
     input: rules.gsea_by_cell_type.output[0]
     output: "../output/paper_submission/stats_gsea_pairwise_comparisons_of_cell_types.tsv"
     threads: 20
+    params:
+        order=config['cluster_order'],
     script: "scripts/stats_gsea_pairwise_comparisons_of_cell_types.py"
 
 
