@@ -9,7 +9,7 @@ import seaborn as sns
 
 from larval_gonad.plotting.stats import add_pvals
 
-plt.style.use("science_base")
+plt.style.use("minimal")
 
 
 COLORS = ["black", "lightgray", "white"]
