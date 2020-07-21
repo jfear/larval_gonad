@@ -22,7 +22,7 @@ def main():
     ax: plt.Axes
     fig, ax = plt.subplots()
     x, y = "log_avg_tpm_sum_sc", "log_avg_tpm_bulk"
-    ax.hexbin(df[x], df[y], cmap="RdBu_r", mincnt=1)
+    ax.hexbin(df[x], df[y], cmap="RdBu_r", mincnt=1, rasterized=True)
     add_reg_plot(x, y, df, "All Genes", ax, color="k")
     add_reg_plot(x, y, df_male_biased, "Male-Biased Genes", ax, color="k", ls="--")
     xlim = df[x].min(), df[x].max()
