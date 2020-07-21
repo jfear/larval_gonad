@@ -28,7 +28,7 @@ def main():
         snakemake.params.names[label.get_text()]
         for label in ax.get_xticklabels()
     ]
-    ax.set_xticklabels(new_labels)
+    ax.set_xticklabels(new_labels, rotation=45)
     
     plt.savefig(snakemake.output[0])
 
