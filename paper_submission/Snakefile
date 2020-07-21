@@ -45,13 +45,12 @@ wildcard_constraints:
 rule all:
     input: 
         # Main Figures
-        "../output/paper_submission/figures/chrom_expression_by_tissue.svg", # Fig 1 (Alternative)
-        "../output/paper_submission/figures/sex_biased_expression_by_tissue.svg", # Fig 1 (Current)
-        "../output/paper_submission/figures/scRNASeq_description.parts.done", # Fig 2
-        "../output/paper_submission/figures/cell_type_level_expression.parts.done", # Fig 3
-        "../output/paper_submission/figures/autosome_ratios.svg", # Fig 4
-        "../output/paper_submission/figures/chromosome_territory.svg", # Fig 5
-        "../output/paper_submission/figures/polII.svg", # Fig 6
+        "../output/paper_submission/figures/fig1.done",
+        "../output/paper_submission/figures/fig2.done",
+        "../output/paper_submission/figures/fig3.done",
+        "../output/paper_submission/figures/fig4.done",
+        "../output/paper_submission/figures/fig5.done",
+        "../output/paper_submission/figures/fig6.done",
 
         # Supplemental Figures
 
@@ -119,6 +118,11 @@ rule plot_sex_biased_expression_by_tissue:
     script: "scripts/plot_sex_biased_expression_by_tissue.py"
 
 
+rule fig1:
+    """Figure 1 parts"""
+    input: rules.plot_sex_biased_expression_by_tissue.output[0]
+    output: touch("../output/paper_submission/figures/fig1.done")
+
 
 ################################################################################
 # Figure 2: scRNA-Seq intro, cluster, and annotate
@@ -154,14 +158,14 @@ rule plot_gene_expression_pattern:
     script: "scripts/plot_gene_expression_pattern.py"
 
 
-rule scRNASeq_description:
+rule fig2:
+    """Figure 2 parts"""
     input: 
-        legend=rules.plot_cluster_legend.output[0],
-        umap=rules.plot_gene_umap.output[0],
-        pattern=rules.plot_gene_expression_pattern.output.scaled,
-        heatmap="../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg",
-    output: touch("../output/paper_submission/figures/scRNASeq_description.parts.done")
-
+        rules.plot_cluster_legend.output[0],
+        rules.plot_gene_umap.output[0],
+        rules.plot_gene_expression_pattern.output[0],
+        "../output/seurat3-cluster-wf/combined_n3_figures/uniq_and_multi_biomarkers.svg",
+    output: touch("../output/paper_submission/figures/fig2.done")
 
 ################################################################################
 # Figure 3: Cell Type Level Expression
@@ -285,12 +289,18 @@ rule plot_total_expression_by_cell_type:
     output: "../output/paper_submission/figures/total_expression_by_cell_type_boxplots.svg"
     script: "scripts/plot_total_expression_by_cell_type.py"
 
-rule cell_type_level_expression:
+#
+rule fig3:
+    """Figure 3 parts"""
     input: 
+        rules.plot_bulk_vs_sum_scrnaseq.output[0],
+        rules.plot_gsea_by_cell_type.output[0],
+        rules.plot_total_expression_by_cell_type.output[0],
         rules.plot_gene_ontology_all_genes.output[0],
         rules.plot_gene_ontology_widely_expressed_genes.output[0],
-        rules.plot_total_expression_by_cell_type.output[0],
-    output: touch("../output/paper_submission/figures/cell_type_level_expression.parts.done")
+        rules.plot_chromosome_proportions_by_cell_type.output[0],
+    output: touch("../output/paper_submission/figures/fig3.done")
+
 
 ################################################################################
 # Figure 4: X, Y, 4 to Autosome Ratios
@@ -306,6 +316,14 @@ rule plot_autosome_ratios:
     output: "../output/paper_submission/figures/autosome_ratios.svg"
     script: "scripts/plot_autosome_ratios.py"
 
+
+rule fig4:
+    """Figure 4 parts"""
+    input:
+        rules.plot_autosome_ratios.output[0]
+    output: touch("../output/paper_submission/figures/fig4.done")
+
+
 ################################################################################
 # Figure 5: Chromosome Spatial Localization
 ################################################################################
@@ -317,13 +335,26 @@ rule chromosome_territory:
     script: "scripts/chromosome_territory.py"
 
 
+rule fig5:
+    """Figure 5 parts"""
+    input: rules.plot_chromosome_territory.output[0]
+    output: touch("../output/paper_submission/figures/fig5.done")
+
+
 ################################################################################
 # Figure 6: Pol II
 ################################################################################
-rule polII:
+rule plot_polII:
     input: "../output/polII-wf/s2_and_s5_boxplot.svg"
     output: "../output/paper_submission/figures/polII.svg"
     shell: "cp {input[0]} {output[0]}"
+
+
+rule fig6:
+    """Figure 6 parts"""
+    input: rules.plot_polII.output[0]
+    output: touch("../output/paper_submission/figures/fig6.done")
+
 
 ####################################
 # Table S1: bulk data
