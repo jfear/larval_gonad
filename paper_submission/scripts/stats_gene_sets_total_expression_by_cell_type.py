@@ -30,17 +30,10 @@ def create_gene_subset(df: pd.DataFrame, gene_set: str, name: str):
 
 
 def run_stats(df: pd.DataFrame) -> pd.DataFrame:
-    pw = PairwisePermutationTest("cluster", "TPM", data=df, threads=THREADS).fit()
-    return (
-        pw.results.assign(
-            name1=lambda x: pd.Categorical(x.name1, categories=snakemake.params.order)
-        )
-        .assign(
-            name2=lambda x: pd.Categorical(x.name2, categories=snakemake.params.order)
-        )
-        .sort_values(["name1", "name2"])
-        .set_index(["name1", "name2"])
-    )
+    pw = PairwisePermutationTest(
+        "cluster", "TPM", data=df, threads=THREADS, order=snakemake.params.order
+    ).fit()
+    return pw.results.sort_values(["name1", "name2"]).set_index(["name1", "name2"])
 
 
 if __name__ == "__main__":
