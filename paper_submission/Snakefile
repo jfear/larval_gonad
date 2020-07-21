@@ -183,11 +183,22 @@ rule gsea_by_cell_type:
     threads: 20
     script: "scripts/gsea_by_cell_type.py"
 
+
 rule gsea_pairwise_comparisons_of_cell_types:
     input: rules.gsea_by_cell_type.output[0]
     output: "../output/paper_submission/gsea_pairwise_comparisons_of_cell_types.tsv"
     threads: 20
     script: "scripts/gsea_pairwise_comparisons_of_cell_types.py"
+
+
+rule plot_gsea_by_cell_type:
+    input: rules.gsea_by_cell_type.output[0]
+    output: "../output/paper_submission/figures/gsea_by_cell_type.svg",
+    params:
+        colors=colors_config["clusters"],
+        order=config["cluster_order"],
+        names=config["cluster_names"],
+    script: "scripts/plot_gsea_by_cell_type.py"
 
 
 rule plot_gene_ontology_all_genes:
