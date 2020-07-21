@@ -100,12 +100,14 @@ rule sex_biased_expression_by_tissue_data:
     script: "scripts/sex_biased_expression_by_tissue_data.py"
 
 
-rule sex_biased_expression_by_tissue_stats:
+rule stats_sex_biased_expression_by_tissue:
+    """Runs chi-square tests for each tissue by chromosome element."""
     input: rules.sex_biased_expression_by_tissue_data.output[0]
     output: 
-        full_stats="../output/paper_submission/sex_biased_expression_by_tissue_full_stats.tsv",
-        filtered_stats="../output/paper_submission/sex_biased_expression_by_tissue_stats.tsv",
-    script: "scripts/sex_biased_expression_by_tissue_stats.py"
+        full_stats="../output/paper_submission/stats_full_sex_biased_expression_by_tissue.tsv",
+        filtered_stats="../output/paper_submission/stats_filtered_sex_biased_expression_by_tissue.tsv",
+    params: chrom_order=config["chrom_order"]
+    script: "scripts/stats_sex_biased_expression_by_tissue.py"
 
 
 rule sex_biased_expression_by_tissue:
