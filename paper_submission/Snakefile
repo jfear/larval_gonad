@@ -380,18 +380,26 @@ rule plot_chromosome_location_by_cell_type:
         chrom_order=config["chrom_order"],
     script: "scripts/plot_chromosome_location_by_cell_type.py"
 
-
-
-#
+##
 rule fig3:
     """Figure 3 parts"""
     input:
+        # Figure elements
         rules.plot_bulk_vs_sum_scrnaseq.output[0],
         rules.plot_gsea_by_cell_type.output[0],
         rules.plot_total_expression_by_cell_type.output[0],
         rules.plot_gene_ontology_all_genes.output[0],
+        rules.plot_gene_ontology_tau_genes.output[0],
+        rules.plot_gene_ontology_tsps_genes.output[0],
         rules.plot_gene_ontology_widely_expressed_genes.output[0],
         rules.plot_chromosome_proportions_by_cell_type.output[0],
+        rules.plot_chromosome_location_by_cell_type.output[0],
+
+        # stats
+        rules.stats_gsea_pairwise_comparisons_of_cell_types.output[0],
+        rules.stats_gene_set_chrom_enrichment.output[0],
+        rules.stats_gene_sets_total_expression_by_cell_type.output[0],
+        rules.stats_chromosome_proportions_by_cell_type.output[0],
     output: touch("../output/paper_submission/figures/fig3.done")
 
 
