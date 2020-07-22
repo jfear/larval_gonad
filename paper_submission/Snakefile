@@ -319,16 +319,20 @@ rule plot_chromosome_proportions_by_cell_type:
     script: "scripts/plot_chromosome_proportions_by_cell_type.py"
 
 
+# Chromosome locations of genes
+rule plot_chromosome_location_by_cell_type:
     input: 
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-        expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
-        widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
         tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+    output: "../output/paper_submission/figures/chromosome_location_by_cell_type.svg"
     params:
-          cluster_color=COLORS["clusters"],
-          cluster_order=config['cluster_order'],
-    output: "../output/paper_submission/figures/total_expression_by_cell_type_boxplots.svg"
-    script: "scripts/plot_total_expression_by_cell_type.py"
+        cluster_order=config["cluster_order"],
+        cluster_names=config["cluster_names"],
+        cluster_colors=colors_config["clusters"],
+        chrom_order=config["chrom_order"],
+    script: "scripts/plot_chromosome_location_by_cell_type.py"
+
+
 
 #
 rule fig3:
