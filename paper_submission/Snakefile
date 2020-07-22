@@ -1,4 +1,4 @@
-"""Scrip to generate figures and needed material for the Science Submssion"""
+"""Scrip to generate figures and needed material for the Science Submission"""
 import os
 import yaml
 from pathlib import Path
