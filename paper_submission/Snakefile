@@ -284,7 +284,41 @@ rule plot_gene_ontology_widely_expressed_genes:
         fig="../output/paper_submission/figures/gene_ontology_widely_expressed_genes.svg",
     script: "scripts/plot_gene_ontology.py"
 
-rule plot_total_expression_by_cell_type:
+
+# Compare chromosome level expression with different gene sets
+rule stats_chromosome_proportions_by_cell_type:
+    """Pairwise comparions of the proportion of reads mapping to chromosome element by cluster."""
+    input: 
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        all_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_all_expressed_genes.feather",
+        tau_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_tau.feather",
+        tsps_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_tsps.feather",
+        widely_expressed_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_widely_expressed_genes.feather",
+    output: "../output/paper_submission/stats_chromosome_proportions_by_cell_type.tsv"
+    threads: 20
+    params: 
+        chrom_order=config["chrom_order"],
+        cluster_order=config["cluster_order"],
+    script: "scripts/stats_chromosome_proportions_by_cell_type.py"
+
+
+rule plot_chromosome_proportions_by_cell_type:
+    """Box plots showing the proportion of reads mapping to chromosome element by cluster."""
+    input: 
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        all_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_all_expressed_genes.feather",
+        tau_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_tau.feather",
+        tsps_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_tsps.feather",
+        widely_expressed_genes="../output/chromosome-expression-wf/cell_level_chromosome_proportions_widely_expressed_genes.feather",
+    output: "../output/paper_submission/figures/chromosome_proportions_by_cell_type.svg"
+    params: 
+        chrom_order=config["chrom_order"],
+        cluster_order=config["cluster_order"],
+        cluster_names=config["cluster_names"],
+        cluster_colors=colors_config["clusters"],
+    script: "scripts/plot_chromosome_proportions_by_cell_type.py"
+
+
     input: 
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
