@@ -21,7 +21,6 @@ TAG = config["tag"]
 
 LIT_GENES = read_config("../config/literature_genes.yaml")
 PTRAP_GENES = read_config("../config/ptrap_genes.yaml")
-COLORS = yaml.full_load(open("../config/colors.yaml"))
 
 FBGN2SYMBOL = (
     pd.read_feather("../references/gene_annotation_dmel_r6-26.feather", columns=["FBgn", "gene_symbol"])
@@ -129,7 +128,7 @@ rule fig1:
 ################################################################################
 rule plot_cluster_legend:
     params:
-        cluster_colors=COLORS["clusters"],
+        cluster_colors=colors_config["clusters"],
         legend_names=config["legend_names"]
     output: "../output/paper_submission/figures/cluster-legend.svg"
     script: "scripts/plot_cluster_legend.py"
@@ -224,7 +223,7 @@ rule plot_tau_and_tsps_distributions_by_cell_type:
         tsps="../output/expression-atlas-wf/dmel_tsps.feather",
         clusters="../output/seurat3-cluster-wf/raw_by_cluster.feather",
     params:
-        colors=COLORS["clusters"],
+        colors=colors_config["clusters"],
         order=config['cluster_order'],
         names=config["cluster_names"],
     output: "../output/paper_submission/figures/tau_tsps_distributions_by_cell_type.svg"
@@ -257,7 +256,7 @@ rule plot_total_expression_by_cell_type:
         _=rules.stats_gene_sets_total_expression_by_cell_type.output[0]
     output: "../output/paper_submission/figures/total_expression_by_cell_type.svg"
     params:
-        colors=COLORS["clusters"],
+        colors=colors_config["clusters"],
         order=config['cluster_order'],
         names=config["cluster_names"],
     script: "scripts/plot_total_expression_by_cell_type.py"
@@ -356,7 +355,7 @@ rule plot_autosome_ratios:
         expressed_ratios="../output/x-to-a-wf/db/expressed.dat",
         widely_expressed_ratios="../output/x-to-a-wf/db/commonly_expressed.dat",
     params:
-          cluster_color=COLORS["clusters"],
+          cluster_color=colors_config["clusters"],
           cluster_order=config['cluster_order'],
     output: "../output/paper_submission/figures/autosome_ratios.svg"
     script: "scripts/plot_autosome_ratios.py"
