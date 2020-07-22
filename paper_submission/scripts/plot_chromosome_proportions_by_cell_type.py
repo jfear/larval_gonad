@@ -9,10 +9,19 @@ import larval_gonad.plotting  # pylint: disable=unused-import
 
 plt.style.use("minimal")
 
-COLORS = {
-    k: v
-    for k, v in zip(snakemake.params.cluster_order, snakemake.params.cluster_colors)
-}
+BOXPLOT_KWS = dict(showfliers=False, notch=True, order=snakemake.params.chrom_order)
+FACET_KWS = dict(
+    row="gene_set",
+    col="cluster",
+    hue="cluster",
+    palette=snakemake.params.cluster_colors,
+    row_order=["All Expressed", "Tau", "TSPS", "Widely Expressed"],
+    col_order=snakemake.params.cluster_order,
+    sharex=True,
+    sharey="row",
+    margin_titles=True,
+    height=1.5
+)
 
 
 def main():
@@ -27,29 +36,14 @@ def main():
         ignore_index=True,
     ).merge(pd.read_feather(snakemake.input.clusters), on="cell_id")
 
-    g = sns.FacetGrid(
-        df,
-        row="gene_set",
-        row_order=["All Expressed", "Tau", "TSPS", "Widely Expressed"],
-        col="cluster",
-        col_order=snakemake.params.cluster_order,
-        hue="cluster",
-        sharex=True,
-        sharey="row",
-    )
-    g.map(
-        boxplot,
-        "chrom",
-        "scaled_prop_reads",
-        showfliers=False,
-        notch=True,
-        order=snakemake.params.chrom_order,
-    )
-    g.set_titles("{row_name}:{col_name}")
+    g = sns.FacetGrid(df, **FACET_KWS)
+    g.map(boxplot, "chrom", "scaled_prop_reads", **BOXPLOT_KWS)
+
+    g.set_titles(row_template="{row_name}", col_template="{col_name}")
     g.set_xlabels("")
-    g.set_ylabels("")
-    tweak(g)
-    plt.subplots_adjust(hspace=0.1, wspace=0.1)
+    g.set_ylabels("Proportion Reads\n# Expressed Genes")
+    g.despine(left=True)
+    plt.subplots_adjust(hspace=0, wspace=0.05)
 
     g.savefig(snakemake.output[0])
 
@@ -59,30 +53,8 @@ def load_data(file_name: str, name: str):
 
 
 def boxplot(x, y, **kwargs):
-    _ = kwargs.pop("color")
-    label = kwargs.pop("label")
-    sns.boxplot(x, y, color=COLORS[label], **kwargs)
-
-
-def tweak(g: sns.FacetGrid):
-    # Label Y-axis based on row
-    for ax in g.axes[:, 0]:
-        row, _ = ax.get_title().split(":")
-        if row == "Tau":
-            row = r"$\tau$"
-        ax.set_ylabel(f"{row}\nScaled Proportion Reads")
-
-    # Change titles on top row
-    for ax in g.axes[0, :]:
-        _, col = ax.get_title().split(":")
-        title = snakemake.params.cluster_names[col]
-        ax.set_title(title, fontdict=dict(fontsize=14, fontweight="bold"))
-
-    # Remove titles everywhere else
-    for ax in g.axes[1:, :].flat:
-        ax.set_title("")
-
-    return g
+    _ = kwargs.pop("label")
+    sns.boxplot(x, y, **kwargs)
 
 
 if __name__ == "__main__":
