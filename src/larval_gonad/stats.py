@@ -196,6 +196,7 @@ class PairwisePermutationTest:
                 )
             )
             .assign(padj_value=lambda x: multipletests(x.p_value, method="fdr_bh")[1])
+            .sort_values(["name1", "name2"])
         )
 
 
