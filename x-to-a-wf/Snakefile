@@ -21,7 +21,7 @@ TAG = config['tag']
 color_config = read_config("../config/colors.yaml")
 
 
-rule targets:
+rule all:
     input:
         expand(
             '../output/x-to-a-wf/db/{fbgns}.dat',
@@ -31,6 +31,10 @@ rule targets:
             "../output/x-to-a-wf/figures/boxplot.{fbgns}.{ratio_type}.svg",
             fbgns=config['gene_subsets'],
             ratio_type=config['ratio_types']
+        ),
+        expand(
+            "../output/x-to-a-wf/stats_pairwise_permutation_test_autosome_ratios_{fbgns}.tsv",
+            fbgns=config['gene_subsets'],
         ),
 
 
@@ -99,6 +103,14 @@ rule shelve_results:
         '../output/x-to-a-wf/db/{fbgns}.bak'
     script: 'scripts/shelve_results.py'
 
+
+rule pariwise_permutation_test_autosome_ratios:
+    input: rules.autosome_ratios_by_cell.output[0]
+    output: "../output/x-to-a-wf/stats_pairwise_permutation_test_autosome_ratios_{fbgns}.tsv"
+    threads: 20
+    params:
+        cluster_order=config["cluster_order"]
+    script: "scripts/pairwise_permutation_test_autosome_ratios.py"
 
 ################################################################################
 # Plots
