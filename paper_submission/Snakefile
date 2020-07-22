@@ -63,6 +63,7 @@ rule all:
 # Figure 1 (Alternative): Chromosome Expression By Tissue
 ################################################################################
 rule chrom_expression_by_tissue_data:
+    """Wrangle bulk data into a single table."""
     input: 
         gene_annot=f"../references/gene_annotation_{ASSEMBLY}_{TAG}.feather",
         w1118="../output/expression-atlas-wf/w1118_gene_counts.feather",
@@ -73,23 +74,26 @@ rule chrom_expression_by_tissue_data:
 
 
 rule chrom_expression_by_tissue_stats:
+    """Statistics comparing chromosomes for each bulk tissue."""
     input: rules.chrom_expression_by_tissue_data.output[0]
     output: "../output/paper_submission/chrom_expression_by_tissue_stats.tsv"
     script: "scripts/chrom_expression_by_tissue_stats.py"
 
 
 rule chrom_expression_by_tissue:
+    """Bar plot showing male/female expression by tissue by chromosome."""
     input: 
         rules.chrom_expression_by_tissue_data.output[0],
         rules.chrom_expression_by_tissue_stats.output[0]
     output: "../output/paper_submission/figures/chrom_expression_by_tissue.svg"
-    params: colors=COLORS
+    params: colors=colors_config
     script: "scripts/chrom_expression_by_tissue.py"
 
 ################################################################################
 # Figure 1 (Current): Sex Biased Expression By Chromosome
 ################################################################################
 rule sex_biased_expression_by_tissue_data:
+    """Wrangle sex-basied expression table for bulk RNA-seq."""
     input: 
         adult="../output/expression-atlas-wf/dmel_sex_biased_expression.feather",
         larval="../output/bulk-rnaseq-wf/deg/bulk_testis_vs_ovary.tsv",
@@ -109,6 +113,7 @@ rule stats_sex_biased_expression_by_tissue:
 
 
 rule plot_sex_biased_expression_by_tissue:
+    """Stacked bar graphs of sex-biased expression by tissue and chromosome element."""
     input: 
         data=rules.sex_biased_expression_by_tissue_data.output[0],
         stats=rules.stats_sex_biased_expression_by_tissue.output.filtered_stats,
@@ -127,6 +132,7 @@ rule fig1:
 # Figure 2: scRNA-Seq intro, cluster, and annotate
 ################################################################################
 rule plot_cluster_legend:
+    """Outputs the legend with full cluster names."""
     params:
         cluster_colors=colors_config["clusters"],
         legend_names=config["legend_names"]
@@ -135,6 +141,7 @@ rule plot_cluster_legend:
 
 
 rule plot_gene_umap:
+    """Z-Score UMAP projections for selected set of genes."""
     input:
         gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
         zscores="../output/seurat3-cluster-wf/zscore_by_cell.feather",
@@ -144,6 +151,7 @@ rule plot_gene_umap:
 
 
 rule plot_gene_expression_pattern:
+    """Bar graph showing gene expression by cluster."""
     input:
         gene_annot=f"../references/gene_annotation_dmel_{TAG}.feather",
         clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
@@ -159,7 +167,7 @@ rule plot_gene_expression_pattern:
 
 rule fig2:
     """Figure 2 parts"""
-    input: 
+    input:
         rules.plot_cluster_legend.output[0],
         rules.plot_gene_umap.output[0],
         rules.plot_gene_expression_pattern.output[0],
@@ -169,7 +177,9 @@ rule fig2:
 ################################################################################
 # Figure 3: Cell Type Level Expression
 ################################################################################
+# Compare Bulk vs Single-Cell
 rule plot_bulk_vs_sum_scrnaseq:
+    """A simple correlation plot of bulk RNA-seq vs scRNA-seq."""
     input:
         bulk="../output/bulk-rnaseq-wf/rnaseq_aggregation/gene_level_counts.tsv",
         sc="../output/cellselection-wf/raw.feather",
@@ -180,6 +190,7 @@ rule plot_bulk_vs_sum_scrnaseq:
 
 
 rule gsea_by_cell_type:
+    """Run testis-biased gene set enrichment analysis by cell-type."""
     input:
         sc="../output/cellselection-wf/raw.feather",
         clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
@@ -216,6 +227,7 @@ rule plot_gsea_by_cell_type:
 
 # Compare total expression with different gene sets
 rule plot_tau_and_tsps_distributions_by_cell_type:
+    """Violin plot showing distribution of tau and tsps scores."""
     input:
         expressed_fbgns="../output/cellselection-wf/expressed_genes.pkl",
         widely_expressed_fbgns="../output/cellselection-wf/commonly_expressed_genes.pkl",
@@ -239,6 +251,7 @@ rule stats_gene_sets_total_expression_by_cell_type:
         tau_fbgns="../output/expression-atlas-wf/dmel_male_tau_fbgns.pkl",
         tsps_fbgns="../output/expression-atlas-wf/dmel_male_tsps_fbgns.pkl",
     output: "../output/paper_submission/stats_gene_sets_total_expression_by_cell_type.tsv"
+    threads: 20
     params:
         order=config['cluster_order'],
     script: "scripts/stats_gene_sets_total_expression_by_cell_type.py"
@@ -320,7 +333,7 @@ rule plot_chromosome_proportions_by_cell_type:
 
 # Chromosome locations of genes
 rule plot_chromosome_location_by_cell_type:
-    input: 
+    input:
         gene_annot="../references/gene_annotation_dmel_r6-26.feather",
         tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
     output: "../output/paper_submission/figures/chromosome_location_by_cell_type.svg"
@@ -336,7 +349,7 @@ rule plot_chromosome_location_by_cell_type:
 #
 rule fig3:
     """Figure 3 parts"""
-    input: 
+    input:
         rules.plot_bulk_vs_sum_scrnaseq.output[0],
         rules.plot_gsea_by_cell_type.output[0],
         rules.plot_total_expression_by_cell_type.output[0],
@@ -371,7 +384,7 @@ rule fig4:
 ################################################################################
 # Figure 5: Chromosome Spatial Localization
 ################################################################################
-rule chromosome_territory:
+rule plot_chromosome_territory:
     input:
         volume="../output/fish-wf/chrom_volume.svg",
         sphere="../output/fish-wf/sphericity.svg"
@@ -600,7 +613,7 @@ rule plot_lit_gene_evidence:
          lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
          zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
     output: "../output/paper_submission/figures/lit-gene-evidence.svg"
-    params: cmap=COLORS["heatmap"]
+    params: cmap=colors_config["heatmap"]
     script: "scripts/plot_lit_gene_evidence.py"
 
 
@@ -610,7 +623,7 @@ rule plot_lit_gene_evidence_soma:
          lit_evidence = '../data/external/miriam/lit_gene_dummy_vars.tsv',
          zscore_by_cluster_rep="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather"
     output: "../output/paper_submission/figures/lit-gene-evidence_soma.svg"
-    params: cmap=COLORS["heatmap"]
+    params: cmap=colors_config["heatmap"]
     script: "scripts/plot_lit_gene_evidence_soma.py"
 
 rule deg_to_tsv:
