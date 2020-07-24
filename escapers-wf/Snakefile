@@ -1,0 +1,24 @@
+from larval_gonad.config import read_config
+
+configfile: "../config/common.yaml"
+colors_config = read_config("../config/colors.yaml")
+
+rule all:
+    input: 
+        "../output/escapers-wf/heatmap_all_genes_by_chrom.svg",
+        "../output/escapers-wf/heatmap_escapers_by_chrom.svg",
+
+rule escaper_heatmap:
+    input:
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        raw="../output/seurat3-cluster-wf/raw_by_cluster.feather",
+        zscores="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+    output:
+        escapers_table="../output/escapers-wf/escapers_table.tsv",
+        escapers_summary="../output/escapers-wf/escapers_summary.tsv",
+        all_genes="../output/escapers-wf/heatmap_all_genes_by_chrom.svg",
+        escapers="../output/escapers-wf/heatmap_escapers_by_chrom.svg"
+    params:
+        color=colors_config["heatmap"],
+        chrom_order=config["chrom_order"],
+    script: "scripts/escaper_heatmap.py"
