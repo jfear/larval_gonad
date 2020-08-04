@@ -332,6 +332,40 @@ rule plot_total_expression_by_cell_type:
         names=config["cluster_names"],
     script: "scripts/plot_total_expression_by_cell_type.py"
 
+# Compare X:AA with different gene sets
+rule plot_x_to_a_by_cell_type:
+    """Boxplots of X:AA ratios by cell-type."""
+    input:
+        tau="../output/x-to-a-wf/autosome_ratios_tau_by_cell.feather",
+        tsps="../output/x-to-a-wf/autosome_ratios_tsps_by_cell.feather",
+        widely_expressed="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
+        tau_pvals="../output/x-to-a-wf/db/tau.dat",
+        tsps_pvals="../output/x-to-a-wf/db/tsps.dat",
+        widely_expressed_pvals="../output/x-to-a-wf/db/commonly_expressed.dat",
+    output: "../output/paper_submission/figures/x_to_a_by_cell_type.svg"
+    params:
+        colors=colors_config["clusters"],
+        order=config['cluster_order'],
+        names=config["cluster_names"],
+    script: "scripts/plot_x_to_a_by_cell_type.py"
+
+# Compare 44:AA with different gene sets
+rule plot_fourth_to_a_by_cell_type:
+    """Boxplots of X:AA ratios by cell-type."""
+    input:
+        tau="../output/x-to-a-wf/autosome_ratios_tau_by_cell.feather",
+        tsps="../output/x-to-a-wf/autosome_ratios_tsps_by_cell.feather",
+        widely_expressed="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
+        tau_pvals="../output/x-to-a-wf/db/tau.dat",
+        tsps_pvals="../output/x-to-a-wf/db/tsps.dat",
+        widely_expressed_pvals="../output/x-to-a-wf/db/commonly_expressed.dat",
+    output: "../output/paper_submission/figures/fourth_to_a_by_cell_type.svg"
+    params:
+        colors=colors_config["clusters"],
+        order=config['cluster_order'],
+        names=config["cluster_names"],
+    script: "scripts/plot_fourth_to_a_by_cell_type.py"
+
 
 # Compare chromosome level expression with different gene sets
 rule stats_chromosome_proportions_by_cell_type:
