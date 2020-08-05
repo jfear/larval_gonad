@@ -15,13 +15,15 @@ def main():
                 read_umap(),
                 read_ratios_all_genes(),
                 read_ratios_common_genes(),
+                read_gsea(),
             ],
             axis=1,
             sort=False,
         )
         .join(read_metadata(), how="inner")
         .assign(
-            is_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi) & (x.nFeature <= 5000)
+            is_cell_used_in_study=lambda x: (x.is_cell ^ x.scrublet_is_multi)
+            & (x.nFeature <= 5000)
         )
     )  # type: pd.DataFrame
 
@@ -40,6 +42,7 @@ def main():
             "cluster",
             "UMAP_1",
             "UMAP_2",
+            "male_bias_enrichment_score",
             "all_genes_x_to_a_ratio",
             "all_genes_fourth_to_a_ratio",
             "all_genes_y_to_a_ratio",
@@ -79,7 +82,13 @@ def read_cell_call(fname):
         .assign(scrublet_is_multi=False)
         .loc[
             :,
-            ["cell_id", "cellranger_is_cell", "droputils_is_cell", "is_cell", "scrublet_is_multi"],
+            [
+                "cell_id",
+                "cellranger_is_cell",
+                "droputils_is_cell",
+                "is_cell",
+                "scrublet_is_multi",
+            ],
         ]
         .set_index("cell_id")
     )
@@ -114,6 +123,15 @@ def read_ratios_common_genes():
     cols = [f"common_genes_{x}" for x in df.columns]
     df.columns = cols
     return df
+
+
+def read_gsea():
+    return (
+        pd.read_feather(snakemake.input.gsea)
+        .rename(columns={"index": "cell_id", "male": "male_bias_enrichment_score"})
+        .set_index("cell_id")
+        .drop("cluster", axis=1)
+    )
 
 
 if __name__ == "__main__":

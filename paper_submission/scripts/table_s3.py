@@ -56,7 +56,7 @@ if __name__ == "__main__":
                 corr_reps="../../output/paper_submission/spearman_corr_bulk_vs_sum_single_cell.tsv",
                 corr_clusters="../../output/paper_submission/spearman_corr_bulk_vs_single_cell_clusters.tsv",
             ),
-            output="../../output/paper_submission/TableS1.xlsx",
+            output="../../output/paper_submission/TableS3.xlsx",
         )
 
     main()
