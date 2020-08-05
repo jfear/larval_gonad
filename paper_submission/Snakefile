@@ -101,6 +101,11 @@ rule sex_biased_expression_by_tissue_data:
     output: "../output/paper_submission/sex_biased_expression_by_tissue.feather",
     script: "scripts/sex_biased_expression_by_tissue_data.py"
 
+rule sex_biased_expression_by_tissue_data_to_tsv:
+    input: rules.sex_biased_expression_by_tissue_data.output[0]
+    output: "../output/paper_submission/sex_biased_expression_by_tissue.tsv"
+    run:
+        pd.read_feather(input[0]).to_csv(output[0], sep="\t", index=False)
 
 rule stats_sex_biased_expression_by_tissue:
     """Runs chi-square tests for each tissue by chromosome element."""
@@ -110,6 +115,17 @@ rule stats_sex_biased_expression_by_tissue:
         filtered_stats="../output/paper_submission/stats_filtered_sex_biased_expression_by_tissue.tsv",
     params: chrom_order=config["chrom_order"]
     script: "scripts/stats_sex_biased_expression_by_tissue.py"
+
+
+rule stats_sex_biased_expression_overall_chisquare:
+    input: rules.stats_sex_biased_expression_by_tissue.output.filtered_stats
+    output: "../output/paper_submission/stats_sex_biased_expression_chisquare.tsv",
+    run:
+        (
+            pd.read_table(input[0])[["species", "tissue", "table_pval"]]
+            .drop_duplicates()
+            .to_csv(output[0], sep="\t", index=False)
+        )
 
 
 rule plot_sex_biased_expression_by_tissue:
@@ -490,9 +506,81 @@ rule fig6:
     input: rules.plot_polII.output[0]
     output: touch("../output/paper_submission/figures/fig6.done")
 
+####################################
+# Table S1: Sex-biased Expression
+####################################
+rule table_s1:
+    input: 
+        rules.sex_biased_expression_by_tissue_data_to_tsv.output[0],
+        rules.stats_sex_biased_expression_overall_chisquare.output[0],
+        rules.stats_sex_biased_expression_by_tissue.output.full_stats,
+    output: touch("../output/paper_submission/table_s1.done")
 
 ####################################
-# Table S1: bulk data
+# Table S2: Single-cell RNA-Seq Data
+####################################
+rule cell_metadata:
+    input: 
+        metadata="../output/cellselection-wf/cell_metadata.feather",
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        cell_calls=expand("../output/cellselection-wf/{sample}_combined_cell_calls.feather", sample=["testis1", "testis2", "testis3"]),
+        scrublets=expand("../output/cellselection-wf/{sample}_scrublet_dublets.txt", sample=["testis1", "testis2", "testis3"]),
+        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
+        autosome_ratios_all_genes="../output/x-to-a-wf/autosome_ratios_expressed_by_cell.feather",
+        autosome_ratios_commonly_expressed_genes="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
+    output: "../output/paper_submission/cell_metadata.tsv"
+    script: "scripts/cell_metadata_table.py"
+
+rule gene_metadata:
+    input: 
+        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
+        biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
+        raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
+        zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
+        tau="../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl",
+        tsps="../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl",
+    params: 
+        cluster_annot=config['cluster_annot'],
+        cluster_order=config['cluster_order'],
+    output: "../output/paper_submission/gene_metadata.tsv"
+    script: "scripts/gene_metadata_table.py"
+
+rule cluster_metadata:
+    input:
+        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
+        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
+    params:
+        cluster_annot=config["cluster_annot"],
+        cluster_order=config["cluster_order"],
+        legend_names=config["legend_names"],
+    output: "../output/paper_submission/cluster_metadata.tsv"
+    script: "scripts/cluster_metadata_table.py"
+
+rule biomarkers_to_tsv:
+    input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
+    output: "../output/paper_submission/one_vs_rest.tsv"
+    params: cluster_annot = config["cluster_annot"]
+    run:
+        (
+            pd.read_feather(input[0])
+            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
+            .set_index(["FBgn", "gene_symbol", "Chromosome"])
+            .assign(cluster=lambda x: x.cluster.map(lambda y: params.cluster_annot[y]))
+            .to_csv(output[0], sep="\t")
+        )
+
+rule table_s2:
+    input: 
+        cell=rules.cell_metadata.output[0],
+        gene=rules.gene_metadata.output[0],
+        cluster=rules.cluster_metadata.output[0],
+        biomarkers=rules.biomarkers_to_tsv.output[0],
+    output: "../output/paper_submission/TableS2.xlsx"
+    script: "scripts/table_s2.py"
+
+####################################
+# Table S3: bulk data
 ####################################
 ## Normalized Data (L3 Testis, L3 Ovary, Adult Testis, Adult Ovary)
 ## Correlation (Bulk vs Single-Cell)
@@ -559,83 +647,19 @@ rule spearman_corr_bulk_vs_single_cell_clusters:
     script: "scripts/correlation_table_bulk_vs_single_cell_clusters.py"
 
 
-rule table_s1:
+rule table_s3:
     input:
         larval=rules.larval_bulk_gene_level.output[0],
         adult=rules.adult_bulk_gene_level.output[0],
         corr_reps=rules.spearman_corr_bulk_vs_sum_single_cell.output[0],
         corr_clusters=rules.spearman_corr_bulk_vs_single_cell_clusters.output[0]
-    output: "../output/paper_submission/TableS1.xlsx"
+    output: "../output/paper_submission/TableS3.xlsx"
     params:
         cluster_order=config["cluster_order"]
-    script: "scripts/table_s1.py"
+    script: "scripts/table_s3.py"
 
 ####################################
-# Table S2: Single-cell RNA-Seq Data
-####################################
-rule cell_metadata:
-    input: 
-        metadata="../output/cellselection-wf/cell_metadata.feather",
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        cell_calls=expand("../output/cellselection-wf/{sample}_combined_cell_calls.feather", sample=["testis1", "testis2", "testis3"]),
-        scrublets=expand("../output/cellselection-wf/{sample}_scrublet_dublets.txt", sample=["testis1", "testis2", "testis3"]),
-        umap="../output/seurat3-cluster-wf/combined_n3_umap.feather",
-        autosome_ratios_all_genes="../output/x-to-a-wf/autosome_ratios_expressed_by_cell.feather",
-        autosome_ratios_commonly_expressed_genes="../output/x-to-a-wf/autosome_ratios_commonly_expressed_by_cell.feather",
-    output: "../output/paper_submission/cell_metadata.tsv"
-    script: "scripts/cell_metadata_table.py"
-
-rule gene_metadata:
-    input: 
-        gene_annot="../references/gene_annotation_dmel_r6-26.feather",
-        biomarkers="../output/seurat3-cluster-wf/combined_n3_biomarkers.feather",
-        raw="../output/seurat3-cluster-wf/raw_by_cluster_rep.feather",
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster_rep.feather",
-        zscore="../output/seurat3-cluster-wf/zscore_by_cluster_rep.feather",
-        tau="../output/expression-atlas-wf/tau_housekeeping/male_fbgns.pkl",
-        tsps="../output/expression-atlas-wf/tsps_housekeeping/male_fbgns.pkl",
-    params: 
-        cluster_annot=config['cluster_annot'],
-        cluster_order=config['cluster_order'],
-    output: "../output/paper_submission/gene_metadata.tsv"
-    script: "scripts/gene_metadata_table.py"
-
-rule cluster_metadata:
-    input:
-        clusters="../output/seurat3-cluster-wf/combined_n3_clusters.feather",
-        tpm="../output/seurat3-cluster-wf/tpm_by_cluster.feather",
-    params:
-        cluster_annot=config["cluster_annot"],
-        cluster_order=config["cluster_order"],
-        legend_names=config["legend_names"],
-    output: "../output/paper_submission/cluster_metadata.tsv"
-    script: "scripts/cluster_metadata_table.py"
-
-rule biomarkers_to_tsv:
-    input: "../output/seurat3-cluster-wf/combined_n3_biomarkers.feather"
-    output: "../output/paper_submission/one_vs_rest.tsv"
-    params: cluster_annot = config["cluster_annot"]
-    run:
-        (
-            pd.read_feather(input[0])
-            .merge(FBGN2CHROM, on=["FBgn", "gene_symbol"], how="left")
-            .set_index(["FBgn", "gene_symbol", "Chromosome"])
-            .assign(cluster=lambda x: x.cluster.map(lambda y: params.cluster_annot[y]))
-            .to_csv(output[0], sep="\t")
-        )
-
-rule table_s2:
-    input: 
-        cell=rules.cell_metadata.output[0],
-        gene=rules.gene_metadata.output[0],
-        cluster=rules.cluster_metadata.output[0],
-        biomarkers=rules.biomarkers_to_tsv.output[0],
-    output: "../output/paper_submission/TableS2.xlsx"
-    script: "scripts/table_s2.py"
-
-
-####################################
-# Table S3: Literature Genes
+# Table S4: Literature Genes
 ####################################
 # This is done by hand
 
