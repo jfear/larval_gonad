@@ -218,6 +218,13 @@ rule gsea_by_cell_type:
     script: "scripts/gsea_by_cell_type.py"
 
 
+rule gsea_by_cell_type_to_tsv:
+    input: rules.gsea_by_cell_type.output[0]
+    output: "../output/paper_submission/gsea_by_cell_type.tsv",
+    run:
+        pd.read_feather(input[0]).to_csv(output[0], sep="\t", index=False)
+
+
 rule stats_gsea_pairwise_comparisons_of_cell_types:
     """Permutation test for all pairwise cell-type comparisons."""
     input: rules.gsea_by_cell_type.output[0]
@@ -511,6 +518,8 @@ rule fig6:
 ####################################
 rule table_s1:
     input: 
+        rules.gsea_by_cell_type_to_tsv.output[0],
+        rules.stats_gsea_pairwise_comparisons_of_cell_types.output[0],
         rules.sex_biased_expression_by_tissue_data_to_tsv.output[0],
         rules.stats_sex_biased_expression_overall_chisquare.output[0],
         rules.stats_sex_biased_expression_by_tissue.output.full_stats,
